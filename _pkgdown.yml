@@ -1,0 +1,14 @@
+
+template:
+  bootstrap: 5
+  bootswatch: cerulean
+
+reference:
+  - title: Modules
+  - desc: Main functions to call the modules
+  - contents: 
+    - has_keyword("main")
+  - title: Mock Applications
+  - contents: 
+    - has_keyword("mock") 
+  
