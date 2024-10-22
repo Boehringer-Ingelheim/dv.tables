@@ -34,11 +34,8 @@ jobs:
           if git ls-remote --heads origin "$branch_name" | grep "$branch_name"; then
             echo "Branch already exists: $branch_name"
             branch_text="A branch named \`$branch_name\` was already present in the repository."            
-          else
-            git checkout -b "$branch_name"
-            git push origin "$branch_name"            
-            echo "Creating branch: $branch_name"
-            branch_text="A new branch named \`$branch_name\` has been created.\n"            
+          else            
+            branch_text="A new branch named \`$branch_name\` should created for your PR.\n"            
           fi
           
           echo "Creating PR link"          
