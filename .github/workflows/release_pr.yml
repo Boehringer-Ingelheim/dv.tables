@@ -30,17 +30,8 @@ jobs:
 
           branch_name="rc/$version"
           
-          # Check if the branch exists on the remote
-          if git ls-remote --heads origin "$branch_name" | grep "$branch_name"; then
-            echo "Branch already exists: $branch_name"
-            branch_text="A branch named \`$branch_name\` was already present in the repository."            
-          else
-            git checkout -b "$branch_name"
-            git push origin "$branch_name"            
-            echo "Creating branch: $branch_name"
-            branch_text="A new branch named \`$branch_name\` has been created.\n"            
-          fi
-          
+          branch_text="A new branch named \`$branch_name\` should created for your PR.\n"            
+                    
           echo "Creating PR link"          
           title=$(echo ${{ github.event.issue.title }} | jq -sRr @uri)
           pr_url_text="https://github.com/${{github.repository}}/compare/main...${branch_name}?quick_pull=1&template=pull_request_template.md&title=${title}&labels=release"
