@@ -1,6 +1,6 @@
 # nolint start
 spewcs <- list()
-specs[["event_count"]] <- list(
+specs[["hierarchical_count_table"]] <- list(
   "event_count_display" = "The event count module displays event counts grouped by selected hierarchy and population grouping variables. It calculates the number of unique subjects within each group and hierarchy level.",
   "events_table_display" = "A table will be displayed, showing the event counts and the percentage of subjects that meet the criteria for each combination of hierarchy and group variable.",
   "cell_interactivity" = "Each cell in the table supports interactivity. Clicking a cell triggers an action that gives access to the the list of subjects included in the cell.",

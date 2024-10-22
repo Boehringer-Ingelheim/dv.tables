@@ -234,7 +234,7 @@
         </table>
       </div>
 
-# counting is correct, sorting, against (snapshot)__spec_ids{event_count$event_count;event_count$event_count_display;event_count$sorted_table_display}
+# counting is correct, sorting, against (snapshot)__spec_ids{hierarchical_count_table$hierarchical_count_tablel_count_tablel_count_tablel_count_tablel_count_table;hierarchical_count_table$hierarchical_count_table_display;hierarchical_count_table$sorted_table_display}
 
     Code
       x
@@ -274,7 +274,7 @@
       
       
 
-# filtering is correct, agains (snapshot)__spec_ids{event_count$minimum_percentage_filter}
+# filtering is correct, agains (snapshot)__spec_ids{hierarchical_count_table$minimum_percentage_filter}
 
     Code
       w
@@ -310,7 +310,7 @@
       
       
 
-# a count table is displayed__spec_ids{event_count$events_table_display}
+# a count table is displayed__spec_ids{hierarchical_count_table$events_table_display}
 
     Code
       tb
@@ -2551,7 +2551,7 @@
         </table>
       </div>
 
-# cells can be clicked and the id of participants is returned__spec_ids{event_count$cell_interactivity}
+# cells can be clicked and the id of participants is returned__spec_ids{hierarchical_count_table$cell_interactivity}
 
     Code
       res

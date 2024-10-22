@@ -11,7 +11,8 @@ pivot_wide_format_events_table(d, min_percent)
 A list returned from \code{compute_events_table()} containing the event data and metadata.}
 
 \item{min_percent}{\code{numeric}
-The minimum percentage threshold for filtering events. Rows where the percentage of subjects is below this threshold will be removed from the output.}
+The minimum percentage threshold for filtering events. Rows where the percentage of subjects is below this threshold
+will be removed from the output.}
 }
 \value{
 A list containing:

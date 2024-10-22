@@ -15,7 +15,8 @@ compute_events_table(
 }
 \arguments{
 \item{event_df}{\code{data.frame}
-A data frame containing the event data. It should have columns corresponding to subjects, hierarchy levels, and group variables.}
+A data frame containing the event data. It should have columns corresponding to subjects,
+hierarchy levels, and group variables.}
 
 \item{pop_df}{\code{data.frame}
 A data frame containing the population data. It must have columns corresponding to subjects and group variables.}
@@ -27,7 +28,8 @@ A character vector of column names from \code{event_df} to use as the hierarchy.
 A string representing the column name in \code{pop_df} used for grouping the population data.}
 
 \item{subjid_var}{\code{character(1)}
-A string representing the subject identifier column name. This column must be present in both \code{event_df} and \code{pop_df}.}
+A string representing the subject identifier column name. This column must be present in both \code{event_df} and
+\code{pop_df}.}
 
 \item{.special_char}{\code{character(1)}
 A special character used internally for naming and processing hierarchy levels. Default is \code{"\\u001D"}.

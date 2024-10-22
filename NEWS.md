@@ -1,3 +1,3 @@
 # dv.tables 0.0.1
 
-* event_count.
+* hierarchical_count_table.

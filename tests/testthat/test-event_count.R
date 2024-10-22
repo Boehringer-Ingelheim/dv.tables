@@ -40,13 +40,13 @@ local({
 
   test_that("counting is correct, sorting, against (snapshot)" |>
     vdoc[["add_spec"]](
-      c(specs$event_count$event_count, specs$event_count$event_count_display, specs$event_count$sorted_table_display)
+      c(specs$hierarchical_count_table$hierarchical_count_table, specs$hierarchical_count_table$hierarchical_count_table_display, specs$hierarchical_count_table$sorted_table_display)
     ), {
     expect_snapshot(x)
   })
 
   test_that("filtering is correct, agains (snapshot)" |>
-    vdoc[["add_spec"]](c(specs$event_count$minimum_percentage_filter)), {
+    vdoc[["add_spec"]](c(specs$hierarchical_count_table$minimum_percentage_filter)), {
     w <- pivot_wide_format_events_table(x, 50)
     expect_snapshot(w)
   })
@@ -66,7 +66,7 @@ local({
     )
   )
 
-  root_app <- start_app_driver(rlang::quo(dv.tables::mock_app_event_count()))
+  root_app <- start_app_driver(rlang::quo(dv.tables::mock_app_hierarchical_count_table()))
   on.exit(if ("stop" %in% names(root_app)) root_app$stop())
 
   fail_if_app_not_started <- function() {
@@ -76,7 +76,7 @@ local({
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
   test_that("hierarchy levels can be selected" |>
-    vdoc[["add_spec"]](c(specs$event_count$hierarchy_selection)), {
+    vdoc[["add_spec"]](c(specs$hierarchical_count_table$hierarchy_selection)), {
     hierarchy <- c("AEBODSYS", "AETERM")
     app$set_inputs(!!ID$INPUT$HIERARCHY := hierarchy) # nolint
     expect_identical(
@@ -86,7 +86,7 @@ local({
   })
 
   test_that("group variables can be selected" |>
-    vdoc[["add_spec"]](c(specs$event_count$group_selection)), {
+    vdoc[["add_spec"]](c(specs$hierarchical_count_table$group_selection)), {
     group <- c("SEX")
     app$set_inputs(!!ID$INPUT$GRP := group) # nolint
     expect_identical(
@@ -96,13 +96,13 @@ local({
   })
 
   test_that("a count table is displayed" |>
-    vdoc[["add_spec"]](c(specs$event_count$events_table_display)), {
+    vdoc[["add_spec"]](c(specs$hierarchical_count_table$events_table_display)), {
     tb <- app$get_values(output = TRUE)[["output"]][[ID$OUTPUT$TABLE]][["html"]]
     expect_snapshot(tb)
   })
 
   test_that("cells can be clicked and the id of participants is returned" |>
-    vdoc[["add_spec"]](c(specs$event_count$cell_interactivity)), {
+    vdoc[["add_spec"]](c(specs$hierarchical_count_table$cell_interactivity)), {
     app$run_js("document.querySelector('#mod-table > div > table > tbody > tr.indent-0 > td:nth-child(2)').click();")
     res <- shiny::isolate(app$get_values(export = TRUE)[["export"]][[tns("res")]]())
     expect_snapshot(res)

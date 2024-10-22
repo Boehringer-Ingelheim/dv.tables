@@ -409,14 +409,14 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
     ),
     table(
       class = "table event-count",
-      event_count_dep(),
+      hierarchical_count_table_dep(),
       header_row,
       !!!body
     )
   )
 }
 
-#' @describeIn mod_event_count UI
+#' @describeIn mod_hierarchical_count_table UI
 #' UI for the event count module
 #'
 #' @param id `character(0)`
@@ -425,7 +425,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @return A `shiny::tagList` containing the user interface for selecting hierarchy, group,
 #' and minimum percentage for event counting.
 #' @export
-event_count_ui <- function(id) {
+hierarchical_count_table_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
     shiny::div(
@@ -437,7 +437,7 @@ event_count_ui <- function(id) {
   )
 }
 
-#' @describeIn mod_event_count server
+#' @describeIn mod_hierarchical_count_table server
 #' Server logic for the event count module
 #'
 #' @param id `character(0)`
@@ -464,7 +464,7 @@ event_count_ui <- function(id) {
 #' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
 #'
 #' @export
-event_count_server <- function(
+hierarchical_count_table_server <- function(
     id,
     table_dataset,
     pop_dataset,
@@ -607,7 +607,7 @@ event_count_server <- function(
 #' @keywords main
 #'
 #' @export
-mod_event_count <- function(module_id,
+mod_hierarchical_count_table <- function(module_id,
                             table_dataset_name,
                             pop_dataset_name,
                             subjid_var = "USUBJID",
@@ -635,7 +635,7 @@ mod_event_count <- function(module_id,
   }
 
   mod <- list(
-    ui = event_count_ui,
+    ui = hierarchical_count_table_ui,
     server = function(afmm) {
       if (is.null(receiver_id)) {
         on_sbj_click_fun <- function() NULL
@@ -646,7 +646,7 @@ mod_event_count <- function(module_id,
       }
 
       server_wrapper_func(
-        event_count_server(
+        hierarchical_count_table_server(
           id = module_id,
           table_dataset = dv.manager::mm_resolve_dispatcher(table_dataset_disp, afmm, flatten = TRUE),
           pop_dataset = dv.manager::mm_resolve_dispatcher(pop_dataset_disp, afmm, flatten = TRUE),
@@ -668,7 +668,7 @@ mod_event_count <- function(module_id,
 #' @param ui_defaults,srv_defaults a list of values passed to the ui/server function
 #' @export
 
-mock_app_event_count <- function(
+mock_app_hierarchical_count_table <- function(
     dry_run = FALSE,
     update_query_string = TRUE,
     srv_defaults = list(),
@@ -704,9 +704,9 @@ mock_app_event_count <- function(
 
   mock_app_wrap(
     update_query_string = update_query_string,
-    ui = function() do.call(event_count_ui, ui_params),
+    ui = function() do.call(hierarchical_count_table_ui, ui_params),
     server = function() {
-      do.call(event_count_server, srv_params)
+      do.call(hierarchical_count_table_server, srv_params)
     }
   )
 }
@@ -714,7 +714,7 @@ mock_app_event_count <- function(
 #' Mock hierarchy table app in dv.manager
 #' @keywords mock
 #' @export
-mock_app_event_count_mm <- function() {
+mock_app_hierarchical_count_table_mm <- function() {
   if (!requireNamespace("dv.manager")) {
     stop("Install dv.manager")
   }
@@ -739,8 +739,8 @@ mock_app_event_count_mm <- function() {
       dummy = list(adae = pharmaverseadam::adae |> chr2factor(), adsl = pharmaverseadam::adsl |> chr2factor())
     ),
     module_list = list(
-      "ADAE by term" = mod_event_count(
-        "event_count",
+      "ADAE by term" = mod_hierarchical_count_table(
+        "hierarchical_count_table",
         table_dataset_disp = dv.manager::mm_dispatch("filtered_dataset", "adae"),
         pop_dataset_disp = dv.manager::mm_dispatch("filtered_dataset", "adsl"),
         show_modal_on_click = TRUE,
@@ -755,12 +755,12 @@ mock_app_event_count_mm <- function() {
 }
 
 #' @keywords internal
-event_count_dep <- function() {
+hierarchical_count_table_dep <- function() {
   htmltools::htmlDependency(
-    name = "event_count",
+    name = "hierarchical_count_table",
     version = "1.0",
     src = system.file("assets", package = "dv.tables", mustWork = TRUE),
-    stylesheet = "css/event_count.css",
-    script = "js/event_count.js"
+    stylesheet = "css/hierarchical_count_table.css",
+    script = "js/hierarchical_count_table.js"
   )
 }
