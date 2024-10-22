@@ -27,13 +27,6 @@ local({
 
   html <- sort_wide_format_event_table_to_HTML(sw)
 
-  test_that("snapshots for development", {
-    testthat::expect_snapshot(x)
-    testthat::expect_snapshot(w)
-    testthat::expect_snapshot(sw)
-    testthat::expect_snapshot(html)
-  })
-
   # Testing is done in a simpler way at the end of the count and sorting
   # We will test against an snapshot that we have checked is correct
 
@@ -42,7 +35,8 @@ local({
       c(
         specs$hierarchical_count_table$event_count,
         specs$hierarchical_count_table$event_count_display,
-        specs$hierarchical_count_table$sorted_table_display
+        specs$hierarchical_count_table$sorted_table_display,
+        specs$hierarchical_count_table$total_column_display
       )
     ), {
     expect_snapshot(x)
