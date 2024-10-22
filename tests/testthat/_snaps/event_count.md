@@ -234,7 +234,7 @@
         </table>
       </div>
 
-# counting is correct, sorting, against (snapshot)__spec_ids{hierarchical_count_table$hierarchical_count_tablel_count_tablel_count_tablel_count_tablel_count_table;hierarchical_count_table$hierarchical_count_table_display;hierarchical_count_table$sorted_table_display}
+# counting is correct, sorting, against (snapshot)__spec_ids{hierarchical_count_table$event_count;hierarchical_count_table$event_count_display;hierarchical_count_table$sorted_table_display}
 
     Code
       x

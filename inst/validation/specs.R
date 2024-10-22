@@ -1,5 +1,5 @@
 # nolint start
-spewcs <- list()
+specs <- list()
 specs[["hierarchical_count_table"]] <- list(
   "event_count_display" = "The event count module displays event counts grouped by selected hierarchy and population grouping variables. It calculates the number of unique subjects within each group and hierarchy level.",
   "events_table_display" = "A table will be displayed, showing the event counts and the percentage of subjects that meet the criteria for each combination of hierarchy and group variable.",
@@ -11,5 +11,6 @@ specs[["hierarchical_count_table"]] <- list(
   "total_column_display" = "The app includes a 'Total' column in the event table, which shows the total event count for all groups combined.",
   "sorted_table_display" = "The event table is sorted by the highest number of subjects with an event within each hierarchy level. The overall hierarchy is ranked based on the highest event counts."
 )
+
 specs
 # nolint end

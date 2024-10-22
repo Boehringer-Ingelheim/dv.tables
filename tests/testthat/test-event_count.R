@@ -37,10 +37,9 @@ local({
   # Testing is done in a simpler way at the end of the count and sorting
   # We will test against an snapshot that we have checked is correct
 
-
   test_that("counting is correct, sorting, against (snapshot)" |>
     vdoc[["add_spec"]](
-      c(specs$hierarchical_count_table$hierarchical_count_table, specs$hierarchical_count_table$hierarchical_count_table_display, specs$hierarchical_count_table$sorted_table_display)
+      c(specs$hierarchical_count_table$event_count, specs$hierarchical_count_table$event_count_display, specs$hierarchical_count_table$sorted_table_display)
     ), {
     expect_snapshot(x)
   })
@@ -72,6 +71,11 @@ local({
   fail_if_app_not_started <- function() {
     if (is.null(root_app)) rlang::abort("App could not be started")
   }
+
+  fail_if_app_not_started()
+  skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
+  skip_if_suspect_check <- function() testthat::skip_if(suspect_check, message = "Suspected check")
+
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
