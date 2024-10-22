@@ -465,6 +465,7 @@ hierarchical_count_table_ui <- function(id) {
 #'
 #' @export
 hierarchical_count_table_server <- function(
+    # nolint
     id,
     table_dataset,
     pop_dataset,
@@ -608,16 +609,16 @@ hierarchical_count_table_server <- function(
 #'
 #' @export
 mod_hierarchical_count_table <- function(module_id,
-                            table_dataset_name,
-                            pop_dataset_name,
-                            subjid_var = "USUBJID",
-                            show_modal_on_click = FALSE,
-                            default_hierarchy = NULL,
-                            default_group = NULL,
-                            table_dataset_disp,
-                            pop_dataset_disp,
-                            receiver_id = NULL,
-                            server_wrapper_func = identity) {
+                                         table_dataset_name,
+                                         pop_dataset_name,
+                                         subjid_var = "USUBJID",
+                                         show_modal_on_click = FALSE,
+                                         default_hierarchy = NULL,
+                                         default_group = NULL,
+                                         table_dataset_disp,
+                                         pop_dataset_disp,
+                                         receiver_id = NULL,
+                                         server_wrapper_func = identity) {
   if (!missing(table_dataset_name) && !missing(table_dataset_disp)) {
     rlang::abort("`table_dataset_name` and `table_dataset_disp` cannot be used at the same time, use one or the other")
   }
@@ -669,6 +670,7 @@ mod_hierarchical_count_table <- function(module_id,
 #' @export
 
 mock_app_hierarchical_count_table <- function(
+    # nolint
     dry_run = FALSE,
     update_query_string = TRUE,
     srv_defaults = list(),
@@ -714,7 +716,7 @@ mock_app_hierarchical_count_table <- function(
 #' Mock hierarchy table app in dv.manager
 #' @keywords mock
 #' @export
-mock_app_hierarchical_count_table_mm <- function() {
+mock_app_hierarchical_count_table_mm <- function() { # nolint
   if (!requireNamespace("dv.manager")) {
     stop("Install dv.manager")
   }

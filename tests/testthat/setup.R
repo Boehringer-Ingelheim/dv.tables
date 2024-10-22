@@ -60,27 +60,5 @@ start_app_driver <- function(expr) {
   root_app
 }
 
-# SVG EXPECTATION
-# When an error occurs over an r2d3 svg it is not neccesarily removed from the DOM but its visibility is hidden, therefore if we expect the graph
-# we expect that it is there, that it is visible and that there are no errors inside the container.
-expect_r2d3_svg <- function(app, query_list) {
-  purrr::walk(query_list, function(query) {
-    # Check there is an SVG
-    svg_vec <- rvest::read_html(app$get_js(query[["svg"]])) %>%
-      rvest::html_elements("svg")
-    expect_length(svg_vec, query[["n"]])
 
-    # Check that is visible
-    is_hidden <- rvest::read_html(app$get_html(query[["container"]])) %>%
-      rvest::html_element("div .r2d3") %>%
-      rvest::html_attr("style") %>%
-      stringr::str_detect("visibility: hidden;")
-    expect_false(is_hidden)
-
-    # Check that there is no error inside the div
-    error_vec <- rvest::read_html(app$get_html(query[["container"]])) %>%
-      rvest::html_element("div .shiny-output-error")
-    expect_length(error_vec, 0)
-  })
-}
 # nolint end

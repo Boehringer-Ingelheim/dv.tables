@@ -39,7 +39,11 @@ local({
 
   test_that("counting is correct, sorting, against (snapshot)" |>
     vdoc[["add_spec"]](
-      c(specs$hierarchical_count_table$event_count, specs$hierarchical_count_table$event_count_display, specs$hierarchical_count_table$sorted_table_display)
+      c(
+        specs$hierarchical_count_table$event_count,
+        specs$hierarchical_count_table$event_count_display,
+        specs$hierarchical_count_table$sorted_table_display
+      )
     ), {
     expect_snapshot(x)
   })
