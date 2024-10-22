@@ -464,8 +464,10 @@ hierarchical_count_table_ui <- function(id) {
 #' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
 #'
 #' @export
+#'
+# nolint start
 hierarchical_count_table_server <- function(
-    # nolint
+    # nolint end
     id,
     table_dataset,
     pop_dataset,
@@ -669,8 +671,9 @@ mod_hierarchical_count_table <- function(module_id,
 #' @param ui_defaults,srv_defaults a list of values passed to the ui/server function
 #' @export
 
+# nolint start
 mock_app_hierarchical_count_table <- function(
-    # nolint
+    # nolint end
     dry_run = FALSE,
     update_query_string = TRUE,
     srv_defaults = list(),
