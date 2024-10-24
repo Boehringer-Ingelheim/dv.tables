@@ -63,7 +63,7 @@ A set of menus allows to select a hierarchy, groupings and settings of the table
 
 A collapsable hierarchy table.
 
-# Creating a boxplot application
+# Creating a hierarchical count table application
 
 ```{r, eval=FALSE}
 requireNamespace("pharmaverseadam")

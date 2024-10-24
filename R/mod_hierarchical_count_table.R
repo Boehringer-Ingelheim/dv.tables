@@ -583,7 +583,7 @@ hierarchical_count_table_server <- function(
   )
 }
 
-#' Invoke boxplot module
+#' Invoke hierarchical_count_table module
 #'
 #' @param module_id `[character(1)]`
 #'
@@ -599,7 +599,7 @@ hierarchical_count_table_server <- function(
 #'
 #' @param receiver_id `character(1)`
 #'
-#' Name of the tab containing the receiver module. **This functionality is not ready yet** please
+#' **This functionality is not ready yet** please
 #' open an issue or contact the developers if you are interested in using it.
 #'
 #' @param server_wrapper_func `[function()]`
