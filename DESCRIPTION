@@ -6,7 +6,7 @@ Authors@R: c(
         person("Boehringer-Ingelheim Pharma GmbH & Co.KG", role = c("cph", "fnd")),
         person(given = "Luis", family = "Moris Fernandez", role = c("aut", "cre"), email = "luis.moris.fernandez@gmail.com")
         )
-Description: not-EBAS Modules.
+Description: Modules for table outputs
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
@@ -21,8 +21,5 @@ Imports: shiny (>= 1.7.1),dplyr (>= 1.0.7), purrr (>= 0.3.4),
         rlang, checkmate (>= 2.0.0), htmltools, 
         stats, pharmaverseadam
 Depends: R (>= 4.0)
-Date: Tue May 31 12:12:27 2022
-Branch: dev
-ParentCommit: 9edd5ae0b32a3c7afbcf7215187748f310087a8a
 VignetteBuilder: knitr
 Remotes: boehringer-ingelheim/dv.manager@v2.1.2
