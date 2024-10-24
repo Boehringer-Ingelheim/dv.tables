@@ -30,7 +30,7 @@ jobs:
 
           branch_name="rc/$version"
           
-          branch_text="A new branch named \`$branch_name\` should created for your PR.\n"            
+          branch_text="A new branch named \`$branch_name\` should be created for your PR."            
                     
           echo "Creating PR link"          
           title=$(echo ${{ github.event.issue.title }} | jq -sRr @uri)

@@ -1,0 +1,14 @@
+^\.Rproj\.user$
+^LICENSE$
+^README\.Rmd$
+^README\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+.lintr
+inst/validation/results/.gitempty
+^.*\.Rproj$
+local_lib
+local_test
+auto_app
+.github
