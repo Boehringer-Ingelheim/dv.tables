@@ -416,8 +416,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   )
 }
 
-#' @describeIn mod_hierarchical_count_table UI
-#' UI for the event count module
+#' @describeIn mod_hierarchical_count_table UI for the event count module
 #'
 #' @param id `character(0)`
 #' The ID for the event count module instance.
@@ -602,9 +601,9 @@ hierarchical_count_table_server <- function(
 #' **This functionality is not ready yet** please
 #' open an issue or contact the developers if you are interested in using it.
 #'
-#' @param server_wrapper_func `[function()]`
-#'
-#' A function that will be applied to the server
+# @param server_wrapper_func `[function()]`
+#
+# A function that will be applied to the server
 #'
 #'
 #' @keywords main
@@ -619,8 +618,9 @@ mod_hierarchical_count_table <- function(module_id,
                                          default_group = NULL,
                                          table_dataset_disp,
                                          pop_dataset_disp,
-                                         receiver_id = NULL,
-                                         server_wrapper_func = identity) {
+                                         receiver_id = NULL
+                                         #,server_wrapper_func = identity
+                                         ) {
   if (!missing(table_dataset_name) && !missing(table_dataset_disp)) {
     rlang::abort("`table_dataset_name` and `table_dataset_disp` cannot be used at the same time, use one or the other")
   }
