@@ -619,8 +619,8 @@ mod_hierarchical_count_table <- function(module_id,
                                          table_dataset_disp,
                                          pop_dataset_disp,
                                          receiver_id = NULL
-                                         #,server_wrapper_func = identity
-                                         ) {
+                                         # ,server_wrapper_func = identity # nolint
+) {
   if (!missing(table_dataset_name) && !missing(table_dataset_disp)) {
     rlang::abort("`table_dataset_name` and `table_dataset_disp` cannot be used at the same time, use one or the other")
   }
