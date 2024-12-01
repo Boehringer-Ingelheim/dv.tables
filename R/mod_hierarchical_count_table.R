@@ -332,7 +332,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   special_char <- d[["meta"]][["special_char"]]
   hierarchy <- d[["meta"]][["hierarchy"]]
   hier_lvl_col <- d[["meta"]][["hier_lvl_col"]]
-  group_var <- d[["meta"]][["group_var"]]   # nolint unused
+  group_var <- d[["meta"]][["group_var"]] # nolint unused
   row_id_col <- d[["meta"]][["row_id_col"]] # nolint unused
   n_denominator <- d[["meta"]][["n_denominator"]]
   df <- d[["df"]]
@@ -617,15 +617,14 @@ mod_hierarchical_count_table <- function(module_id,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
                                          receiver_id = NULL,
-                                         server_wrapper_func = identity
-) {
+                                         server_wrapper_func = identity) {
   mod <- list(
     ui = hierarchical_count_table_ui,
     server = function(afmm) {
       if (is.null(receiver_id)) {
-        on_sbj_click_fun <- function() NULL         # nolint unused
+        on_sbj_click_fun <- function() NULL # nolint unused
       } else {
-        on_sbj_click_fun <- function() {            # nolint unused
+        on_sbj_click_fun <- function() { # nolint unused
           afmm[["utils"]][["switch2"]](receiver_id)
         }
       }
@@ -676,8 +675,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, receiver_id, server_wrapper_func
-    ) {
+    default_hierarchy, default_group, receiver_id, server_wrapper_func) {
   warn <- CM$container()
   err <- CM$container()
 
@@ -685,7 +683,7 @@ check_mod_hierarchical_count_table <- function(
   # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), warn, err)
 
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
-    afmm, datasets, 
+    afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
     default_hierarchy, default_group, receiver_id, server_wrapper_func,
     warn, err
@@ -699,7 +697,7 @@ check_mod_hierarchical_count_table <- function(
       dataset <- datasets[[bm_dataset_name]]
       OK[["subjid_var"]] <- CM$assert(err, is.factor(dataset[[subjid_var]]), "Column referenced by `subjid_var` should be a factor.")
     }
- 
+
     if (OK[["subjid_var"]] && OK[["cat_var"]] && OK[["par_var"]] && OK[["visit_var"]]) {
       CM$check_unique_sub_cat_par_vis(
         datasets, "bm_dataset_name", bm_dataset_name,
