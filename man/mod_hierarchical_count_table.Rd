@@ -26,9 +26,8 @@ mod_hierarchical_count_table(
   show_modal_on_click = FALSE,
   default_hierarchy = NULL,
   default_group = NULL,
-  table_dataset_disp,
-  pop_dataset_disp,
-  receiver_id = NULL
+  receiver_id = NULL,
+  server_wrapper_func = identity
 )
 }
 \arguments{
@@ -61,14 +60,14 @@ Module Shiny id}
 
 Name of the dataset}
 
-\item{table_dataset_disp, pop_dataset_disp}{\verb{[mm_dispatcher(1)]}
-
-Dataset dispatcher. This parameter is incompatible with its *_dataset_name counterpart. Only for advanced use.}
-
 \item{receiver_id}{\code{character(1)}
 
 \strong{This functionality is not ready yet} please
 open an issue or contact the developers if you are interested in using it.}
+
+\item{table_dataset_disp, pop_dataset_disp}{\verb{[mm_dispatcher(1)]}
+
+Dataset dispatcher. This parameter is incompatible with its *_dataset_name counterpart. Only for advanced use.}
 }
 \value{
 A \code{shiny::tagList} containing the user interface for selecting hierarchy, group,
