@@ -236,7 +236,7 @@ pivot_wide_format_events_table <- function(d, min_percent) {
 
   special_char <- d[["meta"]][["special_char"]]
   hierarchy <- d[["meta"]][["hierarchy"]]
-  hier_lvl_col <- d[["meta"]][["hier_lvl_col"]]
+  hier_lvl_col <- d[["meta"]][["hier_lvl_col"]] # nolint unused
   group_var <- d[["meta"]][["group_var"]]
   df <- d[["df"]]
 
@@ -246,7 +246,7 @@ pivot_wide_format_events_table <- function(d, min_percent) {
   subjid <- purrr::map(events_table_format[["subjid"]], as.character)
   events_table_format[[cell_col]] <- purrr::map2(count, subjid, ~ list(count = .x, subjid = .y))
   events_table_format <- events_table_format[, c(hierarchy, group_var, cell_col), drop = FALSE]
-  rep <- list(count = "\u2014", subjid = character(0))
+  rep <- list(count = "\u2014", subjid = character(0)) # nolint false positive
 
   data_cols <- levels(events_table_format[[group_var]])
   wide_event <- tidyr::pivot_wider(
@@ -293,7 +293,7 @@ sort_wider_formatter_events_table <- function(event_d, sort_df) { # nolint
   hier_lvl_col <- event_d[["meta"]][["hier_lvl_col"]]
   event_df <- event_d[["df"]]
 
-  sort_names <- names(sort_df)
+  sort_names <- names(sort_df) # nolint unused
   rank_col <- paste0(special_char, "_rank_overall")
   join_cols <- c(
     hierarchy,
@@ -332,8 +332,8 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   special_char <- d[["meta"]][["special_char"]]
   hierarchy <- d[["meta"]][["hierarchy"]]
   hier_lvl_col <- d[["meta"]][["hier_lvl_col"]]
-  group_var <- d[["meta"]][["group_var"]]
-  row_id_col <- d[["meta"]][["row_id_col"]]
+  group_var <- d[["meta"]][["group_var"]]   # nolint unused
+  row_id_col <- d[["meta"]][["row_id_col"]] # nolint unused
   n_denominator <- d[["meta"]][["n_denominator"]]
   df <- d[["df"]]
 
@@ -344,7 +344,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   thc <- function(...) th(class = "text-center", ...)
   tr <- shiny::tags[["tr"]]
   td <- shiny::tags[["td"]]
-  tdc <- function(...) td(class = "text-center", ...)
+  tdc <- function(...) td(class = "text-center", ...) # nolint false positive unused
 
   df_names <- names(df)
   internal_columns <- df_names[startsWith(df_names, special_char)]
@@ -616,34 +616,16 @@ mod_hierarchical_count_table <- function(module_id,
                                          show_modal_on_click = FALSE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
-                                         table_dataset_disp,
-                                         pop_dataset_disp,
-                                         receiver_id = NULL
-                                         # ,server_wrapper_func = identity # nolint
+                                         receiver_id = NULL,
+                                         server_wrapper_func = identity
 ) {
-  if (!missing(table_dataset_name) && !missing(table_dataset_disp)) {
-    rlang::abort("`table_dataset_name` and `table_dataset_disp` cannot be used at the same time, use one or the other")
-  }
-
-  if (!missing(pop_dataset_name) && !missing(pop_dataset_disp)) {
-    rlang::abort("`pop_dataset_name` and `pop_dataset_disp` cannot be used at the same time, use one or the other")
-  }
-
-  if (!missing(table_dataset_name)) {
-    table_dataset_disp <- dv.manager::mm_dispatch("filtered_dataset", table_dataset_name)
-  }
-
-  if (!missing(pop_dataset_name)) {
-    pop_dataset_disp <- dv.manager::mm_dispatch("filtered_dataset", pop_dataset_name)
-  }
-
   mod <- list(
     ui = hierarchical_count_table_ui,
     server = function(afmm) {
       if (is.null(receiver_id)) {
-        on_sbj_click_fun <- function() NULL
+        on_sbj_click_fun <- function() NULL         # nolint unused
       } else {
-        on_sbj_click_fun <- function() {
+        on_sbj_click_fun <- function() {            # nolint unused
           afmm[["utils"]][["switch2"]](receiver_id)
         }
       }
@@ -651,8 +633,8 @@ mod_hierarchical_count_table <- function(module_id,
       server_wrapper_func(
         hierarchical_count_table_server(
           id = module_id,
-          table_dataset = dv.manager::mm_resolve_dispatcher(table_dataset_disp, afmm, flatten = TRUE),
-          pop_dataset = dv.manager::mm_resolve_dispatcher(pop_dataset_disp, afmm, flatten = TRUE),
+          table_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[table_dataset_name]]),
+          pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
           subjid_var = subjid_var,
           show_modal_on_click = show_modal_on_click,
           default_hierarchy = default_hierarchy, default_group = default_group
@@ -663,6 +645,85 @@ mod_hierarchical_count_table <- function(module_id,
   )
   mod
 }
+
+# Correlation heatmap module interface description ----
+# TODO: Fill in
+mod_hierarchical_count_table_API_docs <- list(
+  "Hierarchical count table",
+  module_id = "",
+  table_dataset_name = "",
+  pop_dataset_name = "",
+  subjid_var = "",
+  show_modal_on_click = "",
+  default_hierarchy = "",
+  default_group = "",
+  receiver_id = "",
+  server_wrapper_func = ""
+)
+
+mod_hierarchical_count_table_API_spec <- TC$group(
+  module_id = TC$mod_ID(),
+  table_dataset_name = TC$dataset_name(),
+  pop_dataset_name = TC$dataset_name(),
+  subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
+  show_modal_on_click = TC$logical(),
+  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more"),
+  default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  receiver_id = TC$character() |> TC$flag("optional"),
+  server_wrapper_func = TC$fn(arg_count = 1) |> TC$flag("optional")
+) |> TC$attach_docs(mod_hierarchical_count_table_API_docs)
+
+
+check_mod_hierarchical_count_table <- function(
+    afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
+    default_hierarchy, default_group, receiver_id, server_wrapper_func
+    ) {
+  warn <- CM$container()
+  err <- CM$container()
+
+  # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
+  # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), warn, err)
+
+  OK <- check_mod_hierarchical_count_table_auto( # nolint unused
+    afmm, datasets, 
+    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
+    default_hierarchy, default_group, receiver_id, server_wrapper_func,
+    warn, err
+  )
+
+  # TODO: Checks not covered by auto
+  # Checks that API spec does not (yet?) capture
+  if (FALSE) {
+    # nolint start
+    if (OK[["subjid_var"]]) {
+      dataset <- datasets[[bm_dataset_name]]
+      OK[["subjid_var"]] <- CM$assert(err, is.factor(dataset[[subjid_var]]), "Column referenced by `subjid_var` should be a factor.")
+    }
+ 
+    if (OK[["subjid_var"]] && OK[["cat_var"]] && OK[["par_var"]] && OK[["visit_var"]]) {
+      CM$check_unique_sub_cat_par_vis(
+        datasets, "bm_dataset_name", bm_dataset_name,
+        subjid_var, cat_var, par_var, visit_var, warn, err
+      )
+    }
+    # nolint end
+  }
+
+  res <- list(warnings = warn[["messages"]], errors = err[["messages"]])
+  return(res)
+}
+
+dataset_info_hierarchical_count_table <- function(table_dataset_name, pop_dataset_name, ...) {
+  # TODO: Replace this function with a generic one that builds the list based on mod_boxplot_API_spec.
+  # Something along the lines of CM$dataset_info(mod_hierarchical_count_table_API_spec, args = match.call())
+  all <- unique(c(table_dataset_name, pop_dataset_name))
+  subject_level <- pop_dataset_name
+  if (length(subject_level) == 0) subject_level <- character(0)
+
+  return(list(all = all, subject_level = subject_level))
+}
+
+mod_hierarchical_count_table <- CM$module(mod_hierarchical_count_table, check_mod_hierarchical_count_table, dataset_info_hierarchical_count_table)
 
 #' Mock hierarchy table app
 #' @keywords mock
@@ -731,14 +792,6 @@ mock_app_hierarchical_count_table_mm <- function() { # nolint
     df
   }
 
-  table_dataset <- shiny::reactive({
-    pharmaverseadam::adae |> chr2factor()
-  })
-
-  pop_dataset <- shiny::reactive({
-    pharmaverseadam::adsl |> chr2factor()
-  })
-
   dv.manager::run_app(
     data = list(
       dummy = list(adae = pharmaverseadam::adae |> chr2factor(), adsl = pharmaverseadam::adsl |> chr2factor())
@@ -746,8 +799,8 @@ mock_app_hierarchical_count_table_mm <- function() { # nolint
     module_list = list(
       "ADAE by term" = mod_hierarchical_count_table(
         "hierarchical_count_table",
-        table_dataset_disp = dv.manager::mm_dispatch("filtered_dataset", "adae"),
-        pop_dataset_disp = dv.manager::mm_dispatch("filtered_dataset", "adsl"),
+        table_dataset_name = "adae",
+        pop_dataset_name = "adsl",
         show_modal_on_click = TRUE,
         default_hierarchy = c("AEBODSYS", "AEDECOD"),
         default_group = "TRT01P"
