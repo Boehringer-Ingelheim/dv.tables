@@ -601,11 +601,6 @@ hierarchical_count_table_server <- function(
 #' **This functionality is not ready yet** please
 #' open an issue or contact the developers if you are interested in using it.
 #'
-# @param server_wrapper_func `[function()]`
-#
-# A function that will be applied to the server
-#'
-#'
 #' @keywords main
 #'
 #' @export
@@ -616,8 +611,7 @@ mod_hierarchical_count_table <- function(module_id,
                                          show_modal_on_click = FALSE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
-                                         receiver_id = NULL,
-                                         server_wrapper_func = identity) {
+                                         receiver_id = NULL) {
   mod <- list(
     ui = hierarchical_count_table_ui,
     server = function(afmm) {
@@ -629,15 +623,13 @@ mod_hierarchical_count_table <- function(module_id,
         }
       }
 
-      server_wrapper_func(
-        hierarchical_count_table_server(
-          id = module_id,
-          table_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[table_dataset_name]]),
-          pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
-          subjid_var = subjid_var,
-          show_modal_on_click = show_modal_on_click,
-          default_hierarchy = default_hierarchy, default_group = default_group
-        )
+      hierarchical_count_table_server(
+        id = module_id,
+        table_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[table_dataset_name]]),
+        pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
+        subjid_var = subjid_var,
+        show_modal_on_click = show_modal_on_click,
+        default_hierarchy = default_hierarchy, default_group = default_group
       )
     },
     module_id = module_id
@@ -656,8 +648,7 @@ mod_hierarchical_count_table_API_docs <- list(
   show_modal_on_click = "",
   default_hierarchy = "",
   default_group = "",
-  receiver_id = "",
-  server_wrapper_func = ""
+  receiver_id = ""
 )
 
 mod_hierarchical_count_table_API_spec <- TC$group(
@@ -668,14 +659,13 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   show_modal_on_click = TC$logical(),
   default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
-  receiver_id = TC$character() |> TC$flag("optional"),
-  server_wrapper_func = TC$fn(arg_count = 1) |> TC$flag("optional")
+  receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_hierarchical_count_table_API_docs)
 
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, receiver_id, server_wrapper_func) {
+    default_hierarchy, default_group, receiver_id) {
   warn <- CM$container()
   err <- CM$container()
 
@@ -685,7 +675,7 @@ check_mod_hierarchical_count_table <- function(
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, receiver_id, server_wrapper_func,
+    default_hierarchy, default_group, receiver_id,
     warn, err
   )
 

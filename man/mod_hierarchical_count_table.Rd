@@ -26,8 +26,7 @@ mod_hierarchical_count_table(
   show_modal_on_click = FALSE,
   default_hierarchy = NULL,
   default_group = NULL,
-  receiver_id = NULL,
-  server_wrapper_func = identity
+  receiver_id = NULL
 )
 }
 \arguments{

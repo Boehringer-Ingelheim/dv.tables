@@ -4,8 +4,7 @@
 
 # dv.tables::mod_hierarchical_count_table
 check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, table_dataset_name, pop_dataset_name,
-    subjid_var, show_modal_on_click, default_hierarchy, default_group, receiver_id, server_wrapper_func,
-    warn, err) {
+    subjid_var, show_modal_on_click, default_hierarchy, default_group, receiver_id, warn, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
     OK[["module_id"]] <- CM$check_module_id("module_id", module_id, warn, err)
@@ -28,9 +27,6 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     OK[["default_group"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("default_group",
         default_group, subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], warn, err)
     "TODO: receiver_id (character)"
-    flags <- list(optional = TRUE)
-    OK[["server_wrapper_func"]] <- CM$check_function("server_wrapper_func", server_wrapper_func, 1, flags,
-        warn, err)
     for (ds_name in names(used_dataset_names)) {
         OK[["subjid_var"]] <- OK[["subjid_var"]] && CM$check_subjid_col(datasets, ds_name, get(ds_name),
             "subjid_var", subjid_var, warn, err)
