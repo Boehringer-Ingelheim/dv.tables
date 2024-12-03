@@ -69,7 +69,7 @@ col_menu_server <- function(id,
         # Transform so it can be used in the onInitialize function
         quot_selected <- sprintf("'%s'", selected)
         join_selected <- paste(quot_selected, collapse = ", ")
-        bracket_selected <- sprintf("[%s]", join_selected)
+        bracket_selected <- sprintf("[%s]", join_selected) # nolint unused
       })
 
       options <- c(
