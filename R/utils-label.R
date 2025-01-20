@@ -195,7 +195,7 @@ get_labelled_names <- function(x) {
 #' @return dataframe with new mutated separated columns
 #' @keywords internal
 separate_column <- function(df, col) {
-  df %>%
+  df |>
     tidyr::separate(col, into = paste0(col, c("_N", "_per")), sep = " \\(", remove = TRUE) %>%
     dplyr::mutate(dplyr::across(dplyr::ends_with("_per"), ~stringr::str_remove(., "\\)")))
 }
