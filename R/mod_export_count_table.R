@@ -16,6 +16,7 @@ EXP <- poc(
   )
 )
 
+#' @describeIn mod_export_counttable_UI
 #' Create user interface for the export count table shiny module of \pkg{dv.tables}
 #'
 #' @param module_id `[character(1)]` A unique ID string to create a namespace. Must match the ID of
@@ -41,17 +42,38 @@ mod_export_counttable_UI <- function(module_id) { # nolint
 }
 
 
+#' @describeIn mod_export_counttable_server
+#' Server logic for the export count table
+#'
+#' @param module_id The ID for the event count module instance.
+#' @param dataset A reactive list containing dataset containing the event data
+#' and other meta data
+#'
+#' @return Event dataset downloaded as a csv
+#'
+#' @keywords internal
 mod_export_counttable_server <- function(module_id, dataset) {
+  checkmate::check_string(module_id, min.chars = 1)
+
   shiny::moduleServer(
     module_id,
     function(input, output, session) {
       ns <- session$ns
 
+
       # Download modal
       shiny::observeEvent(input[[EXP$ID$EXPORT_BUTTON]], {
+        # check validity of parameters
+
+        checkmate::assert(
+          checkmate::check_list(dataset),
+          checkmate::check_subset(names(dataset), choices = c("df", "meta")),
+          checkmate::check_data_frame(dataset[["df"]]),
+          all(c("n_denominator", "hierarchy", "hier_lvl_col") %in% names(dataset[["meta"]])),
+          combine = "and"
+        )
+
         # If there is no dataset being displayed
-
-
         if (is.null(dataset)) {
           shinyFeedback::showToast(
             "info", "There is no dataset displayed currently. This may arise due to your filter choices or
@@ -110,7 +132,7 @@ mod_export_counttable_server <- function(module_id, dataset) {
         {
           if (
             (input[[EXP$ID$FILENAME_BOX]] != "") &
-            input[[EXP$ID$DATAPROTECT_BOX]]
+              input[[EXP$ID$DATAPROTECT_BOX]]
           ) { # nolint end
             return(TRUE)
           } else {
@@ -146,7 +168,7 @@ mod_export_counttable_server <- function(module_id, dataset) {
           # Hierarchy selection info. available from lvl var
 
           csvfile <- dataset[["df"]] |>
-            dplyr::rename(lvl = `\035lvl`) |>
+            dplyr::rename(lvl = dataset[["meta"]]$hier_lvl_col) |>
             dplyr::filter(lvl == ifelse(any(lvl == 3), 2, 1)) |>
             dplyr::select(
               dataset$meta$hierarchy[1],

@@ -548,39 +548,8 @@ hierarchical_count_table_server <- function(
       et() |> sort_wide_format_event_table_to_HTML(on_cell_click)
     })
 
-    # Table download handler
-
+    # Table download module
     mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD, et())
-
-    # output[[EC$ID$TAB_DOWNLOAD]] <- shiny::downloadHandler(
-    #   filename = function() {
-    #     paste("table-", Sys.Date(), ".csv", sep="")
-    #   },
-    #   content = function(file) {
-    #
-    #     #Dataframe contains summary and all subject info. as list of lists
-    #     #Filter for summary data using lvl
-    #     #Extract the required named list
-    #     #Separate the columns into count and percentage
-    #
-    #     colvars <- names(et()$meta$n_denominator)
-    #
-    #     #Hierarchy selection info. available from lvl var
-    #
-    #      csvfile <- et()[["df"]] |>
-    #        dplyr::rename(lvl = `\035lvl`) |>
-    #        dplyr::filter(lvl == ifelse(any(lvl == 3), 2, 1)) |>
-    #        dplyr::select(et()$meta$hierarchy[1],
-    #                      colvars) |>
-    #        dplyr::mutate(dplyr::across(dplyr::where(is.list),
-    #                             ~purrr::map_chr(., "count")))  |>
-    #        dplyr::mutate(dplyr::across(dplyr::all_of(colvars),
-    #                                    ~ifelse(. == "\u2014", NA, .)))
-    #      csvfile <- purrr::reduce(colvars, separate_column, .init = csvfile)
-    #
-    #     write.csv(csvfile, file, row.names = FALSE)
-    #   }
-    # )
 
     if (show_modal_on_click) {
       shiny::observeEvent(input[["cell_click"]], {
