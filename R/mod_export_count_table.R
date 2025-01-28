@@ -63,6 +63,7 @@ mod_export_counttable_server <- function(module_id, dataset) {
       shiny::observeEvent(input[[EXP$ID$EXPORT_BUTTON]], {
         # check validity of parameters
 
+
         checkmate::assert(
           checkmate::check_list(dataset),
           checkmate::check_subset(names(dataset), choices = c("df", "meta")),
@@ -151,13 +152,12 @@ mod_export_counttable_server <- function(module_id, dataset) {
       # Download
       output[[EXP$ID$DOWNLOAD_BUTTON]] <- shiny::downloadHandler(
         filename = function() {
-          paste0(input[[EXP$ID$FILENAME_BOX]], ".csv")
+          paste0(input[[EXP$ID$FILENAME_BOX]], ".xlsx")
         },
         content = function(file) {
           shiny::removeModal() # close pop up
 
           # Dataframe contains summary and all subject info. as list of lists
-          # Filter for summary data using lvl
           # Extract the required named list
           # Separate the columns into count and percentage
 
@@ -165,11 +165,9 @@ mod_export_counttable_server <- function(module_id, dataset) {
 
           # Hierarchy selection info. available from lvl var
 
-          csvfile <- dataset[["df"]] |>
-            dplyr::rename(lvl = dataset[["meta"]]$hier_lvl_col) |>
-            dplyr::filter(lvl == ifelse(any(lvl == 3), 2, 1)) |>
+          excelfile <- dataset[["df"]] |>
             dplyr::select(
-              dataset$meta$hierarchy[1],
+              dataset$meta$hierarchy,
               colvars
             ) |>
             dplyr::mutate(dplyr::across(
@@ -178,11 +176,15 @@ mod_export_counttable_server <- function(module_id, dataset) {
             )) |>
             dplyr::mutate(dplyr::across(
               dplyr::all_of(colvars),
-              ~ ifelse(. == "\u2014", NA, .)
+              ~ gsub("\u2014", NA, .)
+            )) |>
+            dplyr::mutate(dplyr::across(
+              dplyr::all_of(dataset$meta$hierarchy),
+              ~ gsub("\035", "Total", .)
             ))
-          csvfile <- purrr::reduce(colvars, separate_column, .init = csvfile)
+          excelfile <- purrr::reduce(colvars, separate_column, .init = excelfile)
 
-          write.csv(csvfile, file, row.names = FALSE)
+          writexl::write_xlsx(excelfile, file)
         }
       )
     }

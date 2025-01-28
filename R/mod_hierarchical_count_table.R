@@ -548,6 +548,7 @@ hierarchical_count_table_server <- function(
       et() |> sort_wide_format_event_table_to_HTML(on_cell_click)
     })
 
+
     # Table download module
     mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD, dataset = et())
 
