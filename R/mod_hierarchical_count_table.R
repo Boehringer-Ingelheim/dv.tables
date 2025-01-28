@@ -549,7 +549,7 @@ hierarchical_count_table_server <- function(
     })
 
     # Table download module
-    mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD, et())
+    mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD, dataset = et())
 
     if (show_modal_on_click) {
       shiny::observeEvent(input[["cell_click"]], {

@@ -8,9 +8,7 @@ EXP <- poc(
   ),
   MSG = poc(
     DATAPROTECT_LABEL = paste(
-      "I have taken note that the downloaded files may contain confidential data that must be",
-      "handled and distributed according to BI's data protection policies exclusively, and that DaVinci does",
-      "not assume responsibility on any subsequent use."
+      "I agree to the following: Use only for internal review and monitoring during the conduct of clinical trials."
     ),
     DATAPROTECT_WARN = "Check box needs to be checked."
   )
