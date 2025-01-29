@@ -15,7 +15,8 @@ hierarchical_count_table_server(
   subjid_var,
   show_modal_on_click = FALSE,
   default_hierarchy = NULL,
-  default_group = NULL
+  default_group = NULL,
+  intended_use_label = NULL
 )
 
 mod_hierarchical_count_table(
@@ -26,6 +27,8 @@ mod_hierarchical_count_table(
   show_modal_on_click = FALSE,
   default_hierarchy = NULL,
   default_group = NULL,
+  intended_use_label =
+    "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL
 )
 }

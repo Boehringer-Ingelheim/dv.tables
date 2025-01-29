@@ -46,6 +46,8 @@ mod_export_counttable_UI <- function(module_id) { # nolint
 #' @param module_id The ID for the event count module instance.
 #' @param dataset A reactive list containing dataset containing the event data
 #' and other meta data
+#' @param intended_use_label Either a string indicating the intended use for export, or
+#' NULL. The provided label will be displayed prior to the download and will also be included in the exported file.
 #'
 #' @return Event dataset downloaded as a csv
 #'
@@ -160,30 +162,43 @@ mod_export_counttable_server <- function(module_id, dataset,
 
           # Dataframe contains summary and all subject info. as list of lists
           # Extract the required named list
+          # Add overall patients from column header
           # Separate the columns into count and percentage
 
-          colvars <- names(dataset$meta$n_denominator)
 
-          # Hierarchy selection info. available from lvl var
+          # Get col names and total patients
+          total_colname <- dataset[["meta"]]$n_denominator
+
+          #Get event variables
+          event_vars <- dataset[["meta"]]$hierarchy
 
           excelfile <- dataset[["df"]] |>
             dplyr::select(
-              dataset$meta$hierarchy,
-              colvars
+              event_vars,
+              names(total_colname)
             ) |>
             dplyr::mutate(dplyr::across(
               dplyr::where(is.list),
               ~ purrr::map_chr(., "count")
             )) |>
             dplyr::mutate(dplyr::across(
-              dplyr::all_of(colvars),
+              dplyr::all_of(names(total_colname)),
               ~ gsub("\u2014", NA, .)
             )) |>
             dplyr::mutate(dplyr::across(
-              dplyr::all_of(dataset$meta$hierarchy),
+              dplyr::all_of(event_vars),
               ~ gsub("\035", "Total", .)
             ))
-          excelfile <- purrr::reduce(colvars, separate_column, .init = excelfile)
+
+          excelfile <- add_total_patient(
+            excelfile,
+            total_colname
+          )
+
+          excelfile <- purrr::reduce(names(total_colname),
+            separate_column,
+            .init = excelfile
+          )
 
           writexl::write_xlsx(excelfile, file)
         }

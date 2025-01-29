@@ -180,22 +180,3 @@ name_label_formatter <- function(l) {
 get_labelled_names <- function(x) {
   unlist(get_lbls_robust(x) |> swap_val_names() |> name_label_formatter())
 }
-
-
-
-#' Function to separate a column
-#'
-#' @details
-#' Columns where `(` is encountered is split into two and new columns
-#' are mutated
-#'
-#' @param df dataframe
-#' @param col column name
-#'
-#' @return dataframe with new mutated separated columns
-#' @keywords internal
-separate_column <- function(df, col) {
-  df |>
-    tidyr::separate(col, into = paste0(col, c("_N", "_per")), sep = " \\(", remove = TRUE) %>%
-    dplyr::mutate(dplyr::across(dplyr::ends_with("_per"), ~stringr::str_remove(., "\\)")))
-}
