@@ -619,7 +619,7 @@ mod_hierarchical_count_table <- function(module_id,
                                          show_modal_on_click = FALSE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
-                                         intended_use_label = "xyz",
+                                         intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
                                          receiver_id = NULL) {
   mod <- list(
     ui = hierarchical_count_table_ui,
@@ -687,7 +687,7 @@ check_mod_hierarchical_count_table <- function(
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, intended_use_label, receiver_id,
+    default_hierarchy, default_group, receiver_id,
     warn, err
   )
 
