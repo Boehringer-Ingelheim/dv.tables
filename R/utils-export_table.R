@@ -32,13 +32,12 @@ separate_column <- function(df, col) {
 #' @return dataframe with additional row containing overall patients
 #'
 #' @keywords internal
-add_total_patient <- function(df,
-                              total_colname){
+add_total_patient <- function(df, total_colname) {
 
   # empty row with column name placeholder
   new_row <- setNames(data.frame(matrix(ncol = ncol(df), nrow = 1)), names(df))
 
-  new_row[[1,1]] <- "Overall No. of Patients"
+  new_row[[1, 1]] <- "Overall No. of Patients"
 
   # match col names to add total patients
   matched_cols <- match(names(total_colname), names(new_row))
