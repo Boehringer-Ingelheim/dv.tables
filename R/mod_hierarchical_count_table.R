@@ -475,7 +475,8 @@ hierarchical_count_table_server <- function(
     subjid_var,
     show_modal_on_click = FALSE,
     default_hierarchy = NULL,
-    default_group = NULL) {
+    default_group = NULL,
+    intended_use_label = NULL) {
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
 
@@ -548,9 +549,11 @@ hierarchical_count_table_server <- function(
       et() |> sort_wide_format_event_table_to_HTML(on_cell_click)
     })
 
-
+    print(paste("before export",intended_use_label))
     # Table download module
-    mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD, dataset = et())
+    mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD,
+                                 dataset = et(),
+                                 intended_use_label = intended_use_label)
 
     if (show_modal_on_click) {
       shiny::observeEvent(input[["cell_click"]], {
@@ -616,6 +619,7 @@ mod_hierarchical_count_table <- function(module_id,
                                          show_modal_on_click = FALSE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
+                                         intended_use_label = "xyz",
                                          receiver_id = NULL) {
   mod <- list(
     ui = hierarchical_count_table_ui,
@@ -628,13 +632,16 @@ mod_hierarchical_count_table <- function(module_id,
         }
       }
 
+      print(paste("before server",intended_use_label))
       hierarchical_count_table_server(
         id = module_id,
         table_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[table_dataset_name]]),
         pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
         subjid_var = subjid_var,
         show_modal_on_click = show_modal_on_click,
-        default_hierarchy = default_hierarchy, default_group = default_group
+        default_hierarchy = default_hierarchy,
+        default_group = default_group,
+        intended_use_label = intended_use_label
       )
     },
     module_id = module_id
@@ -670,7 +677,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, receiver_id) {
+    default_hierarchy, default_group, intended_use_label, receiver_id) {
   warn <- CM$container()
   err <- CM$container()
 
@@ -680,7 +687,7 @@ check_mod_hierarchical_count_table <- function(
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, receiver_id,
+    default_hierarchy, default_group, intended_use_label, receiver_id,
     warn, err
   )
 

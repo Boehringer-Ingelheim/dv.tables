@@ -8,7 +8,7 @@ EXP <- poc(
   ),
   MSG = poc(
     DATAPROTECT_LABEL = paste(
-      "I agree to the following: Use only for internal review and monitoring during the conduct of clinical trials."
+      "I agree to the following:"
     ),
     DATAPROTECT_WARN = "Check box needs to be checked."
   )
@@ -50,7 +50,8 @@ mod_export_counttable_UI <- function(module_id) { # nolint
 #' @return Event dataset downloaded as a csv
 #'
 #' @keywords internal
-mod_export_counttable_server <- function(module_id, dataset) {
+mod_export_counttable_server <- function(module_id, dataset,
+                                         intended_use_label) {
   checkmate::check_string(module_id, min.chars = 1)
 
   shiny::moduleServer(
@@ -80,6 +81,7 @@ mod_export_counttable_server <- function(module_id, dataset) {
             .options = list(positionClass = "toast-top-right")
           )
         } else {
+          print(paste("before use",intended_use_label))
           shiny::showModal(
             shiny::modalDialog(
               shiny::tagList(
@@ -109,10 +111,10 @@ mod_export_counttable_server <- function(module_id, dataset) {
       # Add/remove checkbox warning
       checkbox_label <- shiny::eventReactive(input[[EXP$ID$DATAPROTECT_BOX]], {
         if (input[[EXP$ID$DATAPROTECT_BOX]]) {
-          return(paste(EXP$MSG$DATAPROTECT_LABEL))
+          return(paste(EXP$MSG$DATAPROTECT_LABEL, intended_use_label))
         } else {
           return(shiny::tags$embed(
-            paste(EXP$MSG$DATAPROTECT_LABEL),
+            paste(EXP$MSG$DATAPROTECT_LABEL, intended_use_label),
             shiny::br(shiny::tags$span(
               style = paste("color:", "#CC3333"),
               EXP$MSG$DATAPROTECT_WARN
