@@ -81,7 +81,6 @@ mod_export_counttable_server <- function(module_id, dataset,
             .options = list(positionClass = "toast-top-right")
           )
         } else {
-          print(paste("before use",intended_use_label))
           shiny::showModal(
             shiny::modalDialog(
               shiny::tagList(

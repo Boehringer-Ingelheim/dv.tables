@@ -549,7 +549,6 @@ hierarchical_count_table_server <- function(
       et() |> sort_wide_format_event_table_to_HTML(on_cell_click)
     })
 
-    print(paste("before export",intended_use_label))
     # Table download module
     mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD,
                                  dataset = et(),
@@ -632,7 +631,6 @@ mod_hierarchical_count_table <- function(module_id,
         }
       }
 
-      print(paste("before server",intended_use_label))
       hierarchical_count_table_server(
         id = module_id,
         table_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[table_dataset_name]]),
