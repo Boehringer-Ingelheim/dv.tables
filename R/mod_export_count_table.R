@@ -129,26 +129,15 @@ mod_export_counttable_server <- function(module_id, dataset,
 
 
       # Check if we should enable/disable download button
-      download_enable <- shiny::eventReactive(
-        c(input[[EXP$ID$FILENAME_BOX]], input[[EXP$ID$DATAPROTECT_BOX]]),
-        {
-          if (
-            (input[[EXP$ID$FILENAME_BOX]] != "") &
-              input[[EXP$ID$DATAPROTECT_BOX]]
-          ) { # nolint end
-            return(TRUE)
+      shiny::observe({
+        # Check if the inputs exist
+        if (!is.null(input[[EXP$ID$FILENAME_BOX]]) && !is.null(input[[EXP$ID$DATAPROTECT_BOX]])) {
+          # Check if the conditions are met
+          if (input[[EXP$ID$FILENAME_BOX]] != "" && input[[EXP$ID$DATAPROTECT_BOX]]) {
+            shinyjs::enable(EXP$ID$DOWNLOAD_BUTTON)
           } else {
-            return(FALSE)
+            shinyjs::disable(EXP$ID$DOWNLOAD_BUTTON)
           }
-        }
-      )
-
-      # Enable/disable download button separately (to allow testing of logic)
-      shiny::observeEvent(download_enable(), {
-        if (download_enable()) {
-          shinyjs::enable(EXP$ID$DOWNLOAD_BUTTON)
-        } else {
-          shinyjs::disable(EXP$ID$DOWNLOAD_BUTTON)
         }
       })
 
