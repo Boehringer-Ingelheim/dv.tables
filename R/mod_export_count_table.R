@@ -75,12 +75,14 @@ mod_export_counttable_server <- function(module_id, dataset,
           combine = "and"
         )
 
-        # If there is no dataset being displayed
         if (is.null(dataset)) {
-          shinyFeedback::showToast(
-            "info", "There is no dataset displayed currently. This may arise due to your filter choices or
-            because the dataset is still loading.",
-            .options = list(positionClass = "toast-top-right")
+          shiny::showNotification(
+            "There is no dataset displayed currently. This may arise due to your filter choices or because the dataset is still loading.",
+            type = "message",
+            duration = NULL,
+            closeButton = TRUE,
+            id = NULL,
+            placement = "top-right"
           )
         } else {
           shiny::showModal(
