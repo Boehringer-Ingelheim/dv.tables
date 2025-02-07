@@ -68,14 +68,14 @@ mod_export_counttable_server <- function(module_id, dataset,
 
 
         checkmate::assert(
-          checkmate::check_list(dataset),
-          checkmate::check_subset(names(dataset), choices = c("df", "meta")),
-          checkmate::check_data_frame(dataset[["df"]]),
-          all(c("n_denominator", "hierarchy", "hier_lvl_col") %in% names(dataset[["meta"]])),
+          checkmate::check_list(dataset()),
+          checkmate::check_subset(names(dataset()), choices = c("df", "meta")),
+          checkmate::check_data_frame(dataset()[["df"]]),
+          all(c("n_denominator", "hierarchy", "hier_lvl_col") %in% names(dataset()[["meta"]])),
           combine = "and"
         )
 
-        if (is.null(dataset)) {
+        if (is.null(dataset())) {
           shiny::showNotification(
             "There is no dataset displayed currently. This may arise due to your filter choices or because the dataset is still loading.",
             type = "message",
@@ -151,7 +151,7 @@ mod_export_counttable_server <- function(module_id, dataset,
         content = function(file) {
           shiny::removeModal() # close pop up
 
-          excelfile <- preprocess_download_table(dataset)
+          excelfile <- preprocess_download_table(dataset())
 
           openxlsx::write.xlsx(excelfile, file)
         }
