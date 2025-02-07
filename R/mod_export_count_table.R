@@ -153,7 +153,7 @@ mod_export_counttable_server <- function(module_id, dataset,
 
           excelfile <- preprocess_download_table(dataset)
 
-          writexl::write_xlsx(excelfile, file)
+          openxlsx::write.xlsx(excelfile, file)
         }
       )
     }
