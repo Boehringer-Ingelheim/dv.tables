@@ -16,14 +16,15 @@ preprocess_download_table <- function(count_table) {
 
 
   checkmate::assert_list(count_table,
-                         types = c("data.frame","list"),
+                         types = c("data.frame", "list"),
                          null.ok = TRUE,
                          names = "named")
 
   checkmate::assert_subset(names(count_table), c("df", "meta"))
-  checkmate::assert_subset(names(count_table[["meta"]]), c("n_denominator",
-                                                           "hierarchy",
-                                                           "special_char"))
+  checkmate::assert_subset(c("n_denominator",
+                             "hierarchy",
+                             "special_char"),
+                           names(count_table[["meta"]]), )
 
   # Get col names and total patients
   total_colname <- count_table[["meta"]]$n_denominator
