@@ -13,6 +13,18 @@
 #'
 #' @keywords internal
 preprocess_download_table <- function(count_table) {
+
+
+  checkmate::assert_list(count_table,
+                         types = c("data.frame","list"),
+                         null.ok = TRUE,
+                         names = "named")
+
+  checkmate::assert_subset(names(count_table), c("df", "meta"))
+  checkmate::assert_subset(names(count_table[["meta"]]), c("n_denominator",
+                                                           "hierarchy",
+                                                           "special_char"))
+
   # Get col names and total patients
   total_colname <- count_table[["meta"]]$n_denominator
 
@@ -34,7 +46,8 @@ preprocess_download_table <- function(count_table) {
     )) |>
     dplyr::mutate(dplyr::across(
       dplyr::all_of(event_vars),
-      ~ gsub("\035", "Total", .)
+      ~ gsub(count_table[["meta"]]$special_char,
+             "Total", .)
     ))
 
 
