@@ -658,6 +658,7 @@ mod_hierarchical_count_table_API_docs <- list(
   show_modal_on_click = "",
   default_hierarchy = "",
   default_group = "",
+  intended_use_label = "",
   receiver_id = ""
 )
 
@@ -669,6 +670,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   show_modal_on_click = TC$logical(),
   default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_hierarchical_count_table_API_docs)
 

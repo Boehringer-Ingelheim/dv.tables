@@ -1,7 +1,17 @@
-
 template:
   bootstrap: 5
-  bootswatch: cerulean
+
+navbar:
+  type: inverse
+  structure:
+    left: [intro, reference, articles, tutorials, news, qc]
+  components:
+    qc:
+      text: Quality Control
+      href: articles/qc.html
+home:
+  title: dv.tables
+  links:
 
 reference:
   - title: Modules
