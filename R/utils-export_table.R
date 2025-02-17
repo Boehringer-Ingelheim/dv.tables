@@ -72,7 +72,7 @@ preprocess_download_table <- function(count_table) {
         remove = TRUE,
         fill = "right"
       ) %>%
-      dplyr::mutate(dplyr::across(dplyr::ends_with("_per"), ~ stringr::str_remove(., "\\)")))
+      dplyr::mutate(dplyr::across(dplyr::ends_with("_per"), ~ sub(")", "", . )))
   }, .init = excelfile)
 
   return(excelfile)

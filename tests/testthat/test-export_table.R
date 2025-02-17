@@ -1,4 +1,3 @@
-# Event count
 
 local({
   event_list <- list()
