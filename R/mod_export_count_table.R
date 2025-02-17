@@ -133,20 +133,16 @@ mod_export_counttable_server <- function(module_id, dataset,
       # Check if we should enable/disable download button
       shiny::observe({
         # Check if the inputs exist
-        if (!is.null(input[[EXP$ID$FILENAME_BOX]]) && !is.null(input[[EXP$ID$DATAPROTECT_BOX]])) {
-          # Check if the conditions are met
-          if (input[[EXP$ID$FILENAME_BOX]] != "" && input[[EXP$ID$DATAPROTECT_BOX]]) {
-            shinyjs::enable(EXP$ID$DOWNLOAD_BUTTON)
-          } else {
-            shinyjs::disable(EXP$ID$DOWNLOAD_BUTTON)
-          }
-        }
+        sanitized_fname <- fs::path_sanitize(input[[EXP$ID$FILENAME_BOX]])
+        enable_button <- (nchar(sanitized_fname) > 0) && isTRUE(input[[EXP$ID$DATAPROTECT_BOX]])
+        shinyjs::toggleState(id = EXP$ID$DOWNLOAD_BUTTON, condition = enable_button)
       })
 
       # Download
       output[[EXP$ID$DOWNLOAD_BUTTON]] <- shiny::downloadHandler(
         filename = function() {
-          paste0(input[[EXP$ID$FILENAME_BOX]], ".xlsx")
+          sanitized_fname <- fs::path_sanitize(input[[EXP$ID$FILENAME_BOX]])
+          paste0(sanitized_fname, ".xlsx")
         },
         content = function(file) {
           shiny::removeModal() # close pop up
