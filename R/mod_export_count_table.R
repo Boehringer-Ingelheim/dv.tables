@@ -14,13 +14,13 @@ EXP <- poc(
   )
 )
 
-#' @describeIn mod_export_counttable_UI
 #' Create user interface for the export count table shiny module of \pkg{dv.tables}
 #'
 #' @param module_id `[character(1)]` A unique ID string to create a namespace. Must match the ID of
-#'   \code{mod_exp_listings_server()}.
+#'   \code{mod_export_counttable_server()}.
 #'
 #' @return A shiny \code{uiOutput} element.
+#' @describeIn mod_export_counttable_UI This function creates the user interface for the export count table shiny module.
 #' @keywords internal
 mod_export_counttable_UI <- function(module_id) { # nolint
 
@@ -40,17 +40,15 @@ mod_export_counttable_UI <- function(module_id) { # nolint
 }
 
 
-#' @describeIn mod_export_counttable_server
 #' Server logic for the export count table
 #'
 #' @param module_id The ID for the event count module instance.
 #' @param dataset A reactive list containing dataset containing the event data
 #' and other meta data
-#' @param intended_use_label Either a string indicating the intended use for export, or
-#' NULL. The provided label will be displayed prior to the download and will also be included in the exported file.
+#' @inheritParams hierarchical_count_table_server
 #'
 #' @return Event dataset downloaded as a excel
-#'
+#' @describeIn mod_export_counttable_server This function handles the server logic for the export count table.
 #' @keywords internal
 mod_export_counttable_server <- function(module_id, dataset,
                                          intended_use_label) {

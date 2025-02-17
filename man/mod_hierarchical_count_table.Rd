@@ -54,6 +54,9 @@ A default value for the hierarchy variables (optional).}
 \item{default_group}{\code{character(1)|NULL}
 A default value for the group variable (optional).}
 
+\item{intended_use_label}{Either a string indicating the intended use for export, or
+NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}
+
 \item{module_id}{\verb{[character(1)]}
 
 Module Shiny id}

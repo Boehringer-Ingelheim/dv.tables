@@ -462,6 +462,9 @@ hierarchical_count_table_ui <- function(id) {
 #' @param default_group `character(1)|NULL`
 #' A default value for the group variable (optional).
 #'
+#' @param intended_use_label Either a string indicating the intended use for export, or
+#' NULL. The provided label will be displayed prior to the download and will also be included in the exported file.
+#'
 #' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
 #'
 #' @export
