@@ -64,25 +64,21 @@ mod_export_counttable_server <- function(module_id, dataset,
       shiny::observeEvent(input[[EXP$ID$EXPORT_BUTTON]], {
         # check validity of parameters
 
+        if (is.null(dataset()) |
+            !is.list(dataset()) |
+            !all(c("df", "meta") %in% names(dataset())) |
+            !is.data.frame(dataset()[["df"]]) |
+            !all(c("n_denominator", "hierarchy", "hier_lvl_col") %in% names(dataset()[["meta"]]))) {
 
-        checkmate::assert(
-          checkmate::check_list(dataset()),
-          checkmate::check_subset(names(dataset()), choices = c("df", "meta")),
-          checkmate::check_data_frame(dataset()[["df"]]),
-          all(c("n_denominator", "hierarchy", "hier_lvl_col") %in% names(dataset()[["meta"]])),
-          combine = "and"
-        )
-
-        if (is.null(dataset())) {
           shiny::showNotification(
-            "There is no dataset displayed currently. This may arise due to your filter choices or because the dataset is still loading.",
-            type = "message",
+            "The dataset is not in the expected format or is missing necessary meta data. Please check the data and try again.",
+            type = "error",
             duration = NULL,
             closeButton = TRUE,
-            id = NULL,
-            placement = "top-right"
+            id = NULL
           )
-        } else {
+
+        }else {
           shiny::showModal(
             shiny::modalDialog(
               shiny::tagList(
