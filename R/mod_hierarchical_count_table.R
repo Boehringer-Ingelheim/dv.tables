@@ -3,7 +3,8 @@ EC <- poc( # nolint
     TABLE = "table",
     HIERARCHY = "hierarchy",
     GRP = "group",
-    MIN_PERCENT = "min_percent"
+    MIN_PERCENT = "min_percent",
+    TAB_DOWNLOAD = "table_download"
   ),
   MSG = poc(
     VALIDATE = poc(
@@ -430,7 +431,8 @@ hierarchical_count_table_ui <- function(id) {
     shiny::div(
       col_menu_UI(id = ns(EC$ID$HIERARCHY)),
       col_menu_UI(id = ns(EC$ID$GRP)),
-      shiny::numericInput(ns(EC$ID$MIN_PERCENT), label = "Minimum %", value = 0, min = 0, max = 100)
+      shiny::numericInput(ns(EC$ID$MIN_PERCENT), label = "Minimum %", value = 0, min = 0, max = 100),
+      mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD))
     ),
     shiny::uiOutput(ns(EC$ID$TABLE))
   )
@@ -460,6 +462,9 @@ hierarchical_count_table_ui <- function(id) {
 #' @param default_group `character(1)|NULL`
 #' A default value for the group variable (optional).
 #'
+#' @param intended_use_label Either a string indicating the intended use for export, or
+#' NULL. The provided label will be displayed prior to the download and will also be included in the exported file.
+#'
 #' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
 #'
 #' @export
@@ -473,7 +478,8 @@ hierarchical_count_table_server <- function(
     subjid_var,
     show_modal_on_click = FALSE,
     default_hierarchy = NULL,
-    default_group = NULL) {
+    default_group = NULL,
+    intended_use_label = NULL) {
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
 
@@ -546,6 +552,11 @@ hierarchical_count_table_server <- function(
       et() |> sort_wide_format_event_table_to_HTML(on_cell_click)
     })
 
+    # Table download module
+    mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD,
+                                 dataset = et,
+                                 intended_use_label = intended_use_label)
+
     if (show_modal_on_click) {
       shiny::observeEvent(input[["cell_click"]], {
         row <- input[["cell_click"]][["row_id"]]
@@ -561,7 +572,6 @@ hierarchical_count_table_server <- function(
     res <- shiny::reactive({
       row <- input[["cell_click"]][["row_id"]]
       col <- input[["cell_click"]][["column"]]
-
       shiny::validate(
         shiny::need(
           checkmate::test_string(col) && checkmate::test_number(row),
@@ -611,6 +621,7 @@ mod_hierarchical_count_table <- function(module_id,
                                          show_modal_on_click = FALSE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
+                                         intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
                                          receiver_id = NULL) {
   mod <- list(
     ui = hierarchical_count_table_ui,
@@ -629,7 +640,9 @@ mod_hierarchical_count_table <- function(module_id,
         pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
         subjid_var = subjid_var,
         show_modal_on_click = show_modal_on_click,
-        default_hierarchy = default_hierarchy, default_group = default_group
+        default_hierarchy = default_hierarchy,
+        default_group = default_group,
+        intended_use_label = intended_use_label
       )
     },
     module_id = module_id
@@ -648,6 +661,7 @@ mod_hierarchical_count_table_API_docs <- list(
   show_modal_on_click = "",
   default_hierarchy = "",
   default_group = "",
+  intended_use_label = "",
   receiver_id = ""
 )
 
@@ -659,13 +673,14 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   show_modal_on_click = TC$logical(),
   default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_hierarchical_count_table_API_docs)
 
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, receiver_id) {
+    default_hierarchy, default_group, intended_use_label, receiver_id) {
   warn <- CM$container()
   err <- CM$container()
 
