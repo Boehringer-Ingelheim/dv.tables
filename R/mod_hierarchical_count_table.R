@@ -671,7 +671,8 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   pop_dataset_name = TC$dataset_name(),
   subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
   show_modal_on_click = TC$logical(),
-  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more"),
+  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> 
+    TC$flag("zero_or_more", "optional"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
   intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
