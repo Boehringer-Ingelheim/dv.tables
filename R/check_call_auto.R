@@ -23,7 +23,7 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."
     subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
-    flags <- list(zero_or_more = TRUE)
+    flags <- list(zero_or_more = TRUE, optional = TRUE)
     OK[["default_hierarchy"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("default_hierarchy",
         default_hierarchy, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], warn,
         err)
