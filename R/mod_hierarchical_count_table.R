@@ -429,10 +429,10 @@ hierarchical_count_table_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
     shiny::div(
-      col_menu_UI(id = ns(EC$ID$HIERARCHY)),
-      col_menu_UI(id = ns(EC$ID$GRP)),
-      shiny::numericInput(ns(EC$ID$MIN_PERCENT), label = "Minimum %", value = 0, min = 0, max = 100),
-      mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD))
+      shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$HIERARCHY))),
+      shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$GRP))),
+      shiny::div(style = "display: inline-block;", shiny::numericInput(ns(EC$ID$MIN_PERCENT), label = "Minimum %", value = 0, min = 0, max = 100)),
+      shiny::div(style = "display: inline-block;", mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD)))
     ),
     shiny::uiOutput(ns(EC$ID$TABLE))
   )
