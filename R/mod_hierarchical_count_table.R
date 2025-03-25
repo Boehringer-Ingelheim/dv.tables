@@ -691,7 +691,7 @@ check_mod_hierarchical_count_table <- function(
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, receiver_id,
+    default_hierarchy, default_group, intended_use_label, receiver_id,
     warn, err
   )
 
