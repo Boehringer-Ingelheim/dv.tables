@@ -6,11 +6,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
+    <nav class="navbar fixed-top navbar-inverse navbar-expand-lg bg-light"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,12 +25,14 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/hierarchical_count_table.html">Event Count module</a>
-    <a class="dropdown-item" href="../articles/qc.html">Quality Control</a>
     <a class="dropdown-item" href="../articles/zz_buildinfo.html">Build Info</a>
   </div>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/qc.html">Quality Control</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -62,7 +64,8 @@
 <span>  <span class="va">subjid_var</span>,</span>
 <span>  show_modal_on_click <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  default_hierarchy <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  default_group <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  default_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  intended_use_label <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">mod_hierarchical_count_table</span><span class="op">(</span></span>
@@ -73,6 +76,8 @@
 <span>  show_modal_on_click <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  default_hierarchy <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  default_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  intended_use_label <span class="op">=</span></span>
+<span>    <span class="st">"Use only for internal review and monitoring during the conduct of clinical trials."</span>,</span>
 <span>  receiver_id <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -112,6 +117,11 @@ A default value for the hierarchy variables (optional).</p></dd>
 <dt>default_group</dt>
 <dd><p><code>character(1)|NULL</code>
 A default value for the group variable (optional).</p></dd>
+
+
+<dt>intended_use_label</dt>
+<dd><p>Either a string indicating the intended use for export, or
+NULL. The provided label will be displayed prior to the download and will also be included in the exported file.</p></dd>
 
 
 <dt>module_id</dt>
