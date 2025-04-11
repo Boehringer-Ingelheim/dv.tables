@@ -1,3 +1,7 @@
+# dv.tables 0.0.3.9000
+
+* Add Tplyr_table module 
+
 # dv.tables 0.0.3
 
 * Add table download button
