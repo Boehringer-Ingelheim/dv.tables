@@ -1,3 +1,7 @@
+# dv.tables 0.0.3
+
+* Add table download button
+
 # dv.tables 0.0.2
 
 * Solves minor documentation issues.

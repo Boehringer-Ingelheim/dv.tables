@@ -15,7 +15,8 @@ hierarchical_count_table_server(
   subjid_var,
   show_modal_on_click = FALSE,
   default_hierarchy = NULL,
-  default_group = NULL
+  default_group = NULL,
+  intended_use_label = NULL
 )
 
 mod_hierarchical_count_table(
@@ -26,6 +27,8 @@ mod_hierarchical_count_table(
   show_modal_on_click = FALSE,
   default_hierarchy = NULL,
   default_group = NULL,
+  intended_use_label =
+    "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL
 )
 }
@@ -50,6 +53,9 @@ A default value for the hierarchy variables (optional).}
 
 \item{default_group}{\code{character(1)|NULL}
 A default value for the group variable (optional).}
+
+\item{intended_use_label}{Either a string indicating the intended use for export, or
+NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}
 
 \item{module_id}{\verb{[character(1)]}
 
