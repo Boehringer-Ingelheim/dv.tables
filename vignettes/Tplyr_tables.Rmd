@@ -24,4 +24,30 @@ to demonstrate the various module specific features.
 
 **Mandatory Arguments**
 
-- 
+-   `module_id` : A unique identifier of type character for the module
+
+- `tplyr_table_fn`: Function which encapsulates the Tplyr table object code. Additionally add the datasets as function arguments. 
+
+- `build_fn`: Functions which encapsulates table building code. It takes Tplyr tab object as an argument. 
+
+**(Optional) Arguments for listing customization**
+
+The module uses `dv.listings` for showing drill-down listing data. Therefore additional arguments can be provided for further customization.
+
+- `subjid_var`: Column corresponding to subject ID. Default value is 'USUBJID'
+
+- `default_vars`: A list of character vectors which contain the variable names to be displayed as default per dataset. Named according to the `dataset_names.` If `NULL`, the first six variables are displayed for each dataset.
+
+- `pagination`: boolean indicating if pagination should be activated, or `NULL` 
+
+- `intended_use_label`:  Either a string indicating the intended use for export, or NULL. 
+
+- `receiver_id`: To enable switching to another DaVinci module, set `receiver_id` to the module ID of your counterpart module.
+
+# Example
+
+A simple example, understanding of tab fun and build fun, default build fun. Example with jumping feature. 
+
+<!-- Put the mock Tplyr table code here -->
+
+ 
