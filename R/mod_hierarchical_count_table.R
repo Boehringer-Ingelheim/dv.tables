@@ -477,6 +477,7 @@ hierarchical_count_table_server <- function(
     pop_dataset,
     subjid_var,
     show_modal_on_click = FALSE,
+    on_sbj_click_fun = function() NULL,
     default_hierarchy = NULL,
     default_group = NULL,
     intended_use_label = NULL) {
@@ -553,33 +554,50 @@ hierarchical_count_table_server <- function(
     })
 
     # Table download module
-    mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD,
-                                 dataset = et,
-                                 intended_use_label = intended_use_label)
+    mod_export_counttable_server(
+      module_id = EC$ID$TAB_DOWNLOAD,
+      dataset = et,
+      intended_use_label = intended_use_label
+    )
 
     if (show_modal_on_click) {
       shiny::observeEvent(input[["cell_click"]], {
         row <- input[["cell_click"]][["row_id"]]
         col <- input[["cell_click"]][["column"]]
-        d <- shiny::modalDialog(
-          paste("Subjects:", paste(et()[["df"]][[col]][[row]][["subjid"]], collapse = " "))
-        )
+        subj_ids <- et()[["df"]][[col]][[row]][["subjid"]]
+        id_elements <- vector(mode = "list", length = (length(subj_ids) * 2) - 1)
+        for (idx in seq_along(subj_ids)) {
+          link_idx <- (idx * 2) - 1
+          comma_idx <- link_idx + 1
+          id_elements[[link_idx]] <- shiny::a(subj_ids[[idx]], "data-id" = subj_ids[[idx]])
+          if (idx < length(subj_ids)) id_elements[[comma_idx]] <- ","
+        }
 
+        input_id <- ns("clicked_sbj")
+
+        d <- shiny::modalDialog(
+          shiny::div(
+            id = ns("sbj_list"),
+            shiny::h3("Subjects"),
+            do.call(shiny::p, id_elements),
+            onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'));})(event)", input_id)
+          )
+        )
         shiny::showModal(d)
       })
     }
 
-    res <- shiny::reactive({
-      row <- input[["cell_click"]][["row_id"]]
-      col <- input[["cell_click"]][["column"]]
-      shiny::validate(
-        shiny::need(
-          checkmate::test_string(col) && checkmate::test_number(row),
-          "click a cell"
-        )
-      )
-      et()[["df"]][[col]][[row]][["subjid"]]
+    # Jumping and communication
+    clicked_sbj <- shiny::reactiveVal(NULL)
+    shiny::observeEvent(input[["clicked_sbj"]], {
+      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+      clicked_sbj(input[["clicked_sbj"]])
+      on_sbj_click_fun()
     })
+
+    res <- list(
+      subj_id = shiny::reactive(clicked_sbj())
+    )
 
     if (isTRUE(getOption("shiny.testmode"))) do.call(shiny::exportTestValues, as.list(environment()))
 
@@ -627,10 +645,10 @@ mod_hierarchical_count_table <- function(module_id,
     ui = hierarchical_count_table_ui,
     server = function(afmm) {
       if (is.null(receiver_id)) {
-        on_sbj_click_fun <- function() NULL # nolint unused
+        on_sbj_click_fun <- function() NULL
       } else {
-        on_sbj_click_fun <- function() { # nolint unused
-          afmm[["utils"]][["switch2"]](receiver_id)
+        on_sbj_click_fun <- function() {
+          afmm[["utils"]][["switch2mod"]](receiver_id)
         }
       }
 
@@ -640,6 +658,7 @@ mod_hierarchical_count_table <- function(module_id,
         pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
         subjid_var = subjid_var,
         show_modal_on_click = show_modal_on_click,
+        on_sbj_click_fun = on_sbj_click_fun,
         default_hierarchy = default_hierarchy,
         default_group = default_group,
         intended_use_label = intended_use_label
@@ -671,7 +690,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   pop_dataset_name = TC$dataset_name(),
   subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
   show_modal_on_click = TC$logical(),
-  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> 
+  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("zero_or_more", "optional"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
   intended_use_label = TC$character() |> TC$flag("optional"),
