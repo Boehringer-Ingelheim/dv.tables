@@ -34,7 +34,7 @@ preprocess_download_table <- function(count_table) {
 
   excelfile <- count_table[["df"]] |>
     dplyr::select(
-      event_vars,
+      dplyr::all_of(event_vars),
       names(total_colname)
     ) |>
     dplyr::mutate(dplyr::across(
