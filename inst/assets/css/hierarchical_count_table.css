@@ -21,3 +21,12 @@
 .hier_count_table tr.indent-2 span {
     padding-left: 4em;
 }
+
+.hier_count_table .truncate {
+  display: block;
+  max-width: 30vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+}
