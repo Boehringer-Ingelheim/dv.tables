@@ -581,23 +581,24 @@ hierarchical_count_table_server <- function(
             id = ns("sbj_list"),
             shiny::h3("Subjects"),
             do.call(shiny::p, id_elements),
-            onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'));})(event)", input_id)
+            onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
           )
         )
         shiny::showModal(d)
       })
     }
 
-    # Jumping and communication
-    clicked_sbj <- shiny::reactiveVal(NULL)
+    # Jumping and communication    
     shiny::observeEvent(input[["clicked_sbj"]], {
-      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
-      clicked_sbj(input[["clicked_sbj"]])
+      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))      
       on_sbj_click_fun()
     })
 
     res <- list(
-      subj_id = shiny::reactive(clicked_sbj())
+      subj_id = shiny::reactive({
+        shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+        input[["clicked_sbj"]]
+      })
     )
 
     if (isTRUE(getOption("shiny.testmode"))) do.call(shiny::exportTestValues, as.list(environment()))
