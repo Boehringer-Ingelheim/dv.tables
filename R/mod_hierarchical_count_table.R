@@ -427,7 +427,8 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @export
 hierarchical_count_table_ui <- function(id) {
   ns <- shiny::NS(id)
-  shiny::tagList(
+  shiny::div(
+    class = "hier_count_table",
     shiny::div(
       shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$HIERARCHY))),
       shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$GRP))),
