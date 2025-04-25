@@ -1,4 +1,5 @@
 # dv.tables 0.0.3-900
+
 * Adds jumping functionality
 * Implements label truncation
 

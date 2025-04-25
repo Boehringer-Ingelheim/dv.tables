@@ -590,7 +590,8 @@ hierarchical_count_table_server <- function(
 
     # Jumping and communication    
     shiny::observeEvent(input[["clicked_sbj"]], {
-      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))      
+      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+      shiny::removeModal()     
       on_sbj_click_fun()
     })
 
