@@ -453,6 +453,10 @@ hierarchical_count_table_ui <- function(id) {
 #'
 #' @param subjid_var `character(1)`
 #' A string representing the subject identifier column in both datasets.
+#' 
+#' @param on_sbj_click_fun 'function()'
+#' 
+#' Function to invoke when a subject is clicked
 #'
 #' @param show_modal_on_click `logical(1)`
 #' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
@@ -628,9 +632,9 @@ hierarchical_count_table_server <- function(
 #' Dataset dispatcher. This parameter is incompatible with its *_dataset_name counterpart. Only for advanced use.
 #'
 #' @param receiver_id `character(1)`
-#'
-#' **This functionality is not ready yet** please
-#' open an issue or contact the developers if you are interested in using it.
+#' 
+#' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app or be NULL. 
+#' 
 #'
 #' @keywords main
 #'
