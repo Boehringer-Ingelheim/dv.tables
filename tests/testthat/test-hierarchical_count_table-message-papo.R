@@ -25,5 +25,5 @@ data <- list(event = event_df, pop = pop_df)
 
 trigger_input_id <- "hierarchical_count_table-clicked_sbj"
 test_communication_with_papo(mod, data, trigger_input_id,
-                             "jumping_feature",
+                             "hierarchical_count_table$jumping_feature",
                              specs$jumping_feature)
