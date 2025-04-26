@@ -4,7 +4,7 @@
 #' the module manager (dv.manager).
 #' @export
 #'
-mock_Tplyr_table <- function() {
+mock_Tplyr_table_mm <- function() {
 
   adsl <- pharmaverseadam::adsl
   adae <- pharmaverseadam::adae
@@ -124,5 +124,69 @@ mock_Tplyr_table <- function() {
   )
 }
 
+mock_Tplyr_table <- function(){
 
-dv.papo::explorer_app(list(adae = adae, adsl = adsl))
+  adsl <- pharmaverseadam::adsl
+  adae <- pharmaverseadam::adae
+
+  my_tplyr_fun <- function(adsl) {
+    # Create summary table object
+    tab <- Tplyr::tplyr_table(adsl, ARM) |>
+      Tplyr::add_layer(
+        Tplyr::group_desc(AGE, by = "Age (years)")
+      ) |>
+      Tplyr::add_layer(
+        Tplyr::group_count(EOSSTT, by = "End of Study status (%)")
+      )
+    return(tab)
+  }
+
+  build_func <- function(tab) {
+    Tplyr::build(tab, metadata = TRUE) |>
+      dplyr::mutate(row_label2 = ifelse(row_label2 == row_label1, "Total (%)",
+                                        row_label2
+      )) |>
+      Tplyr::apply_row_masks(row_breaks = TRUE)
+  }
+
+
+  ui = function(id) {
+
+    ns <- ifelse(is.character(id), shiny::NS(id), shiny::NS(NULL))
+    shiny::fluidPage(Tplyr_table_UI(ns("mock_tplyr")))
+  }
+
+
+
+  server = function(input, output, session) {
+
+    needed_datasets <- names(formals(my_tplyr_fun))
+
+    Tplyr_table_server(
+    module_id = "mock_tplyr",
+    dataset_list = shiny::reactive({
+      list("adsl" = adsl)
+      }),
+    tplyr_tab_fun = my_tplyr_fun,
+    build_fun = build_func,
+    dataset_metadata = list(
+      name = shiny::reactive("test_name"),
+      date_range = shiny::reactive({
+        c("2022-01-01", "2022-12-03")
+      })
+    ),
+    subjid_var = "USUBJID",
+    default_vars = NULL,
+    intended_use_label = "Test Label",
+    pagination = NULL,
+    receiver_id = NULL,
+    afmm_param = NULL
+  )
+  }
+
+  shiny::shinyApp(
+    ui,
+    server
+  )
+
+}
