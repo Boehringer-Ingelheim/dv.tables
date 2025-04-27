@@ -19,5 +19,20 @@ specs[["export_count_table"]] <- list(
   "export_remove_parantheses" = "Continuation of export_separate_cols, the leading and trailing parentheses after column separator is removed from exported table."
 )
 
+specs[["Tplyr_tables"]] <- list(
+  framework = "Tplyr table function correctly renders summary table at initialization.
+  Rest of the outputs will be empty.",
+  clickevent = "User clicking on summary table generates drilldown using dv.listings module.",
+  error = "Clicking in wrong area creates returns no drill down listing and prints a message in console"
+)
+
+
 specs
 # nolint end
+
+
+# Clicktable initialization, "framework as dv module initialization is correct
+# Global filter correctly updates the output summary table
+
+
+
