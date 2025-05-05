@@ -1,3 +1,8 @@
+# dv.tables 0.0.3-900
+
+* Adds jumping functionality
+* Implements label truncation
+
 # dv.tables 0.0.3
 
 * Add table download button

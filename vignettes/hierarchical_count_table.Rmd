@@ -104,8 +104,5 @@ In the downloaded table, total count of patients (`N =` seen in the selected gro
 
 # Drill down functionality
 
-This module shows by default the subject ID of the subjects in a given cell.
-
-It also has the capacity of returning a list with the subjids to other modules. If you have a use case for in which
-you would prefer a more complex interaction, for example passing the a given ID to another module (e.g. `dv.papo`)
-please let us know or open an issue in the repo!
+When a cell is clicked the set of subjects in the cell is shown. Each of the ids is clickable and it allows
+exploring that participant in additional module, for example `dv.papo`.

@@ -393,7 +393,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 
     indent <- max_hierarchy_lvl - curr_hier_lvl
     indent_class <- sprintf("indent-%d", indent)
-    entry_cell <- td(shiny::span(collapse_control, curr_row[[entry_name_col]]))
+    entry_cell <- td(shiny::span(collapse_control, shiny::span(curr_row[[entry_name_col]], class = "truncate", title = curr_row[[entry_name_col]])))
     data_cells <- purrr::imap(curr_row[data_columns], ~ tdc(.x[[1]][["count"]], column = .y, onclick = on_cell_click))
     body[[r]] <- tr(
       "row-id" = r,
@@ -427,7 +427,8 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @export
 hierarchical_count_table_ui <- function(id) {
   ns <- shiny::NS(id)
-  shiny::tagList(
+  shiny::div(
+    class = "hier_count_table",
     shiny::div(
       shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$HIERARCHY))),
       shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$GRP))),
@@ -452,6 +453,10 @@ hierarchical_count_table_ui <- function(id) {
 #'
 #' @param subjid_var `character(1)`
 #' A string representing the subject identifier column in both datasets.
+#' 
+#' @param on_sbj_click_fun 'function()'
+#' 
+#' Function to invoke when a subject is clicked
 #'
 #' @param show_modal_on_click `logical(1)`
 #' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
@@ -476,7 +481,8 @@ hierarchical_count_table_server <- function(
     table_dataset,
     pop_dataset,
     subjid_var,
-    show_modal_on_click = FALSE,
+    show_modal_on_click = TRUE,
+    on_sbj_click_fun = function() NULL,
     default_hierarchy = NULL,
     default_group = NULL,
     intended_use_label = NULL) {
@@ -553,33 +559,52 @@ hierarchical_count_table_server <- function(
     })
 
     # Table download module
-    mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD,
-                                 dataset = et,
-                                 intended_use_label = intended_use_label)
+    mod_export_counttable_server(
+      module_id = EC$ID$TAB_DOWNLOAD,
+      dataset = et,
+      intended_use_label = intended_use_label
+    )
 
     if (show_modal_on_click) {
       shiny::observeEvent(input[["cell_click"]], {
         row <- input[["cell_click"]][["row_id"]]
         col <- input[["cell_click"]][["column"]]
-        d <- shiny::modalDialog(
-          paste("Subjects:", paste(et()[["df"]][[col]][[row]][["subjid"]], collapse = " "))
-        )
+        subj_ids <- et()[["df"]][[col]][[row]][["subjid"]]
+        id_elements <- vector(mode = "list", length = (length(subj_ids) * 2) - 1)
+        for (idx in seq_along(subj_ids)) {
+          link_idx <- (idx * 2) - 1
+          comma_idx <- link_idx + 1
+          id_elements[[link_idx]] <- shiny::a(subj_ids[[idx]], "data-id" = subj_ids[[idx]])
+          if (idx < length(subj_ids)) id_elements[[comma_idx]] <- ","
+        }
 
+        input_id <- ns("clicked_sbj")
+
+        d <- shiny::modalDialog(
+          shiny::div(
+            id = ns("sbj_list"),
+            shiny::h3("Subjects"),
+            do.call(shiny::p, id_elements),
+            onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
+          )
+        )
         shiny::showModal(d)
       })
     }
 
-    res <- shiny::reactive({
-      row <- input[["cell_click"]][["row_id"]]
-      col <- input[["cell_click"]][["column"]]
-      shiny::validate(
-        shiny::need(
-          checkmate::test_string(col) && checkmate::test_number(row),
-          "click a cell"
-        )
-      )
-      et()[["df"]][[col]][[row]][["subjid"]]
+    # Jumping and communication    
+    shiny::observeEvent(input[["clicked_sbj"]], {
+      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+      shiny::removeModal()     
+      on_sbj_click_fun()
     })
+
+    res <- list(
+      subj_id = shiny::reactive({
+        shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+        input[["clicked_sbj"]]
+      })
+    )
 
     if (isTRUE(getOption("shiny.testmode"))) do.call(shiny::exportTestValues, as.list(environment()))
 
@@ -607,9 +632,9 @@ hierarchical_count_table_server <- function(
 #' Dataset dispatcher. This parameter is incompatible with its *_dataset_name counterpart. Only for advanced use.
 #'
 #' @param receiver_id `character(1)`
-#'
-#' **This functionality is not ready yet** please
-#' open an issue or contact the developers if you are interested in using it.
+#' 
+#' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app or be NULL. 
+#' 
 #'
 #' @keywords main
 #'
@@ -618,7 +643,7 @@ mod_hierarchical_count_table <- function(module_id,
                                          table_dataset_name,
                                          pop_dataset_name,
                                          subjid_var = "USUBJID",
-                                         show_modal_on_click = FALSE,
+                                         show_modal_on_click = TRUE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
                                          intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
@@ -627,10 +652,10 @@ mod_hierarchical_count_table <- function(module_id,
     ui = hierarchical_count_table_ui,
     server = function(afmm) {
       if (is.null(receiver_id)) {
-        on_sbj_click_fun <- function() NULL # nolint unused
+        on_sbj_click_fun <- function() NULL
       } else {
-        on_sbj_click_fun <- function() { # nolint unused
-          afmm[["utils"]][["switch2"]](receiver_id)
+        on_sbj_click_fun <- function() {
+          afmm[["utils"]][["switch2mod"]](receiver_id)
         }
       }
 
@@ -640,6 +665,7 @@ mod_hierarchical_count_table <- function(module_id,
         pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
         subjid_var = subjid_var,
         show_modal_on_click = show_modal_on_click,
+        on_sbj_click_fun = on_sbj_click_fun,
         default_hierarchy = default_hierarchy,
         default_group = default_group,
         intended_use_label = intended_use_label
@@ -650,7 +676,7 @@ mod_hierarchical_count_table <- function(module_id,
   mod
 }
 
-# Correlation heatmap module interface description ----
+# hierarchical table module interface description ----
 # TODO: Fill in
 mod_hierarchical_count_table_API_docs <- list(
   "Hierarchical count table",
@@ -671,7 +697,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   pop_dataset_name = TC$dataset_name(),
   subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
   show_modal_on_click = TC$logical(),
-  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> 
+  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("zero_or_more", "optional"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
   intended_use_label = TC$character() |> TC$flag("optional"),

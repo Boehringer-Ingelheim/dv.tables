@@ -9,7 +9,8 @@ specs[["hierarchical_count_table"]] <- list(
   "hierarchy_selection" = "The user can select one or two hierarchy variables from the event dataset.",
   "group_selection" = "The user can select a group variable from the population dataset.",
   "total_column_display" = "The app includes a 'Total' column in the event table, which shows the total event count for all groups combined.",
-  "sorted_table_display" = "The event table is sorted by the highest number of subjects with an event within each hierarchy level. The overall hierarchy is ranked based on the highest event counts."
+  "sorted_table_display" = "The event table is sorted by the highest number of subjects with an event within each hierarchy level. The overall hierarchy is ranked based on the highest event counts.",  
+  "jumping_feature" = "The module can communicate subject values to other modules."
 )
 
 specs[["export_count_table"]] <- list(

@@ -104,9 +104,13 @@ local({
   })
 
   test_that("cells can be clicked and the id of participants is returned" |>
-    vdoc[["add_spec"]](c(specs$hierarchical_count_table$cell_interactivity)), {
+    vdoc[["add_spec"]](c(specs$hierarchical_count_table$cell_interactivity, specs$hierarchical_count_table$jumping_feature)), {
+    id <- "1012"
     app$run_js("document.querySelector('#mod-table > div > table > tbody > tr.indent-0 > td:nth-child(2)').click();")
-    res <- shiny::isolate(app$get_values(export = TRUE)[["export"]][[tns("res")]]())
-    expect_snapshot(res)
+    app$wait_for_idle()
+    app$run_js(sprintf("document.querySelector('[data-id=\"%s\"]').click()", id))
+    app$wait_for_idle()
+    returned_id <- shiny::isolate(app$get_values(export = TRUE)[["export"]][[tns("res")]][["subj_id"]]())
+    expect_equal(returned_id, "1012")        
   })
 })
