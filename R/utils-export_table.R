@@ -12,8 +12,7 @@
 #' @return Processed table to download as excel
 #'
 #' @keywords internal
-preprocess_download_table <- function(count_table) {
-
+preprocess_download_table <- function(count_table, download_type) {
 
   checkmate::assert_list(count_table,
                          types = c("data.frame", "list"),
@@ -25,46 +24,43 @@ preprocess_download_table <- function(count_table) {
                              "hierarchy",
                              "special_char"),
                            names(count_table[["meta"]]), )
-
+  
   # Get col names and total patients
   total_colname <- count_table[["meta"]]$n_denominator
 
   # Get event variables
   event_vars <- count_table[["meta"]]$hierarchy
 
-  excelfile <- count_table[["df"]] |>
-    dplyr::select(
-      dplyr::all_of(event_vars),
-      names(total_colname)
-    ) |>
-    dplyr::mutate(dplyr::across(
-      dplyr::where(is.list),
-      ~ purrr::map_chr(., "count")
-    )) |>
-    dplyr::mutate(dplyr::across(
-      dplyr::all_of(names(total_colname)),
-      ~ gsub("\u2014", NA, .)
-    )) |>
-    dplyr::mutate(dplyr::across(
-      dplyr::all_of(event_vars),
-      ~ gsub(count_table[["meta"]]$special_char,
-             "Total", .)
-    ))
-
+  df_prep <- count_table[["df"]] |>
+    dplyr::select(dplyr::all_of(event_vars), names(total_colname)) |>
+    
+    # Keep only the `count` element of the count-subjid paired columns
+    dplyr::mutate(dplyr::across(dplyr::where(is.list), ~ purrr::map_chr(.x, "count"))) |>
+    
+    # Replace the Em Dash character with empty string
+    dplyr::mutate(dplyr::across(dplyr::all_of(names(total_colname)),
+                                ~ sub("\u2014", "", .x))) |>
+    
+    # Replace the special character in the event variables with "Total"
+    dplyr::mutate(dplyr::across(dplyr::all_of(event_vars),
+                                ~ sub(count_table[["meta"]]$special_char, "Total", .x)))
+      
+  if (download_type == ".rtf") {
+    return(df_prep)
+  }
 
   new_row <- setNames(
-    data.frame(matrix(ncol = ncol(excelfile), nrow = 1)),
-    names(excelfile)
+    data.frame(matrix(ncol = ncol(df_prep), nrow = 1)),
+    names(df_prep)
   )
   new_row[[1, 1]] <- "Overall No. of Patients"
 
   matched_cols <- match(names(total_colname), names(new_row))
   new_row[1, matched_cols] <- total_colname
 
-  excelfile <- rbind(new_row, excelfile)
+  df_prep <- rbind(new_row, df_prep)
 
-
-  excelfile <- purrr::reduce(names(total_colname), function(df, col) {
+  df_prep <- purrr::reduce(names(total_colname), function(df, col) {
     df |>
       tidyr::separate(col,
         into = paste0(col, c("_N", "_per")),
@@ -73,7 +69,7 @@ preprocess_download_table <- function(count_table) {
         fill = "right"
       ) |>
       dplyr::mutate(dplyr::across(dplyr::ends_with("_per"), ~ sub(")", "", .)))
-  }, .init = excelfile)
+  }, .init = df_prep)
 
-  return(excelfile)
+  return(df_prep)
 }

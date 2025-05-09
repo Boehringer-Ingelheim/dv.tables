@@ -3,6 +3,7 @@ EXP <- poc(
     EXPORT_BUTTON = "export_button",
     DOWNLOAD_BUTTON = "download_button",
     CANCEL_BUTTON = "cancel_button",
+    DOWNLOAD_TYPE = "download_type",
     FILENAME_BOX = "filename_box",
     DATAPROTECT_BOX = "dataprotect_box"
   ),
@@ -71,20 +72,24 @@ mod_export_counttable_server <- function(module_id, dataset,
             !all(c("n_denominator", "hierarchy", "hier_lvl_col") %in% names(dataset()[["meta"]]))) {
 
           shiny::showNotification(
-            "The dataset is not in the expected format or is missing necessary meta data. Please check the data and try again.",
+            "The dataset is not in the expected format or is missing necessary metadata. Please check the data and try again.",
             type = "error",
             duration = NULL,
             closeButton = TRUE,
             id = NULL
           )
 
-        }else {
+        } else {
           shiny::showModal(
             shiny::modalDialog(
               shiny::tagList(
+                shiny::radioButtons(ns(EXP$ID$DOWNLOAD_TYPE), "Download Type",
+                                    choices = c("Word (.rtf)" = ".rtf",
+                                                "Excel (.xlsx)" = ".xlsx"),
+                                    selected = ".rtf"),
                 shiny::textInput(
                   ns(EXP$ID$FILENAME_BOX),
-                  "Insert file name",
+                  "Enter file name",
                   value = "file_name"
                 ),
                 shiny::checkboxInput(
@@ -135,15 +140,24 @@ mod_export_counttable_server <- function(module_id, dataset,
       # Download
       output[[EXP$ID$DOWNLOAD_BUTTON]] <- shiny::downloadHandler(
         filename = function() {
-          sanitized_fname <- fs::path_sanitize(input[[EXP$ID$FILENAME_BOX]])
-          paste0(sanitized_fname, ".xlsx")
+          input[[EXP$ID$FILENAME_BOX]] |>
+            sub("\\.[[:alnum:]]*$", "", x = _) |>
+            paste0(input[[EXP$ID$DOWNLOAD_TYPE]]) |>
+            fs::path_sanitize()
         },
         content = function(file) {
           shiny::removeModal() # close pop up
 
-          excelfile <- preprocess_download_table(dataset())
-
-          openxlsx::write.xlsx(excelfile, file)
+          # Preprocess table for download
+          df_prep <- preprocess_download_table(dataset(), input[[EXP$ID$DOWNLOAD_TYPE]])
+          
+          if (input[[EXP$ID$DOWNLOAD_TYPE]] == ".rtf") {
+            gt_object <- gt::gt(df_prep)
+            rtf_string <- gt::as_rtf(gt_object)
+            writeLines(rtf_string, file)
+          } else {
+            openxlsx::write.xlsx(df_prep, file)
+          }
         }
       )
     }
