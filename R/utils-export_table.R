@@ -1,6 +1,6 @@
 #' Preprocess table for download
 #' @details
-#'   Dataframe contains summary and all subject info. as list of lists
+#'   Data frame contains summary and all subject info. as list of lists
 #'   Extract the required named list
 #'   Add overall patients from column header
 #'   Separate the columns into count and percentage
