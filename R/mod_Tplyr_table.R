@@ -160,7 +160,7 @@ Tplyr_table_server <- function(
     output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
       if (is.null(col())) {
         shiny::tags$text("Click on a cell to diyplay corresponding listing")
-      } else if (!startsWith(col(), "var")) {
+      } else if (!startsWith(col(), "var") || row() == "") {
         shiny::tags$text("Click on a cell with values to diyplay corresponding listing")
       } else {
 
@@ -186,7 +186,7 @@ Tplyr_table_server <- function(
     })
 
     shiny::observeEvent(list(row(), col()), {
-      if (is.null(col()) || !startsWith(col(), "var")) {
+      if (is.null(col()) || !startsWith(col(), "var") || row() == "") {
         shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
       } else {
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
@@ -199,6 +199,7 @@ Tplyr_table_server <- function(
       shiny::req(col())
 
       if (startsWith(col(), "var")) {
+
         subset_data <- Tplyr::get_meta_subset(tplyr_tab(), row(), col())
 
         subset_data[[subjid_var]]
@@ -242,7 +243,10 @@ Tplyr_table_server <- function(
 mod_Tplyr_table <- function(
     module_id,
     tplyr_tab_fun,
-    build_fun,
+    build_fun = function(tab) {
+      Tplyr::build(tab, metadata = TRUE) |>
+        Tplyr::apply_row_masks(row_breaks = TRUE)
+    },
     subjid_var = "USUBJID",
     default_vars = NULL,
     pagination = NULL,
