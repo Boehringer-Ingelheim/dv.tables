@@ -81,9 +81,6 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
         dplyr::select(-event_vars[1]) |>
         dplyr::rename_with(~ paste0(event_vars[1], "<br>  ", event_vars[2]), event_vars[2])
-
-      # # Rename group columns with `(N = xx)` suffix
-      # names(df_prep)[matched_cols] <- paste0(names(total_colname), " (N = ", total_colname, ")")
     }
   }
 
