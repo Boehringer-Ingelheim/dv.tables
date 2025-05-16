@@ -87,8 +87,7 @@ mock_Tplyr_table_mm <- function() {
     ), 
     "Listing" = list(
       dataset_names = c("adsl", "adae")
-    ),
-    "test" = "TEst"
+    )
   )
 
   module_list <- list(
