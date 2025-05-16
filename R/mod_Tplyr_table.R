@@ -2,7 +2,9 @@ TPLYR_TBL <- pack_of_constants( #nolint
   TABLE_ID = "table_output",
   LISTINGS_ID = "listings",
   LISTINGS_HEADER_ID = "listings_header",
-  LISTINGS_DIV_ID = "listings_div"
+  LISTINGS_DIV_ID = "listings_div",
+  SEL_OUTPUT_ID = "sel_output",
+  SEL_OUTPUT_LABEL = "Select Output:"
 )
 
 
@@ -11,16 +13,14 @@ TPLYR_TBL <- pack_of_constants( #nolint
 #' @param module_id `[character(1)]`
 #'
 #' A character string that serves as unique identifier for the module.
-#'
-#' @return
+#' 
 #' @export
-#'
-#' @examples
-Tplyr_table_UI <- function(module_id) {
+Tplyr_table_UI <- function(module_id, output_list) {
   ns <- shiny::NS(module_id)
 
   ui <- shiny::tagList(
     shinyjs::useShinyjs(),
+    shiny::selectizeInput(ns(TPLYR_TBL$SEL_OUTPUT_ID), label = TPLYR_TBL$SEL_OUTPUT_LABEL, choices = names(output_list)),
     reactable::reactableOutput(ns(TPLYR_TBL$TABLE_ID)),
     shiny::br(),
     shiny::uiOutput(ns(TPLYR_TBL$LISTINGS_HEADER_ID)),
@@ -74,8 +74,7 @@ Tplyr_table_UI <- function(module_id) {
 Tplyr_table_server <- function(
     module_id,
     dataset_list,
-    tplyr_tab_fun,
-    build_fun,
+    output_list,
     dataset_metadata,
     subjid_var,
     default_vars,
@@ -88,8 +87,6 @@ Tplyr_table_server <- function(
     checkmate::check_character(module_id, min.chars = 1),
     checkmate::check_multi_class(dataset_list, c("reactive", "shinymeta_reactive")),
     checkmate::check_list(default_vars, null.ok = TRUE),
-    checkmate::check_function(tplyr_tab_fun),
-    checkmate::check_function(build_fun, nargs = 1),
     checkmate::check_list(dataset_metadata, names = "named", types = c("reactive", "shinymeta_reactive")),
     checkmate::check_character(names(dataset_metadata), unique = TRUE),
     checkmate::check_subset(names(dataset_metadata), choices = c("name", "date_range")),
@@ -103,7 +100,31 @@ Tplyr_table_server <- function(
   if (!is.null(default_vars)) {
     checkmate::assert_names(names(default_vars), type = "unique")
   }
-
+  
+  checkmate::assert_list(output_list, types = "list")
+  
+  for (output in output_list) {
+    
+    if (length(output) == 1) {
+      checkmate::assert(
+        checkmate::check_list(output, names = "named"),
+        checkmate::check_subset(names(output), choices = "dataset_names", empty.ok = FALSE),
+        combine = "and"
+      )
+    } else if (length(output) == 2) {
+      
+      checkmate::assert(
+        checkmate::check_list(output, names = "named"),
+        checkmate::check_subset(names(output), choices = c("tplyr_tab_fun", "build_fun"), empty.ok = FALSE),
+        checkmate::check_function(output[["tplyr_tab_fun"]]),
+        checkmate::check_function(output[["build_fun"]], nargs = 1),
+        combine = "and"
+      )
+    } else {
+      message("output_list entry has too many elements")
+    }
+  }
+  
 
   shiny::moduleServer(module_id, function(input, output, session) {
     ns <- session$ns
@@ -112,14 +133,37 @@ Tplyr_table_server <- function(
       checkmate::assert_list(dataset_list(), types = "data.frame", null.ok = TRUE, names = "named")
       dataset_list()
     })
-
+    
+    is_table <- shiny::reactive({
+      "tplyr_tab_fun" %in% names(output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]])
+    })
+    
+    needed_data <- shiny::reactive({
+      
+      if (is_table()) {
+        tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
+        
+        v_dataset_list()[names(formals(tplyr_tab_fun))]
+      } else {
+        dataset_names <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["dataset_names"]]
+        v_dataset_list()[dataset_names]
+      }
+    })
+    
+    ## table part start ---
 
     tplyr_tab <- shiny::reactive({
-      res <- do.call(tplyr_tab_fun, v_dataset_list())
+      if (is_table()) {
+      tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
+      res <- do.call(tplyr_tab_fun, needed_data())
+      }
     })
 
     tplyr_tab_build <- shiny::reactive({
+      if (is_table()) {
+      build_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["build_fun"]]
       build_fun(tplyr_tab())
+      }
     })
 
 
@@ -134,6 +178,7 @@ Tplyr_table_server <- function(
 
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
+      if (is_table()) {
       selected_columns <- dplyr::select(
         tplyr_tab_build(),
         -row_id, -dplyr::starts_with("ord")
@@ -149,16 +194,37 @@ Tplyr_table_server <- function(
           reactable::colDef(name = rename_columns(col))
         }), colnames(selected_columns))
       )
+      }
     })
+    
+    ## table part end ---
 
-    ## listings part start
+    ## listings part start ---
 
     # Create reactive values for storing row and col ids
+    # row <- shiny::reactiveVal(NULL)
     row <- shiny::reactive(tplyr_tab_build()[input$row_id$index, 1]$row_id)
     col <- shiny::reactive(input$col_id$column)
-
+    # col <- shiny::reactiveVal(NULL)
+    sel_output <- shiny::reactiveVal("")
+    # shiny::observe({
+    #   shiny::req(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
+    #   
+    #   if (input[[TPLYR_TBL$SEL_OUTPUT_ID]] != sel_output()) {
+    #     sel_output(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
+    #     row(NULL)
+    #     col(NULL)
+    #   } else {
+    #     row(tplyr_tab_build()[input$row_id$index, 1]$row_id)
+    #     col(input$col_id$column)
+    #   }
+    # })
+    
     output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
-      if (is.null(col())) {
+      if (!is_table()) {
+        shiny::tags$text("Listing:")
+      } else if (is.null(col()) || input[[TPLYR_TBL$SEL_OUTPUT_ID]] != shiny::isolate(sel_output())) { 
+        sel_output(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
         shiny::tags$text("Click on a cell to diyplay corresponding listing")
       } else if (!startsWith(col(), "var") || row() == "") {
         shiny::tags$text("Click on a cell with values to diyplay corresponding listing")
@@ -186,10 +252,19 @@ Tplyr_table_server <- function(
     })
 
     shiny::observeEvent(list(row(), col()), {
-      if (is.null(col()) || !startsWith(col(), "var") || row() == "") {
-        shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
+      if (is_table()) {
+        shinyjs::show(id = TPLYR_TBL$TABLE_ID)
+        if (is.null(col()) || !startsWith(col(), "var") || row() == "" || 
+            input[[TPLYR_TBL$SEL_OUTPUT_ID]] != shiny::isolate(sel_output())
+            ) {
+          shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
+        } else {
+          shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
+        }
       } else {
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
+        
+        shinyjs::hide(id = TPLYR_TBL$TABLE_ID)
       }
     })
 
@@ -208,12 +283,16 @@ Tplyr_table_server <- function(
 
 
     listings_data <- shiny::reactive({
-      listings_data_list <- lapply(dataset_list(), function(dataframe) {
+      if (is_table()) {
+      listings_data_list <- lapply(needed_data(), function(dataframe) {
         dataframe |>
           dplyr::filter(
             .data[[subjid_var]] %in% subject_subset()
           )
       })
+      } else {
+        needed_data()
+      }
     })
 
     dv.listings:::listings_server(
@@ -226,7 +305,7 @@ Tplyr_table_server <- function(
       pagination = pagination,
       afmm_param = afmm_param
     )
-    ## listings part end
+    ## listings part end ---
 
   })
 }
@@ -236,17 +315,11 @@ Tplyr_table_server <- function(
 #'
 #' @inheritParams Tplyr_table_server
 #'
-#' @return
 #' @export
 #'
-#' @examples
 mod_Tplyr_table <- function(
     module_id,
-    tplyr_tab_fun,
-    build_fun = function(tab) {
-      Tplyr::build(tab, metadata = TRUE) |>
-        Tplyr::apply_row_masks(row_breaks = TRUE)
-    },
+    output_list,
     subjid_var = "USUBJID",
     default_vars = NULL,
     pagination = NULL,
@@ -254,25 +327,57 @@ mod_Tplyr_table <- function(
     receiver_id = NULL
 ) {
 
+  checkmate::assert_list(output_list, types = "list")
+  
+  for (output in output_list) {
+    
+    if (length(output) == 1) {
+      checkmate::assert(
+        checkmate::check_list(output, names = "named"),
+        checkmate::check_subset(names(output), choices = "dataset_names", empty.ok = FALSE),
+        combine = "and"
+      )
+    } else if (length(output) == 2) {
+      
+      checkmate::assert(
+        checkmate::check_list(output, names = "named"),
+        checkmate::check_subset(names(output), choices = c("tplyr_tab_fun", "build_fun"), empty.ok = FALSE),
+        checkmate::check_function(output[["tplyr_tab_fun"]]),
+        checkmate::check_function(output[["build_fun"]], nargs = 1),
+        combine = "and"
+      )
+    } else {
+      message("output_list entry has too many elements")
+    }
+  }
+  
   mod <- list(
     ui = function(id) {
-      Tplyr_table_UI(id)
+      Tplyr_table_UI(id, output_list)
     },
     server = function(afmm) {
+      
+      needed_datasets <- sapply(output_list, function(tab) { 
+        if ("tplyr_tab_fun" %in% names(tab)) {
+          names(formals(tab[["tplyr_tab_fun"]]))
+        } else {
+          tab[["dataset_names"]]
+        }
+        
+      }, simplify = TRUE, USE.NAMES = FALSE) |> 
+        unlist() |> 
+        unique()
 
-      needed_datasets <- names(formals(tplyr_tab_fun))
-
-      tst <- needed_datasets %in% shiny::isolate(names(afmm$unfiltered_dataset()))
-      if (!all(tst)) {
+      dataset_present <- needed_datasets %in% shiny::isolate(names(afmm$unfiltered_dataset()))
+      if (!all(dataset_present)) {
         stop(paste("Not all datasets provided in tplyr_tab_fun are present in the provided data list!",
-                   needed_datasets[!tst], "is missing in the provided data list"))
+                   needed_datasets[!dataset_present], "is missing in the provided data list"))
       }
 
       Tplyr_table_server(
         module_id = module_id,
         dataset_list = shiny::reactive({afmm$filtered_dataset()[needed_datasets]}),
-        tplyr_tab_fun = tplyr_tab_fun,
-        build_fun = build_fun,
+        output_list = output_list,
         dataset_metadata = afmm$dataset_metadata,
         subjid_var = subjid_var,
         default_vars = default_vars,

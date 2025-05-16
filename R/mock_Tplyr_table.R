@@ -9,9 +9,6 @@ mock_Tplyr_table_mm <- function() {
   adsl <- pharmaverseadam::adsl
   adae <- pharmaverseadam::adae
 
-
-
-
   my_tplyr_fun <- function(adsl) {
     # Create summary table object
     tab <- Tplyr::tplyr_table(adsl, ARM) |>
@@ -20,10 +17,7 @@ mock_Tplyr_table_mm <- function() {
       ) |>
       Tplyr::add_layer(
         Tplyr::group_count(EOSSTT, by = "End of Study status (%)")
-      ) #|>
-      # Tplyr::add_layer(
-      #   Tplyr::group_count(vars(DCDECOD, DCSREAS))
-      # )
+      ) 
     return(tab)
   }
 
@@ -80,41 +74,28 @@ mock_Tplyr_table_mm <- function() {
     Tplyr::build(tab, metadata = TRUE) |>
       Tplyr::apply_row_masks(row_breaks = TRUE)
   }
-
-  papo <- dv.papo::mod_patient_profile(
-    module_id = "papo",
-    subject_level_dataset_name = "adsl",
-    subjid_var = "USUBJID",
-    sender_ids = c("test", "test2"),
-    summary = list(
-      vars = c("AGE", "RACE", "ETHNIC"),
-      column_count = 3L
+  
+  output_list <- list(
+    "Table 1" = list(
+      tplyr_tab_fun = my_tplyr_fun,
+      build_fun = build_func
     ),
-    listings = list(
-      "Demographics" = list(
-        dataset = "adsl"
-      ),
-      "Adverse Events" = list(
-        dataset = "adae"
-      )
-    )
+    "Tabel 2" = list(
+      tplyr_tab_fun = my_tplyr_fun2,
+      build_fun = build_func 
+      # listings_default_values
+    ), 
+    "Listing" = list(
+      dataset_names = c("adsl", "adae")
+    ),
+    "test" = "TEst"
   )
 
-
   module_list <- list(
-    "cqm" = mod_Tplyr_table(
-      "test",
-      my_tplyr_fun,
-      build_func,
-      receiver_id = "papo"
-    ),
-    "cqm2" = mod_Tplyr_table(
-      "test2",
-      my_tplyr_fun2,
-      build_func2,
-      receiver_id = "papo"
-    ),
-    "Papo" = papo
+    "Table" = mod_Tplyr_table(
+      module_id = "test",
+      output_list = output_list
+    )
   )
 
   dv.manager::run_app(
@@ -149,11 +130,19 @@ mock_Tplyr_table <- function(){
       Tplyr::apply_row_masks(row_breaks = TRUE)
   }
 
+  output_list <- list(
+    "table" =
+      list(
+        tplyr_tab_fun = my_tplyr_fun,
+        build_fun = build_func
+      )
+  )
+  
 
   ui = function(id) {
 
     ns <- ifelse(is.character(id), shiny::NS(id), shiny::NS(NULL))
-    shiny::fluidPage(Tplyr_table_UI(ns("mock_tplyr")))
+    shiny::fluidPage(Tplyr_table_UI(ns("mock_tplyr"), output_list = output_list))
   }
 
 
@@ -167,8 +156,7 @@ mock_Tplyr_table <- function(){
     dataset_list = shiny::reactive({
       list("adsl" = adsl)
       }),
-    tplyr_tab_fun = my_tplyr_fun,
-    build_fun = build_func,
+    output_list = output_list,
     dataset_metadata = list(
       name = shiny::reactive("test_name"),
       date_range = shiny::reactive({
