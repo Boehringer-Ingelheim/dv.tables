@@ -4,6 +4,7 @@ EXP <- poc(
     DOWNLOAD_BUTTON = "download_button",
     CANCEL_BUTTON = "cancel_button",
     DOWNLOAD_TYPE = "download_type",
+    COUNTPCT_BOX = "countpct_box",
     FILENAME_BOX = "filename_box",
     DATAPROTECT_BOX = "dataprotect_box"
   ),
@@ -34,7 +35,7 @@ mod_export_counttable_UI <- function(module_id) { # nolint
     shinyFeedback::useShinyFeedback(), # needed to use shinyFeedback functionalities
     shinyjs::useShinyjs(), # needed to use shinyjs functionalities
 
-    shiny::actionButton(ns(EXP$ID$EXPORT_BUTTON), label = "Download as Excel")
+    shiny::actionButton(ns(EXP$ID$EXPORT_BUTTON), label = "Download")
   )
 
   return(ui)
@@ -44,22 +45,21 @@ mod_export_counttable_UI <- function(module_id) { # nolint
 #' Server logic for the export count table
 #'
 #' @param module_id The ID for the event count module instance.
-#' @param dataset A reactive list containing dataset containing the event data
-#' and other meta data
+#' @param dataset A reactive list containing dataset containing the event data and other metadata.
 #' @inheritParams hierarchical_count_table_server
 #'
-#' @return Event dataset downloaded as a excel
+#' @return Event data downloaded as an Excel (`.xlsx`) or Word (`.rtf`) file.
 #' @describeIn mod_export_counttable_server This function handles the server logic for the export count table.
 #' @keywords internal
 mod_export_counttable_server <- function(module_id, dataset,
                                          intended_use_label) {
+  
   checkmate::check_string(module_id, min.chars = 1)
 
   shiny::moduleServer(
     module_id,
     function(input, output, session) {
       ns <- session$ns
-
 
       # Download modal
       shiny::observeEvent(input[[EXP$ID$EXPORT_BUTTON]], {
@@ -84,9 +84,15 @@ mod_export_counttable_server <- function(module_id, dataset,
             shiny::modalDialog(
               shiny::tagList(
                 shiny::radioButtons(ns(EXP$ID$DOWNLOAD_TYPE), "Download Type",
-                                    choices = c("Word (.rtf)" = ".rtf",
-                                                "Excel (.xlsx)" = ".xlsx"),
-                                    selected = ".rtf"),
+                                    choices = c("Excel (.xlsx)" = ".xlsx",
+                                                "Word (.rtf)" = ".rtf"),
+                                    selected = ".xlsx"),
+                shiny::checkboxInput(
+                  ns(EXP$ID$COUNTPCT_BOX),
+                  "Split count and percent into separate columns",
+                  value = TRUE,
+                  width = "100%"
+                ),
                 shiny::textInput(
                   ns(EXP$ID$FILENAME_BOX),
                   "Enter file name",
@@ -98,7 +104,7 @@ mod_export_counttable_server <- function(module_id, dataset,
                   width = "100%"
                 )
               ),
-              title = "Download as Excel table",
+              title = "Download table",
               footer = list(shiny::fluidRow(
                 shiny::column(5, shinyjs::disabled(shiny::downloadButton(ns(EXP$ID$DOWNLOAD_BUTTON))), offset = 5),
                 shiny::column(1, shiny::modalButton("Cancel"))
@@ -108,7 +114,6 @@ mod_export_counttable_server <- function(module_id, dataset,
           )
         }
       })
-
 
       # Add/remove checkbox warning
       checkbox_label <- shiny::eventReactive(input[[EXP$ID$DATAPROTECT_BOX]], {
@@ -149,11 +154,14 @@ mod_export_counttable_server <- function(module_id, dataset,
           shiny::removeModal() # close pop up
 
           # Preprocess table for download
-          df_prep <- preprocess_download_table(dataset(), input[[EXP$ID$DOWNLOAD_TYPE]])
+          df_prep <- preprocess_download_table(dataset(),
+                                               download_type = input[[EXP$ID$DOWNLOAD_TYPE]],
+                                               split_columns = input[[EXP$ID$COUNTPCT_BOX]])
           
           if (input[[EXP$ID$DOWNLOAD_TYPE]] == ".rtf") {
             gt_object <- gt::gt(df_prep)
-            rtf_string <- gt::as_rtf(gt_object)
+            rtf_string <- gt::as_rtf(gt_object) |>
+              gsub("<br>", "\\\\line ", x = _)
             writeLines(rtf_string, file)
           } else {
             openxlsx::write.xlsx(df_prep, file)

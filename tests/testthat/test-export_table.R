@@ -1,4 +1,3 @@
-
 local({
   event_list <- list()
   event_list[["subj"]] <- factor(c("1", "1", "1", "1", "2", "2", "2", "3"))
@@ -25,7 +24,7 @@ local({
 
   sw <- sort_wider_formatter_events_table(w, s)
 
-  exp_tab <- preprocess_download_table(sw)
+  exp_tab <- preprocess_download_table(sw, ".xlsx", TRUE)
 
   test_that("Add a new row" |>
     vdoc[["add_spec"]](c(specs$export_count_table$export_add_new_row)), {
@@ -42,10 +41,10 @@ local({
       specs$export_count_table$export_separate_cols,
       specs$export_count_table$export_remove_parantheses
     )), {
-    expect_true(all(paste0(pop_list[["group"]], "_N") %in% names(exp_tab)))
-    expect_true(all(paste0(pop_list[["group"]], "_per") %in% names(exp_tab)))
+    expect_true(all(paste0(pop_list[["group"]], " [N]") %in% names(exp_tab)))
+    expect_true(all(paste0(pop_list[["group"]], " [%]") %in% names(exp_tab)))
 
-    per_cols <- grep("_per$", names(exp_tab), value = TRUE)
+    per_cols <- grep(" [%]$", names(exp_tab), value = TRUE)
     expect_false(any(grepl("\\(|\\)", per_cols)))
   })
 })
