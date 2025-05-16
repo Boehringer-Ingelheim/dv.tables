@@ -1,3 +1,7 @@
+# dv.tables 0.0.3.9000
+
+* Implement functionality to download to Word (.rtf) format
+
 # dv.tables 0.0.3-900
 
 * Adds jumping functionality
