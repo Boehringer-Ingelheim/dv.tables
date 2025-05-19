@@ -79,7 +79,10 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
                                              .data[[event_vars[1]]],
                                              paste0("  ", .x)))) |>
 
+        # Remove first event column
         dplyr::select(-event_vars[1]) |>
+        
+        # Line break code <br> will be replaced by RTF \line after RTF string is generated
         dplyr::rename_with(~ paste0(event_vars[1], "<br>  ", event_vars[2]), event_vars[2])
     }
   }

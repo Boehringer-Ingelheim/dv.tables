@@ -24,6 +24,7 @@ local({
 
   sw <- sort_wider_formatter_events_table(w, s)
 
+  # Download Excel, split N and % into separate columns ----
   exp_tab <- preprocess_download_table(sw, ".xlsx", TRUE)
 
   test_that("Add a new row" |>
@@ -46,5 +47,22 @@ local({
 
     per_cols <- grep(" [%]$", names(exp_tab), value = TRUE)
     expect_false(any(grepl("\\(|\\)", per_cols)))
+  })
+
+  # Download Word, keep N and % in single column ----
+  exp_tab <- preprocess_download_table(sw, ".rtf", FALSE)
+
+  test_that("Indent event values for dual event columns" |>
+    vdoc[["add_spec"]](c(specs$export_count_table$export_indent_values)), {
+    expect_equal(names(exp_tab[1]), "lvl1<br>  lvl2")
+    expect_true(all(c("Overall No. of Patients", "Total",
+                      "A1", "B1", "  A2", "  B2") %in% exp_tab[[1]]))
+  })
+
+  test_that("Keep N and % in single column" |>
+    vdoc[["add_spec"]](c(specs$export_count_table$export_single_n_pct_cols)), {
+    group_cols <- tail(names(exp_tab), ncol(exp_tab) - 1)
+    expect_true(all(grepl("<br>N \\(%\\)", group_cols)))
+    expect_true(all(grepl("^[0-9]+ \\([0-9.]+\\)$", tail(exp_tab[[2]], nrow(exp_tab) - 1))))
   })
 })

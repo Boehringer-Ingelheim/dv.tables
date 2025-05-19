@@ -159,7 +159,8 @@ mod_export_counttable_server <- function(module_id, dataset,
                                                split_columns = input[[EXP$ID$COUNTPCT_BOX]])
           
           if (input[[EXP$ID$DOWNLOAD_TYPE]] == ".rtf") {
-            gt_object <- gt::gt(df_prep)
+            gt_object <- gt::gt(df_prep) |>
+              gt::tab_options(page.orientation = "landscape")
             rtf_string <- gt::as_rtf(gt_object) |>
               gsub("<br>", "\\\\line ", x = _)
             writeLines(rtf_string, file)
