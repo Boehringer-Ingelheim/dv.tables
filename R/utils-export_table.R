@@ -48,6 +48,7 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   # Get event variables
   event_vars <- count_table[["meta"]]$hierarchy
+  event_var_labels <- attr(event_vars, "labels")
 
   df_prep <- count_table[["df"]] |>
     dplyr::select(dplyr::all_of(event_vars), names(total_colname)) |>
@@ -68,8 +69,9 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   if (download_type == ".rtf") {
 
-    # Create indented hierarchy of event values for dual event columns
     if (length(event_vars) == 2) {
+
+      # Create indented hierarchy of event values for dual event columns
       df_prep <- df_prep |>
 
         # Modify second event column to indent values with double-space; otherwise, for event
@@ -83,8 +85,21 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
         dplyr::select(-event_vars[1]) |>
         
         # Line break code <br> will be replaced by RTF \line after RTF string is generated
-        dplyr::rename_with(~ paste0(event_vars[1], "<br>  ", event_vars[2]), event_vars[2])
+        dplyr::rename_with(~ paste0(event_var_labels[[1]], "<br>  ", event_var_labels[[2]]), event_vars[2])
+    } else {
+      
+      # Single event column - rename with label only
+      df_prep <- df_prep |>
+        dplyr::rename_with(~ event_var_labels[[1]], event_vars[1])
     }
+    
+  } else if (download_type == ".xlsx") {
+
+    # Add label in square-brackets after variable name
+    df_prep <- df_prep |>
+      dplyr::rename_with(~ ifelse(event_var_labels != event_vars,
+                                  paste0(event_vars, " [", event_var_labels, "]"),
+                                  event_vars), event_vars)
   }
 
   new_row <- setNames(

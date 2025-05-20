@@ -5,6 +5,9 @@ local({
   event_list[["lvl2"]] <- factor(c("A2", "B2", "B2", "A2", "A2", "B2", "B2", "A2"))
   event_df <- as.data.frame(event_list)
 
+  event_hierarchy <- c("lvl1", "lvl2")
+  attr(event_hierarchy, "labels") <- c("lvl1", "Level 2")
+
   pop_list <- list()
   pop_list[["subj"]] <- factor(c("1", "2", "3", "4"))
   pop_list[["group"]] <- factor(c("GA", "GB", "GC", "GC"))
@@ -13,7 +16,7 @@ local({
   x <- compute_events_table(
     event_df = event_df,
     pop_df = pop_df,
-    hierarchy = c("lvl1", "lvl2"),
+    hierarchy = event_hierarchy,
     group_var = "group",
     subjid_var = "subj"
   )
@@ -54,7 +57,7 @@ local({
 
   test_that("Indent event values for dual event columns" |>
     vdoc[["add_spec"]](c(specs$export_count_table$export_indent_values)), {
-    expect_equal(names(exp_tab[1]), "lvl1<br>  lvl2")
+    expect_equal(names(exp_tab[1]), "lvl1<br>  Level 2")
     expect_true(all(c("Overall No. of Patients", "Total",
                       "A1", "B1", "  A2", "  B2") %in% exp_tab[[1]]))
   })
