@@ -18,6 +18,7 @@ specs[["export_count_table"]] <- list(
   "export_replace_special_char" = "There are special characters in the dataframe which shows Total values which doesn't show well in excel. It is replaced by Total.",
   "export_separate_cols" = "The table shows count and relative percentage in the parentheses. It is separated into two columns for exported table.",
   "export_remove_parantheses" = "Continuation of export_separate_cols, the leading and trailing parentheses after column separator is removed from exported table.",
+  "export_label_event_cols" = "Each event column for Excel named with event variable name suffixed with an assocoiated label in square-brackets if one exists.",
   "export_indent_values" = "Event columns combined as indented hierarchy of event values.",
   "export_single_n_pct_cols" = "Combined count and percentage kept in single columns for exported table."
 )

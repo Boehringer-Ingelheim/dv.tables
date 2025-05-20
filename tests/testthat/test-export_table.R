@@ -52,6 +52,11 @@ local({
     expect_false(any(grepl("\\(|\\)", per_cols)))
   })
 
+  test_that("Add label to event columns" |>
+    vdoc[["add_spec"]](c(specs$export_count_table$export_label_event_cols)), {
+    expect_equal(names(exp_tab[1:2]), c("lvl1", "lvl2 [Level 2]"))
+  })
+
   # Download Word, keep N and % in single column ----
   exp_tab <- preprocess_download_table(sw, ".rtf", FALSE)
 
