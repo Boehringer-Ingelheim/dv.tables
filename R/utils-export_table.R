@@ -126,17 +126,15 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
       dplyr::mutate(dplyr::across(dplyr::ends_with(" [%]"), ~ ifelse(is.na(.x), "", .x))) |>
       dplyr::mutate(dplyr::across(dplyr::ends_with(" [%]"), ~ gsub("[ %)]", "", .x)))
 
-  } else {
-    if (download_type == ".rtf") {
-      df_prep <- df_prep |>
-
-        # Convert `XX ( XX.XX %)` format to `XX (XX.XX)`
-        dplyr::mutate(dplyr::across(dplyr::all_of(names(total_colname)),
-                      ~ sub("([0-9]+)[ (]+([0-9.]+)[ %)]+)", "\\1 (\\2)", .x))) |>
-
-        # Line break code <br> will be replaced by RTF \line after RTF string is generated
-        dplyr::rename_with(~ paste0(names(total_colname), "<br>N (%)"), names(total_colname))
-    }
+  } else if (download_type == ".rtf") {
+    df_prep <- df_prep |>
+      
+      # Convert `XX ( XX.XX %)` format to `XX (XX.XX)`
+      dplyr::mutate(dplyr::across(dplyr::all_of(names(total_colname)),
+                                  ~ sub("([0-9]+)[ (]+([0-9.]+)[ %)]+)", "\\1 (\\2)", .x))) |>
+      
+      # Line break code <br> will be replaced by RTF \line after RTF string is generated
+      dplyr::rename_with(~ paste0(names(total_colname), "<br>N (%)"), names(total_colname))
   }
 
   if (download_type == ".xlsx") {
