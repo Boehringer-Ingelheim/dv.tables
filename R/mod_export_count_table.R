@@ -53,7 +53,7 @@ mod_export_counttable_UI <- function(module_id) { # nolint
 #' @keywords internal
 mod_export_counttable_server <- function(module_id, dataset,
                                          intended_use_label) {
-  
+
   checkmate::check_string(module_id, min.chars = 1)
 
   shiny::moduleServer(
@@ -157,7 +157,7 @@ mod_export_counttable_server <- function(module_id, dataset,
           df_prep <- preprocess_download_table(dataset(),
                                                download_type = input[[EXP$ID$DOWNLOAD_TYPE]],
                                                split_columns = input[[EXP$ID$COUNTPCT_BOX]])
-          
+
           if (input[[EXP$ID$DOWNLOAD_TYPE]] == ".rtf") {
             gt_object <- gt::gt(df_prep) |>
               gt::tab_options(page.orientation = "landscape")

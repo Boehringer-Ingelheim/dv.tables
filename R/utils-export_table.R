@@ -83,16 +83,16 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
         # Remove first event column
         dplyr::select(-event_vars[1]) |>
-        
+
         # Line break code <br> will be replaced by RTF \line after RTF string is generated
         dplyr::rename_with(~ paste0(event_var_labels[[1]], "<br>  ", event_var_labels[[2]]), event_vars[2])
     } else {
-      
+
       # Single event column - rename with label only
       df_prep <- df_prep |>
         dplyr::rename_with(~ event_var_labels[[1]], event_vars[1])
     }
-    
+
   } else if (download_type == ".xlsx") {
 
     # Add label in square-brackets after variable name
@@ -128,11 +128,11 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   } else if (download_type == ".rtf") {
     df_prep <- df_prep |>
-      
+
       # Convert `XX ( XX.XX %)` format to `XX (XX.XX)`
       dplyr::mutate(dplyr::across(dplyr::all_of(names(total_colname)),
                                   ~ sub("([0-9]+)[ (]+([0-9.]+)[ %)]+)", "\\1 (\\2)", .x))) |>
-      
+
       # Line break code <br> will be replaced by RTF \line after RTF string is generated
       dplyr::rename_with(~ paste0(names(total_colname), "<br>N (%)"), names(total_colname))
   }
