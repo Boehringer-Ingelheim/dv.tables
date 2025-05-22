@@ -543,6 +543,10 @@ hierarchical_count_table_server <- function(
         )
       )
 
+      # Associate labels attribute to hierarchy column names
+      hierarchy_labels <- get_lbls_robust(d)[hierarchy]
+      attr(hierarchy, "labels") <- unlist(hierarchy_labels)
+
       events_table_raw <- compute_events_table(d, pd, hierarchy, group_var, subjid_var)
       sorted_events_table <- compute_order_events_table(events_table_raw)
 
