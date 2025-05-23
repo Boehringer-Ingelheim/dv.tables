@@ -1,3 +1,8 @@
+# dv.tables 0.0.3.9001
+
+* Allow subsetting of hierarchy and group variables drop-down list through module argument
+* Remove inapplicable variables from hierarchy and group variables drop-down list
+
 # dv.tables 0.0.3.9000
 
 * Implement functionality to download to Word (.rtf) format
