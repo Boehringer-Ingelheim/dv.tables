@@ -10,6 +10,7 @@ col_menu_server <- function(id,
                             },
                             label = "Select a column",
                             default = NULL,
+                            choices = NULL,
                             multiple = FALSE,
                             include_none = TRUE,
                             options = NULL) {
@@ -38,23 +39,27 @@ col_menu_server <- function(id,
 
     output[["menu_cont"]] <- shiny::renderUI({
       shiny::req(data())
-      include <- mapper(data(), include_func)
-      choices <- get_labelled_names(data())[include]
+
+      # Default NULL value of `choices` replaced with all column names from `data()`
+      if (is.null(choices)) choices <- names(data())
+
+      include <- mapper(data(), include_func) & names(data()) %in% choices
+      labelled_choices <- get_labelled_names(data())[include]
 
       if (include_none) {
         shiny::validate(
           shiny::need(
-            checkmate::test_disjunct(none_choice, choices),
+            checkmate::test_disjunct(none_choice, labelled_choices),
             paste("'", none_choice, "' cannot be a column name. Please contact the app creator")
           )
         )
-        choices <- c(none_choice, choices)
+        labelled_choices <- c(none_choice, labelled_choices)
       }
 
-      if (is_not_null(default) && !checkmate::test_subset(default, choices)) {
+      if (is_not_null(default) && !checkmate::test_subset(default, labelled_choices)) {
         log_warn(ssub("`DEFAULT` not found in `SET` for selector `ID`",
           DEFAULT = default,
-          SET = paste(choices,
+          SET = paste(labelled_choices,
             collapse = ",
 "
           ),
@@ -84,7 +89,7 @@ col_menu_server <- function(id,
 
       shiny::selectizeInput(
         ns("val"),
-        label = label, multiple = multiple, choices = choices, selected = selected, options = options
+        label = label, multiple = multiple, choices = labelled_choices, selected = selected, options = options
       )
     })
 

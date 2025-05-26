@@ -453,9 +453,9 @@ hierarchical_count_table_ui <- function(id) {
 #'
 #' @param subjid_var `character(1)`
 #' A string representing the subject identifier column in both datasets.
-#' 
+#'
 #' @param on_sbj_click_fun 'function()'
-#' 
+#'
 #' Function to invoke when a subject is clicked
 #'
 #' @param show_modal_on_click `logical(1)`
@@ -466,6 +466,12 @@ hierarchical_count_table_ui <- function(id) {
 #'
 #' @param default_group `character(1)|NULL`
 #' A default value for the group variable (optional).
+#'
+#' @param hierarchy_choices `character(1+)|NULL`
+#' A character vector specifying the possible choices for the hierarchy variables (optional).
+#'
+#' @param group_choices `character(1+)|NULL`
+#' A character vector specifying the possible choices for the group variable (optional).
 #'
 #' @param intended_use_label Either a string indicating the intended use for export, or
 #' NULL. The provided label will be displayed prior to the download and will also be included in the exported file.
@@ -485,6 +491,8 @@ hierarchical_count_table_server <- function(
     on_sbj_click_fun = function() NULL,
     default_hierarchy = NULL,
     default_group = NULL,
+    hierarchy_choices = NULL,
+    group_choices = NULL,
     intended_use_label = NULL) {
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
@@ -497,6 +505,7 @@ hierarchical_count_table_server <- function(
         is.factor(x) || is.character(x)
       },
       default = default_hierarchy,
+      choices = hierarchy_choices,
       multiple = TRUE
     )
 
@@ -506,7 +515,8 @@ hierarchical_count_table_server <- function(
       include_func = function(x) {
         is.factor(x) || is.character(x)
       },
-      default = default_group
+      default = default_group,
+      choices = group_choices
     )
 
     inputs[[EC$ID$MIN_PERCENT]] <- shiny::reactive({
@@ -596,10 +606,10 @@ hierarchical_count_table_server <- function(
       })
     }
 
-    # Jumping and communication    
+    # Jumping and communication
     shiny::observeEvent(input[["clicked_sbj"]], {
       shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
-      shiny::removeModal()     
+      shiny::removeModal()
       on_sbj_click_fun()
     })
 
@@ -636,9 +646,9 @@ hierarchical_count_table_server <- function(
 #' Dataset dispatcher. This parameter is incompatible with its *_dataset_name counterpart. Only for advanced use.
 #'
 #' @param receiver_id `character(1)`
-#' 
-#' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app or be NULL. 
-#' 
+#'
+#' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app or be NULL.
+#'
 #'
 #' @keywords main
 #'
@@ -650,6 +660,8 @@ mod_hierarchical_count_table <- function(module_id,
                                          show_modal_on_click = TRUE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
+                                         hierarchy_choices = NULL,
+                                         group_choices = NULL,
                                          intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
                                          receiver_id = NULL) {
   mod <- list(
@@ -672,6 +684,8 @@ mod_hierarchical_count_table <- function(module_id,
         on_sbj_click_fun = on_sbj_click_fun,
         default_hierarchy = default_hierarchy,
         default_group = default_group,
+        hierarchy_choices = hierarchy_choices,
+        group_choices = group_choices,
         intended_use_label = intended_use_label
       )
     },
@@ -691,6 +705,8 @@ mod_hierarchical_count_table_API_docs <- list(
   show_modal_on_click = "",
   default_hierarchy = "",
   default_group = "",
+  hierarchy_choices = "",
+  group_choices = "",
   intended_use_label = "",
   receiver_id = ""
 )
@@ -704,6 +720,10 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("zero_or_more", "optional"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  hierarchy_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("zero_or_more", "optional"),
+  group_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("zero_or_more", "optional"),
   intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_hierarchical_count_table_API_docs)
@@ -711,7 +731,9 @@ mod_hierarchical_count_table_API_spec <- TC$group(
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, intended_use_label, receiver_id) {
+    default_hierarchy, default_group,
+    hierarchy_choices, group_choices,
+    intended_use_label, receiver_id) {
   warn <- CM$container()
   err <- CM$container()
 
@@ -721,7 +743,9 @@ check_mod_hierarchical_count_table <- function(
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, intended_use_label, receiver_id,
+    default_hierarchy, default_group,
+    hierarchy_choices, group_choices,
+    intended_use_label, receiver_id,
     warn, err
   )
 
@@ -837,7 +861,9 @@ mock_app_hierarchical_count_table_mm <- function() { # nolint
         pop_dataset_name = "adsl",
         show_modal_on_click = TRUE,
         default_hierarchy = c("AEBODSYS", "AEDECOD"),
-        default_group = "TRT01P"
+        default_group = "TRT01P" #,
+        #hierarchy_choices = c("AEBODSYS", "AEDECOD"),
+        #group_choices = c("TRT01P", "TRT01A")
       )
     ),
     filter_data = "adsl",
