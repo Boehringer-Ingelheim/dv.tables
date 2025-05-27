@@ -454,7 +454,7 @@ hierarchical_count_table_ui <- function(id) {
 #' @param subjid_var `character(1)`
 #' A string representing the subject identifier column in both datasets.
 #' 
-#' @param on_sbj_click_fun 'function()sour'
+#' @param on_sbj_click_fun 'function()'
 #' 
 #' Function to invoke when a subject is clicked
 #'
