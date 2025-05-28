@@ -5,6 +5,7 @@ col_menu_UI <- function(id) { # nolint: object_name_linter
 
 col_menu_server <- function(id,
                             data,
+                            subjid_var,
                             include_func = function(x) {
                               TRUE
                             },
@@ -42,6 +43,9 @@ col_menu_server <- function(id,
 
       # Default NULL value of `choices` replaced with all column names from `data()`
       if (is.null(choices)) choices <- names(data())
+
+      # Remove subject identifier column from choices
+      choices <- setdiff(choices, subjid_var)
 
       include <- mapper(data(), include_func) & names(data()) %in% choices
       labelled_choices <- get_labelled_names(data())[include]

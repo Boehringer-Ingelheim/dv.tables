@@ -12,7 +12,8 @@ EC <- poc( # nolint
       NO_HIERARCHY = "No hierarchy selected or more than two levels selected",
       NO_MIN_PERCENT = "No minimum percent selected",
       NO_TABLE_ROWS = "Table dataset has 0 rows",
-      NO_POP_ROWS = "Population dataset has 0 rows"
+      NO_POP_ROWS = "Population dataset has 0 rows",
+      GRP_CLASH = "Group selection cannot be used in hierarchy"
     )
   )
 )
@@ -26,7 +27,7 @@ EC <- poc( # nolint
 #' @param pop_df `data.frame`
 #' A data frame containing the population data. It must have columns corresponding to subjects and group variables.
 #'
-#' @param hierarchy `character(1)`
+#' @param hierarchy `character(1|2)`
 #' A character vector of column names from `event_df` to use as the hierarchy. Can be one or two levels.
 #'
 #' @param group_var `character(1)`
@@ -64,23 +65,26 @@ compute_events_table <- function(event_df, pop_df, hierarchy, group_var, subjid_
   checkmate::assert_subset(group_var, names(pop_df))
   checkmate::assert_string(subjid_var, min.chars = 1)
 
+  modified_pop_df <- pop_df |>
+    dplyr::mutate(dplyr::across(dplyr::all_of(group_var), ~ add_na_factor_level(.x, "<NA>")))
+
   n_denominator <- local({
-    nd <- pop_df |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(!!group_var))) |>
+    nd <- modified_pop_df |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(group_var))) |>
       dplyr::summarise(N = length(unique(.data[[subjid_var]])))
-    total <- length(unique(pop_df[[subjid_var]]))
+    total <- length(unique(modified_pop_df[[subjid_var]]))
     stats::setNames(c(nd[["N"]], total), c(as.character(nd[[group_var]]), total_column_name))
   })
 
   reduced_group_event_df <- local({
     reduced_group_event_df <- event_df[, c(subjid_var, hierarchy), drop = FALSE]
     reduced_group_event_df <- dplyr::left_join(
-      reduced_group_event_df, pop_df[, c(subjid_var, group_var), drop = FALSE],
+      reduced_group_event_df, modified_pop_df[, c(subjid_var, group_var), drop = FALSE],
       by = subjid_var
     )
   })
   # event_df may not contain all groups
-  levels(reduced_group_event_df[[group_var]]) <- levels(pop_df[[group_var]])
+  levels(reduced_group_event_df[[group_var]]) <- levels(modified_pop_df[[group_var]])
 
   rev_hierarchy <- rev(hierarchy)
   hierarchy_df_list <- vector(mode = "list", length = length(rev_hierarchy))
@@ -500,6 +504,7 @@ hierarchical_count_table_server <- function(
     inputs <- list()
     inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
       id = EC$ID$HIERARCHY, data = table_dataset,
+      subjid_var = subjid_var,
       label = "Event count by",
       include_func = function(x) {
         is.factor(x) || is.character(x)
@@ -511,6 +516,7 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
       id = EC$ID$GRP, data = pop_dataset,
+      subjid_var = subjid_var,
       label = "Group by",
       include_func = function(x) {
         is.factor(x) || is.character(x)
@@ -550,6 +556,10 @@ hierarchical_count_table_server <- function(
         shiny::need(
           checkmate::test_number(min_percent, na.ok = FALSE, lower = 0, upper = 100),
           EC$MSG$VALIDATE$NO_MIN_PERCENT
+        ),
+        shiny::need(
+          !checkmate::test_choice(group_var, hierarchy, null.ok = TRUE),
+          EC$MSG$VALIDATE$GRP_CLASH
         )
       )
 
@@ -852,7 +862,7 @@ mock_app_hierarchical_count_table_mm <- function() { # nolint
 
   dv.manager::run_app(
     data = list(
-      dummy = list(adae = pharmaverseadam::adae |> chr2factor(), adsl = pharmaverseadam::adsl |> chr2factor())
+      dummy = list(adae = pharmaverseadam::adae, adsl = pharmaverseadam::adsl)
     ),
     module_list = list(
       "ADAE by term" = mod_hierarchical_count_table(
@@ -861,9 +871,7 @@ mock_app_hierarchical_count_table_mm <- function() { # nolint
         pop_dataset_name = "adsl",
         show_modal_on_click = TRUE,
         default_hierarchy = c("AEBODSYS", "AEDECOD"),
-        default_group = "TRT01P" #,
-        #hierarchy_choices = c("AEBODSYS", "AEDECOD"),
-        #group_choices = c("TRT01P", "TRT01A")
+        default_group = "TRT01P"
       )
     ),
     filter_data = "adsl",
