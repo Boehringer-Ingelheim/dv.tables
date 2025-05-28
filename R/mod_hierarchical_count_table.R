@@ -366,7 +366,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
       df[c(hierarchy, hier_lvl_col)], function(...) {
         args <- list(...)
         if (args[[hier_lvl_col]] > hierarchy_length) {
-          return("Overall")
+          return("Subjects with any event")
         }
         curr_lvl <- rev(hierarchy)[args[[hier_lvl_col]]]
         curr_label <- as.character(args[[curr_lvl]])
