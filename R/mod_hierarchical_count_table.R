@@ -397,7 +397,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 
     indent <- max_hierarchy_lvl - curr_hier_lvl
     indent_class <- sprintf("indent-%d", indent)
-    entry_cell <- td(shiny::span(collapse_control, shiny::span(curr_row[[entry_name_col]], class = "truncate", title = curr_row[[entry_name_col]])))
+    entry_cell <- td(shiny::span(collapse_control, curr_row[[entry_name_col]], class = "truncate", title = curr_row[[entry_name_col]]))
     data_cells <- purrr::imap(curr_row[data_columns], ~ tdc(.x[[1]][["count"]], column = .y, onclick = on_cell_click))
     body[[r]] <- tr(
       "row-id" = r,
