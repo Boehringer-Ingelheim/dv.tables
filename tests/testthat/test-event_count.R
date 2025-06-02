@@ -77,6 +77,20 @@ local({
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
+  test_that("subject id var excluded from hierarchy and group vars drop-down" |>
+    vdoc[["add_spec"]](c(specs$hierarchical_count_table$subjid_var_exclusion)), {
+    hierarchy_choices_html <-
+      app$get_values(output = TRUE)[["output"]][["mod-hierarchy-menu_cont"]]$html
+    group_choices_html <-
+      app$get_values(output = TRUE)[["output"]][["mod-group-menu_cont"]]$html
+
+    # Note app called with SUBJID as subject identifier
+    expect_false(grepl('value="SUBJID"', hierarchy_choices_html))
+    expect_true(grepl('value="USUBJID"', hierarchy_choices_html))
+    expect_false(grepl('value="SUBJID"', group_choices_html))
+    expect_true(grepl('value="USUBJID"', group_choices_html))
+  })
+
   test_that("hierarchy levels can be selected" |>
     vdoc[["add_spec"]](c(specs$hierarchical_count_table$hierarchy_selection)), {
     hierarchy <- c("AEBODSYS", "AETERM")
@@ -111,6 +125,18 @@ local({
     app$run_js(sprintf("document.querySelector('[data-id=\"%s\"]').click()", id))
     app$wait_for_idle()
     returned_id <- shiny::isolate(app$get_values(export = TRUE)[["export"]][[tns("res")]][["subj_id"]]())
-    expect_equal(returned_id, "1012")        
+    expect_equal(returned_id, "1012")
   })
+
+  test_that("alert when group selection also selected in hierarchy" |>
+    vdoc[["add_spec"]](c(specs$hierarchical_count_table$group_hierarchy_clash)), {
+    app$set_inputs(!!ID$INPUT$HIERARCHY := "STUDYID") # nolint
+    app$set_inputs(!!ID$INPUT$GRP := "STUDYID") # nolint
+    expect_identical(
+      app$get_values(output = TRUE)[["output"]][["mod-table"]]$message,
+      "Group selection cannot be used in hierarchy"
+      )
+  })
+
+  app$stop()
 })
