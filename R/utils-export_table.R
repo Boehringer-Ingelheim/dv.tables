@@ -85,12 +85,13 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
         dplyr::select(-event_vars[1]) |>
 
         # Line break code <br> will be replaced by RTF \line after RTF string is generated
-        dplyr::rename_with(~ paste0(event_var_labels[[1]], "<br>  ", event_var_labels[[2]]), event_vars[2])
+        dplyr::rename_with(~ paste0(event_var_labels[[1]], "<br>  ", event_var_labels[[2]]),
+                           dplyr::all_of(event_vars[2]))
     } else {
 
       # Single event column - rename with label only
       df_prep <- df_prep |>
-        dplyr::rename_with(~ event_var_labels[[1]], event_vars[1])
+        dplyr::rename_with(~ event_var_labels[[1]], dplyr::all_of(event_vars[1]))
     }
 
   } else if (download_type == ".xlsx") {
@@ -99,7 +100,7 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
     df_prep <- df_prep |>
       dplyr::rename_with(~ ifelse(event_var_labels != event_vars,
                                   paste0(event_vars, " [", event_var_labels, "]"),
-                                  event_vars), event_vars)
+                                  event_vars), dplyr::all_of(event_vars))
   }
 
   new_row <- setNames(
