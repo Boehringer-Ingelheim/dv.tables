@@ -7,7 +7,6 @@ specs[["hierarchical_count_table"]] <- list(
   "event_count" = "Counts the number of subjects that had a given event at least once. Its percentage is calculated using as denominator the total number of participants in a given group.",
   "minimum_percentage_filter" = "A minimum percentage filter can be applied to the event table. The filter will hide rows where the percentage of subjects is below the specified threshold.",
   "subjid_var_exclusion" = "Subject identifier variable is excluded from hierarchy and group variables choices.",
-  "subset_hierarchy_group_choices" = "TBD???",
   "group_hierarchy_clash" = "Alert when the selected group variable is also selected as a hierarchy variable.",
   "hierarchy_selection" = "The user can select one or two hierarchy variables from the event dataset.",
   "group_selection" = "The user can select a group variable from the population dataset.",
