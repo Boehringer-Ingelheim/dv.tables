@@ -505,7 +505,9 @@ hierarchical_count_table_server <- function(
     inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
       id = EC$ID$HIERARCHY, data = table_dataset,
       subjid_var = subjid_var,
-      label = "Event count by",
+      label = shiny::div(shiny::tags$label("Event count by"),
+                         shiny::icon("circle-info",
+                                     title = "Up to 2 selections allowed")),
       include_func = function(x) {
         is.factor(x) || is.character(x)
       },
