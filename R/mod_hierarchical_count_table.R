@@ -511,7 +511,9 @@ hierarchical_count_table_server <- function(
       },
       default = default_hierarchy,
       choices = hierarchy_choices,
-      multiple = TRUE
+      multiple = TRUE,
+      include_none = FALSE,
+      options = list(maxItems = 2)
     )
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
@@ -522,7 +524,8 @@ hierarchical_count_table_server <- function(
         is.factor(x) || is.character(x)
       },
       default = default_group,
-      choices = group_choices
+      choices = group_choices,
+      include_none = FALSE
     )
 
     inputs[[EC$ID$MIN_PERCENT]] <- shiny::reactive({
