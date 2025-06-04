@@ -131,7 +131,14 @@ Tplyr_table_server <- function(
 
     v_dataset_list <- shiny::reactive({
       checkmate::assert_list(dataset_list(), types = "data.frame", null.ok = TRUE, names = "named")
-      dataset_list()
+      
+      # ensure that global filter works as expected
+      dataset_list_dropedlevles <- lapply(dataset_list(), function(df) {
+        df <- df %>%
+          dplyr::mutate(dplyr::across(dplyr::where(is.factor), ~ droplevels(.)))
+      })
+      
+      dataset_list_dropedlevles
     })
     
     is_table <- shiny::reactive({
@@ -226,7 +233,9 @@ Tplyr_table_server <- function(
       } else if (is.null(col()) || input[[TPLYR_TBL$SEL_OUTPUT_ID]] != shiny::isolate(sel_output())) { 
         sel_output(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
         shiny::tags$text("Click on a cell to diyplay corresponding listing")
-      } else if (!startsWith(col(), "var") || row() == "") {
+      } else if (!startsWith(col(), "var") || row() == "" 
+                 || !(col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]])
+                 ) {
         shiny::tags$text("Click on a cell with values to diyplay corresponding listing")
       } else {
 
@@ -255,7 +264,8 @@ Tplyr_table_server <- function(
       if (is_table()) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         if (is.null(col()) || !startsWith(col(), "var") || row() == "" || 
-            input[[TPLYR_TBL$SEL_OUTPUT_ID]] != shiny::isolate(sel_output())
+            input[[TPLYR_TBL$SEL_OUTPUT_ID]] != shiny::isolate(sel_output()) ||
+            !(col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]])
             ) {
           shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
         } else {
@@ -275,9 +285,11 @@ Tplyr_table_server <- function(
 
       if (startsWith(col(), "var")) {
 
-        subset_data <- Tplyr::get_meta_subset(tplyr_tab(), row(), col())
-
-        subset_data[[subjid_var]]
+        if (col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]]) {
+          subset_data <- Tplyr::get_meta_subset(tplyr_tab(), row(), col())
+          
+          subset_data[[subjid_var]]
+        }
       }
     })
 
