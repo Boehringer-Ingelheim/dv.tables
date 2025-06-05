@@ -17,7 +17,7 @@ EC <- poc( # nolint
   MSG = poc(
     VALIDATE = poc(
       NO_GRP = "No group selected",
-      NO_HIERARCHY = "No hierarchy selected or more than two levels selected",
+      NO_HIERARCHY = "No hierarchy selected",
       NO_MIN_PERCENT = "No minimum percent selected",
       NO_TABLE_ROWS = "Table dataset has 0 rows",
       NO_POP_ROWS = "Population dataset has 0 rows",
