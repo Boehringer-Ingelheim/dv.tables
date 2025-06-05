@@ -13,7 +13,7 @@ TPLYR_TBL <- pack_of_constants( #nolint
 #' @param module_id `[character(1)]`
 #'
 #' A character string that serves as unique identifier for the module.
-#' 
+#'
 #' @export
 Tplyr_table_UI <- function(module_id, output_list) {
   ns <- shiny::NS(module_id)
@@ -100,11 +100,11 @@ Tplyr_table_server <- function(
   if (!is.null(default_vars)) {
     checkmate::assert_names(names(default_vars), type = "unique")
   }
-  
+
   checkmate::assert_list(output_list, types = "list")
-  
+
   for (output in output_list) {
-    
+
     if (length(output) == 1) {
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
@@ -112,7 +112,7 @@ Tplyr_table_server <- function(
         combine = "and"
       )
     } else if (length(output) == 2) {
-      
+
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
         checkmate::check_subset(names(output), choices = c("tplyr_tab_fun", "build_fun"), empty.ok = FALSE),
@@ -124,49 +124,57 @@ Tplyr_table_server <- function(
       message("output_list entry has too many elements")
     }
   }
-  
+
 
   shiny::moduleServer(module_id, function(input, output, session) {
     ns <- session$ns
 
     v_dataset_list <- shiny::reactive({
       checkmate::assert_list(dataset_list(), types = "data.frame", null.ok = TRUE, names = "named")
-      
+
       # ensure that global filter works as expected
       dataset_list_dropedlevles <- lapply(dataset_list(), function(df) {
         df <- df %>%
           dplyr::mutate(dplyr::across(dplyr::where(is.factor), ~ droplevels(.)))
       })
-      
+
       dataset_list_dropedlevles
     })
-    
+
     is_table <- shiny::reactive({
       "tplyr_tab_fun" %in% names(output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]])
     })
-    
+
     needed_data <- shiny::reactive({
-      
+
       if (is_table()) {
         tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
-        
+
         v_dataset_list()[names(formals(tplyr_tab_fun))]
       } else {
         dataset_names <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["dataset_names"]]
         v_dataset_list()[dataset_names]
       }
     })
-    
+
     ## table part start ---
 
     tplyr_tab <- shiny::reactive({
       if (is_table()) {
+        #Global filter empty, prevent crash
+        if (all(sapply(needed_data(), function(tbl) nrow(tbl) == 0))) {
+          return(NULL)
+        }
+
       tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
       res <- do.call(tplyr_tab_fun, needed_data())
       }
     })
 
     tplyr_tab_build <- shiny::reactive({
+
+      shiny::req(tplyr_tab())
+
       if (is_table()) {
       build_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["build_fun"]]
       build_fun(tplyr_tab())
@@ -203,7 +211,7 @@ Tplyr_table_server <- function(
       )
       }
     })
-    
+
     ## table part end ---
 
     ## listings part start ---
@@ -216,7 +224,7 @@ Tplyr_table_server <- function(
     sel_output <- shiny::reactiveVal("")
     # shiny::observe({
     #   shiny::req(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
-    #   
+    #
     #   if (input[[TPLYR_TBL$SEL_OUTPUT_ID]] != sel_output()) {
     #     sel_output(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
     #     row(NULL)
@@ -226,14 +234,14 @@ Tplyr_table_server <- function(
     #     col(input$col_id$column)
     #   }
     # })
-    
+
     output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
       if (!is_table()) {
         shiny::tags$text("Listing:")
-      } else if (is.null(col()) || input[[TPLYR_TBL$SEL_OUTPUT_ID]] != shiny::isolate(sel_output())) { 
+      } else if (is.null(col()) || input[[TPLYR_TBL$SEL_OUTPUT_ID]] != shiny::isolate(sel_output())) {
         sel_output(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
         shiny::tags$text("Click on a cell to diyplay corresponding listing")
-      } else if (!startsWith(col(), "var") || row() == "" 
+      } else if (!startsWith(col(), "var") || row() == ""
                  || !(col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]])
                  ) {
         shiny::tags$text("Click on a cell with values to diyplay corresponding listing")
@@ -263,7 +271,7 @@ Tplyr_table_server <- function(
     shiny::observeEvent(list(row(), col()), {
       if (is_table()) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
-        if (is.null(col()) || !startsWith(col(), "var") || row() == "" || 
+        if (is.null(col()) || !startsWith(col(), "var") || row() == "" ||
             input[[TPLYR_TBL$SEL_OUTPUT_ID]] != shiny::isolate(sel_output()) ||
             !(col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]])
             ) {
@@ -273,7 +281,7 @@ Tplyr_table_server <- function(
         }
       } else {
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
-        
+
         shinyjs::hide(id = TPLYR_TBL$TABLE_ID)
       }
     })
@@ -287,7 +295,7 @@ Tplyr_table_server <- function(
 
         if (col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]]) {
           subset_data <- Tplyr::get_meta_subset(tplyr_tab(), row(), col())
-          
+
           subset_data[[subjid_var]]
         }
       }
@@ -340,9 +348,9 @@ mod_Tplyr_table <- function(
 ) {
 
   checkmate::assert_list(output_list, types = "list")
-  
+
   for (output in output_list) {
-    
+
     if (length(output) == 1) {
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
@@ -350,7 +358,7 @@ mod_Tplyr_table <- function(
         combine = "and"
       )
     } else if (length(output) == 2) {
-      
+
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
         checkmate::check_subset(names(output), choices = c("tplyr_tab_fun", "build_fun"), empty.ok = FALSE),
@@ -362,22 +370,22 @@ mod_Tplyr_table <- function(
       message("output_list entry has too many elements")
     }
   }
-  
+
   mod <- list(
     ui = function(id) {
       Tplyr_table_UI(id, output_list)
     },
     server = function(afmm) {
-      
-      needed_datasets <- sapply(output_list, function(tab) { 
+
+      needed_datasets <- sapply(output_list, function(tab) {
         if ("tplyr_tab_fun" %in% names(tab)) {
           names(formals(tab[["tplyr_tab_fun"]]))
         } else {
           tab[["dataset_names"]]
         }
-        
-      }, simplify = TRUE, USE.NAMES = FALSE) |> 
-        unlist() |> 
+
+      }, simplify = TRUE, USE.NAMES = FALSE) |>
+        unlist() |>
         unique()
 
       dataset_present <- needed_datasets %in% shiny::isolate(names(afmm$unfiltered_dataset()))
