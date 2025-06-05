@@ -46,7 +46,7 @@ add_na_factor_level <- function(f, level = "<NA>") {
 
   if (!any(is.na(f))) return(f)
 
-  ch <- tidyr::replace_na(as.character(f), "<NA>")
+  ch <- tidyr::replace_na(as.character(f), level)
   new_levels <- c(levels(f), level)
   new_factor <- factor(ch, levels = new_levels)
 

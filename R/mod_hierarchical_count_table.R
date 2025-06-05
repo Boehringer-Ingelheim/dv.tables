@@ -73,26 +73,27 @@ compute_events_table <- function(event_df, pop_df, hierarchy, group_var, subjid_
   checkmate::assert_subset(group_var, names(pop_df))
   checkmate::assert_string(subjid_var, min.chars = 1)
 
-  modified_pop_df <- pop_df |>
-    dplyr::mutate(dplyr::across(dplyr::all_of(group_var), ~ add_na_factor_level(.x, "<NA>")))
+  # Replace NA values in group var factor with "<NA>" and add associated level
+  no_na_pop_df <- pop_df
+  no_na_pop_df[[group_var]] <- add_na_factor_level(no_na_pop_df[[group_var]])
 
   n_denominator <- local({
-    nd <- modified_pop_df |>
+    nd <- no_na_pop_df |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_var))) |>
       dplyr::summarise(N = length(unique(.data[[subjid_var]])))
-    total <- length(unique(modified_pop_df[[subjid_var]]))
+    total <- length(unique(no_na_pop_df[[subjid_var]]))
     stats::setNames(c(nd[["N"]], total), c(as.character(nd[[group_var]]), total_column_name))
   })
 
   reduced_group_event_df <- local({
     reduced_group_event_df <- event_df[, c(subjid_var, hierarchy), drop = FALSE]
     reduced_group_event_df <- dplyr::left_join(
-      reduced_group_event_df, modified_pop_df[, c(subjid_var, group_var), drop = FALSE],
+      reduced_group_event_df, no_na_pop_df[, c(subjid_var, group_var), drop = FALSE],
       by = subjid_var
     )
   })
   # event_df may not contain all groups
-  levels(reduced_group_event_df[[group_var]]) <- levels(modified_pop_df[[group_var]])
+  levels(reduced_group_event_df[[group_var]]) <- levels(no_na_pop_df[[group_var]])
 
   rev_hierarchy <- rev(hierarchy)
   hierarchy_df_list <- vector(mode = "list", length = length(rev_hierarchy))
