@@ -194,10 +194,10 @@ Tplyr_table_server <- function(
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
       if (is_table()) {
-      selected_columns <- dplyr::select(
-        tplyr_tab_build(),
-        -row_id, -dplyr::starts_with("ord")
-      )
+        selected_columns <- dplyr::select(
+          tplyr_tab_build(),
+          -dplyr::any_of(c("row_id")), -dplyr::starts_with("ord")
+        )
 
       reactable::reactable(
         selected_columns,
