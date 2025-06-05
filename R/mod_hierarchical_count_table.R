@@ -6,6 +6,14 @@ EC <- poc( # nolint
     MIN_PERCENT = "min_percent",
     TAB_DOWNLOAD = "table_download"
   ),
+  LBL = poc(
+    HIERARCHY = "Event count by",
+    GRP = "Group by",
+    MIN_PERCENT = "Minimum %"
+  ),
+  INFO = poc(
+    HIERARCHY = "Up to 2 selections allowed"
+  ),
   MSG = poc(
     VALIDATE = poc(
       NO_GRP = "No group selected",
@@ -436,7 +444,7 @@ hierarchical_count_table_ui <- function(id) {
     shiny::div(
       shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$HIERARCHY))),
       shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$GRP))),
-      shiny::div(style = "display: inline-block;", shiny::numericInput(ns(EC$ID$MIN_PERCENT), label = "Minimum %", value = 0, min = 0, max = 100)),
+      shiny::div(style = "display: inline-block;", shiny::numericInput(ns(EC$ID$MIN_PERCENT), label = EC$LBL$MIN_PERCENT, value = 0, min = 0, max = 100)),
       shiny::div(style = "display: inline-block;", mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD)))
     ),
     shiny::uiOutput(ns(EC$ID$TABLE))
@@ -505,9 +513,9 @@ hierarchical_count_table_server <- function(
     inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
       id = EC$ID$HIERARCHY, data = table_dataset,
       subjid_var = subjid_var,
-      label = shiny::div(shiny::tags$label("Event count by"),
+      label = shiny::div(shiny::tags$label(EC$LBL$HIERARCHY),
                          shiny::icon("circle-info",
-                                     title = "Up to 2 selections allowed")),
+                                     title = EC$INFO$HIERARCHY)),
       include_func = function(x) {
         is.factor(x) || is.character(x)
       },
@@ -521,7 +529,7 @@ hierarchical_count_table_server <- function(
     inputs[[EC$ID$GRP]] <- col_menu_server(
       id = EC$ID$GRP, data = pop_dataset,
       subjid_var = subjid_var,
-      label = "Group by",
+      label = EC$LBL$GRP,
       include_func = function(x) {
         is.factor(x) || is.character(x)
       },
