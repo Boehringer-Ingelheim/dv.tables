@@ -5,13 +5,11 @@ col_menu_UI <- function(id) { # nolint: object_name_linter
 
 col_menu_server <- function(id,
                             data,
-                            subjid_var,
                             include_func = function(x) {
                               TRUE
                             },
                             label = "Select a column",
                             default = NULL,
-                            choices = NULL,
                             multiple = FALSE,
                             include_none = TRUE,
                             options = NULL) {
@@ -40,34 +38,27 @@ col_menu_server <- function(id,
 
     output[["menu_cont"]] <- shiny::renderUI({
       shiny::req(data())
-
-      # Default NULL value of `choices` replaced with all column names from `data()`
-      if (is.null(choices)) choices <- names(data())
-
-      # Remove subject identifier column from choices
-      choices <- setdiff(choices, subjid_var)
-
-      include <- mapper(data(), include_func) & names(data()) %in% choices
-      labelled_choices <- get_labelled_names(data())[include]
+      include <- mapper(data(), include_func)
+      choices <- get_labelled_names(data())[include]
 
       if (include_none) {
         shiny::validate(
           shiny::need(
-            checkmate::test_disjunct(none_choice, labelled_choices),
+            checkmate::test_disjunct(none_choice, choices),
             paste("'", none_choice, "' cannot be a column name. Please contact the app creator")
           )
         )
-        labelled_choices <- c(none_choice, labelled_choices)
+        choices <- c(none_choice, choices)
       }
 
-      if (is_not_null(default) && !checkmate::test_subset(default, labelled_choices)) {
+      if (is_not_null(default) && !checkmate::test_subset(default, choices)) {
         log_warn(ssub("`DEFAULT` not found in `SET` for selector `ID`",
-          DEFAULT = default,
-          SET = paste(labelled_choices,
-            collapse = ",
+                      DEFAULT = default,
+                      SET = paste(choices,
+                                  collapse = ",
 "
-          ),
-          ID = ns("val")
+                      ),
+                      ID = ns("val")
         ))
       }
 
@@ -93,7 +84,7 @@ col_menu_server <- function(id,
 
       shiny::selectizeInput(
         ns("val"),
-        label = label, multiple = multiple, choices = labelled_choices, selected = selected, options = options
+        label = label, multiple = multiple, choices = choices, selected = selected, options = options
       )
     })
 

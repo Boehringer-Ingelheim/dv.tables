@@ -510,18 +510,29 @@ hierarchical_count_table_server <- function(
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
 
+    # If hierarchy choices not provided then set to all variables in event dataset
+    rv_hierarchy_choices <- shiny::reactive({
+      if (is.null(hierarchy_choices)) names(table_dataset())
+      else hierarchy_choices
+    })
+
+    # If group choices not provided then set to all variables in population dataset
+    rv_group_choices <- shiny::reactive({
+      if (is.null(group_choices)) names(pop_dataset())
+      else group_choices
+    })
+
     inputs <- list()
     inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
       id = EC$ID$HIERARCHY, data = table_dataset,
-      subjid_var = subjid_var,
       label = shiny::div(shiny::tags$label(EC$LBL$HIERARCHY),
                          shiny::icon("circle-info",
                                      title = EC$INFO$HIERARCHY)),
-      include_func = function(x) {
-        is.factor(x) || is.character(x)
+      include_func = function(x, idx) {
+        (is.factor(x) || is.character(x)) &&
+          (idx %in% setdiff(rv_hierarchy_choices(), subjid_var))
       },
       default = default_hierarchy,
-      choices = hierarchy_choices,
       multiple = TRUE,
       include_none = FALSE,
       options = list(maxItems = 2)
@@ -529,13 +540,12 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
       id = EC$ID$GRP, data = pop_dataset,
-      subjid_var = subjid_var,
       label = EC$LBL$GRP,
-      include_func = function(x) {
-        is.factor(x) || is.character(x)
+      include_func = function(x, idx) {
+        (is.factor(x) || is.character(x)) &&
+          (idx %in% setdiff(rv_group_choices(), subjid_var))
       },
       default = default_group,
-      choices = group_choices,
       include_none = FALSE
     )
 
