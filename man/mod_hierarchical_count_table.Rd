@@ -17,6 +17,8 @@ hierarchical_count_table_server(
   on_sbj_click_fun = function() NULL,
   default_hierarchy = NULL,
   default_group = NULL,
+  hierarchy_choices = NULL,
+  group_choices = NULL,
   intended_use_label = NULL
 )
 
@@ -28,6 +30,8 @@ mod_hierarchical_count_table(
   show_modal_on_click = TRUE,
   default_hierarchy = NULL,
   default_group = NULL,
+  hierarchy_choices = NULL,
+  group_choices = NULL,
   intended_use_label =
     "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL
@@ -58,6 +62,12 @@ A default value for the hierarchy variables (optional).}
 
 \item{default_group}{\code{character(1)|NULL}
 A default value for the group variable (optional).}
+
+\item{hierarchy_choices}{\verb{character(1+)|NULL}
+A character vector specifying the possible choices for the hierarchy variables (optional).}
+
+\item{group_choices}{\verb{character(1+)|NULL}
+A character vector specifying the possible choices for the group variable (optional).}
 
 \item{intended_use_label}{Either a string indicating the intended use for export, or
 NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}

@@ -21,7 +21,7 @@ hierarchy levels, and group variables.}
 \item{pop_df}{\code{data.frame}
 A data frame containing the population data. It must have columns corresponding to subjects and group variables.}
 
-\item{hierarchy}{\code{character(1)}
+\item{hierarchy}{\code{character(1|2)}
 A character vector of column names from \code{event_df} to use as the hierarchy. Can be one or two levels.}
 
 \item{group_var}{\code{character(1)}
