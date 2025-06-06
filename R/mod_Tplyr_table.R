@@ -193,22 +193,28 @@ Tplyr_table_server <- function(
 
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
+      shiny::validate(
+        shiny::need(
+          !all(sapply(needed_data(), function(tbl) nrow(tbl) == 0)),
+          "No data available, please adjust your filter settings."
+        )
+      )
       if (is_table()) {
         selected_columns <- dplyr::select(
           tplyr_tab_build(),
           -dplyr::any_of(c("row_id")), -dplyr::starts_with("ord")
         )
-
-      reactable::reactable(
-        selected_columns,
-        sortable = FALSE,
-        onClick = htmlwidgets::JS(jsCode),
-        defaultPageSize = 11,
-        showPageSizeOptions = TRUE,
-        columns = setNames(lapply(colnames(selected_columns), function(col) {
-          reactable::colDef(name = rename_columns(col))
-        }), colnames(selected_columns))
-      )
+        
+        reactable::reactable(
+          selected_columns,
+          sortable = FALSE,
+          onClick = htmlwidgets::JS(jsCode),
+          defaultPageSize = 11,
+          showPageSizeOptions = TRUE,
+          columns = setNames(lapply(colnames(selected_columns), function(col) {
+            reactable::colDef(name = rename_columns(col))
+          }), colnames(selected_columns))
+        )
       }
     })
 
@@ -222,18 +228,7 @@ Tplyr_table_server <- function(
     col <- shiny::reactive(input$col_id$column)
     # col <- shiny::reactiveVal(NULL)
     sel_output <- shiny::reactiveVal("")
-    # shiny::observe({
-    #   shiny::req(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
-    #
-    #   if (input[[TPLYR_TBL$SEL_OUTPUT_ID]] != sel_output()) {
-    #     sel_output(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
-    #     row(NULL)
-    #     col(NULL)
-    #   } else {
-    #     row(tplyr_tab_build()[input$row_id$index, 1]$row_id)
-    #     col(input$col_id$column)
-    #   }
-    # })
+ 
 
     output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
       if (!is_table()) {
@@ -268,7 +263,7 @@ Tplyr_table_server <- function(
       }
     })
 
-    shiny::observeEvent(list(row(), col()), {
+    shiny::observe({
       if (is_table()) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         if (is.null(col()) || !startsWith(col(), "var") || row() == "" ||
@@ -281,7 +276,6 @@ Tplyr_table_server <- function(
         }
       } else {
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
-
         shinyjs::hide(id = TPLYR_TBL$TABLE_ID)
       }
     })
