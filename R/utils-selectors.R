@@ -53,12 +53,12 @@ col_menu_server <- function(id,
 
       if (is_not_null(default) && !checkmate::test_subset(default, choices)) {
         log_warn(ssub("`DEFAULT` not found in `SET` for selector `ID`",
-                      DEFAULT = default,
-                      SET = paste(choices,
-                                  collapse = ",
+          DEFAULT = default,
+          SET = paste(choices,
+            collapse = ",
 "
-                      ),
-                      ID = ns("val")
+          ),
+          ID = ns("val")
         ))
       }
 
