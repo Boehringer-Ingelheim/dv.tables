@@ -519,7 +519,7 @@ hierarchical_count_table_server <- function(
       include_func = function(var, var_name) {
         (is.factor(var) || is.character(var)) &&
           var_name != subjid_var &&
-          (is.null(hierarchy_choices) || var_name %in% hierarchy_choices)          
+          (is.null(hierarchy_choices) || var_name %in% hierarchy_choices)
       },
       default = default_hierarchy,
       multiple = TRUE,
@@ -530,10 +530,10 @@ hierarchical_count_table_server <- function(
     inputs[[EC$ID$GRP]] <- col_menu_server(
       id = EC$ID$GRP, data = pop_dataset,
       label = EC$LBL$GRP,
-      include_func = function(var, var_name) {        
-          (is.factor(var) || is.character(var)) &&
-            idx != subjid_var &&
-            (is.null(group_choices) || idx %in% group_choices)          
+      include_func = function(var, var_name) {
+        (is.factor(var) || is.character(var)) &&
+          var_name != subjid_var &&
+          (is.null(group_choices) || var_name %in% group_choices)
       },
       default = default_group,
       include_none = FALSE
