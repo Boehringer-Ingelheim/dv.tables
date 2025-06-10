@@ -114,9 +114,9 @@
           </tr>
           <tr row-id="1" class="indent-0" indent="0">
             <td>
-              <span class="truncate" title="Overall">
+              <span class="truncate" title="Subjects with any event">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                Overall
+                Subjects with any event
               </span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">121 ( 67.60 %)</td>
