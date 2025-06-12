@@ -862,16 +862,9 @@ mock_app_hierarchical_count_table <- function(
 #' Mock hierarchy table app in dv.manager
 #' @keywords mock
 #' @export
-mock_app_hierarchical_count_table_mm <- function() { # nolint
+mock_app_hierarchical_count_table_mm <- function() {
   if (!requireNamespace("dv.manager")) {
     stop("Install dv.manager")
-  }
-
-  chr2factor <- function(df) {
-    lbls <- get_lbls_robust(df)
-    df[] <- purrr::map(df, ~ if (is.character(.x)) factor(.x) else .x)
-    df <- set_lbls(df, lbls)
-    df
   }
 
   dv.manager::run_app(
