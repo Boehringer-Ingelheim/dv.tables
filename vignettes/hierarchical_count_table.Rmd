@@ -68,20 +68,6 @@ A collapsable hierarchy table.
 ```{r, eval=FALSE}
 requireNamespace("pharmaverseadam")
 
-adsl_dataset <- pharmaverseadam::adsl %>%
-  dplyr::mutate(
-    dplyr::across(
-      dplyr::where(is.character), as.factor
-    )
-  )
-
-adae_dataset <- pharmaverseadam::adae %>%
-  dplyr::mutate(
-    dplyr::across(
-      dplyr::where(is.character), as.factor
-    )
-  )
-
 dv.manager::run_app(
   data = list(dummy = list(adsl = pharmaverseadam::adsl,
                            adae = pharmaverseadam::adae)),
