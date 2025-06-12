@@ -83,7 +83,8 @@ adae_dataset <- pharmaverseadam::adae %>%
   )
 
 dv.manager::run_app(
-  data = list(dummy = list(adsl = adsl_dataset, adae = adae_dataset)),
+  data = list(dummy = list(adsl = pharmaverseadam::adsl,
+                           adae = pharmaverseadam::adae)),
   module_list = list(
     "AE Hierarchy Table" = dv.tables::mod_hierarchical_count_table(
       module_id = "hierarchical_count_table",
