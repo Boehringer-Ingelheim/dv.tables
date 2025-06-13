@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,9 +62,12 @@
 <span>  <span class="va">table_dataset</span>,</span>
 <span>  <span class="va">pop_dataset</span>,</span>
 <span>  <span class="va">subjid_var</span>,</span>
-<span>  show_modal_on_click <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  show_modal_on_click <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  on_sbj_click_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="cn">NULL</span>,</span>
 <span>  default_hierarchy <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  default_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  hierarchy_choices <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  group_choices <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  intended_use_label <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -73,9 +76,11 @@
 <span>  <span class="va">table_dataset_name</span>,</span>
 <span>  <span class="va">pop_dataset_name</span>,</span>
 <span>  subjid_var <span class="op">=</span> <span class="st">"USUBJID"</span>,</span>
-<span>  show_modal_on_click <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  show_modal_on_click <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  default_hierarchy <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  default_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  hierarchy_choices <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  group_choices <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  intended_use_label <span class="op">=</span></span>
 <span>    <span class="st">"Use only for internal review and monitoring during the conduct of clinical trials."</span>,</span>
 <span>  receiver_id <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -109,6 +114,11 @@ A string representing the subject identifier column in both datasets.</p></dd>
 A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.</p></dd>
 
 
+<dt>on_sbj_click_fun</dt>
+<dd><p>'function()'</p>
+<p>Function to invoke when a subject is clicked</p></dd>
+
+
 <dt>default_hierarchy</dt>
 <dd><p><code>character(1|2)|NULL</code>
 A default value for the hierarchy variables (optional).</p></dd>
@@ -117,6 +127,16 @@ A default value for the hierarchy variables (optional).</p></dd>
 <dt>default_group</dt>
 <dd><p><code>character(1)|NULL</code>
 A default value for the group variable (optional).</p></dd>
+
+
+<dt>hierarchy_choices</dt>
+<dd><p><code>character(1+)|NULL</code>
+A character vector specifying the possible choices for the hierarchy variables (optional).</p></dd>
+
+
+<dt>group_choices</dt>
+<dd><p><code>character(1+)|NULL</code>
+A character vector specifying the possible choices for the group variable (optional).</p></dd>
 
 
 <dt>intended_use_label</dt>
@@ -136,8 +156,7 @@ NULL. The provided label will be displayed prior to the download and will also b
 
 <dt>receiver_id</dt>
 <dd><p><code>character(1)</code></p>
-<p><strong>This functionality is not ready yet</strong> please
-open an issue or contact the developers if you are interested in using it.</p></dd>
+<p>Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app or be NULL.</p></dd>
 
 
 <dt>table_dataset_disp, pop_dataset_disp</dt>
@@ -168,7 +187,7 @@ Server logic for the event count module</p></li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Boehringer-Ingelheim Pharma GmbH &amp; Co.KG, Luis Moris Fernandez.</p>
+  <p></p><p>Developed by Boehringer-Ingelheim Pharma GmbH &amp; Co.KG, Luis Moris Fernandez, Mark Luff.</p>
 </div>
 
 <div class="pkgdown-footer-right">
