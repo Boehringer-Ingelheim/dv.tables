@@ -68,22 +68,9 @@ A collapsable hierarchy table.
 ```{r, eval=FALSE}
 requireNamespace("pharmaverseadam")
 
-adsl_dataset <- pharmaverseadam::adsl %>%
-  dplyr::mutate(
-    dplyr::across(
-      dplyr::where(is.character), as.factor
-    )
-  )
-
-adae_dataset <- pharmaverseadam::adae %>%
-  dplyr::mutate(
-    dplyr::across(
-      dplyr::where(is.character), as.factor
-    )
-  )
-
 dv.manager::run_app(
-  data = list(dummy = list(adsl = adsl_dataset, adae = adae_dataset)),
+  data = list(dummy = list(adsl = pharmaverseadam::adsl,
+                           adae = pharmaverseadam::adae)),
   module_list = list(
     "AE Hierarchy Table" = dv.tables::mod_hierarchical_count_table(
       module_id = "hierarchical_count_table",
@@ -96,16 +83,15 @@ dv.manager::run_app(
 )
 ```
 
-# Download as excel
+# Download
 
-This module allows downloading the table as excel.
+This module allows downloading the table as Excel (.xlsx) or Word (.rtf).
 
-In the downloaded table, total count of patients (`N =` seen in the selected group's column header) is shown below column name. Additionally, selected group variable's metrics is split into two columns for every group item, `{group item}_N` to show count value and `{group item}_per` to show relative percentage. 
+In the downloaded table, overall number of patients (`N =` seen in the selected group's column header) is shown in the first row below the column names.
+
+Additionally, if the option to split count and percent into separate columns is selected, then selected group variable's metrics is split into two columns for every group item, `{group item} [N]` to show count value and `{group item} [%]` to show relative percentage.
 
 # Drill down functionality
 
-This module shows by default the subject ID of the subjects in a given cell.
-
-It also has the capacity of returning a list with the subjids to other modules. If you have a use case for in which
-you would prefer a more complex interaction, for example passing the a given ID to another module (e.g. `dv.papo`)
-please let us know or open an issue in the repo!
+When a cell is clicked the set of subjects in the cell is shown. Each of the ids is clickable and it allows
+exploring that participant in additional module, for example `dv.papo`.

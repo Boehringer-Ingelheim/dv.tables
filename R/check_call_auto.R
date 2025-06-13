@@ -4,8 +4,8 @@
 
 # dv.tables::mod_hierarchical_count_table
 check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, table_dataset_name, pop_dataset_name,
-    subjid_var, show_modal_on_click, default_hierarchy, default_group, intended_use_label, receiver_id,
-    warn, err) {
+    subjid_var, show_modal_on_click, default_hierarchy, default_group, hierarchy_choices, group_choices,
+    intended_use_label, receiver_id, warn, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
     OK[["module_id"]] <- CM$check_module_id("module_id", module_id, warn, err)
@@ -31,6 +31,15 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     flags <- list(optional = TRUE)
     OK[["default_group"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("default_group",
         default_group, subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], warn, err)
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(zero_or_more = TRUE, optional = TRUE)
+    OK[["hierarchy_choices"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("hierarchy_choices",
+        hierarchy_choices, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], warn,
+        err)
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(zero_or_more = TRUE, optional = TRUE)
+    OK[["group_choices"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("group_choices",
+        group_choices, subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], warn, err)
     "NOTE: intended_use_label (character) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."

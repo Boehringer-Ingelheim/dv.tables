@@ -13,9 +13,12 @@ hierarchical_count_table_server(
   table_dataset,
   pop_dataset,
   subjid_var,
-  show_modal_on_click = FALSE,
+  show_modal_on_click = TRUE,
+  on_sbj_click_fun = function() NULL,
   default_hierarchy = NULL,
   default_group = NULL,
+  hierarchy_choices = NULL,
+  group_choices = NULL,
   intended_use_label = NULL
 )
 
@@ -24,9 +27,11 @@ mod_hierarchical_count_table(
   table_dataset_name,
   pop_dataset_name,
   subjid_var = "USUBJID",
-  show_modal_on_click = FALSE,
+  show_modal_on_click = TRUE,
   default_hierarchy = NULL,
   default_group = NULL,
+  hierarchy_choices = NULL,
+  group_choices = NULL,
   intended_use_label =
     "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL
@@ -48,11 +53,21 @@ A string representing the subject identifier column in both datasets.}
 \item{show_modal_on_click}{\code{logical(1)}
 A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.}
 
+\item{on_sbj_click_fun}{'function()'
+
+Function to invoke when a subject is clicked}
+
 \item{default_hierarchy}{\code{character(1|2)|NULL}
 A default value for the hierarchy variables (optional).}
 
 \item{default_group}{\code{character(1)|NULL}
 A default value for the group variable (optional).}
+
+\item{hierarchy_choices}{\verb{character(1+)|NULL}
+A character vector specifying the possible choices for the hierarchy variables (optional).}
+
+\item{group_choices}{\verb{character(1+)|NULL}
+A character vector specifying the possible choices for the group variable (optional).}
 
 \item{intended_use_label}{Either a string indicating the intended use for export, or
 NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}
@@ -67,8 +82,7 @@ Name of the dataset}
 
 \item{receiver_id}{\code{character(1)}
 
-\strong{This functionality is not ready yet} please
-open an issue or contact the developers if you are interested in using it.}
+Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app or be NULL.}
 
 \item{table_dataset_disp, pop_dataset_disp}{\verb{[mm_dispatcher(1)]}
 
