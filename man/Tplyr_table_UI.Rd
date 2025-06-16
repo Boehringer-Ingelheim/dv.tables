@@ -4,7 +4,7 @@
 \alias{Tplyr_table_UI}
 \title{UI for the Tplyr_table module}
 \usage{
-Tplyr_table_UI(module_id, table_list)
+Tplyr_table_UI(module_id, output_list)
 }
 \arguments{
 \item{module_id}{\verb{[character(1)]}

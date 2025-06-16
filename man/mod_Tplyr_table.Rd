@@ -6,7 +6,7 @@
 \usage{
 mod_Tplyr_table(
   module_id,
-  table_list,
+  output_list,
   subjid_var = "USUBJID",
   default_vars = NULL,
   pagination = NULL,

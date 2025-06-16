@@ -7,7 +7,7 @@
 Tplyr_table_server(
   module_id,
   dataset_list,
-  table_list,
+  output_list,
   dataset_metadata,
   subjid_var,
   default_vars,

@@ -12,7 +12,7 @@ local({
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
-  test_that("App initialization is correct" %>%
+  test_that("App initialization is correct" |>
     vdoc[["add_spec"]](specs$clicktablespecs$framework), {
     app_outputs <- app$get_values(output = "mock_tplyr-table_output")
 
@@ -35,7 +35,8 @@ local({
   })
 
 
-  test_that("Click event generates dv.listings output" %>%
+  
+  test_that("Click event generates dv.listings output" |>
     vdoc[["add_spec"]](specs$clicktablespecs$clickevent), {
     # Update output value
     app$set_inputs(
@@ -78,7 +79,7 @@ local({
     )
   })
 
-  test_that("Click event outside required area generates empty listing" %>%
+  test_that("Click event outside required area generates empty listing" |>
     vdoc[["add_spec"]](specs$clicktablespecs$error), {
     # Update output value
     app$set_inputs(
@@ -99,3 +100,5 @@ local({
     )
   })
 })
+
+
