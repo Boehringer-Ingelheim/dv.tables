@@ -207,8 +207,9 @@ Tplyr_table_server <- function(
           selected_columns,
           sortable = FALSE,
           onClick = htmlwidgets::JS(jsCode),
-          defaultPageSize = 11,
-          showPageSizeOptions = TRUE,
+          pagination = FALSE,
+          # defaultPageSize = 11,
+          # showPageSizeOptions = TRUE,
           columns = setNames(lapply(colnames(selected_columns), function(col) {
             reactable::colDef(name = rename_columns(col))
           }), colnames(selected_columns))
