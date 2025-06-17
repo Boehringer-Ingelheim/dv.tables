@@ -301,6 +301,10 @@ Tplyr_table_server <- function(
         needed_data()
       }
     })
+    shiny::exportTestValues(
+      "subject_subset" = subject_subset,
+      "listings_data" = listings_data()
+    )
     
     dv.listings:::listings_server(
       module_id = TPLYR_TBL$LISTINGS_ID,
@@ -313,11 +317,6 @@ Tplyr_table_server <- function(
       afmm_param = afmm_param
     )
     ## listings part end ---
-    
-    shiny::exportTestValues(
-      "subject_subset" = subject_subset,
-      "listings_data" = listings_data()
-    )
     
   })
 }
