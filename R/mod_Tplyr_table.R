@@ -61,15 +61,10 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #'
 #' @param pagination `[logical(1) | NULL]` Either a boolean indicating if pagination should be activated, or
 #' NULL for which pagination will be activated for large datasets (nrows > 1000) automatically.
-#' @param receiver_id `[character(1) | NULL]`
 #'
-#' Character string defining the ID of the module to which to send a subject ID. The
-#' module must exist in the module list. The default is NULL which disables communication.
-#' @param afmm_param `[list(2+) | NULL]`
+#'  @param on_sbj_click `[function()]`
 #'
-#' Named list of a selection of arguments from module manager. Expects
-#' at least two elements: \code{utils} and \code{module_names} defining a character vector
-#' whose entries have the corresponding module IDs as names.
+#' Function to invoke when a subject ID is clicked in a listing
 #'
 #' @export
 Tplyr_table_server <- function(
@@ -81,8 +76,8 @@ Tplyr_table_server <- function(
     default_vars,
     intended_use_label,
     pagination,
-    receiver_id,
-    afmm_param
+    on_sbj_click = NULL,
+    review = NULL
 ) {
   checkmate::assert(
     checkmate::check_character(module_id, min.chars = 1),
@@ -93,17 +88,17 @@ Tplyr_table_server <- function(
     checkmate::check_subset(names(dataset_metadata), choices = c("name", "date_range")),
     checkmate::check_logical(pagination, null.ok = TRUE),
     checkmate::check_string(intended_use_label, null.ok = TRUE),
-    checkmate::check_string(receiver_id, min.chars = 1, null.ok = TRUE),
-    checkmate::check_list(afmm_param, null.ok = TRUE),
+    # checkmate::check_string(receiver_id, min.chars = 1, null.ok = TRUE),
+    # checkmate::check_list(afmm_param, null.ok = TRUE),
     combine = "and"
   )
-  
+
   if (!is.null(default_vars)) {
     checkmate::assert_names(names(default_vars), type = "unique")
   }
-  
+
   checkmate::assert_list(output_list, types = "list")
-  
+
   for (output in output_list) {
     if (length(output) == 1) {
       checkmate::assert(
@@ -123,29 +118,29 @@ Tplyr_table_server <- function(
       message("output_list entry has too many elements")
     }
   }
-  
-  
+
+
   shiny::moduleServer(module_id, function(input, output, session) {
     ns <- session$ns
-    
+
     v_dataset_list <- shiny::reactive({
       checkmate::assert_list(dataset_list(), types = "data.frame", null.ok = TRUE, names = "named")
-      
+
       # ensure that global filter works as expected
       dataset_list_dropedlevles <- lapply(dataset_list(), function(df) {
         df <- df |>
           dplyr::mutate(dplyr::across(dplyr::where(is.factor), ~ droplevels(.)))
       })
-      
+
       dataset_list_dropedlevles
     })
-    
+
     is_table <- shiny::reactive({
       "tplyr_tab_fun" %in% names(output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]])
     })
-    
+
     needed_data <- shiny::reactive({
-      
+
       if (is_table()) {
         tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
         v_dataset_list()[names(formals(tplyr_tab_fun))]
@@ -154,32 +149,32 @@ Tplyr_table_server <- function(
         v_dataset_list()[dataset_names]
       }
     })
-    
+
     ## table part start ---
-    
+
     tplyr_tab <- shiny::reactive({
       if (is_table()) {
         #Global filter empty, prevent crash
         if (all(sapply(needed_data(), function(tbl) nrow(tbl) == 0))) {
           return(NULL)
         }
-        
+
         tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
         res <- do.call(tplyr_tab_fun, needed_data())
       }
     })
-    
+
     tplyr_tab_build <- shiny::reactive({
-      
+
       shiny::req(tplyr_tab())
-      
+
       if (is_table()) {
         build_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["build_fun"]]
         build_fun(tplyr_tab())
       }
     })
-    
-    
+
+
     jsCode <- paste0(
       "function(rowInfo, colInfo) {
           if (window.Shiny) {
@@ -188,7 +183,7 @@ Tplyr_table_server <- function(
           }
         }"
     )
-    
+
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
       shiny::validate(
@@ -202,7 +197,7 @@ Tplyr_table_server <- function(
           tplyr_tab_build(),
           -dplyr::any_of(c("row_id")), -dplyr::starts_with("ord")
         )
-        
+
         reactable::reactable(
           selected_columns,
           sortable = FALSE,
@@ -216,11 +211,11 @@ Tplyr_table_server <- function(
         )
       }
     })
-    
+
     ## table part end ---
-    
+
     ## listings part start ---
-    
+
     sel_output <- shiny::reactiveVal("")
     # Create reactive values for storing row and col ids
     row <- shiny::reactive({
@@ -230,15 +225,15 @@ Tplyr_table_server <- function(
     })
     col <- shiny::reactive({
       if (is_table() && input[[TPLYR_TBL$SEL_OUTPUT_ID]] == sel_output()) {
-        input$col_id$column 
+        input$col_id$column
       }
     })
-    
+
     output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
       if (!is_table()) {
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
         shinyjs::hide(id = TPLYR_TBL$TABLE_ID)
-        
+
         shiny::tags$text("Listing:")
       } else if (
         is.null(col()) || input[[TPLYR_TBL$SEL_OUTPUT_ID]] != sel_output() ||
@@ -247,13 +242,13 @@ Tplyr_table_server <- function(
       ) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
-        
+
         sel_output(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
         shiny::tags$text("Click on a cell with numbers to display corresponding listing")
       } else {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
-        
+
         shiny::tagList(
           shiny::tags$h4("Corresponding listing:"),
           shiny::tags$text(
@@ -305,19 +300,19 @@ Tplyr_table_server <- function(
       "subject_subset" = subject_subset,
       "listings_data" = listings_data()
     )
-    
+
     dv.listings:::listings_server(
       module_id = TPLYR_TBL$LISTINGS_ID,
       dataset_list = listings_data,
       dataset_metadata = dataset_metadata,
       default_vars = default_vars,
       intended_use_label = intended_use_label,
-      receiver_id = receiver_id,
       pagination = pagination,
-      afmm_param = afmm_param
+      on_sbj_click = on_sbj_click,
+      review = review
     )
     ## listings part end ---
-    
+
   })
 }
 
@@ -325,6 +320,11 @@ Tplyr_table_server <- function(
 #' Typlr table module for DaVinci's module manager
 #'
 #' @inheritParams Tplyr_table_server
+#'
+#' @param receiver_id `[character(1) | NULL]`
+#'
+#' Character string defining the ID of the module to which to send a subject ID. The
+#' module must exist in the module list. The default is NULL which disables communication.
 #'
 #' @export
 #'
@@ -335,13 +335,14 @@ mod_Tplyr_table <- function(
     default_vars = NULL,
     pagination = NULL,
     intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
-    receiver_id = NULL
+    receiver_id = NULL,
+    review = NULL
 ) {
-  
+
   checkmate::assert_list(output_list, types = "list")
-  
+
   for (output in output_list) {
-    
+
     if (length(output) == 1) {
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
@@ -349,7 +350,7 @@ mod_Tplyr_table <- function(
         combine = "and"
       )
     } else if (length(output) == 2) {
-      
+
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
         checkmate::check_subset(names(output), choices = c("tplyr_tab_fun", "build_fun"), empty.ok = FALSE),
@@ -361,30 +362,41 @@ mod_Tplyr_table <- function(
       message("output_list entry has too many elements")
     }
   }
-  
+
   mod <- list(
     ui = function(id) {
       Tplyr_table_UI(id, output_list)
     },
     server = function(afmm) {
-      
+
+      on_sbj_click_fun <- NULL
+      if (!is.null(receiver_id)) {
+        on_sbj_click_fun <- function() afmm[["utils"]][["switch2mod"]](receiver_id)
+      }
+
       needed_datasets <- sapply(output_list, function(tab) {
         if ("tplyr_tab_fun" %in% names(tab)) {
           names(formals(tab[["tplyr_tab_fun"]]))
         } else {
           tab[["dataset_names"]]
         }
-        
+
       }, simplify = TRUE, USE.NAMES = FALSE) |>
         unlist() |>
         unique()
-      
+
       dataset_present <- needed_datasets %in% shiny::isolate(names(afmm$unfiltered_dataset()))
       if (!all(dataset_present)) {
         stop(paste("Not all datasets provided in tplyr_tab_fun are present in the provided data list!",
                    needed_datasets[!dataset_present], "is missing in the provided data list"))
       }
-      
+
+      if (is.list(review)) {
+        # These afmm fields are only required for the review functionality, so we bundle them in the `review` list
+        review[["data"]] <- afmm[["data"]]
+        review[["selected_dataset"]] <- afmm[["dataset_metadata"]][["name"]]
+      }
+
       Tplyr_table_server(
         module_id = module_id,
         dataset_list = shiny::reactive({afmm$filtered_dataset()[needed_datasets]}),
@@ -394,8 +406,10 @@ mod_Tplyr_table <- function(
         default_vars = default_vars,
         intended_use_label = intended_use_label,
         pagination = pagination,
-        receiver_id = receiver_id,
-        afmm_param = list(utils = afmm$utils, module_names = afmm$module_names)
+        # receiver_id = receiver_id,
+        on_sbj_click = on_sbj_click_fun,
+        review = review
+        # afmm_param = list(utils = afmm$utils, module_names = afmm$module_names)
       )
     },
     module_id = module_id

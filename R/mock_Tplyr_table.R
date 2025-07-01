@@ -82,9 +82,9 @@ mock_Tplyr_table_mm <- function() {
     ),
     "Tabel 2" = list(
       tplyr_tab_fun = my_tplyr_fun2,
-      build_fun = build_func 
+      build_fun = build_func
       # listings_default_values
-    ), 
+    ),
     "Listing" = list(
       dataset_names = c("adsl", "adae")
     )
@@ -93,7 +93,22 @@ mock_Tplyr_table_mm <- function() {
   module_list <- list(
     "Table" = mod_Tplyr_table(
       module_id = "test",
-      output_list = output_list
+      output_list = output_list,
+      review = list(
+        datasets = list(
+          adsl = list(
+            id_vars = "USUBJID",
+            tracked_vars = c("RFENDTC", "RFXENDTC")
+          ),
+          adae = list(
+            id_vars = c("USUBJID", "AESEQ"),
+            tracked_vars = c("AESEV")
+          )
+        ),
+        choices = c("Pending", "Reviewed with no issues", "Action required", "Resolved"),
+        roles = c("TSTAT", "SP", "Safety", "CTL")#,
+        # store_path = '/mnt/path/to/app/storage'
+      )
     )
   )
 
