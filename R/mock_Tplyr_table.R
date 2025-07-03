@@ -9,6 +9,11 @@ mock_Tplyr_table_mm <- function() {
   adsl <- pharmaverseadam::adsl
   adae <- pharmaverseadam::adae
 
+  adsl <- adsl |>
+    dplyr::mutate(
+      EOSSTT = dplyr::if_else(is.na(EOSSTT), "NA", EOSSTT)
+    )
+
   my_tplyr_fun <- function(adsl) {
     # Create summary table object
     tab <- Tplyr::tplyr_table(adsl, ARM) |>
@@ -17,7 +22,7 @@ mock_Tplyr_table_mm <- function() {
       ) |>
       Tplyr::add_layer(
         Tplyr::group_count(EOSSTT, by = "End of Study status (%)")
-      ) 
+      )
     return(tab)
   }
 
@@ -74,7 +79,7 @@ mock_Tplyr_table_mm <- function() {
     Tplyr::build(tab, metadata = TRUE) |>
       Tplyr::apply_row_masks(row_breaks = TRUE)
   }
-  
+
   output_list <- list(
     "Table 1" = list(
       tplyr_tab_fun = my_tplyr_fun,
@@ -82,7 +87,7 @@ mock_Tplyr_table_mm <- function() {
     ),
     "Tabel 2" = list(
       tplyr_tab_fun = my_tplyr_fun2,
-      build_fun = build_func
+      build_fun = build_func2
       # listings_default_values
     ),
     "Listing" = list(
@@ -151,7 +156,7 @@ mock_Tplyr_table <- function(){
         build_fun = build_func
       )
   )
-  
+
 
   ui = function(id) {
 

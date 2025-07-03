@@ -17,7 +17,7 @@ TPLYR_TBL <- pack_of_constants( #nolint
 #' @export
 Tplyr_table_UI <- function(module_id, output_list) {
   ns <- shiny::NS(module_id)
-  
+
   ui <- shiny::tagList(
     shinyjs::useShinyjs(),
     shiny::selectizeInput(ns(TPLYR_TBL$SEL_OUTPUT_ID), label = TPLYR_TBL$SEL_OUTPUT_LABEL, choices = names(output_list)),
@@ -26,9 +26,9 @@ Tplyr_table_UI <- function(module_id, output_list) {
     shiny::uiOutput(ns(TPLYR_TBL$LISTINGS_HEADER_ID)),
     shiny::br(),
     shiny::div(id = ns(TPLYR_TBL$LISTINGS_DIV_ID), dv.listings:::listings_UI(ns(TPLYR_TBL$LISTINGS_ID)))
-    
+
   )
-  
+
   return(ui)
 }
 
@@ -170,7 +170,15 @@ Tplyr_table_server <- function(
 
       if (is_table()) {
         build_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["build_fun"]]
-        build_fun(tplyr_tab())
+        tplyr_tab_build <- build_fun(tplyr_tab())
+        if (!("row_id" %in% names(tplyr_tab_build))) {
+          warning(
+            paste("For output" , input[[TPLYR_TBL$SEL_OUTPUT_ID]],
+                  "the metadata is not set to TRUE in the build function. Drill down will not be working"
+            )
+          )
+        }
+        tplyr_tab_build
       }
     })
 
@@ -220,7 +228,18 @@ Tplyr_table_server <- function(
     # Create reactive values for storing row and col ids
     row <- shiny::reactive({
       if (is_table() && input[[TPLYR_TBL$SEL_OUTPUT_ID]] == sel_output()) {
-        tplyr_tab_build()[input$row_id$index, 1]$row_id
+
+        if ("row_id" %in% names(tplyr_tab_build())) {
+          tplyr_tab_build()[input$row_id$index, 1]$row_id
+        } else {
+          # warning(paste("For output" , , "the metadata is not set to TRUE in the build function"))
+          shiny::showNotification(
+            "Drill down is not working for this Table. Contact your app creator for more information.",
+            type = "error",
+            duration = 10
+          )
+        }
+
       }
     })
     col <- shiny::reactive({
@@ -268,22 +287,22 @@ Tplyr_table_server <- function(
         )
       }
     })
-    
+
     subject_subset <- shiny::eventReactive(list(row(), col()), {
       shiny::req(tplyr_tab())
       shiny::req(row())
       shiny::req(col())
       
       if (startsWith(col(), "var")) {
-        
+
         if (col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]]) {
           subset_data <- Tplyr::get_meta_subset(tplyr_tab(), row(), col())
-          
+
           subset_data[[subjid_var]]
         }
       }
     })
-    
+
     listings_data <- shiny::reactive({
       if (is_table()) {
         listings_data_list <- lapply(needed_data(), function(dataframe) {
