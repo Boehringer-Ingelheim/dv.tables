@@ -128,8 +128,10 @@ Tplyr_table_server <- function(
 
       # ensure that global filter works as expected
       dataset_list_dropedlevles <- lapply(dataset_list(), function(df) {
+        lbls <- get_lbls(df)
         df <- df |>
           dplyr::mutate(dplyr::across(dplyr::where(is.factor), ~ droplevels(.)))
+        df <- set_lbls(df, lbls)
       })
 
       dataset_list_dropedlevles
@@ -140,7 +142,6 @@ Tplyr_table_server <- function(
     })
 
     needed_data <- shiny::reactive({
-
       if (is_table()) {
         tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
         v_dataset_list()[names(formals(tplyr_tab_fun))]
