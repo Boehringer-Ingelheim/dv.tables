@@ -159,7 +159,6 @@ Tplyr_table_server <- function(
         if (all(sapply(needed_data(), function(tbl) nrow(tbl) == 0))) {
           return(NULL)
         }
-
         tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
         res <- do.call(tplyr_tab_fun, needed_data())
       }
@@ -170,6 +169,8 @@ Tplyr_table_server <- function(
       shiny::req(tplyr_tab())
 
       if (is_table()) {
+        checkmate::assert_class(tplyr_tab(), classes = c("tplyr_table", "environment"))
+
         build_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["build_fun"]]
         tplyr_tab_build <- build_fun(tplyr_tab())
         if (!("row_id" %in% names(tplyr_tab_build))) {
@@ -179,6 +180,7 @@ Tplyr_table_server <- function(
             )
           )
         }
+        checkmate::assert_class(tplyr_tab_build, classes = c("tbl_df", "tbl", "data.frame"))
         tplyr_tab_build
       }
     })
@@ -232,13 +234,6 @@ Tplyr_table_server <- function(
 
         if ("row_id" %in% names(tplyr_tab_build())) {
           tplyr_tab_build()[input$row_id$index, 1]$row_id
-        } else {
-          # warning(paste("For output" , , "the metadata is not set to TRUE in the build function"))
-          shiny::showNotification(
-            "Drill down is not working for this Table. Contact your app creator for more information.",
-            type = "error",
-            duration = 10
-          )
         }
 
       }
@@ -255,6 +250,17 @@ Tplyr_table_server <- function(
         shinyjs::hide(id = TPLYR_TBL$TABLE_ID)
 
         shiny::tags$text("Listing:")
+      } else if (!"row_id" %in% names(tplyr_tab_build())) {
+        shinyjs::show(id = TPLYR_TBL$TABLE_ID)
+        shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
+
+        shiny::showNotification(
+          "Drill down is not working for this Table. Contact your app creator for more information.",
+          type = "error",
+          duration = 10
+        )
+
+        shiny::tags$text("Listing not available")
       } else if (
         is.null(col()) || input[[TPLYR_TBL$SEL_OUTPUT_ID]] != sel_output() ||
         !startsWith(col(), "var") || row() == ""
@@ -293,7 +299,7 @@ Tplyr_table_server <- function(
       shiny::req(tplyr_tab())
       shiny::req(row())
       shiny::req(col())
-      
+
       if (startsWith(col(), "var")) {
 
         if (col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]]) {
