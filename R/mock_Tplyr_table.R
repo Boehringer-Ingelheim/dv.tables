@@ -88,7 +88,6 @@ mock_Tplyr_table_mm <- function() {
     "Tabel 2" = list(
       tplyr_tab_fun = my_tplyr_fun2,
       build_fun = build_func2
-      # listings_default_values
     ),
     "Listing" = list(
       dataset_names = c("adsl", "adae")

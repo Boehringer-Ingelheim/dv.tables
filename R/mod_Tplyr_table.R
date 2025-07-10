@@ -38,11 +38,23 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #' @param dataset_list `[shiny::reactive(list(data.frame)]`
 #'
 #' A reactive list of data.framish dataset(s) that will be used to create the table and the listing(s).
-#' @param tplyr_tab_fun `[function]` A function giving instructions how to build a Tplyr table.
-#' The arguments of the function need to be the name of the datasets used for the table.
-#' The Tplyr build part needs to be an extra function passed to \code{build_fun}
-#' @param build_fun `[function]` A function containing the build part of the Tplyr table constructed in \code{tplyr_Tab_fun}.
-#' Takes as argument the table object from the \code{tplyr_Tab_fun}.
+#' @param output_list `[list(list())]`  A named list defining the outputs to be generated. Each element of the list
+#' corresponds to a table or listing and must be a named list with one of the following structures:
+#'
+#' For summary tables:
+#'  \describe{
+#'     \item{tplyr_tab_fun}{A function that takes one or more datasets as input and returns a `tplyr_table` object.}
+#'     \item{build_fun}{A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).
+#'     The metadata argument of `Tplyr::build()` needs to be set to `TURE`, so that the corresponding listing can be shown.}
+#'  }
+#'
+#'  For listings:
+#'   \describe{
+#'     \item{dataset_names}{A character vector of dataset names required to generate the listing.}
+#'   }
+#'
+#'   The names of the top-level list elements are used as identifiers for the outputs.
+#'
 #' @param dataset_metadata `[list(character(1), character(1+))]` A list with the following two elements:
 #' \code{dataset_metadata$name()} containing a reactive string specifying the name of the selected
 #' dataset and \code{dataset_metadata$date_range()} containing a reactive character vector with two entries

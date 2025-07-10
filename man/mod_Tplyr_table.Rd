@@ -12,13 +12,31 @@ mod_Tplyr_table(
   pagination = NULL,
   intended_use_label =
     "Use only for internal review and monitoring during the conduct of clinical trials.",
-  receiver_id = NULL
+  receiver_id = NULL,
+  review = NULL
 )
 }
 \arguments{
 \item{module_id}{\verb{[character(1)]}
 
 A character string that serves as unique identifier for the module.}
+
+\item{output_list}{\verb{[list(list())]}  A named list defining the outputs to be generated. Each element of the list
+corresponds to a table or listing and must be a named list with one of the following structures:
+
+For summary tables:
+\describe{
+\item{tplyr_tab_fun}{A function that takes one or more datasets as input and returns a \code{tplyr_table} object.}
+\item{build_fun}{A function that takes the \code{tplyr_table} object and returns a built table (typically using \code{Tplyr::build()}).
+The metadata argument of \code{Tplyr::build()} needs to be set to \code{TURE}, so that the corresponding listing can be shown.}
+}
+
+For listings:
+\describe{
+\item{dataset_names}{A character vector of dataset names required to generate the listing.}
+}
+
+The names of the top-level list elements are used as identifiers for the outputs.}
 
 \item{subjid_var}{\verb{[character(1) | NULL]}
 
@@ -31,7 +49,11 @@ dataset. Named according to the datasets in the \code{tplyr_tab_fun}. If \code{N
 dataset.}
 
 \item{pagination}{\verb{[logical(1) | NULL]} Either a boolean indicating if pagination should be activated, or
-NULL for which pagination will be activated for large datasets (nrows > 1000) automatically.}
+NULL for which pagination will be activated for large datasets (nrows > 1000) automatically.
+
+@param on_sbj_click \verb{[function()]}
+
+Function to invoke when a subject ID is clicked in a listing}
 
 \item{intended_use_label}{\verb{[character(1) | NULL]} Either a string indicating the intended use for export, or
 NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}
