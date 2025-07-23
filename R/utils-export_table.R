@@ -52,7 +52,7 @@ preprocess_download_table <- function(count_table) {
     ))
 
 
-  new_row <- setNames(
+  new_row <- stats::setNames(
     data.frame(matrix(ncol = ncol(excelfile), nrow = 1)),
     names(excelfile)
   )

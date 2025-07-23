@@ -71,7 +71,7 @@ data_frame_by_row <- function(colnames, data) {
   stopifnot(n %% n_cols == 0)
   columns <- vector("list", length = n_cols)
   for (i in 1:n_cols) columns[[i]] <- unlist(data[seq(i, n, n_cols)])
-  do.call(data.frame, setNames(columns, colnames))
+  do.call(data.frame, stats::setNames(columns, colnames))
 }
 
 # Select columns to be included in the tables ----

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mod_Tplyr_table.R
 \name{mod_Tplyr_table}
 \alias{mod_Tplyr_table}
-\title{Typlr table module for DaVinci's module manager}
+\title{Tplyr table module for DaVinci's module manager}
 \usage{
 mod_Tplyr_table(
   module_id,
@@ -57,12 +57,94 @@ Function to invoke when a subject ID is clicked in a listing}
 
 \item{intended_use_label}{\verb{[character(1) | NULL]} Either a string indicating the intended use for export, or
 NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}
-
-\item{receiver_id}{\verb{[character(1) | NULL]}
-
-Character string defining the ID of the module to which to send a subject ID. The
-module must exist in the module list. The default is NULL which disables communication.}
 }
 \description{
-Typlr table module for DaVinci's module manager
+This module integrates Tplyr-based table generation into the DaVinci module manager framework.
+It allows users to define and render summary tables using \code{Tplyr}, with support for custom
+table-building functions and dataset listings.
+}
+\examples{
+\dontrun{
+dm <- pharmaversesdtm::dm
+ae <- pharmaversesdtm::ae
+
+my_tplyr_fun <- function(dm) {
+  tab <- Tplyr::tplyr_table(dm, ARM) |>
+    Tplyr::add_layer(Tplyr::group_desc(AGE, by = "Age (years)")) |>
+    Tplyr::add_layer(Tplyr::group_count(SEX, by = "Sex")) |>
+    Tplyr::add_layer(Tplyr::group_count(RACE, by = "Race"))
+  return(tab)
+}
+
+build_func <- function(tab) {
+  Tplyr::build(tab, metadata = TRUE) |>
+    dplyr::mutate(row_label2 = ifelse(row_label2 == row_label1, "Total (\%)", row_label2)) |>
+    Tplyr::apply_row_masks(row_breaks = TRUE)
+}
+
+my_tplyr_fun2 <- function(dm, ae) {
+  dm_arm <- dm |> dplyr::select(USUBJID, ARM)
+  ae_arm <- ae |> dplyr::inner_join(dm_arm, by = "USUBJID")
+
+  tab <- Tplyr::tplyr_table(ae_arm, ARM) |>
+    Tplyr::set_pop_data(dm) |>
+    Tplyr::set_pop_treat_var(ARM) |>
+    Tplyr::add_layer(
+      Tplyr::group_count("All subjects") |>
+      Tplyr::set_distinct_by(USUBJID) |>
+      Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
+    ) |>
+    Tplyr::add_layer(
+      Tplyr::group_count("Subjects with adverse events") |>
+        Tplyr::set_distinct_by(USUBJID) |>
+        Tplyr::set_format_strings(Tplyr::f_str("xx (xx \%)", distinct_n, distinct_pct))
+    ) |>
+    Tplyr::add_layer(
+      Tplyr::group_count(AESEV, by = "Adverse event severity") |>
+      Tplyr::set_distinct_by(USUBJID) |>
+      Tplyr::set_format_strings(Tplyr::f_str("xx (xx \%)", distinct_n, distinct_pct))
+    ) |>
+    Tplyr::add_layer(
+      Tplyr::group_count("Subjects with serious AE", where = AESER == "Y") |>
+        Tplyr::set_distinct_by(USUBJID) |>
+        Tplyr::set_format_strings(Tplyr::f_str("xx (xx \%)", distinct_n, distinct_pct))
+    )
+  return(tab)
+}
+
+build_func2 <- function(tab) {
+  Tplyr::build(tab, metadata = TRUE) |>
+    Tplyr::apply_row_masks(row_breaks = TRUE)
+}
+
+output_list <- list(
+  "Demographic" = list(
+    tplyr_tab_fun = my_tplyr_fun,
+    build_fun = build_func
+  ),
+  "Adverse Events" = list(
+    tplyr_tab_fun = my_tplyr_fun2,
+    build_fun = build_func
+  ),
+  "Listing" = list(
+    dataset_names = c("dm", "ae")
+  )
+)
+
+module_list <- list(
+  "Table" = dv.tables::mod_Tplyr_table(
+    module_id = "tplyr_table",
+    output_list = output_list
+  )
+)
+
+dv.manager::run_app(
+  data = list("My data" = list(ae = ae, dm = dm)),
+  module_list = module_list,
+  filter_data = "dm",
+  enable_dataset_filter = TRUE
+)
+
+}
+
 }

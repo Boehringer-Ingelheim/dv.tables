@@ -10,9 +10,8 @@ TPLYR_TBL <- pack_of_constants( #nolint
 
 #' UI for the Tplyr_table module
 #'
-#' @param module_id `[character(1)]`
 #'
-#' A character string that serves as unique identifier for the module.
+#' @inheritParams Tplyr_table_server
 #'
 #' @export
 Tplyr_table_UI <- function(module_id, output_list) {
@@ -34,7 +33,9 @@ Tplyr_table_UI <- function(module_id, output_list) {
 
 #' Server for the Tplyr_table module
 #'
-#' @inheritParams Tplyr_table_UI
+#' @param module_id `[character(1)]`
+#'
+#' A character string that serves as unique identifier for the module.
 #' @param dataset_list `[shiny::reactive(list(data.frame)]`
 #'
 #' A reactive list of data.framish dataset(s) that will be used to create the table and the listing(s).
@@ -78,6 +79,7 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #'
 #' Function to invoke when a subject ID is clicked in a listing
 #'
+#'
 #' @export
 Tplyr_table_server <- function(
     module_id,
@@ -100,8 +102,6 @@ Tplyr_table_server <- function(
     checkmate::check_subset(names(dataset_metadata), choices = c("name", "date_range")),
     checkmate::check_logical(pagination, null.ok = TRUE),
     checkmate::check_string(intended_use_label, null.ok = TRUE),
-    # checkmate::check_string(receiver_id, min.chars = 1, null.ok = TRUE),
-    # checkmate::check_list(afmm_param, null.ok = TRUE),
     combine = "and"
   )
 
@@ -137,7 +137,6 @@ Tplyr_table_server <- function(
 
     v_dataset_list <- shiny::reactive({
       checkmate::assert_list(dataset_list(), types = "data.frame", null.ok = TRUE, names = "named")
-
       # ensure that global filter works as expected
       dataset_list_dropedlevles <- lapply(dataset_list(), function(df) {
         lbls <- get_lbls(df)
@@ -156,23 +155,25 @@ Tplyr_table_server <- function(
     needed_data <- shiny::reactive({
       if (is_table()) {
         tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
-        v_dataset_list()[names(formals(tplyr_tab_fun))]
+        dataset_names <- names(formals(tplyr_tab_fun))
       } else {
         dataset_names <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["dataset_names"]]
-        v_dataset_list()[dataset_names]
       }
+
+      v_dataset_list()[dataset_names]
     })
 
     ## table part start ---
 
     tplyr_tab <- shiny::reactive({
       if (is_table()) {
-        #Global filter empty, prevent crash
+        # Global filter empty, prevent crash
         if (all(sapply(needed_data(), function(tbl) nrow(tbl) == 0))) {
           return(NULL)
         }
         tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
         res <- do.call(tplyr_tab_fun, needed_data())
+        res
       }
     })
 
@@ -182,13 +183,13 @@ Tplyr_table_server <- function(
 
       if (is_table()) {
         checkmate::assert_class(tplyr_tab(), classes = c("tplyr_table", "environment"))
-
         build_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["build_fun"]]
         tplyr_tab_build <- build_fun(tplyr_tab())
         if (!("row_id" %in% names(tplyr_tab_build))) {
           warning(
-            paste("For output" , input[[TPLYR_TBL$SEL_OUTPUT_ID]],
-                  "the metadata is not set to TRUE in the build function. Drill down will not be working"
+            paste(
+              "For output", input[[TPLYR_TBL$SEL_OUTPUT_ID]],
+              "the metadata is not set to TRUE in the build function. Drill down will not be working"
             )
           )
         }
@@ -226,9 +227,7 @@ Tplyr_table_server <- function(
           sortable = FALSE,
           onClick = htmlwidgets::JS(jsCode),
           pagination = FALSE,
-          # defaultPageSize = 11,
-          # showPageSizeOptions = TRUE,
-          columns = setNames(lapply(colnames(selected_columns), function(col) {
+          columns = stats::setNames(lapply(colnames(selected_columns), function(col) {
             reactable::colDef(name = rename_columns(col))
           }), colnames(selected_columns))
         )
@@ -260,8 +259,6 @@ Tplyr_table_server <- function(
       if (!is_table()) {
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
         shinyjs::hide(id = TPLYR_TBL$TABLE_ID)
-
-        shiny::tags$text("Listing:")
       } else if (!"row_id" %in% names(tplyr_tab_build())) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
@@ -290,17 +287,20 @@ Tplyr_table_server <- function(
         shiny::tagList(
           shiny::tags$h4("Corresponding listing:"),
           shiny::tags$text(
-            paste( "Clicked element:",
-                   "Row:",
-                   do.call(paste, tplyr_tab_build() |>
-                             dplyr::filter(row_id == row()) |>
-                             dplyr::select(dplyr::contains("row_label"))),
-                   "Column:",
-                   rename_columns(col()),
-                   "Value:",
-                   tplyr_tab_build() |>
-                     dplyr::filter(row_id == row()) |>
-                     dplyr::select(col())
+            paste(
+              "Clicked element:",
+              "Row:",
+              do.call(
+                paste,
+                tplyr_tab_build() |>
+                  dplyr::filter(.data[["row_id"]] == row()) |>
+                  dplyr::select(dplyr::contains("row_label"))),
+              "Column:",
+              rename_columns(col()),
+              "Value:",
+              tplyr_tab_build() |>
+                dplyr::filter(.data[["row_id"]] == row()) |>
+                dplyr::select(col())
             )
           )
         )
@@ -324,7 +324,7 @@ Tplyr_table_server <- function(
 
     listings_data <- shiny::reactive({
       if (is_table()) {
-        listings_data_list <- lapply(needed_data(), function(dataframe) {
+        lapply(needed_data(), function(dataframe) {
           dataframe |>
             dplyr::filter(
               .data[[subjid_var]] %in% subject_subset()
@@ -334,6 +334,7 @@ Tplyr_table_server <- function(
         needed_data()
       }
     })
+
     shiny::exportTestValues(
       "subject_subset" = subject_subset,
       "listings_data" = listings_data()
@@ -355,16 +356,100 @@ Tplyr_table_server <- function(
 }
 
 
-#' Typlr table module for DaVinci's module manager
+#' Tplyr table module for DaVinci's module manager
+#'
+#' This module integrates Tplyr-based table generation into the DaVinci module manager framework.
+#' It allows users to define and render summary tables using `Tplyr`, with support for custom
+#' table-building functions and dataset listings.
 #'
 #' @inheritParams Tplyr_table_server
 #'
-#' @param receiver_id `[character(1) | NULL]`
-#'
-#' Character string defining the ID of the module to which to send a subject ID. The
-#' module must exist in the module list. The default is NULL which disables communication.
 #'
 #' @export
+#'
+#' @examples
+#'\dontrun{
+#' dm <- pharmaversesdtm::dm
+#' ae <- pharmaversesdtm::ae
+#'
+#' my_tplyr_fun <- function(dm) {
+#'   tab <- Tplyr::tplyr_table(dm, ARM) |>
+#'     Tplyr::add_layer(Tplyr::group_desc(AGE, by = "Age (years)")) |>
+#'     Tplyr::add_layer(Tplyr::group_count(SEX, by = "Sex")) |>
+#'     Tplyr::add_layer(Tplyr::group_count(RACE, by = "Race"))
+#'   return(tab)
+#' }
+#'
+#' build_func <- function(tab) {
+#'   Tplyr::build(tab, metadata = TRUE) |>
+#'     dplyr::mutate(row_label2 = ifelse(row_label2 == row_label1, "Total (%)", row_label2)) |>
+#'     Tplyr::apply_row_masks(row_breaks = TRUE)
+#' }
+#'
+#' my_tplyr_fun2 <- function(dm, ae) {
+#'   dm_arm <- dm |> dplyr::select(USUBJID, ARM)
+#'   ae_arm <- ae |> dplyr::inner_join(dm_arm, by = "USUBJID")
+#'
+#'   tab <- Tplyr::tplyr_table(ae_arm, ARM) |>
+#'     Tplyr::set_pop_data(dm) |>
+#'     Tplyr::set_pop_treat_var(ARM) |>
+#'     Tplyr::add_layer(
+#'       Tplyr::group_count("All subjects") |>
+#'       Tplyr::set_distinct_by(USUBJID) |>
+#'       Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
+#'     ) |>
+#'     Tplyr::add_layer(
+#'       Tplyr::group_count("Subjects with adverse events") |>
+#'         Tplyr::set_distinct_by(USUBJID) |>
+#'         Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
+#'     ) |>
+#'     Tplyr::add_layer(
+#'       Tplyr::group_count(AESEV, by = "Adverse event severity") |>
+#'       Tplyr::set_distinct_by(USUBJID) |>
+#'       Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
+#'     ) |>
+#'     Tplyr::add_layer(
+#'       Tplyr::group_count("Subjects with serious AE", where = AESER == "Y") |>
+#'         Tplyr::set_distinct_by(USUBJID) |>
+#'         Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
+#'     )
+#'   return(tab)
+#' }
+#'
+#' build_func2 <- function(tab) {
+#'   Tplyr::build(tab, metadata = TRUE) |>
+#'     Tplyr::apply_row_masks(row_breaks = TRUE)
+#' }
+#'
+#' output_list <- list(
+#'   "Demographic" = list(
+#'     tplyr_tab_fun = my_tplyr_fun,
+#'     build_fun = build_func
+#'   ),
+#'   "Adverse Events" = list(
+#'     tplyr_tab_fun = my_tplyr_fun2,
+#'     build_fun = build_func
+#'   ),
+#'   "Listing" = list(
+#'     dataset_names = c("dm", "ae")
+#'   )
+#' )
+#'
+#' module_list <- list(
+#'   "Table" = dv.tables::mod_Tplyr_table(
+#'     module_id = "tplyr_table",
+#'     output_list = output_list
+#'   )
+#' )
+#'
+#' dv.manager::run_app(
+#'   data = list("My data" = list(ae = ae, dm = dm)),
+#'   module_list = module_list,
+#'   filter_data = "dm",
+#'   enable_dataset_filter = TRUE
+#' )
+#'
+#'}
 #'
 mod_Tplyr_table <- function(
     module_id,
@@ -437,17 +522,15 @@ mod_Tplyr_table <- function(
 
       Tplyr_table_server(
         module_id = module_id,
-        dataset_list = shiny::reactive({afmm$filtered_dataset()[needed_datasets]}),
+        dataset_list = shiny::reactive(afmm$filtered_dataset()[needed_datasets]),
         output_list = output_list,
         dataset_metadata = afmm$dataset_metadata,
         subjid_var = subjid_var,
         default_vars = default_vars,
         intended_use_label = intended_use_label,
         pagination = pagination,
-        # receiver_id = receiver_id,
         on_sbj_click = on_sbj_click_fun,
         review = review
-        # afmm_param = list(utils = afmm$utils, module_names = afmm$module_names)
       )
     },
     module_id = module_id

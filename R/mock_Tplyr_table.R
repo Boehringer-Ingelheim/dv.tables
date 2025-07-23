@@ -1,3 +1,7 @@
+utils::globalVariables(
+  c("EOSSTT", "ARM", "AGE", "row_label1", "row_label2", "TRT01A", "USUBJID",
+    "distinct_total", "distinct_n", "distinct_pct", "AESEV", "AESER")
+  )
 #' Mock app integrated in the module manager
 #'
 #' \code{mock_Tplyr_table} launches a mock app for the Tplyr_table shiny module by means of
@@ -28,9 +32,9 @@ mock_Tplyr_table_mm <- function() {
 
   build_func <- function(tab) {
     Tplyr::build(tab, metadata = TRUE) |>
-      dplyr::mutate(row_label2 = ifelse(row_label2 == row_label1, "Total (%)",
-                                        row_label2
-      )) |>
+      dplyr::mutate(
+        row_label2 = ifelse(row_label2 == row_label1, "Total (%)", row_label2)
+      ) |>
       Tplyr::apply_row_masks(row_breaks = TRUE)
   }
 
@@ -110,8 +114,7 @@ mock_Tplyr_table_mm <- function() {
           )
         ),
         choices = c("Pending", "Reviewed with no issues", "Action required", "Resolved"),
-        roles = c("TSTAT", "SP", "Safety", "CTL")#,
-        # store_path = '/mnt/path/to/app/storage'
+        roles = c("TSTAT", "SP", "Safety", "CTL")
       )
     )
   )
@@ -123,10 +126,9 @@ mock_Tplyr_table_mm <- function() {
   )
 }
 
-mock_Tplyr_table <- function(){
+mock_Tplyr_table <- function() {
 
   adsl <- pharmaverseadam::adsl
-  adae <- pharmaverseadam::adae
 
   my_tplyr_fun <- function(adsl) {
     # Create summary table object
@@ -142,9 +144,9 @@ mock_Tplyr_table <- function(){
 
   build_func <- function(tab) {
     Tplyr::build(tab, metadata = TRUE) |>
-      dplyr::mutate(row_label2 = ifelse(row_label2 == row_label1, "Total (%)",
-                                        row_label2
-      )) |>
+      dplyr::mutate(
+        row_label2 = ifelse(row_label2 == row_label1, "Total (%)", row_label2)
+      ) |>
       Tplyr::apply_row_masks(row_breaks = TRUE)
   }
 
@@ -156,43 +158,33 @@ mock_Tplyr_table <- function(){
       )
   )
 
-
-  ui = function(id) {
-
+  ui <- function(id) {
     ns <- ifelse(is.character(id), shiny::NS(id), shiny::NS(NULL))
     shiny::fluidPage(Tplyr_table_UI(ns("mock_tplyr"), output_list = output_list))
   }
 
-
-
-  server = function(input, output, session) {
-
-    needed_datasets <- names(formals(my_tplyr_fun))
-
+  server  <- function(input, output, session) {
     Tplyr_table_server(
-    module_id = "mock_tplyr",
-    dataset_list = shiny::reactive({
-      list("adsl" = adsl)
+      module_id = "mock_tplyr",
+      dataset_list = shiny::reactive({
+        list("adsl" = adsl)
       }),
-    output_list = output_list,
-    dataset_metadata = list(
-      name = shiny::reactive("test_name"),
-      date_range = shiny::reactive({
-        c("2022-01-01", "2022-12-03")
-      })
-    ),
-    subjid_var = "USUBJID",
-    default_vars = NULL,
-    intended_use_label = "Test Label",
-    pagination = NULL,
-    receiver_id = NULL,
-    afmm_param = NULL
-  )
+      output_list = output_list,
+      dataset_metadata = list(
+        name = shiny::reactive("test_name"),
+        date_range = shiny::reactive({
+          c("2022-01-01", "2022-12-03")
+        })
+      ),
+      subjid_var = "USUBJID",
+      default_vars = NULL,
+      intended_use_label = "Test Label",
+      pagination = NULL
+    )
   }
 
   shiny::shinyApp(
     ui,
     server
   )
-
 }
