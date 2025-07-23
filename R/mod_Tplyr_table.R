@@ -24,7 +24,7 @@ Tplyr_table_UI <- function(module_id, output_list) {
     shiny::br(),
     shiny::uiOutput(ns(TPLYR_TBL$LISTINGS_HEADER_ID)),
     shiny::br(),
-    shiny::div(id = ns(TPLYR_TBL$LISTINGS_DIV_ID), dv.listings:::listings_UI(ns(TPLYR_TBL$LISTINGS_ID)))
+    shiny::div(id = ns(TPLYR_TBL$LISTINGS_DIV_ID), dv.listings::listings_UI(ns(TPLYR_TBL$LISTINGS_ID)))
 
   )
 
@@ -340,7 +340,7 @@ Tplyr_table_server <- function(
       "listings_data" = listings_data()
     )
 
-    dv.listings:::listings_server(
+    dv.listings::listings_server(
       module_id = TPLYR_TBL$LISTINGS_ID,
       dataset_list = listings_data,
       dataset_metadata = dataset_metadata,
