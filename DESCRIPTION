@@ -19,7 +19,7 @@ Config/testthat/parallel: false
 Imports: shiny (>= 1.7.1),dplyr (>= 1.0.7), purrr (>= 0.3.4),
         tidyr (>= 1.1.4),
         rlang, checkmate (>= 2.0.0), htmltools, 
-        stats, pharmaverseadam, openxlsx, shinyjs, dv.listings,
+        stats, pharmaverseadam, openxlsx, shinyjs, dv.listings (>= 4.1.1-9003),
         reactable, Tplyr
 Depends: R (>= 4.0)
 VignetteBuilder: knitr

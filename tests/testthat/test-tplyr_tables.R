@@ -12,8 +12,9 @@ local({
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
-  test_that("App initialization is correct" |>
-    vdoc[["add_spec"]](specs$clicktablespecs$framework), {
+  test_that("App initialization is correct" #|>
+    #vdoc[["add_spec"]](specs$clicktablespecs$framework)
+    , {
     app_outputs <- app$get_values(output = "mock_tplyr-table_output")
 
     # Parse the JSON
@@ -35,9 +36,10 @@ local({
   })
 
 
-  
-  test_that("Click event generates dv.listings output" |>
-    vdoc[["add_spec"]](specs$clicktablespecs$clickevent), {
+
+  test_that("Click event generates dv.listings output" #|>
+    #vdoc[["add_spec"]](specs$clicktablespecs$clickevent)
+    , {
     # Update output value
     app$set_inputs(
       `mock_tplyr-row_id` = list(index = 8),
@@ -79,8 +81,9 @@ local({
     )
   })
 
-  test_that("Click event outside required area generates empty listing" |>
-    vdoc[["add_spec"]](specs$clicktablespecs$error), {
+  test_that("Click event outside required area generates empty listing" #|>
+    #vdoc[["add_spec"]](specs$clicktablespecs$error)
+    , {
     # Update output value
     app$set_inputs(
       `mock_tplyr-row_id` = list(index = 3),
