@@ -53,21 +53,15 @@ Usually obtained from module manager.}
 
 Column corresponding to subject ID. Default value is 'USUBJID'}
 
-\item{default_vars}{\verb{[list(characters(1+)) | NULL]}
+\item{default_vars}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
 
-A list of character vectors which contain the variable names to be displayed as default per
-dataset. Named according to the datasets in the \code{tplyr_tab_fun}. If \code{NULL}, the first six variables are displayed for each
-dataset.}
+\item{intended_use_label}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
 
-\item{intended_use_label}{\verb{[character(1) | NULL]} Either a string indicating the intended use for export, or
-NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}
+\item{pagination}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
 
-\item{pagination}{\verb{[logical(1) | NULL]} Either a boolean indicating if pagination should be activated, or
-NULL for which pagination will be activated for large datasets (nrows > 1000) automatically.
+\item{on_sbj_click}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
 
-@param on_sbj_click \verb{[function()]}
-
-Function to invoke when a subject ID is clicked in a listing}
+\item{review}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
 }
 \description{
 Server for the Tplyr_table module

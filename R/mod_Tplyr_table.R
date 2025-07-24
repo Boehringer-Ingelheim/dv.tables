@@ -64,21 +64,15 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #' @param subjid_var `[character(1) | NULL]`
 #'
 #' Column corresponding to subject ID. Default value is 'USUBJID'
-#' @param default_vars `[list(characters(1+)) | NULL]`
+#' @param default_vars an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
+#' @param intended_use_label an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
 #'
-#' A list of character vectors which contain the variable names to be displayed as default per
-#'   dataset. Named according to the datasets in the \code{tplyr_tab_fun}. If `NULL`, the first six variables are displayed for each
-#'   dataset.
-#' @param intended_use_label `[character(1) | NULL]` Either a string indicating the intended use for export, or
-#' NULL. The provided label will be displayed prior to the download and will also be included in the exported file.
+#' @param pagination an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
 #'
-#' @param pagination `[logical(1) | NULL]` Either a boolean indicating if pagination should be activated, or
-#' NULL for which pagination will be activated for large datasets (nrows > 1000) automatically.
+#' @param on_sbj_click an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
 #'
-#'  @param on_sbj_click `[function()]`
 #'
-#' Function to invoke when a subject ID is clicked in a listing
-#'
+#' @param review an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
 #'
 #' @export
 Tplyr_table_server <- function(
@@ -96,12 +90,7 @@ Tplyr_table_server <- function(
   checkmate::assert(
     checkmate::check_character(module_id, min.chars = 1),
     checkmate::check_multi_class(dataset_list, c("reactive", "shinymeta_reactive")),
-    checkmate::check_list(default_vars, null.ok = TRUE),
-    checkmate::check_list(dataset_metadata, names = "named", types = c("reactive", "shinymeta_reactive")),
-    checkmate::check_character(names(dataset_metadata), unique = TRUE),
-    checkmate::check_subset(names(dataset_metadata), choices = c("name", "date_range")),
-    checkmate::check_logical(pagination, null.ok = TRUE),
-    checkmate::check_string(intended_use_label, null.ok = TRUE),
+    checkmate::check_character(subjid_var, min.chars = 1),
     combine = "and"
   )
 
@@ -364,6 +353,7 @@ Tplyr_table_server <- function(
 #'
 #' @inheritParams Tplyr_table_server
 #'
+#' @param receiver_id an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through
 #'
 #' @export
 #'
