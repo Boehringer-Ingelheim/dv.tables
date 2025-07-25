@@ -26,7 +26,9 @@ A character string that serves as unique identifier for the module.}
 
 A reactive list of data.framish dataset(s) that will be used to create the table and the listing(s).}
 
-\item{output_list}{\verb{[list(list())]}  A named list defining the outputs to be generated. Each element of the list
+\item{output_list}{\verb{[list(list())]}
+
+A named list defining the outputs to be generated. Each element of the list
 corresponds to a table or listing and must be a named list with one of the following structures:
 
 For summary tables:

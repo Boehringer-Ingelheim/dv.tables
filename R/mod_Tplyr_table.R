@@ -39,7 +39,9 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #' @param dataset_list `[shiny::reactive(list(data.frame)]`
 #'
 #' A reactive list of data.framish dataset(s) that will be used to create the table and the listing(s).
-#' @param output_list `[list(list())]`  A named list defining the outputs to be generated. Each element of the list
+#' @param output_list `[list(list())]`
+#'
+#' A named list defining the outputs to be generated. Each element of the list
 #' corresponds to a table or listing and must be a named list with one of the following structures:
 #'
 #' For summary tables:
@@ -211,11 +213,14 @@ Tplyr_table_server <- function(
           -dplyr::any_of(c("row_id")), -dplyr::starts_with("ord")
         )
 
+        paging <- nrow(selected_columns) > 50
+
         reactable::reactable(
           selected_columns,
           sortable = FALSE,
           onClick = htmlwidgets::JS(jsCode),
-          pagination = FALSE,
+          pagination = paging,
+          showPageSizeOptions = paging,
           columns = stats::setNames(lapply(colnames(selected_columns), function(col) {
             reactable::colDef(name = rename_columns(col))
           }), colnames(selected_columns))
