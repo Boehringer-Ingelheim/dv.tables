@@ -25,4 +25,4 @@ Imports: shiny (>= 1.7.1),dplyr (>= 1.0.7), purrr (>= 0.3.4),
 Depends: R (>= 4.0)
 VignetteBuilder: knitr
 Remotes: boehringer-ingelheim/dv.manager,
-         boehringer-ingelheim/dv.listings
+         boehringer-ingelheim/dv.listings@merge_point/review
