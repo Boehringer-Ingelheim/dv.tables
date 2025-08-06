@@ -4,7 +4,9 @@ TPLYR_TBL <- pack_of_constants( #nolint
   LISTINGS_HEADER_ID = "listings_header",
   LISTINGS_DIV_ID = "listings_div",
   SEL_OUTPUT_ID = "sel_output",
-  SEL_OUTPUT_LABEL = "Select Output:"
+  SEL_OUTPUT_LABEL = "Select Output:",
+  tab_fun = "tplyr_tab_fun",
+  build_fun = "build_fun"
 )
 
 
@@ -112,9 +114,9 @@ Tplyr_table_server <- function(
     } else if (length(output) == 2) {
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
-        checkmate::check_subset(names(output), choices = c("tplyr_tab_fun", "build_fun"), empty.ok = FALSE),
-        checkmate::check_function(output[["tplyr_tab_fun"]]),
-        checkmate::check_function(output[["build_fun"]], nargs = 1),
+        checkmate::check_subset(names(output), choices = c(TPLYR_TBL$tab_fun, TPLYR_TBL$build_fun), empty.ok = FALSE),
+        checkmate::check_function(output[[TPLYR_TBL$tab_fun]]),
+        checkmate::check_function(output[[TPLYR_TBL$build_fun]], nargs = 1),
         combine = "and"
       )
     } else {
@@ -140,12 +142,12 @@ Tplyr_table_server <- function(
     })
 
     is_table <- shiny::reactive({
-      "tplyr_tab_fun" %in% names(output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]])
+      TPLYR_TBL$tab_fun %in% names(output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]])
     })
 
     needed_data <- shiny::reactive({
       if (is_table()) {
-        tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
+        tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][[TPLYR_TBL$tab_fun]]
         dataset_names <- names(formals(tplyr_tab_fun))
       } else {
         dataset_names <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["dataset_names"]]
@@ -162,7 +164,7 @@ Tplyr_table_server <- function(
         if (all(sapply(needed_data(), function(tbl) nrow(tbl) == 0))) {
           return(NULL)
         }
-        tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
+        tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][[TPLYR_TBL$tab_fun]]
         res <- do.call(tplyr_tab_fun, needed_data())
         res
       }
@@ -174,7 +176,7 @@ Tplyr_table_server <- function(
 
       if (is_table()) {
         checkmate::assert_class(tplyr_tab(), classes = c("tplyr_table", "environment"))
-        build_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["build_fun"]]
+        build_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][[TPLYR_TBL$build_fun]]
         tplyr_tab_build <- build_fun(tplyr_tab())
         if (!("row_id" %in% names(tplyr_tab_build))) {
           warning(
@@ -189,7 +191,7 @@ Tplyr_table_server <- function(
       }
     })
 
-
+    # js code for getting the row id and col id when clicking on a cell
     jsCode <- paste0(
       "function(rowInfo, colInfo) {
           if (window.Shiny) {
@@ -257,6 +259,7 @@ Tplyr_table_server <- function(
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
 
+        # this will happen if the metadata argument in Tplyr::build is not set to true
         shiny::showNotification(
           "Drill down is not working for this Table. Contact your app creator for more information.",
           type = "error",
@@ -278,24 +281,25 @@ Tplyr_table_server <- function(
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
 
+        row_label <- do.call(
+          paste,
+          tplyr_tab_build() |>
+            dplyr::filter(.data[["row_id"]] == row()) |>
+            dplyr::select(dplyr::contains("row_label"))
+        )
+        column_label <- rename_columns(col())
+        value <- tplyr_tab_build() |>
+          dplyr::filter(.data[["row_id"]] == row()) |>
+          dplyr::select(col())
+
         shiny::tagList(
           shiny::tags$h4("Corresponding listing:"),
           shiny::tags$text(
             paste(
-              "Clicked element:",
-              "Row:",
-              do.call(
-                paste,
-                tplyr_tab_build() |>
-                  dplyr::filter(.data[["row_id"]] == row()) |>
-                  dplyr::select(dplyr::contains("row_label"))),
-              "Column:",
-              rename_columns(col()),
-              "Value:",
-              tplyr_tab_build() |>
-                dplyr::filter(.data[["row_id"]] == row()) |>
-                dplyr::select(col())
-            )
+              "Clicked element: Row:", row_label,
+              "Column:", column_label,
+              "Value:", value
+              )
           )
         )
       }
@@ -471,9 +475,9 @@ mod_Tplyr_table <- function(
 
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
-        checkmate::check_subset(names(output), choices = c("tplyr_tab_fun", "build_fun"), empty.ok = FALSE),
-        checkmate::check_function(output[["tplyr_tab_fun"]]),
-        checkmate::check_function(output[["build_fun"]], nargs = 1),
+        checkmate::check_subset(names(output), choices = c(TPLYR_TBL$tab_fun, TPLYR_TBL$build_fun), empty.ok = FALSE),
+        checkmate::check_function(output[[TPLYR_TBL$tab_fun]]),
+        checkmate::check_function(output[[TPLYR_TBL$build_fun]], nargs = 1),
         combine = "and"
       )
     } else {
@@ -493,8 +497,8 @@ mod_Tplyr_table <- function(
       }
 
       needed_datasets <- sapply(output_list, function(tab) {
-        if ("tplyr_tab_fun" %in% names(tab)) {
-          names(formals(tab[["tplyr_tab_fun"]]))
+        if (TPLYR_TBL$tab_fun %in% names(tab)) {
+          names(formals(tab[[TPLYR_TBL$tab_fun]]))
         } else {
           tab[["dataset_names"]]
         }
