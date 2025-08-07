@@ -143,52 +143,7 @@ Tplyr_table_server <- function(
       "tplyr_tab_fun" %in% names(output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]])
     })
 
-    needed_data <- shiny::reactive({
-      if (is_table()) {
-        tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
-        dataset_names <- names(formals(tplyr_tab_fun))
-      } else {
-        dataset_names <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["dataset_names"]]
-      }
-
-      v_dataset_list()[dataset_names]
-    })
-
     ## table part start ---
-
-    tplyr_tab <- shiny::reactive({
-      if (is_table()) {
-        # Global filter empty, prevent crash
-        if (all(sapply(needed_data(), function(tbl) nrow(tbl) == 0))) {
-          return(NULL)
-        }
-        tplyr_tab_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["tplyr_tab_fun"]]
-        res <- do.call(tplyr_tab_fun, needed_data())
-        res
-      }
-    })
-
-    tplyr_tab_build <- shiny::reactive({
-
-      shiny::req(tplyr_tab())
-
-      if (is_table()) {
-        checkmate::assert_class(tplyr_tab(), classes = c("tplyr_table", "environment"))
-        build_fun <- output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]][["build_fun"]]
-        tplyr_tab_build <- build_fun(tplyr_tab())
-        if (!("row_id" %in% names(tplyr_tab_build))) {
-          warning(
-            paste(
-              "For output", input[[TPLYR_TBL$SEL_OUTPUT_ID]],
-              "the metadata is not set to TRUE in the build function. Drill down will not be working"
-            )
-          )
-        }
-        checkmate::assert_class(tplyr_tab_build, classes = c("tbl_df", "tbl", "data.frame"))
-        tplyr_tab_build
-      }
-    })
-
 
     jsCode <- paste0(
       "function(rowInfo, colInfo) {
@@ -232,103 +187,175 @@ Tplyr_table_server <- function(
 
     ## listings part start ---
 
-    sel_output <- shiny::reactiveVal("")
-    # Create reactive values for storing row and col ids
-    row <- shiny::reactive({
-      if (is_table() && input[[TPLYR_TBL$SEL_OUTPUT_ID]] == sel_output()) {
+    sel_data <- shiny::reactiveVal(list(cell = NULL, listings_data = NULL))
 
-        if ("row_id" %in% names(tplyr_tab_build())) {
-          tplyr_tab_build()[input$row_id$index, 1]$row_id
+    shiny::observeEvent(list(input[["row_id"]], input[["col_id"]]), {
+      if (
+        !is.null(input[["row_id"]]) &&
+        !is.null(input[["col_id"]]) &&
+        ("row_id" %in% names(tplyr_tab_build()))        
+      ) {
+        row_name <- tplyr_tab_build()[input[["row_id"]][["index"]], 1][["row_id"]]
+        col_name <- input[["col_id"]]$column
+
+        if (startsWith(col_name, "var") && checkmate::test_string(row_name, min.chars = 1)) {
+          subset_data <- Tplyr::get_meta_subset(tplyr_tab(), row_name, col_name)
+          subject_subset <- subset_data[[subjid_var]]
+          listings_data <- lapply(needed_data(), function(dataframe) {
+          dataframe |>
+            dplyr::filter(
+              .data[[subjid_var]] %in% subject_subset
+            )
+          })
+
+          sel_data(list(cell = list(row_name, col_name), listings_data = listings_data))
+
+        } else {
+          sel_data(list(cell = NULL, listings_data = NULL))
         }
-
-      }
-    })
-    col <- shiny::reactive({
-      if (is_table() && input[[TPLYR_TBL$SEL_OUTPUT_ID]] == sel_output()) {
-        input$col_id$column
       }
     })
 
-    output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
-      if (!is_table()) {
+    tplyr_tab <- shiny::reactiveVal(NULL)
+    needed_data <- shiny::reactiveVal(NULL)
+    tplyr_tab_build <- shiny::reactiveVal(NULL)
+    is_table <- shiny::reactiveVal(FALSE)
+
+    shiny::observeEvent(list(input[[TPLYR_TBL$SEL_OUTPUT_ID]], v_dataset_list()), {
+      r_dataset_list <- v_dataset_list()
+      selected_output_id <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
+      selected_output <- output_list[[selected_output_id]]
+      tplyr_tab_fun <- selected_output[["tplyr_tab_fun"]]
+
+      sel_data(list(cell = NULL, listings_data = NULL))
+
+      output_is_table <- "tplyr_tab_fun" %in% names(selected_output)
+      is_table(output_is_table)
+
+      dataset_names <- local({
+        if (output_is_table) {
+          names(formals(tplyr_tab_fun))
+        } else {
+          selected_output[["dataset_names"]]
+        }
+      })
+
+      l_needed_data <- local({
+        r_dataset_list[dataset_names]
+      })
+      needed_data(l_needed_data)
+
+      l_tplyr_tab <- local({
+        if (output_is_table) {
+          # Global filter empty, prevent crash
+          if (all(sapply(l_needed_data, function(tbl) nrow(tbl) == 0))) {
+            return(NULL)
+          }
+          res <- do.call(tplyr_tab_fun, l_needed_data)
+          checkmate::assert_class(res, classes = c("tplyr_table", "environment"))
+          res
+        }
+      })
+      tplyr_tab(l_tplyr_tab)
+
+      l_tplyr_tab_build <- local({
+        if (!is.null(l_tplyr_tab)) {
+          if (output_is_table) {
+            build_fun <- selected_output[["build_fun"]]
+            res <- build_fun(l_tplyr_tab)
+            checkmate::assert_class(res, classes = c("tbl_df", "tbl", "data.frame"))
+            if (!("row_id" %in% names(res))) {
+              warning(
+                paste(
+                  "For output", input[[TPLYR_TBL$SEL_OUTPUT_ID]],
+                  "the metadata is not set to TRUE in the build function. Drill down will not be working"
+                )
+              )
+            }
+            res
+          }
+        } else {
+          NULL
+        }
+      })
+
+      tplyr_tab_build(l_tplyr_tab_build)
+      contents <- NULL
+      
+
+      if (!output_is_table) { # If not a table only show the listing
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
         shinyjs::hide(id = TPLYR_TBL$TABLE_ID)
-      } else if (!"row_id" %in% names(tplyr_tab_build())) {
-        shinyjs::show(id = TPLYR_TBL$TABLE_ID)
-        shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
-
+      } else if (!"row_id" %in% names(l_tplyr_tab_build)) { # Metatada not configured
         shiny::showNotification(
           "Drill down is not working for this Table. Contact your app creator for more information.",
           type = "error",
           duration = 10
         )
-
-        shiny::tags$text("Listing not available")
-      } else if (
-        is.null(col()) || input[[TPLYR_TBL$SEL_OUTPUT_ID]] != sel_output() ||
-        !startsWith(col(), "var") || row() == ""
-        || !(col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]])
-      ) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
 
-        sel_output(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
-        shiny::tags$text("Click on a cell with numbers to display corresponding listing")
-      } else {
+        contents <- shiny::tags$text("Listing not available")
+      }
+      click_info_contents(contents)
+    })
+
+    click_info_contents <- shiny::reactiveVal(NULL)
+    shiny::observeEvent(sel_data(), {
+      contents <- NULL
+      sel_cell <- sel_data()[["cell"]]
+      r_tplyr_tab_build <- tplyr_tab_build()
+
+      if (is.null(sel_cell)) {
+        shinyjs::show(id = TPLYR_TBL$TABLE_ID)
+        shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
+        
+        contents <- shiny::tags$text("Click on a cell with numbers to display corresponding listing")
+      } else if (!is.null(sel_cell)) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
 
-        shiny::tagList(
+        row_label <- do.call(
+          paste,
+          r_tplyr_tab_build |>
+            dplyr::filter(.data[["row_id"]] == sel_cell[[1]]) |>
+            dplyr::select(dplyr::contains("row_label"))
+        )
+
+        column_label <- rename_columns(sel_cell[[2]])
+        value <- r_tplyr_tab_build |>
+          dplyr::filter(.data[["row_id"]] == sel_cell[[1]]) |>
+          dplyr::select(sel_cell[[2]])
+
+        contents <- shiny::tagList(
           shiny::tags$h4("Corresponding listing:"),
           shiny::tags$text(
             paste(
-              "Clicked element:",
-              "Row:",
-              do.call(
-                paste,
-                tplyr_tab_build() |>
-                  dplyr::filter(.data[["row_id"]] == row()) |>
-                  dplyr::select(dplyr::contains("row_label"))),
-              "Column:",
-              rename_columns(col()),
-              "Value:",
-              tplyr_tab_build() |>
-                dplyr::filter(.data[["row_id"]] == row()) |>
-                dplyr::select(col())
+              "Clicked element: Row:", row_label,
+              "Column:", column_label,
+              "Value:", value
             )
           )
         )
       }
+
+      click_info_contents(contents)
     })
 
-    subject_subset <- shiny::eventReactive(list(row(), col()), {
-      shiny::req(tplyr_tab())
-      shiny::req(row())
-      shiny::req(col())
-
-      if (startsWith(col(), "var")) {
-
-        if (col() %in% names(tplyr_tab_build()) && row() %in% tplyr_tab_build()[["row_id"]]) {
-          subset_data <- Tplyr::get_meta_subset(tplyr_tab(), row(), col())
-
-          subset_data[[subjid_var]]
-        }
-      }
+    output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
+      click_info_contents()
     })
 
-    listings_data <- shiny::reactive({
+    listings_data <- shiny::reactive({      
       if (is_table()) {
-        lapply(needed_data(), function(dataframe) {
-          dataframe |>
-            dplyr::filter(
-              .data[[subjid_var]] %in% subject_subset()
-            )
-        })
+        shiny::req(!is.null(sel_data()[["listings_data"]]))      
+        sel_data()[["listings_data"]]
       } else {
         needed_data()
       }
     })
 
+ 
     shiny::exportTestValues(
       "subject_subset" = subject_subset,
       "listings_data" = listings_data()
