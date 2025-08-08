@@ -131,21 +131,16 @@ Tplyr_table_server <- function(
       # ensure that global filter works as expected
       dataset_list_dropedlevles <- lapply(dataset_list(), function(df) {
         lbls <- get_lbls(df)
-        df <- df |>
-          dplyr::mutate(dplyr::across(dplyr::where(is.factor), ~ droplevels(.)))
+        df <- droplevels(df)        
         df <- set_lbls(df, lbls)
       })
 
       dataset_list_dropedlevles
     })
 
-    is_table <- shiny::reactive({
-      "tplyr_tab_fun" %in% names(output_list[[input[[TPLYR_TBL$SEL_OUTPUT_ID]]]])
-    })
-
     ## table part start ---
 
-    jsCode <- paste0(
+    cell_click_input_js <- paste0(
       "function(rowInfo, colInfo) {
           if (window.Shiny) {
             Shiny.setInputValue('", ns("row_id"), "', { index: rowInfo.index + 1})
@@ -156,15 +151,21 @@ Tplyr_table_server <- function(
 
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
+
+      is_table <- output_state()[["is_table"]]
+      tplyr_tab_build <- output_state()[["tplyr_tab_build"]]
+      needed_data <- output_state()[["needed_data"]]
+
       shiny::validate(
         shiny::need(
-          !all(sapply(needed_data(), function(tbl) nrow(tbl) == 0)),
+          !all(sapply(needed_data, function(tbl) nrow(tbl) == 0)),
           "No data available, please adjust your filter settings."
         )
-      )
-      if (is_table()) {
+      )     
+
+      if (is_table) {
         selected_columns <- dplyr::select(
-          tplyr_tab_build(),
+          tplyr_tab_build,
           -dplyr::any_of(c("row_id")), -dplyr::starts_with("ord")
         )
 
@@ -173,7 +174,7 @@ Tplyr_table_server <- function(
         reactable::reactable(
           selected_columns,
           sortable = FALSE,
-          onClick = htmlwidgets::JS(jsCode),
+          onClick = htmlwidgets::JS(cell_click_input_js),
           pagination = paging,
           showPageSizeOptions = paging,
           columns = stats::setNames(lapply(colnames(selected_columns), function(col) {
@@ -190,18 +191,23 @@ Tplyr_table_server <- function(
     sel_data <- shiny::reactiveVal(list(cell = NULL, listings_data = NULL))
 
     shiny::observeEvent(list(input[["row_id"]], input[["col_id"]]), {
+
+      tplyr_tab_build <- output_state()[["tplyr_tab_build"]]
+      tplyr_tab <- output_state()[["tplyr_tab"]]
+      needed_data <- output_state()[["needed_data"]]
+
       if (
         !is.null(input[["row_id"]]) &&
         !is.null(input[["col_id"]]) &&
-        ("row_id" %in% names(tplyr_tab_build()))        
+        ("row_id" %in% names(tplyr_tab_build))        
       ) {
-        row_name <- tplyr_tab_build()[input[["row_id"]][["index"]], 1][["row_id"]]
-        col_name <- input[["col_id"]]$column
+        row_name <- tplyr_tab_build[input[["row_id"]][["index"]], 1][["row_id"]]
+        col_name <- input[["col_id"]]$column        
 
         if (startsWith(col_name, "var") && checkmate::test_string(row_name, min.chars = 1)) {
-          subset_data <- Tplyr::get_meta_subset(tplyr_tab(), row_name, col_name)
+          subset_data <- Tplyr::get_meta_subset(tplyr_tab, row_name, col_name)
           subject_subset <- subset_data[[subjid_var]]
-          listings_data <- lapply(needed_data(), function(dataframe) {
+          listings_data <- lapply(needed_data, function(dataframe) {
           dataframe |>
             dplyr::filter(
               .data[[subjid_var]] %in% subject_subset
@@ -216,6 +222,8 @@ Tplyr_table_server <- function(
       }
     })
 
+    output_state <- shiny::reactiveVal(list(tplyr_tab = NULL, needed_data = NULL, tplyr_tab_build = NULL, is_table = FALSE))
+
     tplyr_tab <- shiny::reactiveVal(NULL)
     needed_data <- shiny::reactiveVal(NULL)
     tplyr_tab_build <- shiny::reactiveVal(NULL)
@@ -227,26 +235,25 @@ Tplyr_table_server <- function(
       selected_output <- output_list[[selected_output_id]]
       tplyr_tab_fun <- selected_output[["tplyr_tab_fun"]]
 
-      sel_data(list(cell = NULL, listings_data = NULL))
+      new_state <- list(tplyr_tab = NULL, needed_data = NULL, tplyr_tab_build = NULL, is_table = FALSE)
 
-      output_is_table <- "tplyr_tab_fun" %in% names(selected_output)
-      is_table(output_is_table)
+      # Reset clicked cell info when another table output is selected
+      sel_data(list(cell = NULL, listings_data = NULL)) 
 
+      is_table <- "tplyr_tab_fun" %in% names(selected_output)
+      
       dataset_names <- local({
-        if (output_is_table) {
+        if (is_table) {
           names(formals(tplyr_tab_fun))
         } else {
           selected_output[["dataset_names"]]
         }
       })
 
-      l_needed_data <- local({
-        r_dataset_list[dataset_names]
-      })
-      needed_data(l_needed_data)
+      l_needed_data <- r_dataset_list[dataset_names]
 
       l_tplyr_tab <- local({
-        if (output_is_table) {
+        if (is_table) {
           # Global filter empty, prevent crash
           if (all(sapply(l_needed_data, function(tbl) nrow(tbl) == 0))) {
             return(NULL)
@@ -256,11 +263,10 @@ Tplyr_table_server <- function(
           res
         }
       })
-      tplyr_tab(l_tplyr_tab)
 
       l_tplyr_tab_build <- local({
         if (!is.null(l_tplyr_tab)) {
-          if (output_is_table) {
+          if (is_table) {
             build_fun <- selected_output[["build_fun"]]
             res <- build_fun(l_tplyr_tab)
             checkmate::assert_class(res, classes = c("tbl_df", "tbl", "data.frame"))
@@ -279,11 +285,17 @@ Tplyr_table_server <- function(
         }
       })
 
-      tplyr_tab_build(l_tplyr_tab_build)
-      contents <- NULL
-      
+      new_state[["is_table"]] <- is_table
+      new_state[["needed_data"]] <- l_needed_data
+      new_state[["tplyr_tab"]] <- l_tplyr_tab      
+      new_state[["tplyr_tab_build"]] <- l_tplyr_tab_build
+      output_state(new_state)
 
-      if (!output_is_table) { # If not a table only show the listing
+      ## UI information
+
+      contents <- NULL
+
+      if (!is_table) { # If not a table only show the listing
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
         shinyjs::hide(id = TPLYR_TBL$TABLE_ID)
       } else if (!"row_id" %in% names(l_tplyr_tab_build)) { # Metatada not configured
@@ -302,9 +314,12 @@ Tplyr_table_server <- function(
 
     click_info_contents <- shiny::reactiveVal(NULL)
     shiny::observeEvent(sel_data(), {
+
+
+
       contents <- NULL
       sel_cell <- sel_data()[["cell"]]
-      r_tplyr_tab_build <- tplyr_tab_build()
+      tplyr_tab_build <- output_state()[["tplyr_tab_build"]]
 
       if (is.null(sel_cell)) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
@@ -317,13 +332,13 @@ Tplyr_table_server <- function(
 
         row_label <- do.call(
           paste,
-          r_tplyr_tab_build |>
+          tplyr_tab_build |>
             dplyr::filter(.data[["row_id"]] == sel_cell[[1]]) |>
             dplyr::select(dplyr::contains("row_label"))
         )
 
         column_label <- rename_columns(sel_cell[[2]])
-        value <- r_tplyr_tab_build |>
+        value <- tplyr_tab_build |>
           dplyr::filter(.data[["row_id"]] == sel_cell[[1]]) |>
           dplyr::select(sel_cell[[2]])
 
@@ -346,8 +361,9 @@ Tplyr_table_server <- function(
       click_info_contents()
     })
 
-    listings_data <- shiny::reactive({      
-      if (is_table()) {
+    listings_data <- shiny::reactive({
+      is_table <- output_state()[["is_table"]]        
+      if (is_table) {
         shiny::req(!is.null(sel_data()[["listings_data"]]))      
         sel_data()[["listings_data"]]
       } else {
