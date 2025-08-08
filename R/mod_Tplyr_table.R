@@ -129,32 +129,24 @@ Tplyr_table_server <- function(
     v_dataset_list <- shiny::reactive({
       checkmate::assert_list(dataset_list(), types = "data.frame", null.ok = TRUE, names = "named")
       # ensure that global filter works as expected
-      dataset_list_dropedlevles <- lapply(dataset_list(), function(df) {
+      dataset_list_droppedlevels <- lapply(dataset_list(), function(df) {
         lbls <- get_lbls(df)
         df <- droplevels(df)        
         df <- set_lbls(df, lbls)
       })
 
-      dataset_list_dropedlevles
+      dataset_list_droppedlevels
     })
 
     ## table part start ---
-
-    cell_click_input_js <- paste0(
-      "function(rowInfo, colInfo) {
-          if (window.Shiny) {
-            Shiny.setInputValue('", ns("row_id"), "', { index: rowInfo.index + 1})
-            Shiny.setInputValue('", ns("col_id"), "',{ column: colInfo.id })
-          }
-        }"
-    )
+    
 
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
 
-      is_table <- output_state()[["is_table"]]
-      tplyr_tab_build <- output_state()[["tplyr_tab_build"]]
-      needed_data <- output_state()[["needed_data"]]
+      is_table <- state()[["is_table"]]
+      tplyr_tab_build <- state()[["tplyr_tab_build"]]
+      needed_data <- state()[["needed_data"]]
 
       shiny::validate(
         shiny::need(
@@ -170,6 +162,15 @@ Tplyr_table_server <- function(
         )
 
         paging <- nrow(selected_columns) > 50
+
+        cell_click_input_js <- paste0(
+          "function(rowInfo, colInfo) {
+          if (window.Shiny) {
+            Shiny.setInputValue('", ns("row_id"), "', { index: rowInfo.index + 1})
+            Shiny.setInputValue('", ns("col_id"), "',{ column: colInfo.id })
+          }
+        }"
+        )
 
         reactable::reactable(
           selected_columns,
@@ -192,9 +193,9 @@ Tplyr_table_server <- function(
 
     shiny::observeEvent(list(input[["row_id"]], input[["col_id"]]), {
 
-      tplyr_tab_build <- output_state()[["tplyr_tab_build"]]
-      tplyr_tab <- output_state()[["tplyr_tab"]]
-      needed_data <- output_state()[["needed_data"]]
+      tplyr_tab_build <- state()[["tplyr_tab_build"]]
+      tplyr_tab <- state()[["tplyr_tab"]]
+      needed_data <- state()[["needed_data"]]
 
       if (
         !is.null(input[["row_id"]]) &&
@@ -222,12 +223,14 @@ Tplyr_table_server <- function(
       }
     })
 
-    output_state <- shiny::reactiveVal(list(tplyr_tab = NULL, needed_data = NULL, tplyr_tab_build = NULL, is_table = FALSE))
-
-    tplyr_tab <- shiny::reactiveVal(NULL)
-    needed_data <- shiny::reactiveVal(NULL)
-    tplyr_tab_build <- shiny::reactiveVal(NULL)
-    is_table <- shiny::reactiveVal(FALSE)
+    state <- shiny::reactiveVal(
+      list(
+        tplyr_tab = NULL, 
+        needed_data = NULL, 
+        tplyr_tab_build = NULL, 
+        is_table = FALSE
+        )
+      )
 
     shiny::observeEvent(list(input[[TPLYR_TBL$SEL_OUTPUT_ID]], v_dataset_list()), {
       r_dataset_list <- v_dataset_list()
@@ -289,7 +292,7 @@ Tplyr_table_server <- function(
       new_state[["needed_data"]] <- l_needed_data
       new_state[["tplyr_tab"]] <- l_tplyr_tab      
       new_state[["tplyr_tab_build"]] <- l_tplyr_tab_build
-      output_state(new_state)
+      state(new_state)
 
       ## UI information
 
@@ -314,12 +317,10 @@ Tplyr_table_server <- function(
 
     click_info_contents <- shiny::reactiveVal(NULL)
     shiny::observeEvent(sel_data(), {
-
-
-
+      
       contents <- NULL
       sel_cell <- sel_data()[["cell"]]
-      tplyr_tab_build <- output_state()[["tplyr_tab_build"]]
+      tplyr_tab_build <- state()[["tplyr_tab_build"]]
 
       if (is.null(sel_cell)) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
@@ -362,7 +363,7 @@ Tplyr_table_server <- function(
     })
 
     listings_data <- shiny::reactive({
-      is_table <- output_state()[["is_table"]]        
+      is_table <- state()[["is_table"]]        
       if (is_table) {
         shiny::req(!is.null(sel_data()[["listings_data"]]))      
         sel_data()[["listings_data"]]
@@ -370,14 +371,14 @@ Tplyr_table_server <- function(
         needed_data()
       }
     })
-
  
     shiny::exportTestValues(
-      "subject_subset" = subject_subset,
+      "state" = state(),
+      "sel_cell" = sel_cell(),
       "listings_data" = listings_data()
     )
 
-    dv.listings::listings_server(
+    res_listings <- dv.listings::listings_server(
       module_id = TPLYR_TBL$LISTINGS_ID,
       dataset_list = listings_data,
       dataset_metadata = dataset_metadata,
@@ -389,6 +390,7 @@ Tplyr_table_server <- function(
     )
     ## listings part end ---
 
+    return(res_listings)
   })
 }
 
