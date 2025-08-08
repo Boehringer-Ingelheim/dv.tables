@@ -15,7 +15,7 @@ to demonstrate the various module specific features.
 
 `mod_Tplyr_table` serves as a wrapper for displaying interactive summary tables generated with `{Tplyr}`. The module leverages Tplyr’s metadata extraction functionality to offer traceability from the summary tables back to the source listing. By clicking on a result cell in the table, the source listing will be generated. For displaying the listing the listings module of  `{dv.listing}` is used, which means all functionality of that module can be leveraged. 
 
-The Tplyr table module can display tables created with `{Tplyr}`, standalone listings, or both.
+The Tplyr table module allows multiple output tables created with `{Tplyr}` and standalone listings to be displayed under the same tab, using a drop-down selector.
 
 # Features
 
@@ -25,7 +25,7 @@ The Tplyr table module can display tables created with `{Tplyr}`, standalone lis
 - corresponding listing from the selected cell of the table.
 - standalone listing
 
-`dv.tables::mod_hierarchical_count_table()`
+`dv.tables::mod_Tplyr_table()`
 module uses several arguments with the following being mandatory and
 the rest optional. As part of app creation, the app
 creator should specify the values for these arguments as applicable.
@@ -38,8 +38,9 @@ creator should specify the values for these arguments as applicable.
 
   For summary tables:
     - `tplyr_tab_fun` A function that takes one or more datasets as input and returns a `tplyr_table` object.
-    - `build_fun` A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`). 
-    The metadata argument of `Tplyr::build()` needs to be set to `TURE`, so that the corresponding listing can be shown.
+    - `build_fun` A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).  
+    *Note:  The metadata argument of `Tplyr::build()` needs to be set to `TURE`, so that the corresponding listing can be shown.*  
+    
   For standalone listings:
     - `dataset_names` A character vector of dataset names required to generate the listing.
   The names of the top-level list elements are used as identifiers for the outputs.
@@ -50,7 +51,7 @@ creator should specify the values for these arguments as applicable.
 
 The module uses `{dv.listings}` for showing drill-down listing data. Therefore additional arguments can be provided for further customization.
 
-`default_vars`, `pagination`, `intended_use_label`, `receiver_id`, `review` are all agrguments that are passed through to `{dv.listings}`. more information can be found [here]{https://boehringer-ingelheim.github.io/dv.listings/}
+`default_vars`, `pagination`, `intended_use_label`, `receiver_id`, `review` are all arguments that are passed through to `{dv.listings}`. more information can be found [here]{https://boehringer-ingelheim.github.io/dv.listings/}
 
 # Example
 
