@@ -13,7 +13,7 @@ local({
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
   test_that("App initialization is correct" |>
-    vdoc[["add_spec"]](specs$clicktablespecs$framework)
+    vdoc[["add_spec"]](specs$Tplyr_tables$framework)
     , {
     app_outputs <- app$get_values(output = "mock_tplyr-table_output")
 
@@ -38,7 +38,7 @@ local({
 
 
   test_that("Click event generates dv.listings output" |>
-    vdoc[["add_spec"]](specs$clicktablespecs$clickevent)
+    vdoc[["add_spec"]](specs$Tplyr_tables$clickevent)
     , {
     # Update output value
     app$set_inputs(
@@ -82,7 +82,7 @@ local({
   })
 
   test_that("Click event outside required area generates empty listing" |>
-    vdoc[["add_spec"]](specs$clicktablespecs$error)
+    vdoc[["add_spec"]](specs$Tplyr_tables$error)
     , {
     # Update output value
     app$set_inputs(
@@ -120,7 +120,7 @@ local({
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
   testthat::test_that("Table cell click generates corresponding listing" |>
-                        vdoc[["add_spec"]](specs$clicktablespecs$clickevent), {
+                        vdoc[["add_spec"]](specs$Tplyr_tables$clickevent), {
 
     app$set_inputs(
       `test-row_id` = list(index = 8),
@@ -144,7 +144,7 @@ local({
   })
 
   testthat::test_that("output can be switched" |>
-                        vdoc[["add_spec"]](specs$clicktablespecs$output_switching), {
+                        vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
 
     table1 <- app$get_value(output = "test-table_output")
     app$set_inputs(`test-sel_output` = "Tabel 2")
@@ -153,7 +153,7 @@ local({
   })
 
   testthat::test_that("only a listing without a table can be displayed" |>
-                        vdoc[["add_spec"]](specs$clicktablespecs$only_listing), {
+                        vdoc[["add_spec"]](specs$Tplyr_tables$only_listing), {
     app$set_inputs(`test-sel_output` = "Listing")
     table_output <- app$get_value(output = "test-table_output")
     expected <- structure("{\"x\":null,\"evals\":[],\"jsHooks\":null,\"deps\":[]}", class = "json")
@@ -165,7 +165,7 @@ local({
   })
 
   testthat::test_that("module works with global filter" |>
-                        vdoc[["add_spec"]](specs$clicktablespecs$global_filter), {
+                        vdoc[["add_spec"]](specs$Tplyr_tables$global_filter), {
     table_output <- app$get_value(output = "test-table_output")
     parsed_table_output <- jsonlite::fromJSON(table_output)
     default_table_data <- parsed_table_output$x$tag$attribs$data

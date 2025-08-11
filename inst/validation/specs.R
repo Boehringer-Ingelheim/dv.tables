@@ -24,7 +24,7 @@ specs[["Tplyr_tables"]] <- list(
   clickevent = "User clicking on summary table generates drilldown using dv.listings module.",
   error = "Clicking in wrong area creates returns no drill down listing and prints a message in console",
   output_switching = "The user can provide mutliple output, which can be selected in the module.",
-  only_listing = " The module can only display a listing without a corresponding table."
+  only_listing = " The module can only display a listing without a corresponding table.",
   global_filter = "The module works with the global filter used in dv.manager."
 )
 
