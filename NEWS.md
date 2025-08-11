@@ -1,4 +1,4 @@
-# dv.tables 0.0.3.9001
+# dv.tables 0.0.3.9002
 
 * Add Tplyr_table module 
 
