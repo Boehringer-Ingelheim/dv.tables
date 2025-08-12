@@ -5,14 +5,15 @@ Version: 0.1.0
 Authors@R: c(
         person("Boehringer-Ingelheim Pharma GmbH & Co.KG", role = c("cph", "fnd")),
         person(given = "Luis", family = "Moris Fernandez", role = c("aut", "cre"), email = "luis.moris.fernandez@gmail.com"),
-        person(given = "Mark", family = "Luff", role = "aut", email = "mark.luff.ext@boehringer-ingelheim.com")
+        person(given = "Mark", family = "Luff", role = "aut", email = "mark.luff.ext@boehringer-ingelheim.com"),
+        person(given = "Korbinian", family = "Matthias", role = c("aut"), email = "korbinian.matthias@boehringer-ingelheim.com")
         )
 Description: Modules for table outputs
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Suggests: dv.manager (>= 2.1.4), jsonlite, rmarkdown, testthat (>=
         3.0.0), shinytest2, devtools, knitr, tibble, utils
 Config/testthat/edition: 3
@@ -20,7 +21,9 @@ Config/testthat/parallel: false
 Imports: shiny (>= 1.7.1), dplyr (>= 1.0.7), purrr (>= 0.3.4),
         tidyr (>= 1.1.4),
         rlang, checkmate (>= 2.0.0), htmltools, 
-        stats, pharmaverseadam, openxlsx, shinyjs, gt
+        stats, pharmaverseadam, openxlsx, shinyjs, gt, dv.listings (>= 4.1.1-9003),
+        reactable, Tplyr
 Depends: R (>= 4.0)
 VignetteBuilder: knitr
-Remotes: boehringer-ingelheim/dv.manager@v2.1.4
+Remotes: boehringer-ingelheim/dv.manager,
+         boehringer-ingelheim/dv.listings@merge_point/review

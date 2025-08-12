@@ -25,5 +25,22 @@ specs[["export_count_table"]] <- list(
   "export_single_n_pct_cols" = "Combined count and percentage kept in single columns for exported table."
 )
 
+specs[["Tplyr_tables"]] <- list(
+  framework = "Tplyr table provided in the function correctly renders summary table at initialization.",
+  clickevent = "User clicking on summary table generates drilldown using dv.listings module.",
+  error = "Clicking in wrong area returns no drill down listing.",
+  output_switching = "The user can provide mutliple output, which can be selected in the module.",
+  only_listing = " The module can only display a listing without a corresponding table.",
+  global_filter = "The module works with the global filter used in dv.manager."
+)
+
+
 specs
 # nolint end
+
+
+# Clicktable initialization, "framework as dv module initialization is correct
+# Global filter correctly updates the output summary table
+
+
+
