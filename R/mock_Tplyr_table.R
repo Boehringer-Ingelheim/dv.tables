@@ -6,6 +6,8 @@ utils::globalVariables(
 #'
 #' \code{mock_Tplyr_table} launches a mock app for the Tplyr_table shiny module by means of
 #' the module manager (dv.manager).
+#'
+#' @keywords mock
 #' @export
 #'
 mock_Tplyr_table_mm <- function() {

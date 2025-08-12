@@ -33,3 +33,4 @@ The names of the top-level list elements are used as identifiers for the outputs
 \description{
 UI for the Tplyr_table module
 }
+\keyword{main}

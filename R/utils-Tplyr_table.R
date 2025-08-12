@@ -6,6 +6,7 @@
 #' @param column_names vector of column names
 #'
 #' @return modified column names.
+#' @keywords internal
 rename_columns <- function(column_names) {
   # Replace "row_label" with an empty string
   column_names <- gsub("^row_label.*$", "", column_names)

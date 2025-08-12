@@ -21,3 +21,4 @@ Replaces any column name that starts with "row_label" with an empty string.
 Removes everything before the underscore for columns starting with "var"
 followed by one or more digits and an underscore.
 }
+\keyword{internal}

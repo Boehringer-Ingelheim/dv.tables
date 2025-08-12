@@ -13,6 +13,7 @@ TPLYR_TBL <- pack_of_constants( #nolint
 #'
 #' @inheritParams Tplyr_table_server
 #'
+#' @keywords main
 #' @export
 Tplyr_table_UI <- function(module_id, output_list) {
   ns <- shiny::NS(module_id)
@@ -76,6 +77,7 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #'
 #' @param review an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
 #'
+#' @keywords main
 #' @export
 Tplyr_table_server <- function(
     module_id,
@@ -405,6 +407,7 @@ Tplyr_table_server <- function(
 #'
 #' @param receiver_id an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through
 #'
+#' @keywords main
 #' @export
 #'
 #' @examples
