@@ -13,7 +13,7 @@ Walk-throughs for sample app creation using the module are also included
 to demonstrate the various module specific features.
 
 
-`mod_Tplyr_table` serves as a wrapper for displaying interactive summary tables generated with [`{Tplyr}`](https://atorus-research.github.io/Tplyr/). The module leverages Tplyr’s metadata extraction functionality to offer traceability from the summary tables back to the source listing. By clicking on a result cell in the table, the source listing will be generated. For displaying the listing the listings module of  `{dv.listing}` is used, which means all functionality of that module can be leveraged. 
+`mod_Tplyr_table` serves as a wrapper for displaying interactive summary tables generated with [`{Tplyr}`](https://atorus-research.github.io/Tplyr/). The module leverages Tplyr’s metadata extraction functionality to offer traceability from the summary tables back to the source listing. By clicking on a result cell in the table, the source listing will be generated. For displaying the listing the listings module of  `{dv.listings}` is used, which means all functionality of that module can be leveraged. 
 
 The Tplyr table module allows multiple output tables created with `{Tplyr}` and standalone listings to be displayed under the same tab, using a drop-down selector.
 
