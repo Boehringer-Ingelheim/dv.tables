@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: c(
         person("Boehringer-Ingelheim Pharma GmbH & Co.KG", role = c("cph", "fnd")),
         person(given = "Luis", family = "Moris Fernandez", role = c("aut", "cre"), email = "luis.moris.fernandez@gmail.com"),
-        person(given = "Mark", family = "Luff", role = "aut", email = "mark.luff.ext@boehringer-ingelheim.com")
+        person(given = "Mark", family = "Luff", role = "aut", email = "mark.luff.ext@boehringer-ingelheim.com"),
         person(given = "Korbinian", family = "Matthias", role = c("aut"), email = "korbinian.matthias@boehringer-ingelheim.com")
         )
 Description: Modules for table outputs
