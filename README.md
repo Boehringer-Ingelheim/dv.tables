@@ -3,6 +3,7 @@
 This package contains the modules, see the Articles section for a detailed description of each of them:
 
 - Event Count
+- Tplyr tables
 
 # Installation
 
