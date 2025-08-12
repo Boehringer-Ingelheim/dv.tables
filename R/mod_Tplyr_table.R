@@ -67,15 +67,15 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #' @param subjid_var `[character(1) | NULL]`
 #'
 #' Column corresponding to subject ID. Default value is 'USUBJID'
-#' @param default_vars an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
-#' @param intended_use_label an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
+#' @param default_vars an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
+#' @param intended_use_label an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
 #'
-#' @param pagination an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
+#' @param pagination an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
 #'
-#' @param on_sbj_click an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
+#' @param on_sbj_click an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
 #'
 #'
-#' @param review an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.
+#' @param review an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
 #'
 #' @keywords main
 #' @export
@@ -405,7 +405,7 @@ Tplyr_table_server <- function(
 #'
 #' @inheritParams Tplyr_table_server
 #'
-#' @param receiver_id an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through
+#' @param receiver_id an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through
 #'
 #' @keywords main
 #' @export

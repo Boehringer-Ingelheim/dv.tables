@@ -55,15 +55,15 @@ Usually obtained from module manager.}
 
 Column corresponding to subject ID. Default value is 'USUBJID'}
 
-\item{default_vars}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
+\item{default_vars}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
 
-\item{intended_use_label}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
+\item{intended_use_label}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
 
-\item{pagination}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
+\item{pagination}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
 
-\item{on_sbj_click}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
+\item{on_sbj_click}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
 
-\item{review}{an argument of \link[dv.listings]{listings_server} of {dv.listings} will be passed through.}
+\item{review}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
 }
 \description{
 Server for the Tplyr_table module
