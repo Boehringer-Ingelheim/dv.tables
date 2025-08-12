@@ -81,7 +81,7 @@ local({
     )
   })
 
-  test_that("Click event outside required area generates empty listing" |>
+  test_that("Click event outside required area does not generate listing" |>
     vdoc[["add_spec"]](specs$Tplyr_tables$error)
     , {
     # Update output value
@@ -90,16 +90,15 @@ local({
       `mock_tplyr-col_id` = list(column = "row_label1"),
       allow_no_input_binding_ = TRUE
     )
-
     # Wait until Shiny is not busy for 500ms
     app$wait_for_idle(500)
 
     # get output values
-    app_outputs <- app$get_values(export = "mock_tplyr-listings-output_table")
+    sel_data <- app$get_value(export = "mock_tplyr-sel_data")
 
     expect_equal(
-      nrow(app_outputs$export$`mock_tplyr-listings-output_table`),
-      0
+     sel_data,
+     list(cell = NULL, listings_data = NULL)
     )
   })
 })
@@ -128,7 +127,7 @@ local({
       allow_no_input_binding_ = TRUE
     )
 
-    actual <- shiny::isolate(app$get_value(export = "test-subject_subset")())
+    actual <- app$get_value(export = "test-listings_data")[["adsl"]][["USUBJID"]]
     actual <- as.character(actual)
 
     expected <- c(
@@ -155,12 +154,15 @@ local({
   testthat::test_that("only a listing without a table can be displayed" |>
                         vdoc[["add_spec"]](specs$Tplyr_tables$only_listing), {
     app$set_inputs(`test-sel_output` = "Listing")
+    state <- app$get_value(export = "test-state")
+    listings_data <- app$get_value(export = "test-listings_data")
+    expect_false(state[["is_table"]])
+    expect_equal(state[["needed_data"]], listings_data)
+
     table_output <- app$get_value(output = "test-table_output")
     expected <- structure("{\"x\":null,\"evals\":[],\"jsHooks\":null,\"deps\":[]}", class = "json")
     expect_equal(table_output, expected)
 
-    listings_data <- app$get_value(export = "test-listings_data")
-    expect_equal(names(listings_data), c( "adsl", "adae"))
     # display of data will be tested in dv.listings
   })
 

@@ -22,7 +22,7 @@ specs[["export_count_table"]] <- list(
 specs[["Tplyr_tables"]] <- list(
   framework = "Tplyr table provided in the function correctly renders summary table at initialization.",
   clickevent = "User clicking on summary table generates drilldown using dv.listings module.",
-  error = "Clicking in wrong area creates returns no drill down listing and prints a message in console",
+  error = "Clicking in wrong area returns no drill down listing.",
   output_switching = "The user can provide mutliple output, which can be selected in the module.",
   only_listing = " The module can only display a listing without a corresponding table.",
   global_filter = "The module works with the global filter used in dv.manager."

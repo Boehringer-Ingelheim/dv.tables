@@ -131,7 +131,7 @@ Tplyr_table_server <- function(
       # ensure that global filter works as expected
       dataset_list_droppedlevels <- lapply(dataset_list(), function(df) {
         lbls <- get_lbls(df)
-        df <- droplevels(df)        
+        df <- droplevels(df)
         df <- set_lbls(df, lbls)
       })
 
@@ -139,7 +139,7 @@ Tplyr_table_server <- function(
     })
 
     ## table part start ---
-    
+
 
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
@@ -153,7 +153,7 @@ Tplyr_table_server <- function(
           !all(sapply(needed_data, function(tbl) nrow(tbl) == 0)),
           "No data available, please adjust your filter settings."
         )
-      )     
+      )
 
       if (is_table) {
         selected_columns <- dplyr::select(
@@ -200,10 +200,10 @@ Tplyr_table_server <- function(
       if (
         !is.null(input[["row_id"]]) &&
         !is.null(input[["col_id"]]) &&
-        ("row_id" %in% names(tplyr_tab_build))        
+        ("row_id" %in% names(tplyr_tab_build))
       ) {
         row_name <- tplyr_tab_build[input[["row_id"]][["index"]], 1][["row_id"]]
-        col_name <- input[["col_id"]]$column        
+        col_name <- input[["col_id"]]$column
 
         if (startsWith(col_name, "var") && checkmate::test_string(row_name, min.chars = 1)) {
           subset_data <- Tplyr::get_meta_subset(tplyr_tab, row_name, col_name)
@@ -225,9 +225,9 @@ Tplyr_table_server <- function(
 
     state <- shiny::reactiveVal(
       list(
-        tplyr_tab = NULL, 
-        needed_data = NULL, 
-        tplyr_tab_build = NULL, 
+        tplyr_tab = NULL,
+        needed_data = NULL,
+        tplyr_tab_build = NULL,
         is_table = FALSE
         )
       )
@@ -241,10 +241,10 @@ Tplyr_table_server <- function(
       new_state <- list(tplyr_tab = NULL, needed_data = NULL, tplyr_tab_build = NULL, is_table = FALSE)
 
       # Reset clicked cell info when another table output is selected
-      sel_data(list(cell = NULL, listings_data = NULL)) 
+      sel_data(list(cell = NULL, listings_data = NULL))
 
       is_table <- "tplyr_tab_fun" %in% names(selected_output)
-      
+
       dataset_names <- local({
         if (is_table) {
           names(formals(tplyr_tab_fun))
@@ -290,7 +290,7 @@ Tplyr_table_server <- function(
 
       new_state[["is_table"]] <- is_table
       new_state[["needed_data"]] <- l_needed_data
-      new_state[["tplyr_tab"]] <- l_tplyr_tab      
+      new_state[["tplyr_tab"]] <- l_tplyr_tab
       new_state[["tplyr_tab_build"]] <- l_tplyr_tab_build
       state(new_state)
 
@@ -317,7 +317,7 @@ Tplyr_table_server <- function(
 
     click_info_contents <- shiny::reactiveVal(NULL)
     shiny::observeEvent(sel_data(), {
-      
+
       contents <- NULL
       sel_cell <- sel_data()[["cell"]]
       tplyr_tab_build <- state()[["tplyr_tab_build"]]
@@ -325,7 +325,7 @@ Tplyr_table_server <- function(
       if (is.null(sel_cell)) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
-        
+
         contents <- shiny::tags$text("Click on a cell with numbers to display corresponding listing")
       } else if (!is.null(sel_cell)) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
@@ -363,18 +363,18 @@ Tplyr_table_server <- function(
     })
 
     listings_data <- shiny::reactive({
-      is_table <- state()[["is_table"]]        
+      is_table <- state()[["is_table"]]
       if (is_table) {
-        shiny::req(!is.null(sel_data()[["listings_data"]]))      
+        shiny::req(!is.null(sel_data()[["listings_data"]]))
         sel_data()[["listings_data"]]
       } else {
-        needed_data()
+        state()[["needed_data"]]
       }
     })
- 
+
     shiny::exportTestValues(
       "state" = state(),
-      "sel_cell" = sel_cell(),
+      "sel_data" = sel_data(),
       "listings_data" = listings_data()
     )
 
