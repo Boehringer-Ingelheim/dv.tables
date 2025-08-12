@@ -6,13 +6,22 @@ EC <- poc( # nolint
     MIN_PERCENT = "min_percent",
     TAB_DOWNLOAD = "table_download"
   ),
+  LBL = poc(
+    HIERARCHY = "Event count by",
+    GRP = "Group by",
+    MIN_PERCENT = "Minimum %"
+  ),
+  INFO = poc(
+    HIERARCHY = "Up to 2 selections allowed"
+  ),
   MSG = poc(
     VALIDATE = poc(
       NO_GRP = "No group selected",
-      NO_HIERARCHY = "No hierarchy selected or more than two levels selected",
+      NO_HIERARCHY = "No hierarchy selected",
       NO_MIN_PERCENT = "No minimum percent selected",
       NO_TABLE_ROWS = "Table dataset has 0 rows",
-      NO_POP_ROWS = "Population dataset has 0 rows"
+      NO_POP_ROWS = "Population dataset has 0 rows",
+      GRP_CLASH = "Group selection cannot be used in hierarchy"
     )
   )
 )
@@ -26,7 +35,7 @@ EC <- poc( # nolint
 #' @param pop_df `data.frame`
 #' A data frame containing the population data. It must have columns corresponding to subjects and group variables.
 #'
-#' @param hierarchy `character(1)`
+#' @param hierarchy `character(1|2)`
 #' A character vector of column names from `event_df` to use as the hierarchy. Can be one or two levels.
 #'
 #' @param group_var `character(1)`
@@ -64,23 +73,27 @@ compute_events_table <- function(event_df, pop_df, hierarchy, group_var, subjid_
   checkmate::assert_subset(group_var, names(pop_df))
   checkmate::assert_string(subjid_var, min.chars = 1)
 
+  # Replace NA values in group var factor with "<NA>" and add associated level
+  no_na_pop_df <- pop_df
+  no_na_pop_df[[group_var]] <- add_na_factor_level(no_na_pop_df[[group_var]])
+
   n_denominator <- local({
-    nd <- pop_df |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(!!group_var))) |>
+    nd <- no_na_pop_df |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(group_var))) |>
       dplyr::summarise(N = length(unique(.data[[subjid_var]])))
-    total <- length(unique(pop_df[[subjid_var]]))
+    total <- length(unique(no_na_pop_df[[subjid_var]]))
     stats::setNames(c(nd[["N"]], total), c(as.character(nd[[group_var]]), total_column_name))
   })
 
   reduced_group_event_df <- local({
     reduced_group_event_df <- event_df[, c(subjid_var, hierarchy), drop = FALSE]
     reduced_group_event_df <- dplyr::left_join(
-      reduced_group_event_df, pop_df[, c(subjid_var, group_var), drop = FALSE],
+      reduced_group_event_df, no_na_pop_df[, c(subjid_var, group_var), drop = FALSE],
       by = subjid_var
     )
   })
   # event_df may not contain all groups
-  levels(reduced_group_event_df[[group_var]]) <- levels(pop_df[[group_var]])
+  levels(reduced_group_event_df[[group_var]]) <- levels(no_na_pop_df[[group_var]])
 
   rev_hierarchy <- rev(hierarchy)
   hierarchy_df_list <- vector(mode = "list", length = length(rev_hierarchy))
@@ -362,7 +375,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
       df[c(hierarchy, hier_lvl_col)], function(...) {
         args <- list(...)
         if (args[[hier_lvl_col]] > hierarchy_length) {
-          return("Overall")
+          return("Subjects with any event")
         }
         curr_lvl <- rev(hierarchy)[args[[hier_lvl_col]]]
         curr_label <- as.character(args[[curr_lvl]])
@@ -393,7 +406,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 
     indent <- max_hierarchy_lvl - curr_hier_lvl
     indent_class <- sprintf("indent-%d", indent)
-    entry_cell <- td(shiny::span(collapse_control, curr_row[[entry_name_col]]))
+    entry_cell <- td(shiny::span(collapse_control, curr_row[[entry_name_col]], class = "truncate", title = curr_row[[entry_name_col]]))
     data_cells <- purrr::imap(curr_row[data_columns], ~ tdc(.x[[1]][["count"]], column = .y, onclick = on_cell_click))
     body[[r]] <- tr(
       "row-id" = r,
@@ -427,11 +440,12 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @export
 hierarchical_count_table_ui <- function(id) {
   ns <- shiny::NS(id)
-  shiny::tagList(
+  shiny::div(
+    class = "hier_count_table",
     shiny::div(
       shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$HIERARCHY))),
       shiny::div(style = "display: inline-block;", col_menu_UI(id = ns(EC$ID$GRP))),
-      shiny::div(style = "display: inline-block;", shiny::numericInput(ns(EC$ID$MIN_PERCENT), label = "Minimum %", value = 0, min = 0, max = 100)),
+      shiny::div(style = "display: inline-block;", shiny::numericInput(ns(EC$ID$MIN_PERCENT), label = EC$LBL$MIN_PERCENT, value = 0, min = 0, max = 100)),
       shiny::div(style = "display: inline-block;", mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD)))
     ),
     shiny::uiOutput(ns(EC$ID$TABLE))
@@ -453,6 +467,10 @@ hierarchical_count_table_ui <- function(id) {
 #' @param subjid_var `character(1)`
 #' A string representing the subject identifier column in both datasets.
 #'
+#' @param on_sbj_click_fun 'function()'
+#'
+#' Function to invoke when a subject is clicked
+#'
 #' @param show_modal_on_click `logical(1)`
 #' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
 #'
@@ -461,6 +479,12 @@ hierarchical_count_table_ui <- function(id) {
 #'
 #' @param default_group `character(1)|NULL`
 #' A default value for the group variable (optional).
+#'
+#' @param hierarchy_choices `character(1+)|NULL`
+#' A character vector specifying the possible choices for the hierarchy variables (optional).
+#'
+#' @param group_choices `character(1+)|NULL`
+#' A character vector specifying the possible choices for the group variable (optional).
 #'
 #' @param intended_use_label Either a string indicating the intended use for export, or
 #' NULL. The provided label will be displayed prior to the download and will also be included in the exported file.
@@ -476,9 +500,12 @@ hierarchical_count_table_server <- function(
     table_dataset,
     pop_dataset,
     subjid_var,
-    show_modal_on_click = FALSE,
+    show_modal_on_click = TRUE,
+    on_sbj_click_fun = function() NULL,
     default_hierarchy = NULL,
     default_group = NULL,
+    hierarchy_choices = NULL,
+    group_choices = NULL,
     intended_use_label = NULL) {
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
@@ -486,21 +513,30 @@ hierarchical_count_table_server <- function(
     inputs <- list()
     inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
       id = EC$ID$HIERARCHY, data = table_dataset,
-      label = "Event count by",
-      include_func = function(x) {
-        is.factor(x) || is.character(x)
+      label = shiny::div(shiny::tags$label(EC$LBL$HIERARCHY),
+                         shiny::icon("circle-info",
+                                     title = EC$INFO$HIERARCHY)),
+      include_func = function(var, var_name) {
+        (is.factor(var) || is.character(var)) &&
+          var_name != subjid_var &&
+          (is.null(hierarchy_choices) || var_name %in% hierarchy_choices)
       },
       default = default_hierarchy,
-      multiple = TRUE
+      multiple = TRUE,
+      include_none = FALSE,
+      options = list(maxItems = 2)
     )
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
       id = EC$ID$GRP, data = pop_dataset,
-      label = "Group by",
-      include_func = function(x) {
-        is.factor(x) || is.character(x)
+      label = EC$LBL$GRP,
+      include_func = function(var, var_name) {
+        (is.factor(var) || is.character(var)) &&
+          var_name != subjid_var &&
+          (is.null(group_choices) || var_name %in% group_choices)
       },
-      default = default_group
+      default = default_group,
+      include_none = FALSE
     )
 
     inputs[[EC$ID$MIN_PERCENT]] <- shiny::reactive({
@@ -534,8 +570,16 @@ hierarchical_count_table_server <- function(
         shiny::need(
           checkmate::test_number(min_percent, na.ok = FALSE, lower = 0, upper = 100),
           EC$MSG$VALIDATE$NO_MIN_PERCENT
+        ),
+        shiny::need(
+          !checkmate::test_choice(group_var, hierarchy, null.ok = TRUE),
+          EC$MSG$VALIDATE$GRP_CLASH
         )
       )
+
+      # Associate labels attribute to hierarchy column names
+      hierarchy_labels <- get_lbls_robust(d)[hierarchy]
+      attr(hierarchy, "labels") <- unlist(hierarchy_labels)
 
       events_table_raw <- compute_events_table(d, pd, hierarchy, group_var, subjid_var)
       sorted_events_table <- compute_order_events_table(events_table_raw)
@@ -553,33 +597,52 @@ hierarchical_count_table_server <- function(
     })
 
     # Table download module
-    mod_export_counttable_server(module_id = EC$ID$TAB_DOWNLOAD,
-                                 dataset = et,
-                                 intended_use_label = intended_use_label)
+    mod_export_counttable_server(
+      module_id = EC$ID$TAB_DOWNLOAD,
+      dataset = et,
+      intended_use_label = intended_use_label
+    )
 
     if (show_modal_on_click) {
       shiny::observeEvent(input[["cell_click"]], {
         row <- input[["cell_click"]][["row_id"]]
         col <- input[["cell_click"]][["column"]]
-        d <- shiny::modalDialog(
-          paste("Subjects:", paste(et()[["df"]][[col]][[row]][["subjid"]], collapse = " "))
-        )
+        subj_ids <- et()[["df"]][[col]][[row]][["subjid"]]
+        id_elements <- vector(mode = "list", length = (length(subj_ids) * 2) - 1)
+        for (idx in seq_along(subj_ids)) {
+          link_idx <- (idx * 2) - 1
+          comma_idx <- link_idx + 1
+          id_elements[[link_idx]] <- shiny::a(subj_ids[[idx]], "data-id" = subj_ids[[idx]])
+          if (idx < length(subj_ids)) id_elements[[comma_idx]] <- ","
+        }
 
+        input_id <- ns("clicked_sbj")
+
+        d <- shiny::modalDialog(
+          shiny::div(
+            id = ns("sbj_list"),
+            shiny::h3("Subjects"),
+            do.call(shiny::p, id_elements),
+            onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
+          )
+        )
         shiny::showModal(d)
       })
     }
 
-    res <- shiny::reactive({
-      row <- input[["cell_click"]][["row_id"]]
-      col <- input[["cell_click"]][["column"]]
-      shiny::validate(
-        shiny::need(
-          checkmate::test_string(col) && checkmate::test_number(row),
-          "click a cell"
-        )
-      )
-      et()[["df"]][[col]][[row]][["subjid"]]
+    # Jumping and communication
+    shiny::observeEvent(input[["clicked_sbj"]], {
+      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+      shiny::removeModal()
+      on_sbj_click_fun()
     })
+
+    res <- list(
+      subj_id = shiny::reactive({
+        shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+        input[["clicked_sbj"]]
+      })
+    )
 
     if (isTRUE(getOption("shiny.testmode"))) do.call(shiny::exportTestValues, as.list(environment()))
 
@@ -608,8 +671,8 @@ hierarchical_count_table_server <- function(
 #'
 #' @param receiver_id `character(1)`
 #'
-#' **This functionality is not ready yet** please
-#' open an issue or contact the developers if you are interested in using it.
+#' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app or be NULL.
+#'
 #'
 #' @keywords main
 #'
@@ -618,19 +681,21 @@ mod_hierarchical_count_table <- function(module_id,
                                          table_dataset_name,
                                          pop_dataset_name,
                                          subjid_var = "USUBJID",
-                                         show_modal_on_click = FALSE,
+                                         show_modal_on_click = TRUE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
+                                         hierarchy_choices = NULL,
+                                         group_choices = NULL,
                                          intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
                                          receiver_id = NULL) {
   mod <- list(
     ui = hierarchical_count_table_ui,
     server = function(afmm) {
       if (is.null(receiver_id)) {
-        on_sbj_click_fun <- function() NULL # nolint unused
+        on_sbj_click_fun <- function() NULL
       } else {
-        on_sbj_click_fun <- function() { # nolint unused
-          afmm[["utils"]][["switch2"]](receiver_id)
+        on_sbj_click_fun <- function() {
+          afmm[["utils"]][["switch2mod"]](receiver_id)
         }
       }
 
@@ -640,8 +705,11 @@ mod_hierarchical_count_table <- function(module_id,
         pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
         subjid_var = subjid_var,
         show_modal_on_click = show_modal_on_click,
+        on_sbj_click_fun = on_sbj_click_fun,
         default_hierarchy = default_hierarchy,
         default_group = default_group,
+        hierarchy_choices = hierarchy_choices,
+        group_choices = group_choices,
         intended_use_label = intended_use_label
       )
     },
@@ -650,7 +718,7 @@ mod_hierarchical_count_table <- function(module_id,
   mod
 }
 
-# Correlation heatmap module interface description ----
+# hierarchical table module interface description ----
 # TODO: Fill in
 mod_hierarchical_count_table_API_docs <- list(
   "Hierarchical count table",
@@ -661,6 +729,8 @@ mod_hierarchical_count_table_API_docs <- list(
   show_modal_on_click = "",
   default_hierarchy = "",
   default_group = "",
+  hierarchy_choices = "",
+  group_choices = "",
   intended_use_label = "",
   receiver_id = ""
 )
@@ -671,9 +741,13 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   pop_dataset_name = TC$dataset_name(),
   subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
   show_modal_on_click = TC$logical(),
-  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> 
+  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("zero_or_more", "optional"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  hierarchy_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("zero_or_more", "optional"),
+  group_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("zero_or_more", "optional"),
   intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_hierarchical_count_table_API_docs)
@@ -681,7 +755,9 @@ mod_hierarchical_count_table_API_spec <- TC$group(
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, intended_use_label, receiver_id) {
+    default_hierarchy, default_group,
+    hierarchy_choices, group_choices,
+    intended_use_label, receiver_id) {
   warn <- CM$container()
   err <- CM$container()
 
@@ -691,7 +767,9 @@ check_mod_hierarchical_count_table <- function(
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, intended_use_label, receiver_id,
+    default_hierarchy, default_group,
+    hierarchy_choices, group_choices,
+    intended_use_label, receiver_id,
     warn, err
   )
 
@@ -784,21 +862,14 @@ mock_app_hierarchical_count_table <- function(
 #' Mock hierarchy table app in dv.manager
 #' @keywords mock
 #' @export
-mock_app_hierarchical_count_table_mm <- function() { # nolint
+mock_app_hierarchical_count_table_mm <- function() {
   if (!requireNamespace("dv.manager")) {
     stop("Install dv.manager")
   }
 
-  chr2factor <- function(df) {
-    lbls <- get_lbls_robust(df)
-    df[] <- purrr::map(df, ~ if (is.character(.x)) factor(.x) else .x)
-    df <- set_lbls(df, lbls)
-    df
-  }
-
   dv.manager::run_app(
     data = list(
-      dummy = list(adae = pharmaverseadam::adae |> chr2factor(), adsl = pharmaverseadam::adsl |> chr2factor())
+      dummy = list(adae = pharmaverseadam::adae, adsl = pharmaverseadam::adsl)
     ),
     module_list = list(
       "ADAE by term" = mod_hierarchical_count_table(
