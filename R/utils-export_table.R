@@ -104,8 +104,8 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
   }
 
   new_row <- stats::setNames(
-    data.frame(matrix(ncol = ncol(excelfile), nrow = 1)),
-    names(excelfile)
+    data.frame(matrix(ncol = ncol(df_prep), nrow = 1)),
+    names(df_prep)
 
   )
   new_row[[1, 1]] <- "Overall No. of Patients"
