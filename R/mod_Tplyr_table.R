@@ -193,6 +193,15 @@ Tplyr_table_server <- function(
 
     sel_data <- shiny::reactiveVal(list(cell = NULL, listings_data = NULL))
 
+    state <- shiny::reactiveVal(
+      list(
+        tplyr_tab = NULL,
+        needed_data = NULL,
+        tplyr_tab_build = NULL,
+        is_table = FALSE
+      )
+    )
+
     shiny::observeEvent(list(input[["row_id"]], input[["col_id"]]), {
 
       tplyr_tab_build <- state()[["tplyr_tab_build"]]
@@ -225,14 +234,7 @@ Tplyr_table_server <- function(
       }
     })
 
-    state <- shiny::reactiveVal(
-      list(
-        tplyr_tab = NULL,
-        needed_data = NULL,
-        tplyr_tab_build = NULL,
-        is_table = FALSE
-        )
-      )
+    click_info_contents <- shiny::reactiveVal(NULL)
 
     shiny::observeEvent(list(input[[TPLYR_TBL$SEL_OUTPUT_ID]], v_dataset_list()), {
       r_dataset_list <- v_dataset_list()
@@ -313,23 +315,23 @@ Tplyr_table_server <- function(
         shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
 
         contents <- shiny::tags$text("Listing not available")
+      } else {
+        shinyjs::show(id = TPLYR_TBL$TABLE_ID)
+        shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
+
+        contents <- shiny::tags$text("Click on a cell with numbers to display corresponding listing")
       }
       click_info_contents(contents)
     })
 
-    click_info_contents <- shiny::reactiveVal(NULL)
+
     shiny::observeEvent(sel_data(), {
 
       contents <- NULL
       sel_cell <- sel_data()[["cell"]]
       tplyr_tab_build <- state()[["tplyr_tab_build"]]
 
-      if (is.null(sel_cell)) {
-        shinyjs::show(id = TPLYR_TBL$TABLE_ID)
-        shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
-
-        contents <- shiny::tags$text("Click on a cell with numbers to display corresponding listing")
-      } else if (!is.null(sel_cell)) {
+        if (!is.null(sel_cell)) {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
 
@@ -358,7 +360,7 @@ Tplyr_table_server <- function(
       }
 
       click_info_contents(contents)
-    })
+    }, ignoreInit = TRUE) # To not overright the click_info_contents at star of the app
 
     output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
       click_info_contents()
