@@ -12,13 +12,15 @@ navbar:
 home:
   title: dv.tables
   links:
+  - text: Browse source code
+    href: https://github.com/Boehringer-Ingelheim/dv.tables/
 
 reference:
   - title: Modules
   - desc: Main functions to call the modules
-  - contents: 
+  - contents:
     - has_keyword("main")
   - title: Mock Applications
-  - contents: 
-    - has_keyword("mock") 
-  
+  - contents:
+    - has_keyword("mock")
+

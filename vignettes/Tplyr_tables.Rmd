@@ -1,0 +1,227 @@
+---
+title: "Tplyr table module"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tplyr table module}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This guide provides a detailed overview of the `mod_Tplyr_table` module and its features. It is meant to provide guidance to App Creators on creating Apps in DaVinci using the `mod_Tplyr_table` module.
+
+Walk-throughs for sample app creation using the module are also included
+to demonstrate the various module specific features.
+
+
+`mod_Tplyr_table` serves as a wrapper for displaying interactive summary tables generated with [`{Tplyr}`](https://atorus-research.github.io/Tplyr/). The module leverages Tplyr’s metadata extraction functionality to offer traceability from the summary tables back to the source listing. By clicking on a result cell in the table, the source listing will be generated. For displaying the listing the listings module of  `{dv.listings}` is used, which means all functionality of that module can be leveraged. 
+
+The Tplyr table module allows multiple output tables created with `{Tplyr}` and standalone listings to be displayed under the same tab, using a drop-down selector.
+
+# Features
+
+`mod_Tplyr_table` features the following outputs:
+
+- table created using `Tplyr` package 
+- corresponding listing from the selected cell of the table.
+- standalone listing
+
+`dv.tables::mod_Tplyr_table()`
+module uses several arguments with the following being mandatory and
+the rest optional. As part of app creation, the app
+creator should specify the values for these arguments as applicable.
+
+**Mandatory Arguments**
+
+-   `module_id` : A unique identifier of type character for the module
+
+- `output_list`: A named list defining the outputs to be generated. Each element of the list corresponds to a table or listing and must be a named list with one of the following structures:
+
+  For summary tables:
+    - `tplyr_tab_fun` A function that takes one or more datasets as input and returns a `tplyr_table` object.
+    - `build_fun` A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).  
+    *Note:  The metadata argument of `Tplyr::build()` needs to be set to `TURE`, so that the corresponding listing can be shown.*  
+    
+  For standalone listings:
+    - `dataset_names` A character vector of dataset names required to generate the listing.
+  The names of the top-level list elements are used as identifiers for the outputs.
+
+-  `subjid_var` Column corresponding to subject ID. Default value is 'USUBJID'
+
+**(Optional) Arguments for listing customization**
+
+The module uses `{dv.listings}` for showing drill-down listing data. Therefore additional arguments can be provided for further customization.
+
+`default_vars`, `pagination`, `intended_use_label`, `receiver_id`, `review` are all arguments that are passed through to `{dv.listings}`. more information can be found [here](https://boehringer-ingelheim.github.io/dv.listings/)
+
+# Example
+
+To better understand the set up of the module you can follow the below example:
+
+
+First load dummy data:
+
+```{r, eval=FALSE}
+# load demo data
+dm <- pharmaversesdtm::dm
+```
+
+Create a Tplyr table and wrap it into a function.
+
+```{r, eval=FALSE}
+my_tplyr_fun <- function(dm) {
+  tab <- Tplyr::tplyr_table(dm, ARM) |>
+    Tplyr::add_layer(Tplyr::group_desc(AGE, by = "Age (years)")) |>
+    Tplyr::add_layer(Tplyr::group_count(SEX, by = "Sex")) |>
+    Tplyr::add_layer(Tplyr::group_count(RACE, by = "Race"))
+  return(tab)
+}
+
+```
+
+Create a build function for the tplyr table created in the first step
+
+```{r, eval=FALSE}
+build_func <- function(tab) {
+  Tplyr::build(tab, metadata = TRUE) |>
+    dplyr::mutate(
+      row_label2 = ifelse(row_label2 == row_label1, "Total (%)", row_label2)
+      ) |>
+    Tplyr::apply_row_masks(row_breaks = TRUE)
+}
+```
+
+Create the output_list passed to `dv.tables::mod_Tplyr_table`
+```{r, eval=FALSE}
+output_list <- list(
+  "Demographic" = list(
+    tplyr_tab_fun = my_tplyr_fun,
+    build_fun = build_func
+  )
+)
+```
+
+Put everything together and start the app within `{dv.manager}`
+```{r, eval=FALSE}
+
+module_list <- list(
+  "Table" = dv.tables::mod_Tplyr_table(
+    module_id = "tplyr_table",
+    output_list = output_list
+  )
+)
+
+dv.manager::run_app(
+  data = list("My data" = list(dm = dm)),
+  module_list = module_list,
+  filter_data = "dm",
+  enable_dataset_filter = TRUE
+)
+
+```
+
+
+It's also possible to add more than one table into the module.
+
+```{r, eval=FALSE}
+# load additional demo data
+dm <- pharmaversesdtm::dm 
+
+# create second tplyr table
+my_tplyr_fun2 <- function(dm, ae) {
+  dm_arm <- dm |> dplyr::select(USUBJID, ARM)
+  ae_arm <- ae |> dplyr::inner_join(dm_arm, by = "USUBJID")
+  
+  tab <- Tplyr::tplyr_table(ae_arm, ARM) |>
+    Tplyr::set_pop_data(dm) |>
+    Tplyr::set_pop_treat_var(ARM) |>
+    Tplyr::add_layer(
+      Tplyr::group_count("All subjects") |>
+        Tplyr::set_distinct_by(USUBJID) |>
+        Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
+    ) |>
+    Tplyr::add_layer(
+      Tplyr::group_count("Subjects with adverse events") |>
+        Tplyr::set_distinct_by(USUBJID) |>
+        Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
+    ) |>
+    Tplyr::add_layer(
+      Tplyr::group_count(AESEV, by = "Adverse event severity") |>
+        Tplyr::set_distinct_by(USUBJID) |>
+        Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
+    ) |>
+    Tplyr::add_layer(
+      Tplyr::group_count("Subjects with serious AE", where = AESER == "Y") |>
+        Tplyr::set_distinct_by(USUBJID) |>
+        Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
+    )
+  return(tab)
+}
+
+# create secod build function 
+build_func2 <- function(tab) {
+  Tplyr::build(tab, metadata = TRUE) |>
+    Tplyr::apply_row_masks(row_breaks = TRUE)
+}
+
+# put second table into the output_list
+output_list <- list(
+  "Demographic" = list(
+    tplyr_tab_fun = my_tplyr_fun,
+    build_fun = build_func
+  ),
+  "Adverse Events" = list(
+    tplyr_tab_fun = my_tplyr_fun2,
+    build_fun = build_func
+  )
+)
+
+# put everything together 
+module_list <- list(
+  "Table" = dv.tables::mod_Tplyr_table(
+    module_id = "tplyr_table",
+    output_list = output_list
+  )
+)
+# start app
+dv.manager::run_app(
+  data = list("My data" = list(ae = ae, dm = dm)),
+  module_list = module_list,
+  filter_data = "dm",
+  enable_dataset_filter = TRUE
+)
+  
+```
+
+As a last step you can also add a standalone listing to the module
+
+```{r, eval=FALSE}
+# Add additional entry for standalone listings
+output_list <- list(
+  "Demographic" = list(
+    tplyr_tab_fun = my_tplyr_fun,
+    build_fun = build_func
+  ),
+  "Adverse Events" = list(
+    tplyr_tab_fun = my_tplyr_fun2,
+    build_fun = build_func
+  ),
+  "Listing" = list(
+    dataset_names = c("dm", "ae")
+  )
+)
+# put everything together 
+module_list <- list(
+  "Table" = dv.tables::mod_Tplyr_table(
+    module_id = "tplyr_table",
+    output_list = output_list
+  )
+)
+# start app
+dv.manager::run_app(
+  data = list("My data" = list(ae = ae, dm = dm)),
+  module_list = module_list,
+  filter_data = "dm",
+  enable_dataset_filter = TRUE
+)
+```
+
