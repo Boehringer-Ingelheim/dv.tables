@@ -360,7 +360,7 @@ Tplyr_table_server <- function(
 
         click_info_contents(contents)
       }
-    }, ignoreInit = TRUE) # To not overright the click_info_contents at star of the app
+    }, ignoreInit = TRUE) # To not overwrite the click_info_contents at start of the app
 
     output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
       click_info_contents()
