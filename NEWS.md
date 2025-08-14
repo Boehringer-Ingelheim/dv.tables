@@ -1,3 +1,7 @@
+# dv.tables 0.2.0
+
+* Add Tplyr_table module 
+
 # dv.tables 0.1.0
 
 * Add jumping functionality
