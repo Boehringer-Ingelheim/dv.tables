@@ -1,7 +1,7 @@
 Package: dv.tables
 Type: Package
 Title: Table Modules
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
         person("Boehringer-Ingelheim Pharma GmbH & Co.KG", role = c("cph", "fnd")),
         person(given = "Luis", family = "Moris Fernandez", role = c("aut", "cre"), email = "luis.moris.fernandez@gmail.com"),
@@ -26,4 +26,4 @@ Imports: shiny (>= 1.7.1), dplyr (>= 1.0.7), purrr (>= 0.3.4),
 Depends: R (>= 4.0)
 VignetteBuilder: knitr
 Remotes: boehringer-ingelheim/dv.manager,
-         boehringer-ingelheim/dv.listings@test
+         boehringer-ingelheim/dv.listings

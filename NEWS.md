@@ -1,7 +1,9 @@
+# dv.tables 0.2.0
+
+* Add Tplyr_table module 
 
 # dv.tables 0.1.0
 
-* Add Tplyr_table module 
 * Add jumping functionality
 * Implement label truncation
 * Implement functionality to download to Word (.rtf) format
