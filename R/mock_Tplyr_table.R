@@ -11,7 +11,9 @@ utils::globalVariables(
 #' @export
 #'
 mock_Tplyr_table_mm <- function() {
-
+  if (!requireNamespace("pharmaverseadam")) {
+    stop("Install pharmaverseadam")
+  }
   adsl <- pharmaverseadam::adsl
   adae <- pharmaverseadam::adae
 
@@ -129,7 +131,9 @@ mock_Tplyr_table_mm <- function() {
 }
 
 mock_Tplyr_table <- function() {
-
+  if (!requireNamespace("pharmaverseadam")) {
+    stop("Install pharmaverseadam")
+  }
   adsl <- pharmaverseadam::adsl
 
   my_tplyr_fun <- function(adsl) {
