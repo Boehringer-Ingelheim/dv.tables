@@ -1,3 +1,7 @@
+# dv.tables 0.2.0-9000
+
+* Remove pharamverseadam dependency
+
 # dv.tables 0.2.0
 
 * Add Tplyr_table module 
