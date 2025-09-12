@@ -821,6 +821,9 @@ mock_app_hierarchical_count_table <- function(
     update_query_string = TRUE,
     srv_defaults = list(),
     ui_defaults = list()) {
+  if (!requireNamespace("pharmaverseadam")) {
+    stop("Install pharmaverseadam")
+  }
   table_dataset <- shiny::reactive({
     pharmaverseadam::adae |> chr2factor()
   })
@@ -866,7 +869,9 @@ mock_app_hierarchical_count_table_mm <- function() {
   if (!requireNamespace("dv.manager")) {
     stop("Install dv.manager")
   }
-
+  if (!requireNamespace("pharmaverseadam")) {
+    stop("Install pharmaverseadam")
+  }
   dv.manager::run_app(
     data = list(
       dummy = list(adae = pharmaverseadam::adae, adsl = pharmaverseadam::adsl)
