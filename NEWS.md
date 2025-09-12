@@ -1,6 +1,6 @@
 # dv.tables 0.2.0-9000
 
-* Remove pharamverseadam dependency
+* Remove pharmaverseadam dependency
 
 # dv.tables 0.2.0
 
