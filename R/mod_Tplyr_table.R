@@ -542,6 +542,35 @@ mod_Tplyr_table <- function(
         on_sbj_click_fun <- function() afmm[["utils"]][["switch2mod"]](receiver_id)
       }
 
+      if (is.list(review)) {
+        # Prevent and warn against multiple `dv.tables` instances with active review functionality.
+        #
+        # This block of code takes advantage of the way `dv.manager` incrementally populates afmm[["module_output"]].
+        # At this point in (non-reactive) time, `dv.manager` has run the server functions of only the modules that
+        # precede this one in the `module_list` declaration of the DaVinci app. As long as one of them has declared
+        # that it offers the review interface, we will refuse to start our own.
+        # The mod_output[["enabled_review]] flag is set by `dv.listings::listings_server`.
+        for (mod_output in afmm[["module_output"]]()){
+          if (is.list(mod_output) && isTRUE(mod_output[["enabled_review"]])) {
+            this_tab_name <- afmm[["module_names"]][[module_id]]
+            
+            shiny::showNotification({
+              paste(
+                "This app is configured to review listings in more than one tab. However,",
+                "only one instance of the `dv.tables` module can offer review functionality on any given app.<br>",
+                sprintf(
+                  'We have <b>disabled the review interface on the tab labeled "%s" (with module ID "%s")</b>',
+                  this_tab_name, module_id
+                ), "to sidestep this issue. Sorry for the inconvenience."
+              ) |> htmltools::HTML()
+            }, duration = NULL, type = "error")
+            
+            review <- NULL
+            break
+          }
+        }
+      }
+
       needed_datasets <- sapply(output_list, function(tab) {
         if ("tplyr_tab_fun" %in% names(tab)) {
           names(formals(tab[["tplyr_tab_fun"]]))
