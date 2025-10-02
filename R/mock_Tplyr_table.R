@@ -89,7 +89,7 @@ mock_Tplyr_table_mm <- function() {
   }
 
   output_list <- list(
-    "Table 1" = list(
+    "Summary of TEAEs (Treatment-Emergent Adverse Events) by SOC and PT – Safety Population – Visit 1 to Visit 5 – N=120 – Protocol ABC-1234 – Cut-off Date: 2025-08-31 " = list(
       tplyr_tab_fun = my_tplyr_fun,
       build_fun = build_func
     ),

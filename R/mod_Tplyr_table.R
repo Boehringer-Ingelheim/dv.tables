@@ -4,7 +4,8 @@ TPLYR_TBL <- pack_of_constants( #nolint
   LISTINGS_HEADER_ID = "listings_header",
   LISTINGS_DIV_ID = "listings_div",
   SEL_OUTPUT_ID = "sel_output",
-  SEL_OUTPUT_LABEL = "Select Output:"
+  SEL_OUTPUT_LABEL = "Select Output:",
+  TABLE_TITLE_ID = "table title"
 )
 
 
@@ -20,7 +21,34 @@ Tplyr_table_UI <- function(module_id, output_list) {
 
   ui <- shiny::tagList(
     shinyjs::useShinyjs(),
-    shiny::selectizeInput(ns(TPLYR_TBL$SEL_OUTPUT_ID), label = TPLYR_TBL$SEL_OUTPUT_LABEL, choices = names(output_list)),
+
+    #Considerations: Long name goes to the next line since its aligned from center
+    # Maybe titles can be provided as attributes of the datasets used by tplyr table
+    # But what happens when multiple datasets are used?
+    # what about adding explicit argument in the output list?
+    # Switching to listings, should we disable that ui generation?
+    # Use output list name for it and cut it off after some characters? Or just replace it with generic name?
+    # Check line plot implementation
+
+    shiny::div(
+      style = "display: flex; gap: 20px; align-items: center;",
+
+      shiny::div(
+        style = "flex: 1;",
+        shiny::selectizeInput(
+          ns(TPLYR_TBL$SEL_OUTPUT_ID),
+          label = TPLYR_TBL$SEL_OUTPUT_LABEL,
+          choices = names(output_list)
+        )
+      ),
+
+      shiny::div(
+        style = "flex: 1;",
+        shiny::uiOutput(ns(TPLYR_TBL$TABLE_TITLE_ID))
+      )
+    ),
+
+    #shiny::uiOutput(ns(TPLYR_TBL$SEL_OUTPUT_ID)),
     reactable::reactableOutput(ns(TPLYR_TBL$TABLE_ID)),
     shiny::br(),
     shiny::uiOutput(ns(TPLYR_TBL$LISTINGS_HEADER_ID)),
@@ -142,6 +170,64 @@ Tplyr_table_server <- function(
 
     ## table part start ---
 
+    # Table title
+
+    title_ui <- local({
+
+      drop_menu_helper <- function(id, label, ...) { # NOTE: not the drop_menu_helper in R/util-selectors.R
+        shiny::tagAppendAttributes(
+          shinyWidgets::dropMenu(
+            shiny::actionButton(id, label),
+            ...,
+            arrow = TRUE
+          ),
+          style = "display:inline"
+        )
+      }
+
+      output_menu <- drop_menu_helper(
+        ns("")
+      )
+
+      output_ui <- function(id){
+        ns <- shiny::NS(id)
+        shiny::tagList(
+          shiny::uiOutput(ns("title_menu"))
+        )
+      }
+      output_server <- function(id, data){
+        mod <- function(input, output, session) {
+
+          ns <- session[["ns"]]
+
+          output[["cat_menu"]] <- shiny::renderUI({
+            shiny::tagList(
+              shiny::tags[["style"]](shiny::HTML(paste0(
+                "#",
+                ns("cat_val"),
+                " + div.selectize-control div.selectize-input.items {max-height:200px; overflow-y:auto;}"
+              ))),
+              shiny::selectizeInput(
+                inputId = ns("cat_val"),
+                label = cat_label,
+                choices = NULL,
+                multiple = FALSE,
+                selected = NULL,
+                options = options_cat
+              )
+            )
+          })
+
+        }
+      }
+
+
+
+   })
+
+    output[[TPLYR_TBL$SEL_OUTPUT_ID]] <- shiny::renderUI({
+      paste(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
+    })
 
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
@@ -584,4 +670,146 @@ mod_Tplyr_table <- function(
 }
 
 
+library(shiny)
+library(shinyWidgets)
 
+# Define UI
+ui <- fluidPage(
+
+
+
+  titlePanel("Dynamic String Input Example"),
+  # Placeholder for the title menu
+  shiny::uiOutput("title_menu")
+)
+
+# Define Server
+server <- function(input, output, session) {
+
+
+  ns <- session[["ns"]]
+
+  drop_menu_helper <- function(id, label, ...) {
+    shiny::tagAppendAttributes(
+      shinyWidgets::dropMenu(
+        shiny::actionButton(id, label),
+        ...,
+        arrow = TRUE
+      ),
+      style = "display:inline"
+    )
+  }
+
+  # Create the output menu
+  output_menu <- drop_menu_helper(
+    id = ns("menu_button"),
+    label = "Click Me",
+    output_ui("output_list")  # Pass the module UI
+  )
+
+  # Interactive title
+  title_ui <- it_interactive_title(
+    "Title:",
+    output_menu
+  )
+
+  # Render the title menu
+  output$title_menu <- shiny::renderUI({
+    title_ui
+  })
+
+  output_server("output_list")
+
+}
+
+output_ui <- function(id) {
+  ns <- shiny::NS(id)
+  shiny::tagList(
+    shiny::uiOutput(ns("output_selector"))
+  )
+}
+
+output_server <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
+
+    # Render the UI for the selector
+    output$output_selector <- shiny::renderUI({
+      shiny::tagList(
+        shiny::tags$style(shiny::HTML(paste0(
+          "#",
+          ns("output_vals"),
+          " + div.selectize-control div.selectize-input.items {max-height:200px; overflow-y:auto;}"
+        ))),
+        shiny::selectizeInput(
+          inputId = ns("output_vals"),
+          label = "Select output",
+          choices = c("Option 1", "Option 2"),
+          multiple = FALSE
+        )
+      )
+    })
+
+  })
+}
+
+
+it_custom_styles <- shiny::tags[["head"]](
+  # nolint start
+  shiny::tags[["style"]](
+    "
+    .nopad { display: inline-block; }                                 /* horizontal layout */
+    .selector_as_link .selectize-input { border:0px; padding:0}             /* horizontally aligned with rest of text */
+    .selector_as_link .shiny-input-container { width:auto; margin: 0 }
+    .selector_as_link.shiny-input-container { width:auto; }
+    .selector_as_link .selectize-control.single .selectize-input:after { display: none }
+    .selector_as_link .control-label {display: none}
+    .nopad .selectize-control { display: inline-block; vertical-align: top; margin: 0}
+
+    .selector_as_link .item { color:#069; }                                    /* link-ish color */
+    .selector_as_link .item:hover { text-decoration: underline; }              /* link-ish behavior */
+
+    .selector_as_link .selectize-dropdown.single { width:auto !important }     /* wider drop-down options */
+
+    .button_as_link.drop-menu-input .action-button { /* horizontally aligned with rest of text */
+      vertical-align:top; border:0px; padding: 0; color:#069
+    }
+
+    .centered_flex_row { display:flex;flex-direction:row;justify-content:center;align-items:baseline;gap:0.5rem; }
+    "
+  )
+  # nolint end
+)
+
+it_as_link <- function(tag) {
+  res <- NULL
+  checkmate::assert_class(tag, "shiny.tag")
+
+  if (length(grep("\\<drop-menu-input\\>", tag$attribs[["class"]])) > 0) {
+    res <- shiny::tagAppendAttributes(tag, class = "button_as_link")
+  } else { # FIXME: Assumes (probably mistakenly, that anything that is not a drop menu is a selector)
+    res <- shiny::tagAppendAttributes(tag, class = "selector_as_link nopad")
+  }
+  res
+}
+
+it_interactive_title <- function(...) {
+  l <- list(...)
+  for (i in seq_along(l)) {
+    e <- l[[i]]
+    if (is.character(e)) {
+      e <- shiny::p(e)
+    } else {
+      e <- it_as_link(e)
+    }
+    l[[i]] <- e
+  }
+
+  div <- do.call(shiny::div, l) |> shiny::tagAppendAttributes(class = "centered_flex_row")
+
+  return(shiny::tagList(it_custom_styles, div))
+}
+
+
+# Run the app
+shinyApp(ui = ui, server = server)
