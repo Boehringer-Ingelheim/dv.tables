@@ -1,4 +1,4 @@
-TPLYR_TBL <- pack_of_constants( #nolint
+TPLYR_TBL <- pack_of_constants( # nolint
   TABLE_ID = "table_output",
   LISTINGS_ID = "listings",
   LISTINGS_HEADER_ID = "listings_header",
@@ -23,22 +23,12 @@ Tplyr_table_UI <- function(module_id, output_list) {
 
   ui <- shiny::tagList(
     shinyjs::useShinyjs(),
-
-    #Considerations: Long name goes to the next line since its aligned from center
-    # Maybe titles can be provided as attributes of the datasets used by tplyr table
-    # But what happens when multiple datasets are used?
-    # what about adding explicit argument in the output list?
-    # Switching to listings, should we disable that ui generation?
-    # Use output list name for it and cut it off after some characters? Or just replace it with generic name?
-    # Check line plot implementation
-
     shiny::uiOutput(ns(TPLYR_TBL$TITLE_OUTPUT_ID)),
     reactable::reactableOutput(ns(TPLYR_TBL$TABLE_ID)),
     shiny::br(),
     shiny::uiOutput(ns(TPLYR_TBL$LISTINGS_HEADER_ID)),
     shiny::br(),
     shiny::div(id = ns(TPLYR_TBL$LISTINGS_DIV_ID), dv.listings::listings_UI(ns(TPLYR_TBL$LISTINGS_ID)))
-
   )
 
   return(ui)
@@ -101,8 +91,7 @@ Tplyr_table_server <- function(
     intended_use_label,
     pagination,
     on_sbj_click = NULL,
-    review = NULL
-) {
+    review = NULL) {
   checkmate::assert(
     checkmate::check_character(module_id, min.chars = 1),
     checkmate::check_multi_class(dataset_list, c("reactive", "shinymeta_reactive")),
@@ -140,8 +129,6 @@ Tplyr_table_server <- function(
   shiny::moduleServer(module_id, function(input, output, session) {
     ns <- session$ns
 
-    dropdown_trigger <- reactiveVal(FALSE)
-
     v_dataset_list <- shiny::reactive({
       checkmate::assert_list(dataset_list(), types = "data.frame", null.ok = TRUE, names = "named")
       # ensure that global filter works as expected
@@ -156,40 +143,35 @@ Tplyr_table_server <- function(
 
     ## table part start ---
 
-    # Table title start --
+    ### Table title start --
 
+    # define action button & output selector
     title_ui <- local({
-
-      drop_menu_helper <- function(id, label, ...) {
-        shiny::tagAppendAttributes(
-          shinyWidgets::dropMenu(
-            shiny::actionButton(id, label),
-            ...,
-            arrow = TRUE
+      output_menu <- shiny::tagAppendAttributes(
+        shinyWidgets::dropMenu(
+          shiny::actionButton(
+            inputId = ns(TPLYR_TBL$SEL_ACT_ID),
+            label = TPLYR_TBL$TITLE_OUTPUT_LABEL
           ),
-          style = "display:inline"
-        )
-      }
-
-      # Create the output menu
-      output_menu <- drop_menu_helper(
-        id = ns(TPLYR_TBL$SEL_ACT_ID),
-        label = TPLYR_TBL$TITLE_OUTPUT_LABEL,
-        shiny::tagList(
-          shiny::tags$style(shiny::HTML(paste0(
-            "#",
-            ns(TPLYR_TBL$SEL_OUTPUT_ID),
-            " + div.selectize-control div.selectize-input.items {max-height:200px; overflow-y:auto;}"
-          ))),
-          shiny::selectizeInput(
-            inputId = ns(TPLYR_TBL$SEL_OUTPUT_ID),
-            label = TPLYR_TBL$SEL_OUTPUT_LABEL,
-            choices = names(output_list),
-            selected = names(output_list)[1],
-            multiple = FALSE
-          )
-        )
+          shiny::tagList(
+            shiny::tags$style(shiny::HTML(paste0(
+              "#",
+              ns(TPLYR_TBL$SEL_OUTPUT_ID),
+              " + div.selectize-control div.selectize-input.items {max-height:200px; overflow-y:auto;}"
+            ))),
+            shiny::selectizeInput(
+              inputId = ns(TPLYR_TBL$SEL_OUTPUT_ID),
+              label = TPLYR_TBL$SEL_OUTPUT_LABEL,
+              choices = names(output_list),
+              selected = names(output_list)[1],
+              multiple = FALSE
+            )
+          ),
+          arrow = TRUE
+        ),
+        style = "display:inline"
       )
+
 
       # Interactive title
       interactive_title <- it_interactive_title(
@@ -197,48 +179,30 @@ Tplyr_table_server <- function(
         output_menu
       )
       interactive_title
-  })
+    })
 
-  output[[TPLYR_TBL$TITLE_OUTPUT_ID]] <- shiny::renderUI({
+    output[[TPLYR_TBL$TITLE_OUTPUT_ID]] <- shiny::renderUI({
       title_ui
     })
 
-  shiny::outputOptions(output, TPLYR_TBL$TITLE_OUTPUT_ID
-                       , suspendWhenHidden = FALSE)
-
-
-  # Trigger dropdown update when the button is clicked
-  shiny::observeEvent(input[[TPLYR_TBL$SEL_ACT_ID]], {
-    dropdown_trigger(TRUE)  # Set the reactive trigger to TRUE
-  })
-
-  # # Dynamically update the choices in the selectizeInput when the action button is clicked
-  # shiny::observeEvent(dropdown_trigger(), {
-  #   shiny::updateSelectizeInput(
-  #     session = session,
-  #     inputId = ns(TPLYR_TBL$SEL_OUTPUT_ID),
-  #     choices = names(output_list),
-  #     selected = names(output_list)[1]
-  #   )
-  #   print("Dropdown menu updated with choices")
-  #   print(input$TPLYR_TBL$SEL_OUTPUT_ID)  # Debugging message
-  # })
-
-  # Update the action button label based on the selected value in selectizeInput
-  shiny::observeEvent(input[[TPLYR_TBL$SEL_OUTPUT_ID]], {
-
-    selected_value <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]  # Get the selected value
-    shiny::updateActionButton(
-      session = session,
-      inputId = TPLYR_TBL$SEL_ACT_ID,
-      label = selected_value  # Update the label to the selected value
+    shiny::outputOptions(output, TPLYR_TBL$TITLE_OUTPUT_ID,
+      suspendWhenHidden = FALSE
     )
-  })
 
+    # Update the action button label
+
+    shiny::observeEvent(input[[TPLYR_TBL$SEL_OUTPUT_ID]], {
+      selected_value <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
+      shiny::updateActionButton(
+        session = session,
+        inputId = TPLYR_TBL$SEL_ACT_ID,
+        label = selected_value
+      )
+    })
+    ### Table title end ---
 
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
-
       is_table <- state()[["is_table"]]
       tplyr_tab_build <- state()[["tplyr_tab_build"]]
       needed_data <- state()[["needed_data"]]
@@ -296,15 +260,14 @@ Tplyr_table_server <- function(
     )
 
     shiny::observeEvent(list(input[["row_id"]], input[["col_id"]]), {
-
       tplyr_tab_build <- state()[["tplyr_tab_build"]]
       tplyr_tab <- state()[["tplyr_tab"]]
       needed_data <- state()[["needed_data"]]
 
       if (
         !is.null(input[["row_id"]]) &&
-        !is.null(input[["col_id"]]) &&
-        ("row_id" %in% names(tplyr_tab_build))
+          !is.null(input[["col_id"]]) &&
+          ("row_id" %in% names(tplyr_tab_build))
       ) {
         row_name <- tplyr_tab_build[input[["row_id"]][["index"]], 1][["row_id"]]
         col_name <- input[["col_id"]]$column
@@ -313,14 +276,13 @@ Tplyr_table_server <- function(
           subset_data <- Tplyr::get_meta_subset(tplyr_tab, row_name, col_name)
           subject_subset <- subset_data[[subjid_var]]
           listings_data <- lapply(needed_data, function(dataframe) {
-          dataframe |>
-            dplyr::filter(
-              .data[[subjid_var]] %in% subject_subset
-            )
+            dataframe |>
+              dplyr::filter(
+                .data[[subjid_var]] %in% subject_subset
+              )
           })
 
           sel_data(list(cell = list(row_name, col_name), listings_data = listings_data))
-
         } else {
           sel_data(list(cell = NULL, listings_data = NULL))
         }
@@ -330,7 +292,6 @@ Tplyr_table_server <- function(
     click_info_contents <- shiny::reactiveVal(NULL)
 
     shiny::observeEvent(list(input[[TPLYR_TBL$SEL_OUTPUT_ID]], v_dataset_list()), {
-
       shiny::req(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
 
       r_dataset_list <- v_dataset_list()
@@ -421,42 +382,44 @@ Tplyr_table_server <- function(
     })
 
 
-    shiny::observeEvent(sel_data(), {
-
-      contents <- NULL
-      sel_cell <- sel_data()[["cell"]]
-      tplyr_tab_build <- state()[["tplyr_tab_build"]]
+    shiny::observeEvent(sel_data(),
+      {
+        contents <- NULL
+        sel_cell <- sel_data()[["cell"]]
+        tplyr_tab_build <- state()[["tplyr_tab_build"]]
 
         if (!is.null(sel_cell)) {
-        shinyjs::show(id = TPLYR_TBL$TABLE_ID)
-        shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
+          shinyjs::show(id = TPLYR_TBL$TABLE_ID)
+          shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
 
-        row_label <- do.call(
-          paste,
-          tplyr_tab_build |>
+          row_label <- do.call(
+            paste,
+            tplyr_tab_build |>
+              dplyr::filter(.data[["row_id"]] == sel_cell[[1]]) |>
+              dplyr::select(dplyr::contains("row_label"))
+          )
+
+          column_label <- rename_columns(sel_cell[[2]])
+          value <- tplyr_tab_build |>
             dplyr::filter(.data[["row_id"]] == sel_cell[[1]]) |>
-            dplyr::select(dplyr::contains("row_label"))
-        )
+            dplyr::select(sel_cell[[2]])
 
-        column_label <- rename_columns(sel_cell[[2]])
-        value <- tplyr_tab_build |>
-          dplyr::filter(.data[["row_id"]] == sel_cell[[1]]) |>
-          dplyr::select(sel_cell[[2]])
-
-        contents <- shiny::tagList(
-          shiny::tags$h4("Corresponding listing:"),
-          shiny::tags$text(
-            paste(
-              "Clicked element: Row:", row_label,
-              "Column:", column_label,
-              "Value:", value
+          contents <- shiny::tagList(
+            shiny::tags$h4("Corresponding listing:"),
+            shiny::tags$text(
+              paste(
+                "Clicked element: Row:", row_label,
+                "Column:", column_label,
+                "Value:", value
+              )
             )
           )
-        )
 
-        click_info_contents(contents)
-      }
-    }, ignoreInit = TRUE) # To not overwrite the click_info_contents at start of the app
+          click_info_contents(contents)
+        }
+      },
+      ignoreInit = TRUE
+    ) # To not overwrite the click_info_contents at start of the app
 
     output[[TPLYR_TBL$LISTINGS_HEADER_ID]] <- shiny::renderUI({
       click_info_contents()
@@ -509,7 +472,7 @@ Tplyr_table_server <- function(
 #' @export
 #'
 #' @examples
-#'\dontrun{
+#' \dontrun{
 #' dm <- pharmaversesdtm::dm
 #' ae <- pharmaversesdtm::ae
 #'
@@ -536,8 +499,8 @@ Tplyr_table_server <- function(
 #'     Tplyr::set_pop_treat_var(ARM) |>
 #'     Tplyr::add_layer(
 #'       Tplyr::group_count("All subjects") |>
-#'       Tplyr::set_distinct_by(USUBJID) |>
-#'       Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
+#'         Tplyr::set_distinct_by(USUBJID) |>
+#'         Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
 #'     ) |>
 #'     Tplyr::add_layer(
 #'       Tplyr::group_count("Subjects with adverse events") |>
@@ -546,8 +509,8 @@ Tplyr_table_server <- function(
 #'     ) |>
 #'     Tplyr::add_layer(
 #'       Tplyr::group_count(AESEV, by = "Adverse event severity") |>
-#'       Tplyr::set_distinct_by(USUBJID) |>
-#'       Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
+#'         Tplyr::set_distinct_by(USUBJID) |>
+#'         Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
 #'     ) |>
 #'     Tplyr::add_layer(
 #'       Tplyr::group_count("Subjects with serious AE", where = AESER == "Y") |>
@@ -589,8 +552,7 @@ Tplyr_table_server <- function(
 #'   filter_data = "dm",
 #'   enable_dataset_filter = TRUE
 #' )
-#'
-#'}
+#' }
 #'
 mod_Tplyr_table <- function(
     module_id,
@@ -600,13 +562,10 @@ mod_Tplyr_table <- function(
     pagination = NULL,
     intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
     receiver_id = NULL,
-    review = NULL
-) {
-
+    review = NULL) {
   checkmate::assert_list(output_list, types = "list")
 
   for (output in output_list) {
-
     if (length(output) == 1) {
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
@@ -614,7 +573,6 @@ mod_Tplyr_table <- function(
         combine = "and"
       )
     } else if (length(output) == 2) {
-
       checkmate::assert(
         checkmate::check_list(output, names = "named"),
         checkmate::check_subset(names(output), choices = c("tplyr_tab_fun", "build_fun"), empty.ok = FALSE),
@@ -632,7 +590,6 @@ mod_Tplyr_table <- function(
       Tplyr_table_UI(id, output_list)
     },
     server = function(afmm) {
-
       on_sbj_click_fun <- NULL
       if (!is.null(receiver_id)) {
         on_sbj_click_fun <- function() afmm[["utils"]][["switch2mod"]](receiver_id)
@@ -644,15 +601,16 @@ mod_Tplyr_table <- function(
         } else {
           tab[["dataset_names"]]
         }
-
       }, simplify = TRUE, USE.NAMES = FALSE) |>
         unlist() |>
         unique()
 
       dataset_present <- needed_datasets %in% shiny::isolate(names(afmm$unfiltered_dataset()))
       if (!all(dataset_present)) {
-        stop(paste("Not all datasets provided in tplyr_tab_fun are present in the provided data list!",
-                   needed_datasets[!dataset_present], "is missing in the provided data list"))
+        stop(paste(
+          "Not all datasets provided in tplyr_tab_fun are present in the provided data list!",
+          needed_datasets[!dataset_present], "is missing in the provided data list"
+        ))
       }
 
       if (is.list(review)) {
