@@ -89,15 +89,15 @@ mock_Tplyr_table_mm <- function() {
   }
 
   output_list <- list(
-    "Summary of TEAEs (Treatment-Emergent Adverse Events) by SOC and PT – Safety Population – Visit 1 to Visit 5 – N=120 – Protocol ABC-1234 – Cut-off Date: 2025-08-31 " = list(
+    "Section 1.1: Dummy Table 1 for Demographics" = list(
       tplyr_tab_fun = my_tplyr_fun,
       build_fun = build_func
     ),
-    "Tabel 2" = list(
+    "Section 2.2 Dummy Table 2 for Adverse events" = list(
       tplyr_tab_fun = my_tplyr_fun2,
       build_fun = build_func2
     ),
-    "Listing" = list(
+    "Section 3 All Listings" = list(
       dataset_names = c("adsl", "adae")
     )
   )
