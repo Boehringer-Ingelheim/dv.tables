@@ -39,7 +39,7 @@ it_custom_styles <- shiny::tags[["head"]](
       vertical-align:top; border:0px; padding: 0; color:#069
     }
 
-    .centered_flex_row { display:flex;flex-direction:row;justify-content:center;align-items:baseline;gap:0.5rem; }
+    .centered_flex_row { display:flex;flex-direction:row;justify-content:left;align-items:baseline;gap:0.5rem; }
     "
   )
   # nolint end

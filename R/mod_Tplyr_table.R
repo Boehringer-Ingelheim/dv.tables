@@ -175,7 +175,6 @@ Tplyr_table_server <- function(
 
       # Interactive title
       interactive_title <- it_interactive_title(
-        "Title:",
         output_menu
       )
       interactive_title
@@ -606,7 +605,7 @@ mod_Tplyr_table <- function(
         for (mod_output in afmm[["module_output"]]()){
           if (is.list(mod_output) && isTRUE(mod_output[["enabled_review"]])) {
             this_tab_name <- afmm[["module_names"]][[module_id]]
-            
+
             shiny::showNotification({
               paste(
                 "This app is configured to review listings in more than one tab. However,",
@@ -617,7 +616,7 @@ mod_Tplyr_table <- function(
                 ), "to sidestep this issue. Sorry for the inconvenience."
               ) |> htmltools::HTML()
             }, duration = NULL, type = "error")
-            
+
             review <- NULL
             break
           }
