@@ -34,8 +34,7 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   checkmate::assert_subset(names(count_table), c("df", "meta"))
   checkmate::assert_subset(c("n_denominator",
-                             "hierarchy",
-                             "special_char"),
+                             "hierarchy"),
                            names(count_table[["meta"]]))
 
   checkmate::assert_string(download_type)
@@ -65,7 +64,7 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
     # Convert special chars to "Total"
     dplyr::mutate(dplyr::across(dplyr::all_of(event_vars),
-                                ~ sub(count_table[["meta"]]$special_char, "Total", .x)))
+                                ~ sub(EC$VAL$SPECIAL_CHAR, "Total", .x)))
 
   if (download_type == ".rtf") {
 
