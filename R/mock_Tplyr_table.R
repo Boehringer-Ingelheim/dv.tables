@@ -89,7 +89,7 @@ mock_Tplyr_table_mm <- function() {
   }
 
   output_list <- list(
-    "Section 1.1: Dummy Table 1 for Demographics" = list(
+    "Table 4.5.3.2: Detailed Summary of Treatment-Emergent Adverse Events (TEAEs) by Severity and System Organ Class (SOC) – Comparison of Treatment A vs. Treatment B in Study 98765 (Phase III, Double-Blind, Randomized, N=500)" = list(
       tplyr_tab_fun = my_tplyr_fun,
       build_fun = build_func
     ),
