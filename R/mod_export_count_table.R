@@ -69,6 +69,7 @@ mod_export_counttable_server <- function(module_id, dataset,
             !is.list(dataset()) |
             !all(c("df", "meta") %in% names(dataset())) |
             !is.data.frame(dataset()[["df"]]) |
+            nrow(dataset()[["df"]]) == 0 |
             !all(c("n_denominator", "hierarchy", "hier_lvl_col") %in% names(dataset()[["meta"]]))) {
 
           shiny::showNotification(

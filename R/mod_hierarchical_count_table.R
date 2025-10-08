@@ -494,7 +494,9 @@ pivot_wide_format_events_table <- function(d, min_percent = 0) {
 
   if (table_type == "time_at_risk") {
     time_at_risk <- sprintf("%.2f", events_table_format[["time_at_risk"]])
+    time_at_risk[time_at_risk == "NA"] <- "\u2014"
     incidence_rate <- sprintf("%.2f", events_table_format[["incidence_rate"]])
+    incidence_rate[incidence_rate == "NA"] <- "\u2014"
 
     events_table_format[[cell_col]] <- purrr::pmap(list(count = count,
                                                         subjid = subjid,
@@ -640,9 +642,9 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 
   if (table_type == "time_at_risk") {
     entry_subheader <- shiny::span("", shiny::br(), "")
-    data_subheaders <- purrr::map(rep(c("<br/>n (%)",
-                                        "Time at<br/>Risk",
-                                        "Incidence<br/>Rate"),
+    data_subheaders <- purrr::map(rep(c("n (%)",
+                                        "Time at<br>Risk",
+                                        "Incidence<br>Rate"),
                                       length(data_columns)),
                                   ~ shiny::HTML(.x))
 
