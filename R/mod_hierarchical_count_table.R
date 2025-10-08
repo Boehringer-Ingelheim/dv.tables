@@ -7,6 +7,9 @@ EC <- poc( # nolint
     MIN_PERCENT = "min_percent",
     TOTAL_FLAG = "total",
     RISK_FLAG = "time_at_risk",
+    EVENT_DATE = "event_date",
+    ORIGIN_DATE = "origin_date",
+    CENSOR_DATE = "censor_date",
     TAB_DOWNLOAD = "table_download"
   ),
   LBL = poc(
@@ -15,7 +18,11 @@ EC <- poc( # nolint
     GRP = "Group by",
     MIN_PERCENT = "Minimum %",
     TOTAL_FLAG = "Total",
-    RISK_FLAG = "Time at Risk"
+    RISK_FLAG = "Time at Risk",
+    EVENT_DATE = "Event Date",
+    ORIGIN_DATE = "Origin Date",
+    CENSOR_DATE = "Censor Date",
+    TAB_DOWNLOAD = "table_download"
   ),
   INFO = poc(
     HIERARCHY = "Up to 2 selections allowed"
@@ -74,8 +81,9 @@ EC <- poc( # nolint
 #' @param recurse `logical(1)`
 #' A logical indicating whether to prepend data from calling the function again for higher hierarchy levels.
 #'
-#' @return TBD!!!!
+#' @return A data frame in the form of an ADaM ADTTE, with the addition of hierarchy columns and hierarchy level.
 #'
+#' @keywords internal
 create_adtte <- function(event_df,
                          pop_df,
                          hierarchy = character(),
@@ -98,7 +106,7 @@ create_adtte <- function(event_df,
     dplyr::filter(dplyr::if_all(dplyr::all_of(hierarchy), ~ !is.na(.x)))
 
   # For each hierarchy group, only keep first event occurrence
-  if (has_event_dt) {
+  if (has_event_dt && nrow(event_df) > 0) {
     event_df2 <- event_df |>
       dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, hierarchy)))) |>
       dplyr::summarise(!!event_date_var := min(.data[[event_date_var]]), .groups = "drop")
@@ -158,7 +166,6 @@ create_adtte <- function(event_df,
   hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
   adtte <- adtte |>
     dplyr::mutate(!!hier_lvl_col := hierarchy_lvl)
-  #adtte[[hier_lvl_col]] <- ifelse(nrow(adtte) > 0, hierarchy_lvl, character(0))
 
   # Recursive case - call function again with one less hierarchy level ----
 
@@ -226,20 +233,17 @@ create_adtte <- function(event_df,
 #' - `meta`: A list containing metadata related to the hierarchy, group variable, and subject counts.
 #'
 #' @keywords internal
-#'
 compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignment
                                  pop_df = pharmaverseadam::adsl, # No assignment
                                  hierarchy = c("AEBODSYS", "AEDECOD"), # NULL
                                  group_var = "TRT01P", # NULL
                                  subjid_var = "USUBJID", # NULL
-                                 origin_date_var = "TRTSDT", # NULL
-                                 censor_date_var = "RFPENDTC", # NULL
-                                 event_date_var = "AESTDTC", # NULL
+                                 origin_date_var = NULL,
+                                 censor_date_var = NULL,
+                                 event_date_var = NULL,
                                  total = TRUE,
                                  total_group_val = "Total",
                                  risk = FALSE) {
-
-  #origin_date_var <- NULL ###  !!!!
 
   checkmate::assert_names(names(pop_df), must.include = origin_date_var)
   checkmate::assert_names(names(pop_df), must.include = origin_date_var)
@@ -248,15 +252,15 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
   hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
 
   # Flags for when dates do not exist on population and event data frames
-  has_origin_dt <- !is.null(origin_date_var) && origin_date_var %in% names(pop_df)
-  has_censor_dt <- !is.null(censor_date_var) && censor_date_var %in% names(pop_df)
-  has_event_dt <- !is.null(event_date_var) && event_date_var %in% names(event_df)
+  has_origin_dt <- !is.null(origin_date_var) && length(origin_date_var) > 0 && origin_date_var %in% names(pop_df)
+  has_censor_dt <- !is.null(censor_date_var) && length(censor_date_var) > 0 && censor_date_var %in% names(pop_df)
+  has_event_dt <- !is.null(event_date_var) && length(event_date_var) > 0 && event_date_var %in% names(event_df)
 
-  # !!!!! TEMP FACTOR CONVERSION !!!!!! ----
-  if (!all(sapply(pop_df[c(group_var, subjid_var)], is.factor)))
-    pop_df <- dplyr::mutate(pop_df, dplyr::across(dplyr::where(is.character), as.factor))
-  if (!all(sapply(event_df[c(hierarchy)], is.factor)))
-    event_df <- dplyr::mutate(event_df, dplyr::across(dplyr::where(is.character), as.factor))
+  # # !!!!! TEMP FACTOR CONVERSION !!!!!! ----
+  # if (!all(sapply(pop_df[c(group_var, subjid_var)], is.factor)))
+  #   pop_df <- dplyr::mutate(pop_df, dplyr::across(dplyr::where(is.character), as.factor))
+  # if (!all(sapply(event_df[c(hierarchy)], is.factor)))
+  #   event_df <- dplyr::mutate(event_df, dplyr::across(dplyr::where(is.character), as.factor))
 
   # Prepare population data ----
 
@@ -271,15 +275,7 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
     pop_df2[[".origin_dt"]] <- as.Date(pop_df2[[origin_date_var]])
     if (any(is.na(pop_df2[[".origin_dt"]]) & !is.na(pop_df2[[origin_date_var]])))
       message("Partial origin dates failed to convert to date format!")
-
-    # # Remove rows with missing origin dates
-    # pop_df2 <- pop_df2[!is.na(pop_df2[[".origin_dt"]]), ]
-    # ?????????????????????????????????????
-    # NO!!! We should remove events only rather than modifying population
   }
-
-  # Drop unused factor levels from group variable
-  pop_df2[[group_var]] <- droplevels(pop_df2[[group_var]])
 
   if (has_censor_dt) {
 
@@ -292,9 +288,6 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
   # Prepare event data ----
 
   event_df2 <- event_df[, c(subjid_var, hierarchy, event_date_var)]
-
-  #browser()
-  #event_df2 <- event_df2 |> dplyr::filter(AEDECOD == "jjj") ### !!!
 
   if (has_event_dt) {
 
@@ -314,6 +307,24 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
       dplyr::left_join(pop_df2[, c(subjid_var, ".origin_dt")], by = subjid_var) |>
       dplyr::filter(.data[[".event_dt"]] >= .data[[".origin_dt"]]) |>
       dplyr::select(-".origin_dt")
+  }
+
+  if (has_censor_dt && has_event_dt) {
+
+    # Remove events that occur after non-missing censor date
+    event_df2 <- event_df2 |>
+      dplyr::left_join(pop_df2[, c(subjid_var, ".censor_dt")], by = subjid_var) |>
+      dplyr::filter(is.na(.data[[".censor_dt"]]) | .data[[".event_dt"]] <= .data[[".censor_dt"]]) |>
+      dplyr::select(-".censor_dt")
+  }
+
+  if (has_origin_dt && has_censor_dt) {
+
+    # Remove events when origin date is after non-missing censor date (bad data!)
+    event_df2 <- event_df2 |>
+      dplyr::left_join(pop_df2[, c(subjid_var, ".origin_dt", ".censor_dt")], by = subjid_var) |>
+      dplyr::filter(is.na(.data[[".censor_dt"]]) | .data[[".origin_dt"]] <= .data[[".censor_dt"]]) |>
+      dplyr::select(-c(".origin_dt", ".censor_dt"))
   }
 
   # Prepare subject level analysis data ----
@@ -347,7 +358,6 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
 
     dplyr::group_by(dplyr::across(dplyr::all_of(c(hierarchy, group_var, hier_lvl_col))))
 
-  #if ("AVAL" %in% names(adtte)) {
   if (risk && "AVAL" %in% names(adtte)) {
     # Time-to-event data
 
@@ -385,6 +395,13 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
   # Extract the denominators for the grouping variable into a named vector
   n_denominator <- calc_stats[calc_stats[[hier_lvl_col]] == 0, ][["N"]]
   names(n_denominator) <- calc_stats[calc_stats[[hier_lvl_col]] == 0, group_var, drop = TRUE]
+
+  all_denoms <- union(levels(pop_df2[[group_var]]), names(n_denominator))
+  n_denominator <- stats::setNames(sapply(all_denoms,
+                                          function(x) {
+                                            if (x %in% names(n_denominator)) n_denominator[[x]] else 0
+                                          }),
+                                   all_denoms)
 
   # Return from function ----
 
@@ -592,11 +609,9 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   checkmate::assert_data_frame(d[["df"]]) # DP
   checkmate::assert_list(d[["meta"]]) # DP
 
-  #special_char <- d[["meta"]][["special_char"]]
   hierarchy <- d[["meta"]][["hierarchy"]]
   hier_lvl_col <- d[["meta"]][["hier_lvl_col"]]
   group_var <- d[["meta"]][["group_var"]] # nolint unused
-  #row_id_col <- d[["meta"]][["row_id_col"]] # nolint unused
   n_denominator <- d[["meta"]][["n_denominator"]]
   table_type <- d[["meta"]][["table_type"]]
   df <- d[["df"]]
@@ -611,24 +626,15 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   tr <- shiny::tags[["tr"]]
   td <- shiny::tags[["td"]]
   tdc <- function(...) td(class = "text-center", ...) # nolint false positive unused
-  # tdc3 <- function(data_list, column) { # nolint false positive unused
-  #   #purrr::map(setdiff(names(data_list), c("subjid")), ~ tdc(data_list[[.x]], column = .x, onclick = on_cell_click))
-  #   purrr::map(setdiff(names(data_list), c("subjid")), ~ tdc(data_list[[.x]], column = column, onclick = on_cell_click))
-  # }
 
   df_names <- names(df)
   internal_columns <- df_names[startsWith(df_names, EC$VAL$SPECIAL_CHAR)]
   data_columns <- df_names[!df_names %in% c(hierarchy, internal_columns)]
 
-  #entry_header <- list(shiny::span("", shiny::br(), ""))
   entry_header <- shiny::span("", shiny::br(), "")
   data_headers <- purrr::map2(data_columns,
                               paste0("(N = ", n_denominator[data_columns], ")"),
                               ~ shiny::span(.x, shiny::br(), .y))
-  # column_headers <- local({
-  #   n_column_headers <- c("", paste0("(N = ", n_denominator[data_columns], ")"))
-  #   purrr::map2(c("", data_columns), n_column_headers, ~ shiny::span(.x, shiny::br(), .y))
-  # })
 
   thc_func_map <- list(frequency = thc,
                        time_at_risk = thc3)
@@ -637,7 +643,6 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
     class = "no-border",
     thc(entry_header),
     purrr::map(data_headers, thc_func_map[[table_type]])
-    #purrr::map(column_headers, thc)
   )
 
   if (table_type == "time_at_risk") {
@@ -649,7 +654,6 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
                                   ~ shiny::HTML(.x))
 
     subheader_row <- tr(
-      #class = "no-border",
       thc(entry_subheader),
       purrr::map(data_subheaders, ~ thc(span(.x)))
     )
@@ -675,8 +679,6 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 
   hierarchy_length <- length(hierarchy)
 
-  #max_hierarchy_lvl <- hierarchy_length + 1
-
   body <- vector(mode = "list", length = nrow(df))
   for (r in seq_len(nrow(df))) {
     curr_row <- df[r, , drop = FALSE]
@@ -689,13 +691,11 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
     }
 
     indent <- curr_hier_lvl
-    #indent <- max_hierarchy_lvl - curr_hier_lvl
     indent_class <- sprintf("indent-%d", indent)
     entry_cell <- td(shiny::span(collapse_control,
                                  curr_row[[entry_name_col]],
                                  class = "truncate",
                                  title = curr_row[[entry_name_col]]))
-    #data_cells <- purrr::imap(curr_row[data_columns], ~ tdc3(.x[[1]], .y))
     data_cells <- purrr::imap(curr_row[data_columns], function(.x, .y) {
       if (table_type == "frequency") {
         tdc(.x[[1]][["count"]], column = .y, onclick = on_cell_click)
@@ -704,10 +704,8 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
         column <- .y
         purrr::map(setdiff(names(data_list), "subjid"),
                    ~ tdc(data_list[[.x]], column = column, onclick = on_cell_click))
-        #tdc3(.x[[1]], .y)
       }
     })
-    ###data_cells <- purrr::imap(curr_row[data_columns], ~ tdc(.x[[1]][["count"]], column = .y, onclick = on_cell_click))
     body[[r]] <- tr(
       "row-id" = r,
       class = c(indent_class),
@@ -753,6 +751,11 @@ hierarchical_count_table_ui <- function(id) {
                                        label = EC$LBL$MIN_PERCENT,
                                        value = 0, min = 0, max = 100),
                    shiny::checkboxInput(ns(EC$ID$TOTAL_FLAG), label = EC$LBL$TOTAL_FLAG, value = TRUE),
+                   shiny::tags$hr(),
+                   col_menu_UI(id = ns(EC$ID$EVENT_DATE)),
+                   col_menu_UI(id = ns(EC$ID$ORIGIN_DATE)),
+                   col_menu_UI(id = ns(EC$ID$CENSOR_DATE)),
+                   shiny::tags$hr(),
                    shiny::checkboxInput(ns(EC$ID$RISK_FLAG), label = EC$LBL$RISK_FLAG, value = FALSE)
                  )),
       shiny::div(style = "display: inline-block;",
@@ -790,11 +793,32 @@ hierarchical_count_table_ui <- function(id) {
 #' @param default_group `character(1)|NULL`
 #' A default value for the group variable (optional).
 #'
+#' @param default_event_date `character(1)|NULL`
+#' A default value for the event date variable (optional).
+#'
+#' @param default_origin_date `character(1)|NULL`
+#' A default value for the origin date variable (optional).
+#'
+#' @param default_censor_date `character(1)|NULL`
+#' A default value for the censor date variable (optional).
+#'
+#' @param default_total `logical(1)`
+#' A default value for whether to add a total group column.
+#'
 #' @param hierarchy_choices `character(1+)|NULL`
 #' A character vector specifying the possible choices for the hierarchy variables (optional).
 #'
 #' @param group_choices `character(1+)|NULL`
 #' A character vector specifying the possible choices for the group variable (optional).
+#'
+#' @param event_date_choices `character(1+)|NULL`
+#' A character vector specifying the possible choices for the event date variable (optional).
+#'
+#' @param origin_date_choices `character(1+)|NULL`
+#' A character vector specifying the possible choices for the origin date variable (optional).
+#'
+#' @param censor_date_choices `character(1+)|NULL`
+#' A character vector specifying the possible choices for the censor date variable (optional).
 #'
 #' @param intended_use_label Either a string indicating the intended use for export, or
 #' NULL. The provided label will be displayed prior to the download and will also be included in the exported file.
@@ -814,8 +838,15 @@ hierarchical_count_table_server <- function(
     on_sbj_click_fun = function() NULL,
     default_hierarchy = NULL,
     default_group = NULL,
+    default_event_date = NULL,
+    default_origin_date = NULL,
+    default_censor_date = NULL,
+    default_total = TRUE,
     hierarchy_choices = NULL,
     group_choices = NULL,
+    event_date_choices = NULL,
+    origin_date_choices = NULL,
+    censor_date_choices = NULL,
     intended_use_label = NULL) {
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
@@ -857,6 +888,46 @@ hierarchical_count_table_server <- function(
       input[[EC$ID$TOTAL_FLAG]]
     })
 
+    can_be_date <- function(var) {
+      tryCatch({
+        ((is.factor(var) && !is.numeric(levels(var))) || is.character(var) || inherits(var, "Date")) &&
+          !all(is.na(as.Date(var)))
+      }, error = function(e) FALSE)
+    }
+
+    inputs[[EC$ID$EVENT_DATE]] <- col_menu_server(
+      id = EC$ID$EVENT_DATE, data = table_dataset,
+      label = EC$LBL$EVENT_DATE,
+      include_func = function(var, var_name) {
+        can_be_date(var) &&
+          (is.null(event_date_choices) || var_name %in% event_date_choices)
+      },
+      default = default_event_date,
+      include_none = FALSE
+    )
+
+    inputs[[EC$ID$ORIGIN_DATE]] <- col_menu_server(
+      id = EC$ID$ORIGIN_DATE, data = pop_dataset,
+      label = EC$LBL$ORIGIN_DATE,
+      include_func = function(var, var_name) {
+        can_be_date(var) &&
+          (is.null(origin_date_choices) || var_name %in% origin_date_choices)
+      },
+      default = default_origin_date,
+      include_none = FALSE
+    )
+
+    inputs[[EC$ID$CENSOR_DATE]] <- col_menu_server(
+      id = EC$ID$CENSOR_DATE, data = pop_dataset,
+      label = EC$LBL$CENSOR_DATE,
+      include_func = function(var, var_name) {
+        can_be_date(var) &&
+          (is.null(censor_date_choices) || var_name %in% censor_date_choices)
+      },
+      default = default_censor_date,
+      include_none = FALSE
+    )
+
     inputs[[EC$ID$RISK_FLAG]] <- shiny::reactive({
       input[[EC$ID$RISK_FLAG]]
     })
@@ -868,6 +939,9 @@ hierarchical_count_table_server <- function(
       hierarchy <- inputs[[EC$ID$HIERARCHY]]()
       min_percent <- inputs[[EC$ID$MIN_PERCENT]]()
       total <- inputs[[EC$ID$TOTAL_FLAG]]()
+      event_date_var <- inputs[[EC$ID$EVENT_DATE]]()
+      origin_date_var <- inputs[[EC$ID$ORIGIN_DATE]]()
+      censor_date_var <- inputs[[EC$ID$CENSOR_DATE]]()
       risk <- inputs[[EC$ID$RISK_FLAG]]()
 
       shiny::validate(
@@ -904,16 +978,14 @@ hierarchical_count_table_server <- function(
       events_table_raw <- compute_events_table(d, pd, hierarchy, group_var, subjid_var)
       sorted_events_table <- compute_order_events_table(events_table_raw)
 
-      #browser()
-
       events_table_raw <- compute_events_table(event_df = d,
                                                pop_df = pd,
                                                hierarchy = hierarchy,
                                                group_var = group_var,
                                                subjid_var = subjid_var,
-                                               origin_date_var = "TRTSDT",
-                                               censor_date_var = "RFPENDTC",
-                                               event_date_var = "AESTDTC",
+                                               origin_date_var = origin_date_var,
+                                               censor_date_var = censor_date_var,
+                                               event_date_var = event_date_var,
                                                total = total,
                                                total_group_val = "Total",
                                                risk = risk)
