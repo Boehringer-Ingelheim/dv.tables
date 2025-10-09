@@ -1,10 +1,10 @@
-# dv.tables 0.2.1-9000
+# dv.tables 0.2.0-9002
 
 * Add time-at-risk functionality
 * Fix application error when clicking on a cell with no event counts
 * Move options into a drop-down box
 
-# dv.tables 0.2.0-9000
+# dv.tables 0.2.0-9001
 
 * Remove pharmaverseadam dependency
 
