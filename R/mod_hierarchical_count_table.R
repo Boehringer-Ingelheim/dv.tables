@@ -25,7 +25,11 @@ EC <- poc( # nolint
     TAB_DOWNLOAD = "table_download"
   ),
   INFO = poc(
-    HIERARCHY = "Up to 2 selections allowed"
+    HIERARCHY = "Up to 2 selections allowed",
+    EVENT_DATE = "Events with missing or partial dates will be dropped",
+    ORIGIN_DATE = "Events occurring before origin date will be dropped",
+    CENSOR_DATE = "Events occurring after censor date will be dropped",
+    RISK_FLAG = "Event date, origin date and censor date must be provided"
   ),
   MSG = poc(
     VALIDATE = poc(
@@ -756,7 +760,11 @@ hierarchical_count_table_ui <- function(id) {
                    col_menu_UI(id = ns(EC$ID$ORIGIN_DATE)),
                    col_menu_UI(id = ns(EC$ID$CENSOR_DATE)),
                    shiny::tags$hr(),
-                   shiny::checkboxInput(ns(EC$ID$RISK_FLAG), label = EC$LBL$RISK_FLAG, value = FALSE)
+                   shiny::checkboxInput(ns(EC$ID$RISK_FLAG),
+                                        label = shiny::span(EC$LBL$RISK_FLAG,
+                                                            shiny::icon("circle-info",
+                                                                        title = EC$INFO$RISK_FLAG)),
+                                        value = FALSE)
                  )),
       shiny::div(style = "display: inline-block;",
                  mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD)))
@@ -854,9 +862,9 @@ hierarchical_count_table_server <- function(
     inputs <- list()
     inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
       id = EC$ID$HIERARCHY, data = table_dataset,
-      label = shiny::div(shiny::tags$label(EC$LBL$HIERARCHY),
-                         shiny::icon("circle-info",
-                                     title = EC$INFO$HIERARCHY)),
+      label = shiny::span(EC$LBL$HIERARCHY,
+                          shiny::icon("circle-info",
+                                      title = EC$INFO$HIERARCHY)),
       include_func = function(var, var_name) {
         (is.factor(var) || is.character(var)) &&
           var_name != subjid_var &&
@@ -897,7 +905,9 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$EVENT_DATE]] <- col_menu_server(
       id = EC$ID$EVENT_DATE, data = table_dataset,
-      label = EC$LBL$EVENT_DATE,
+      label = shiny::span(EC$LBL$EVENT_DATE,
+                          shiny::icon("circle-info",
+                                      title = EC$INFO$EVENT_DATE)),
       include_func = function(var, var_name) {
         can_be_date(var) &&
           (is.null(event_date_choices) || var_name %in% event_date_choices)
@@ -908,7 +918,9 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$ORIGIN_DATE]] <- col_menu_server(
       id = EC$ID$ORIGIN_DATE, data = pop_dataset,
-      label = EC$LBL$ORIGIN_DATE,
+      label = shiny::span(EC$LBL$ORIGIN_DATE,
+                          shiny::icon("circle-info",
+                                      title = EC$INFO$ORIGIN_DATE)),
       include_func = function(var, var_name) {
         can_be_date(var) &&
           (is.null(origin_date_choices) || var_name %in% origin_date_choices)
@@ -919,7 +931,9 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$CENSOR_DATE]] <- col_menu_server(
       id = EC$ID$CENSOR_DATE, data = pop_dataset,
-      label = EC$LBL$CENSOR_DATE,
+      label = shiny::span(EC$LBL$CENSOR_DATE,
+                          shiny::icon("circle-info",
+                                      title = EC$INFO$CENSOR_DATE)),
       include_func = function(var, var_name) {
         can_be_date(var) &&
           (is.null(censor_date_choices) || var_name %in% censor_date_choices)
