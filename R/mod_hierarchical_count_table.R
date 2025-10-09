@@ -129,7 +129,6 @@ create_adtte <- function(event_df,
   if (length(hierarchy) != 0) {
     hierarchy_grid <- unique(event_df2[, hierarchy, drop = FALSE])
     adtte <- dplyr::cross_join(pop_df, hierarchy_grid)
-    ##adtte <- merge(pop_df, hierarchy_grid, by = NULL)
   } else {
     adtte <- pop_df
   }
@@ -259,12 +258,6 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
   has_origin_dt <- !is.null(origin_date_var) && length(origin_date_var) > 0 && origin_date_var %in% names(pop_df)
   has_censor_dt <- !is.null(censor_date_var) && length(censor_date_var) > 0 && censor_date_var %in% names(pop_df)
   has_event_dt <- !is.null(event_date_var) && length(event_date_var) > 0 && event_date_var %in% names(event_df)
-
-  # # !!!!! TEMP FACTOR CONVERSION !!!!!! ----
-  # if (!all(sapply(pop_df[c(group_var, subjid_var)], is.factor)))
-  #   pop_df <- dplyr::mutate(pop_df, dplyr::across(dplyr::where(is.character), as.factor))
-  # if (!all(sapply(event_df[c(hierarchy)], is.factor)))
-  #   event_df <- dplyr::mutate(event_df, dplyr::across(dplyr::where(is.character), as.factor))
 
   # Prepare population data ----
 
@@ -625,8 +618,10 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   table <- shiny::tags[["table"]]
   th <- shiny::tags[["th"]]
   thc <- function(...) th(class = "text-center", style = "vertical-align: bottom; border-top: 1px solid white", ...)
-  thc3 <- function(...) th(class = "text-center", colspan = "3",
-                           style = "border-bottom: 1px solid black; border-right: 6px solid white", ...)
+  thc3 <- function(...) {
+    th(class = "text-center", colspan = "3",
+       style = "border-bottom: 1px solid black; border-right: 6px solid white", ...)
+  }
   tr <- shiny::tags[["tr"]]
   td <- shiny::tags[["td"]]
   tdc <- function(...) td(class = "text-center", ...) # nolint false positive unused
