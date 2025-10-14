@@ -1,7 +1,7 @@
 utils::globalVariables(
   c("EOSSTT", "ARM", "AGE", "row_label1", "row_label2", "TRT01A", "USUBJID",
     "distinct_total", "distinct_n", "distinct_pct", "AESEV", "AESER")
-  )
+)
 #' Mock app integrated in the module manager
 #'
 #' \code{mock_Tplyr_table} launches a mock app for the Tplyr_table shiny module by means of
@@ -89,15 +89,15 @@ mock_Tplyr_table_mm <- function() {
   }
 
   output_list <- list(
-    "Table 4.5.3.2: Detailed Summary of Treatment-Emergent Adverse Events (TEAEs) by Severity and System Organ Class (SOC) – Comparison of Treatment A vs. Treatment B in Study 98765 (Phase III, Double-Blind, Randomized, N=500)" = list(
+    "Table 1" = list(
       tplyr_tab_fun = my_tplyr_fun,
       build_fun = build_func
     ),
-    "Section 2.2 Dummy Table 2 for Adverse events" = list(
+    "Tabel 2" = list(
       tplyr_tab_fun = my_tplyr_fun2,
       build_fun = build_func2
     ),
-    "Section 3 All Listings" = list(
+    "Listing" = list(
       dataset_names = c("adsl", "adae")
     )
   )
