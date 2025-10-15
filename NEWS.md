@@ -1,3 +1,7 @@
+# dv.tables 0.2.0-9002
+
+* Tplyr_table module, Add titles to the outputs
+
 # dv.tables 0.2.0-9001
 
 * Remove pharmaverseadam dependency
