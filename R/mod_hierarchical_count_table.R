@@ -10,6 +10,9 @@ EC <- poc( # nolint
     EVENT_DATE = "event_date",
     ORIGIN_DATE = "origin_date",
     CENSOR_DATE = "censor_date",
+    EVENT_DATE_LBL = "event_date_label",
+    ORIGIN_DATE_LBL = "origin_date_label",
+    CENSOR_DATE_LBL = "censor_date_label",
     TAB_DOWNLOAD = "table_download"
   ),
   LBL = poc(
@@ -30,6 +33,9 @@ EC <- poc( # nolint
     ORIGIN_DATE = "Events occurring before origin date will be dropped",
     CENSOR_DATE = "Events occurring after censor date will be dropped",
     RISK_FLAG = "Event date, origin date and censor date must be provided"
+  ),
+  WARN = poc(
+    REQ_TIME_AT_RISK = "Required for Time at Risk"
   ),
   MSG = poc(
     VALIDATE = poc(
@@ -105,7 +111,7 @@ create_adtte <- function(event_df,
   has_censor_dt <- censor_date_var %in% names(pop_df)
   has_event_dt <- event_date_var %in% names(event_df)
 
-  # Remove rows where hierarchy value is NA
+  # Remove rows where hierarchy value is NA across all processed hierarchy columns
   event_df <- event_df |>
     dplyr::filter(dplyr::if_all(dplyr::all_of(hierarchy), ~ !is.na(.x)))
 
@@ -335,6 +341,17 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
                         censor_date_var = ".censor_dt",
                         event_date_var = ".event_dt")
 
+  # Drop rows where time at risk could not be determined
+  if ("AVAL" %in% names(adtte)) {
+    invalid_rows <- which(is.na(adtte[["AVAL"]]))
+    if (length(invalid_rows) > 0) {
+      invalid_subjects <- unique(adtte[[subjid_var]][invalid_rows])
+      message("Time at risk could not be determined for the following subjects: ",
+              paste(shQuote(invalid_subjects, type = "cmd"), collapse = ", "))
+      adtte <- adtte[-invalid_rows, ]
+    }
+  }
+
   # Add group totals ----
 
   if (total && !is.null(total_group_val) && length(total_group_val) > 0) {
@@ -366,7 +383,7 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
       dplyr::summarise(N = dplyr::n(),
                        n = sum(.data[["CNSR"]] == 0),
                        subjid = list(.data[[subjid_var]][.data[["CNSR"]] == 0]),
-                       time_at_risk = sum(.data[["AVAL"]]) / 365.25,
+                       time_at_risk = sum(.data[["AVAL"]], na.rm = TRUE) / 365.25,
                        .groups = "drop") |>
 
       # Calculate incidence rate and percent
@@ -647,8 +664,8 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   if (table_type == "time_at_risk") {
     entry_subheader <- shiny::span("", shiny::br(), "")
     data_subheaders <- purrr::map(rep(c("n (%)",
-                                        "Time at<br>Risk",
-                                        "Incidence<br>Rate"),
+                                        "Time at risk<br>(pt-yrs)",
+                                        "Rate/100<br>pt-yrs"),
                                       length(data_columns)),
                                   ~ shiny::HTML(.x))
 
@@ -733,10 +750,18 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @param id `character(0)`
 #' The ID for the event count module instance.
 #'
+#' @param default_total `logical(1)`
+#' A default value for whether to add a total group column.
+#'
+#' @param default_risk `logical(1)`
+#' A default value for whether to calculate time-at-risk.
+#'
 #' @return A `shiny::tagList` containing the user interface for selecting hierarchy, group,
 #' and minimum percentage for event counting.
 #' @export
-hierarchical_count_table_ui <- function(id) {
+hierarchical_count_table_ui <- function(id,
+                                        default_total = TRUE,
+                                        default_risk = FALSE) {
   ns <- shiny::NS(id)
   shiny::div(
     class = "hier_count_table",
@@ -749,7 +774,7 @@ hierarchical_count_table_ui <- function(id) {
                    shiny::numericInput(ns(EC$ID$MIN_PERCENT),
                                        label = EC$LBL$MIN_PERCENT,
                                        value = 0, min = 0, max = 100),
-                   shiny::checkboxInput(ns(EC$ID$TOTAL_FLAG), label = EC$LBL$TOTAL_FLAG, value = TRUE),
+                   shiny::checkboxInput(ns(EC$ID$TOTAL_FLAG), label = EC$LBL$TOTAL_FLAG, value = default_total),
                    shiny::tags$hr(),
                    col_menu_UI(id = ns(EC$ID$EVENT_DATE)),
                    col_menu_UI(id = ns(EC$ID$ORIGIN_DATE)),
@@ -759,7 +784,7 @@ hierarchical_count_table_ui <- function(id) {
                                         label = shiny::span(EC$LBL$RISK_FLAG,
                                                             shiny::icon("circle-info",
                                                                         title = EC$INFO$RISK_FLAG)),
-                                        value = FALSE)
+                                        value = default_risk)
                  )),
       shiny::div(style = "display: inline-block;",
                  mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD)))
@@ -805,9 +830,6 @@ hierarchical_count_table_ui <- function(id) {
 #' @param default_censor_date `character(1)|NULL`
 #' A default value for the censor date variable (optional).
 #'
-#' @param default_total `logical(1)`
-#' A default value for whether to add a total group column.
-#'
 #' @param hierarchy_choices `character(1+)|NULL`
 #' A character vector specifying the possible choices for the hierarchy variables (optional).
 #'
@@ -833,24 +855,23 @@ hierarchical_count_table_ui <- function(id) {
 # nolint start
 hierarchical_count_table_server <- function(
     # nolint end
-    id,
-    table_dataset,
-    pop_dataset,
-    subjid_var,
-    show_modal_on_click = TRUE,
-    on_sbj_click_fun = function() NULL,
-    default_hierarchy = NULL,
-    default_group = NULL,
-    default_event_date = NULL,
-    default_origin_date = NULL,
-    default_censor_date = NULL,
-    default_total = TRUE,
-    hierarchy_choices = NULL,
-    group_choices = NULL,
-    event_date_choices = NULL,
-    origin_date_choices = NULL,
-    censor_date_choices = NULL,
-    intended_use_label = NULL) {
+  id,
+  table_dataset,
+  pop_dataset,
+  subjid_var,
+  show_modal_on_click = TRUE,
+  on_sbj_click_fun = function() NULL,
+  default_hierarchy = NULL,
+  default_group = NULL,
+  default_event_date = NULL,
+  default_origin_date = NULL,
+  default_censor_date = NULL,
+  hierarchy_choices = NULL,
+  group_choices = NULL,
+  event_date_choices = NULL,
+  origin_date_choices = NULL,
+  censor_date_choices = NULL,
+  intended_use_label = NULL) {
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
 
@@ -900,9 +921,7 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$EVENT_DATE]] <- col_menu_server(
       id = EC$ID$EVENT_DATE, data = table_dataset,
-      label = shiny::span(EC$LBL$EVENT_DATE,
-                          shiny::icon("circle-info",
-                                      title = EC$INFO$EVENT_DATE)),
+      label = shiny::uiOutput(ns(EC$ID$EVENT_DATE_LBL)),
       include_func = function(var, var_name) {
         can_be_date(var) &&
           (is.null(event_date_choices) || var_name %in% event_date_choices)
@@ -913,9 +932,7 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$ORIGIN_DATE]] <- col_menu_server(
       id = EC$ID$ORIGIN_DATE, data = pop_dataset,
-      label = shiny::span(EC$LBL$ORIGIN_DATE,
-                          shiny::icon("circle-info",
-                                      title = EC$INFO$ORIGIN_DATE)),
+      label = shiny::uiOutput(ns(EC$ID$ORIGIN_DATE_LBL)),
       include_func = function(var, var_name) {
         can_be_date(var) &&
           (is.null(origin_date_choices) || var_name %in% origin_date_choices)
@@ -926,9 +943,7 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$CENSOR_DATE]] <- col_menu_server(
       id = EC$ID$CENSOR_DATE, data = pop_dataset,
-      label = shiny::span(EC$LBL$CENSOR_DATE,
-                          shiny::icon("circle-info",
-                                      title = EC$INFO$CENSOR_DATE)),
+      label = shiny::uiOutput(ns(EC$ID$CENSOR_DATE_LBL)),
       include_func = function(var, var_name) {
         can_be_date(var) &&
           (is.null(censor_date_choices) || var_name %in% censor_date_choices)
@@ -936,6 +951,46 @@ hierarchical_count_table_server <- function(
       default = default_censor_date,
       include_none = FALSE
     )
+
+    # Build span label for date column input with warning and info icons
+    date_label_span <- function(flag, date, label_text, label_info) {
+      date_empty <- is.null(date) || length(date) == 0
+
+      shiny::span(
+        if (isTRUE(flag) && date_empty) {
+          shiny::icon("triangle-exclamation",
+                      title = EC$WARN$REQ_TIME_AT_RISK,
+                      style = "color: orange; margin-right: 5px;")
+        },
+        label_text,
+        shiny::icon("circle-info",
+                    title = label_info)
+      )
+    }
+
+    # Apply event date span label
+    output[[EC$ID$EVENT_DATE_LBL]] <- shiny::renderUI({
+      date_label_span(flag = input[[EC$ID$RISK_FLAG]],
+                      date = inputs[[EC$ID$EVENT_DATE]](),
+                      label_text = EC$LBL$EVENT_DATE,
+                      label_info = EC$INFO$EVENT_DATE)
+    })
+
+    # Apply origin date span label
+    output[[EC$ID$ORIGIN_DATE_LBL]] <- shiny::renderUI({
+      date_label_span(flag = input[[EC$ID$RISK_FLAG]],
+                      date = inputs[[EC$ID$ORIGIN_DATE]](),
+                      label_text = EC$LBL$ORIGIN_DATE,
+                      label_info = EC$INFO$ORIGIN_DATE)
+    })
+
+    # Apply censor date span label
+    output[[EC$ID$CENSOR_DATE_LBL]] <- shiny::renderUI({
+      date_label_span(flag = input[[EC$ID$RISK_FLAG]],
+                      date = inputs[[EC$ID$CENSOR_DATE]](),
+                      label_text = EC$LBL$CENSOR_DATE,
+                      label_info = EC$INFO$CENSOR_DATE)
+    })
 
     inputs[[EC$ID$RISK_FLAG]] <- shiny::reactive({
       input[[EC$ID$RISK_FLAG]]
@@ -1104,12 +1159,24 @@ mod_hierarchical_count_table <- function(module_id,
                                          show_modal_on_click = TRUE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
+                                         default_total = TRUE,
+                                         default_event_date = NULL,
+                                         default_origin_date = NULL,
+                                         default_censor_date = NULL,
+                                         default_risk = FALSE,
                                          hierarchy_choices = NULL,
                                          group_choices = NULL,
+                                         event_date_choices = NULL,
+                                         origin_date_choices = NULL,
+                                         censor_date_choices = NULL,
                                          intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
                                          receiver_id = NULL) {
   mod <- list(
-    ui = hierarchical_count_table_ui,
+    ui = function(module_id) {
+      hierarchical_count_table_ui(id = module_id,
+                                  default_total = default_total,
+                                  default_risk = default_risk)
+    },
     server = function(afmm) {
       if (is.null(receiver_id)) {
         on_sbj_click_fun <- function() NULL
@@ -1128,8 +1195,14 @@ mod_hierarchical_count_table <- function(module_id,
         on_sbj_click_fun = on_sbj_click_fun,
         default_hierarchy = default_hierarchy,
         default_group = default_group,
+        default_event_date = default_event_date,
+        default_origin_date = default_origin_date,
+        default_censor_date = default_censor_date,
         hierarchy_choices = hierarchy_choices,
         group_choices = group_choices,
+        event_date_choices = event_date_choices,
+        origin_date_choices = origin_date_choices,
+        censor_date_choices = censor_date_choices,
         intended_use_label = intended_use_label
       )
     },
@@ -1149,8 +1222,16 @@ mod_hierarchical_count_table_API_docs <- list(
   show_modal_on_click = "",
   default_hierarchy = "",
   default_group = "",
+  default_total = "",
+  default_event_date = "",
+  default_origin_date = "",
+  default_censor_date = "",
+  default_risk = "",
   hierarchy_choices = "",
   group_choices = "",
+  event_date_choices = "",
+  origin_date_choices = "",
+  censor_date_choices = "",
   intended_use_label = "",
   receiver_id = ""
 )
@@ -1164,10 +1245,18 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("zero_or_more", "optional"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  default_total = TC$logical(),
+  default_event_date = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  default_origin_date = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  default_censor_date = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  default_risk = TC$logical(),
   hierarchy_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("zero_or_more", "optional"),
   group_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("zero_or_more", "optional"),
+  event_date_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
+  origin_date_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
+  censor_date_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
   intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_hierarchical_count_table_API_docs)
@@ -1175,8 +1264,8 @@ mod_hierarchical_count_table_API_spec <- TC$group(
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group,
-    hierarchy_choices, group_choices,
+    default_hierarchy, default_group, default_total, default_event_date, default_origin_date, default_censor_date,
+    default_risk, hierarchy_choices, group_choices, event_date_choices, origin_date_choices, censor_date_choices,
     intended_use_label, receiver_id) {
   warn <- CM$container()
   err <- CM$container()
@@ -1187,8 +1276,8 @@ check_mod_hierarchical_count_table <- function(
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group,
-    hierarchy_choices, group_choices,
+    default_hierarchy, default_group, default_total, default_event_date, default_origin_date, default_censor_date,
+    default_risk, hierarchy_choices, group_choices, event_date_choices, origin_date_choices, censor_date_choices,
     intended_use_label, receiver_id,
     warn, err
   )
@@ -1237,10 +1326,10 @@ mod_hierarchical_count_table <- CM$module(mod_hierarchical_count_table, check_mo
 # nolint start
 mock_app_hierarchical_count_table <- function(
     # nolint end
-    dry_run = FALSE,
-    update_query_string = TRUE,
-    srv_defaults = list(),
-    ui_defaults = list()) {
+  dry_run = FALSE,
+  update_query_string = TRUE,
+  srv_defaults = list(),
+  ui_defaults = list()) {
   if (!requireNamespace("pharmaverseadam")) {
     stop("Install pharmaverseadam")
   }
@@ -1303,7 +1392,12 @@ mock_app_hierarchical_count_table_mm <- function() {
         pop_dataset_name = "adsl",
         show_modal_on_click = TRUE,
         default_hierarchy = c("AEBODSYS", "AEDECOD"),
-        default_group = "TRT01P"
+        default_group = "TRT01P",
+        default_event_date = "AESTDTC",
+        default_origin_date = "RFSTDTC",
+        default_censor_date = "RFENDTC",
+        default_total = FALSE,
+        default_risk = FALSE
       )
     ),
     filter_data = "adsl",
