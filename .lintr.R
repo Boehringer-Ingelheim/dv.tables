@@ -9,7 +9,7 @@ linters <- lintr::modify_defaults(
   , object_length_linter = NULL               # we don't type long var names just because
   , pipe_continuation_linter = NULL           # wickham being overly prescriptive
   , trailing_blank_lines_linter = NULL        # natural extension of trailing_whitespace_linter, present on the template
-  , return_linter = NULL                      # irrelevant
+  , return_linter = NULL                      # wickham being overly prescriptive
 )
 
 if(identical(Sys.getenv('CI'), "true")){
@@ -19,4 +19,4 @@ if(identical(Sys.getenv('CI'), "true")){
   )                                           # We only disable this lint rule on github because it fails there because
 }                                             # of a long-standing lintr bug
 
-exclusions <- list("tests")
+linters

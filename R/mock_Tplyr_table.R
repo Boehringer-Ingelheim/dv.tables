@@ -1,7 +1,7 @@
 utils::globalVariables(
   c("EOSSTT", "ARM", "AGE", "row_label1", "row_label2", "TRT01A", "USUBJID",
     "distinct_total", "distinct_n", "distinct_pct", "AESEV", "AESER")
-  )
+)
 #' Mock app integrated in the module manager
 #'
 #' \code{mock_Tplyr_table} launches a mock app for the Tplyr_table shiny module by means of
