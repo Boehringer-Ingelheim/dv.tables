@@ -5,6 +5,8 @@ specs[["hierarchical_count_table"]] <- list(
   "events_table_display" = "A table will be displayed, showing the event counts and the percentage of subjects that meet the criteria for each combination of hierarchy and group variable.",
   "cell_interactivity" = "Each cell in the table supports interactivity. Clicking a cell triggers an action that gives access to the the list of subjects included in the cell.",
   "event_count" = "Counts the number of subjects that had a given event at least once. Its percentage is calculated using as denominator the total number of participants in a given group.",
+  "time_at_risk" = "Time at risk and incidence rate are calculated using event, origin and censor dates.",
+  "time_at_risk_display" = "A table will be displayed, showing counts, percentages, time at risk and incidence rate of subjects summarised over two hierarchy levels, and group variable.",
   "minimum_percentage_filter" = "A minimum percentage filter can be applied to the event table. The filter will hide rows where the percentage of subjects is below the specified threshold.",
   "subjid_var_exclusion" = "Subject identifier variable is excluded from hierarchy and group variables choices.",
   "group_hierarchy_clash" = "Alert when the selected group variable is also selected as a hierarchy variable.",
@@ -23,6 +25,16 @@ specs[["export_count_table"]] <- list(
   "export_label_event_cols" = "Each event column for Excel named with event variable name suffixed with an assocoiated label in square-brackets if one exists.",
   "export_indent_values" = "Event columns combined as indented hierarchy of event values.",
   "export_single_n_pct_cols" = "Combined count and percentage kept in single columns for exported table."
+)
+
+specs[["export_time_at_risk_table"]] <- list(
+  "export_tar_add_new_row" = "Data Preprocessing function for exporting adds a new row at the beginning of the data frame for indicating overall number of patients which is shown in HTML table.",
+  "export_tar_replace_special_char" = "There are special characters in the dataframe which shows Total values which doesn't show well in excel. It is replaced by Total.",
+  "export_tar_separate_cols" = "The table shows count and relative percentage in the parentheses. It is separated into two columns for exported table.",
+  "export_tar_remove_parantheses" = "Continuation of export_separate_cols, the leading and trailing parentheses after column separator is removed from exported table.",
+  "export_tar_label_event_cols" = "Each event column for Excel named with event variable name suffixed with an assocoiated label in square-brackets if one exists.",
+  "export_tar_indent_values" = "Event columns combined as indented hierarchy of event values.",
+  "export_tar_single_n_pct_cols" = "Combined count and percentage kept in single columns for exported table."
 )
 
 specs[["Tplyr_tables"]] <- list(

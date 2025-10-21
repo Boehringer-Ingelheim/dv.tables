@@ -5,12 +5,17 @@
 \title{Computes an event table with subject counts and percentages}
 \usage{
 compute_events_table(
-  event_df,
-  pop_df,
-  hierarchy,
-  group_var,
-  subjid_var,
-  .special_char = "\\035"
+  event_df = pharmaverseadam::adae,
+  pop_df = pharmaverseadam::adsl,
+  hierarchy = c("AEBODSYS", "AEDECOD"),
+  group_var = "TRT01P",
+  subjid_var = "USUBJID",
+  origin_date_var = NULL,
+  censor_date_var = NULL,
+  event_date_var = NULL,
+  total = TRUE,
+  total_group_val = "Total",
+  risk = FALSE
 )
 }
 \arguments{
@@ -31,10 +36,24 @@ A string representing the column name in \code{pop_df} used for grouping the pop
 A string representing the subject identifier column name. This column must be present in both \code{event_df} and
 \code{pop_df}.}
 
-\item{.special_char}{\code{character(1)}
-A special character used internally for naming and processing hierarchy levels. Default is \code{"\\u001D"}.
+\item{origin_date_var}{\code{character(1)}
+A string representing the column name in \code{pop_df} holding the origin date (optional).
+If provided, rows in \code{pop_df} with missing or partial origin date are dropped.}
 
-All columns must be factors}
+\item{censor_date_var}{\code{character(1)}
+A string representing the column name in \code{pop_df} holding the censor date (optional).}
+
+\item{event_date_var}{\code{character(1)}
+A string representing the column name in \code{event_df} holding the event date.}
+
+\item{total}{\code{logical(1)}
+A logical indicating whether to add a total group column.}
+
+\item{total_group_val}{\code{character(0|1)}
+A string representing the value to assign to the \code{group_var} column for totals.}
+
+\item{risk}{\code{logical(1)}
+A logical indicating whether to calculate time at risk and incidence rate.}
 }
 \value{
 A list containing:

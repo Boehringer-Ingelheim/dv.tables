@@ -39,68 +39,204 @@
       $meta$table_type
       [1] "frequency"
       
-      $meta$analysis_df
-         subj group             PARAM  PARAMCD CNSR \035lvl lvl1 lvl2
-      1     1    GA L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      2     2    GB L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      3     3    GC L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      4     4    GC L0: Time to Event L0_EVENT    1       0 <NA> <NA>
-      5     1    GA L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      6     1    GA L1: Time to Event L1_EVENT    0       1   B1 <NA>
-      7     2    GB L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      8     2    GB L1: Time to Event L1_EVENT    0       1   B1 <NA>
-      9     3    GC L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      10    3    GC L1: Time to Event L1_EVENT    1       1   B1 <NA>
-      11    4    GC L1: Time to Event L1_EVENT    1       1   A1 <NA>
-      12    4    GC L1: Time to Event L1_EVENT    1       1   B1 <NA>
-      13    1    GA L2: Time to Event L2_EVENT    0       2   A1   A2
-      14    1    GA L2: Time to Event L2_EVENT    0       2   A1   B2
-      15    1    GA L2: Time to Event L2_EVENT    0       2   B1   A2
-      16    1    GA L2: Time to Event L2_EVENT    0       2   B1   B2
-      17    2    GB L2: Time to Event L2_EVENT    0       2   A1   A2
-      18    2    GB L2: Time to Event L2_EVENT    0       2   A1   B2
-      19    2    GB L2: Time to Event L2_EVENT    1       2   B1   A2
-      20    2    GB L2: Time to Event L2_EVENT    0       2   B1   B2
-      21    3    GC L2: Time to Event L2_EVENT    0       2   A1   A2
-      22    3    GC L2: Time to Event L2_EVENT    1       2   A1   B2
-      23    3    GC L2: Time to Event L2_EVENT    1       2   B1   A2
-      24    3    GC L2: Time to Event L2_EVENT    1       2   B1   B2
-      25    4    GC L2: Time to Event L2_EVENT    1       2   A1   A2
-      26    4    GC L2: Time to Event L2_EVENT    1       2   A1   B2
-      27    4    GC L2: Time to Event L2_EVENT    1       2   B1   A2
-      28    4    GC L2: Time to Event L2_EVENT    1       2   B1   B2
-      29    1 Total L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      30    2 Total L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      31    3 Total L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      32    4 Total L0: Time to Event L0_EVENT    1       0 <NA> <NA>
-      33    1 Total L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      34    1 Total L1: Time to Event L1_EVENT    0       1   B1 <NA>
-      35    2 Total L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      36    2 Total L1: Time to Event L1_EVENT    0       1   B1 <NA>
-      37    3 Total L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      38    3 Total L1: Time to Event L1_EVENT    1       1   B1 <NA>
-      39    4 Total L1: Time to Event L1_EVENT    1       1   A1 <NA>
-      40    4 Total L1: Time to Event L1_EVENT    1       1   B1 <NA>
-      41    1 Total L2: Time to Event L2_EVENT    0       2   A1   A2
-      42    1 Total L2: Time to Event L2_EVENT    0       2   A1   B2
-      43    1 Total L2: Time to Event L2_EVENT    0       2   B1   A2
-      44    1 Total L2: Time to Event L2_EVENT    0       2   B1   B2
-      45    2 Total L2: Time to Event L2_EVENT    0       2   A1   A2
-      46    2 Total L2: Time to Event L2_EVENT    0       2   A1   B2
-      47    2 Total L2: Time to Event L2_EVENT    1       2   B1   A2
-      48    2 Total L2: Time to Event L2_EVENT    0       2   B1   B2
-      49    3 Total L2: Time to Event L2_EVENT    0       2   A1   A2
-      50    3 Total L2: Time to Event L2_EVENT    1       2   A1   B2
-      51    3 Total L2: Time to Event L2_EVENT    1       2   B1   A2
-      52    3 Total L2: Time to Event L2_EVENT    1       2   B1   B2
-      53    4 Total L2: Time to Event L2_EVENT    1       2   A1   A2
-      54    4 Total L2: Time to Event L2_EVENT    1       2   A1   B2
-      55    4 Total L2: Time to Event L2_EVENT    1       2   B1   A2
-      56    4 Total L2: Time to Event L2_EVENT    1       2   B1   B2
+      
+
+---
+
+    Code
+      s
+    Output
+      # A tibble: 7 x 6
+        lvl1     lvl2     `\035lvl` `\035count1` `\035count2` `\035rank`
+        <fct>    <fct>        <int>        <dbl>        <dbl>      <int>
+      1 "\u001d" "\u001d"         0          Inf          Inf          1
+      2 "A1"     "\u001d"         1            3          Inf          2
+      3 "A1"     "A2"             2            3            3          3
+      4 "A1"     "B2"             2            3            2          4
+      5 "B1"     "\u001d"         1            2          Inf          5
+      6 "B1"     "B2"             2            2            2          6
+      7 "B1"     "A2"             2            2            1          7
+
+---
+
+    Code
+      sw
+    Output
+      $df
+      # A tibble: 7 x 8
+        lvl1     lvl2     `\035lvl` `\035rank` GA           GB           GC          
+        <fct>    <fct>        <int>      <int> <list>       <list>       <list>      
+      1 "\u001d" "\u001d"         0          1 <named list> <named list> <named list>
+      2 "A1"     "\u001d"         1          2 <named list> <named list> <named list>
+      3 "A1"     "A2"             2          3 <named list> <named list> <named list>
+      4 "A1"     "B2"             2          4 <named list> <named list> <named list>
+      5 "B1"     "\u001d"         1          5 <named list> <named list> <named list>
+      6 "B1"     "B2"             2          6 <named list> <named list> <named list>
+      7 "B1"     "A2"             2          7 <named list> <named list> <named list>
+      # i 1 more variable: Total <list>
+      
+      $meta
+      $meta$hierarchy
+      [1] "lvl1" "lvl2"
+      
+      $meta$hier_lvl_col
+      [1] "\035lvl"
+      
+      $meta$group_var
+      [1] "group"
+      
+      $meta$total_group_val
+      [1] "Total"
+      
+      $meta$n_denominator
+         GA    GB    GC Total 
+          1     1     2     4 
+      
+      $meta$table_type
+      [1] "frequency"
+      
+      $meta$rank_col
+      [1] "\035rank"
       
       
 
-# filtering is correct, agains (snapshot)__spec_ids{hierarchical_count_table$minimum_percentage_filter}
+---
+
+    Code
+      total_ranking
+    Output
+      # A tibble: 7 x 5
+        lvl1     lvl2     `\035lvl` `\035rank` Total       
+        <fct>    <fct>        <int>      <int> <chr>       
+      1 "\u001d" "\u001d"         0          1 3 ( 75.00 %)
+      2 "A1"     "\u001d"         1          2 3 ( 75.00 %)
+      3 "A1"     "A2"             2          3 3 ( 75.00 %)
+      4 "A1"     "B2"             2          4 2 ( 50.00 %)
+      5 "B1"     "\u001d"         1          5 2 ( 50.00 %)
+      6 "B1"     "B2"             2          6 2 ( 50.00 %)
+      7 "B1"     "A2"             2          7 1 ( 25.00 %)
+
+---
+
+    Code
+      html
+    Output
+      <div>
+        <p>Event count by lvl1, lvl2</p>
+        <table class="table event-count">
+          <tr class="no-border">
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                
+                <br/>
+                
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                GA
+                <br/>
+                (N = 1)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                GB
+                <br/>
+                (N = 1)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                GC
+                <br/>
+                (N = 2)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                Total
+                <br/>
+                (N = 4)
+              </span>
+            </th>
+          </tr>
+          <tr row-id="1" class="indent-0" indent="0">
+            <td>
+              <span class="truncate" title="Subjects with any event">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                Subjects with any event
+              </span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">1 ( 50.00 %)</td>
+            <td class="text-center" column="Total">3 ( 75.00 %)</td>
+          </tr>
+          <tr row-id="2" class="indent-1" indent="1">
+            <td>
+              <span class="truncate" title="A1">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                A1
+              </span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">1 ( 50.00 %)</td>
+            <td class="text-center" column="Total">3 ( 75.00 %)</td>
+          </tr>
+          <tr row-id="3" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="A2">A2</span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">1 ( 50.00 %)</td>
+            <td class="text-center" column="Total">3 ( 75.00 %)</td>
+          </tr>
+          <tr row-id="4" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="B2">B2</span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="Total">2 ( 50.00 %)</td>
+          </tr>
+          <tr row-id="5" class="indent-1" indent="1">
+            <td>
+              <span class="truncate" title="B1">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                B1
+              </span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="Total">2 ( 50.00 %)</td>
+          </tr>
+          <tr row-id="6" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="B2">B2</span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="Total">2 ( 50.00 %)</td>
+          </tr>
+          <tr row-id="7" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="A2">A2</span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">—</td>
+            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="Total">1 ( 25.00 %)</td>
+          </tr>
+        </table>
+      </div>
+
+# filtering is correct, against (snapshot)__spec_ids{hierarchical_count_table$minimum_percentage_filter}
 
     Code
       w
@@ -136,65 +272,6 @@
       
       $meta$table_type
       [1] "frequency"
-      
-      $meta$analysis_df
-         subj group             PARAM  PARAMCD CNSR \035lvl lvl1 lvl2
-      1     1    GA L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      2     2    GB L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      3     3    GC L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      4     4    GC L0: Time to Event L0_EVENT    1       0 <NA> <NA>
-      5     1    GA L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      6     1    GA L1: Time to Event L1_EVENT    0       1   B1 <NA>
-      7     2    GB L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      8     2    GB L1: Time to Event L1_EVENT    0       1   B1 <NA>
-      9     3    GC L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      10    3    GC L1: Time to Event L1_EVENT    1       1   B1 <NA>
-      11    4    GC L1: Time to Event L1_EVENT    1       1   A1 <NA>
-      12    4    GC L1: Time to Event L1_EVENT    1       1   B1 <NA>
-      13    1    GA L2: Time to Event L2_EVENT    0       2   A1   A2
-      14    1    GA L2: Time to Event L2_EVENT    0       2   A1   B2
-      15    1    GA L2: Time to Event L2_EVENT    0       2   B1   A2
-      16    1    GA L2: Time to Event L2_EVENT    0       2   B1   B2
-      17    2    GB L2: Time to Event L2_EVENT    0       2   A1   A2
-      18    2    GB L2: Time to Event L2_EVENT    0       2   A1   B2
-      19    2    GB L2: Time to Event L2_EVENT    1       2   B1   A2
-      20    2    GB L2: Time to Event L2_EVENT    0       2   B1   B2
-      21    3    GC L2: Time to Event L2_EVENT    0       2   A1   A2
-      22    3    GC L2: Time to Event L2_EVENT    1       2   A1   B2
-      23    3    GC L2: Time to Event L2_EVENT    1       2   B1   A2
-      24    3    GC L2: Time to Event L2_EVENT    1       2   B1   B2
-      25    4    GC L2: Time to Event L2_EVENT    1       2   A1   A2
-      26    4    GC L2: Time to Event L2_EVENT    1       2   A1   B2
-      27    4    GC L2: Time to Event L2_EVENT    1       2   B1   A2
-      28    4    GC L2: Time to Event L2_EVENT    1       2   B1   B2
-      29    1 Total L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      30    2 Total L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      31    3 Total L0: Time to Event L0_EVENT    0       0 <NA> <NA>
-      32    4 Total L0: Time to Event L0_EVENT    1       0 <NA> <NA>
-      33    1 Total L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      34    1 Total L1: Time to Event L1_EVENT    0       1   B1 <NA>
-      35    2 Total L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      36    2 Total L1: Time to Event L1_EVENT    0       1   B1 <NA>
-      37    3 Total L1: Time to Event L1_EVENT    0       1   A1 <NA>
-      38    3 Total L1: Time to Event L1_EVENT    1       1   B1 <NA>
-      39    4 Total L1: Time to Event L1_EVENT    1       1   A1 <NA>
-      40    4 Total L1: Time to Event L1_EVENT    1       1   B1 <NA>
-      41    1 Total L2: Time to Event L2_EVENT    0       2   A1   A2
-      42    1 Total L2: Time to Event L2_EVENT    0       2   A1   B2
-      43    1 Total L2: Time to Event L2_EVENT    0       2   B1   A2
-      44    1 Total L2: Time to Event L2_EVENT    0       2   B1   B2
-      45    2 Total L2: Time to Event L2_EVENT    0       2   A1   A2
-      46    2 Total L2: Time to Event L2_EVENT    0       2   A1   B2
-      47    2 Total L2: Time to Event L2_EVENT    1       2   B1   A2
-      48    2 Total L2: Time to Event L2_EVENT    0       2   B1   B2
-      49    3 Total L2: Time to Event L2_EVENT    0       2   A1   A2
-      50    3 Total L2: Time to Event L2_EVENT    1       2   A1   B2
-      51    3 Total L2: Time to Event L2_EVENT    1       2   B1   A2
-      52    3 Total L2: Time to Event L2_EVENT    1       2   B1   B2
-      53    4 Total L2: Time to Event L2_EVENT    1       2   A1   A2
-      54    4 Total L2: Time to Event L2_EVENT    1       2   A1   B2
-      55    4 Total L2: Time to Event L2_EVENT    1       2   B1   A2
-      56    4 Total L2: Time to Event L2_EVENT    1       2   B1   B2
       
       
 

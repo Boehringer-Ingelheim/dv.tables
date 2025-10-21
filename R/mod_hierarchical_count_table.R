@@ -427,8 +427,7 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
       group_var = group_var,
       total_group_val = total_group_val,
       n_denominator = n_denominator,
-      table_type = table_type,
-      analysis_df = adtte
+      table_type = table_type
     )
   )
 
@@ -461,14 +460,17 @@ compute_order_events_table <- function(d) {
 
   # Sum the number of events for values in each hierarchy level
   for (hierarchy_level in seq_along(hierarchy)) {
+    # Group by all hierarchy levels up to this one
+    group_cols <- hierarchy[1:hierarchy_level]
+
     across_group_counts <- results_df |>
       dplyr::filter(.data[[group_var]] %in% order_groups,
                     .data[[hier_lvl_col]] == hierarchy_level) |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(c(hierarchy[hierarchy_level])))) |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) |>
       dplyr::summarise(!!paste0(count_col_prefix, hierarchy_level) := sum(.data[["n"]]), .groups = "drop")
 
     hierarchy_grid <- hierarchy_grid |>
-      dplyr::left_join(across_group_counts, by = c(hierarchy[hierarchy_level]))
+      dplyr::left_join(across_group_counts, by = group_cols)
   }
 
   # Convert NA to Inf as these summary levels should have the highest value for descending order
@@ -671,7 +673,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 
     subheader_row <- tr(
       thc(entry_subheader),
-      purrr::map(data_subheaders, ~ thc(span(.x)))
+      purrr::map(data_subheaders, ~ thc(shiny::span(.x)))
     )
   } else {
     subheader_row <- NULL
