@@ -277,16 +277,16 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
 
     # NOTE!! Partial dates end up as NA!
     pop_df2[[".origin_dt"]] <- as.Date(pop_df2[[origin_date_var]])
-    # if (any(is.na(pop_df2[[".origin_dt"]]) & !is.na(pop_df2[[origin_date_var]])))
-    #   message("Partial origin dates failed to convert to date format!")
+    if (any(is.na(pop_df2[[".origin_dt"]]) & !is.na(pop_df2[[origin_date_var]])))
+      log_inform("Partial origin dates failed to convert to date format!", level = "inform")
   }
 
   if (has_censor_dt) {
 
     # NOTE!! Partial dates end up as NA!
     pop_df2[[".censor_dt"]] <- as.Date(pop_df2[[censor_date_var]])
-    # if (any(is.na(pop_df2[[".censor_dt"]]) & !is.na(pop_df2[[censor_date_var]])))
-    #   message("Partial censor dates failed to convert to date format!")
+    if (any(is.na(pop_df2[[".censor_dt"]]) & !is.na(pop_df2[[censor_date_var]])))
+      log_inform("Partial censor dates failed to convert to date format!", level = "inform")
   }
 
   # Prepare event data ----
@@ -297,8 +297,8 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
 
     # NOTE!! Partial dates end up as NA!
     event_df2[[".event_dt"]] <- as.Date(event_df2[[event_date_var]])
-    # if (any(is.na(event_df2[[".event_dt"]]) & !is.na(event_df2[[event_date_var]])))
-    #   message("Partial event dates failed to convert to date format!")
+    if (any(is.na(event_df2[[".event_dt"]]) & !is.na(event_df2[[event_date_var]])))
+      log_inform("Partial event dates failed to convert to date format!", level = "inform")
 
     # Remove rows with missing event dates
     event_df2 <- event_df2[!is.na(event_df2[[".event_dt"]]), ]
@@ -347,8 +347,8 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
     invalid_rows <- which(is.na(adtte[["AVAL"]]))
     if (length(invalid_rows) > 0) {
       invalid_subjects <- unique(adtte[[subjid_var]][invalid_rows])
-      # message("Time at risk could not be determined for the following subjects: ",
-      #         paste(shQuote(invalid_subjects, type = "cmd"), collapse = ", "))
+      log_inform(paste("Time at risk could not be determined for the following subjects:",
+                       paste(shQuote(invalid_subjects, type = "cmd"), collapse = ", ")), level = "inform")
       adtte <- adtte[-invalid_rows, ]
     }
   }
