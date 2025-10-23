@@ -32,7 +32,8 @@ EC <- poc( # nolint
     EVENT_DATE = "Events with missing or partial dates will be dropped",
     ORIGIN_DATE = "Events occurring before origin date will be dropped",
     CENSOR_DATE = "Events occurring after censor date will be dropped",
-    RISK_FLAG = "Event date, origin date and censor date must be provided"
+    RISK_FLAG = paste("Event date, origin date and censor date must be provided; data with",
+                      "missing or partial dates will be excluded from time at risk analysis.", sep = "\n")
   ),
   WARN = poc(
     REQ_TIME_AT_RISK = "Required for Time at Risk"
@@ -111,7 +112,7 @@ create_adtte <- function(event_df,
   has_censor_dt <- censor_date_var %in% names(pop_df)
   has_event_dt <- event_date_var %in% names(event_df)
 
-  # Remove rows where hierarchy value is NA across all processed hierarchy columns
+  # Remove rows where hierarchy value is NA in any processed hierarchy columns
   event_df <- event_df |>
     dplyr::filter(dplyr::if_all(dplyr::all_of(hierarchy), ~ !is.na(.x)))
 
@@ -276,16 +277,16 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
 
     # NOTE!! Partial dates end up as NA!
     pop_df2[[".origin_dt"]] <- as.Date(pop_df2[[origin_date_var]])
-    if (any(is.na(pop_df2[[".origin_dt"]]) & !is.na(pop_df2[[origin_date_var]])))
-      message("Partial origin dates failed to convert to date format!")
+    # if (any(is.na(pop_df2[[".origin_dt"]]) & !is.na(pop_df2[[origin_date_var]])))
+    #   message("Partial origin dates failed to convert to date format!")
   }
 
   if (has_censor_dt) {
 
     # NOTE!! Partial dates end up as NA!
     pop_df2[[".censor_dt"]] <- as.Date(pop_df2[[censor_date_var]])
-    if (any(is.na(pop_df2[[".censor_dt"]]) & !is.na(pop_df2[[censor_date_var]])))
-      message("Partial censor dates failed to convert to date format!")
+    # if (any(is.na(pop_df2[[".censor_dt"]]) & !is.na(pop_df2[[censor_date_var]])))
+    #   message("Partial censor dates failed to convert to date format!")
   }
 
   # Prepare event data ----
@@ -296,8 +297,8 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
 
     # NOTE!! Partial dates end up as NA!
     event_df2[[".event_dt"]] <- as.Date(event_df2[[event_date_var]])
-    if (any(is.na(event_df2[[".event_dt"]]) & !is.na(event_df2[[event_date_var]])))
-      message("Partial event dates failed to convert to date format!")
+    # if (any(is.na(event_df2[[".event_dt"]]) & !is.na(event_df2[[event_date_var]])))
+    #   message("Partial event dates failed to convert to date format!")
 
     # Remove rows with missing event dates
     event_df2 <- event_df2[!is.na(event_df2[[".event_dt"]]), ]
@@ -342,12 +343,12 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
                         event_date_var = ".event_dt")
 
   # Drop rows where time at risk could not be determined
-  if ("AVAL" %in% names(adtte)) {
+  if (risk) {
     invalid_rows <- which(is.na(adtte[["AVAL"]]))
     if (length(invalid_rows) > 0) {
       invalid_subjects <- unique(adtte[[subjid_var]][invalid_rows])
-      message("Time at risk could not be determined for the following subjects: ",
-              paste(shQuote(invalid_subjects, type = "cmd"), collapse = ", "))
+      # message("Time at risk could not be determined for the following subjects: ",
+      #         paste(shQuote(invalid_subjects, type = "cmd"), collapse = ", "))
       adtte <- adtte[-invalid_rows, ]
     }
   }
@@ -410,6 +411,7 @@ compute_events_table <- function(event_df = pharmaverseadam::adae, # No assignme
   n_denominator <- calc_stats[calc_stats[[hier_lvl_col]] == 0, ][["N"]]
   names(n_denominator) <- calc_stats[calc_stats[[hier_lvl_col]] == 0, group_var, drop = TRUE]
 
+  # Ensure all groups from the population data are included
   all_denoms <- union(levels(pop_df2[[group_var]]), names(n_denominator))
   n_denominator <- stats::setNames(sapply(all_denoms,
                                           function(x) {
@@ -762,9 +764,28 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' and minimum percentage for event counting.
 #' @export
 hierarchical_count_table_ui <- function(id,
+                                        show_time_at_risk_options = FALSE,
                                         default_total = TRUE,
                                         default_risk = FALSE) {
   ns <- shiny::NS(id)
+
+  if (show_time_at_risk_options) {
+    time_at_risk_options <- shiny::div(
+      shiny::tags$hr(),
+      col_menu_UI(id = ns(EC$ID$EVENT_DATE)),
+      col_menu_UI(id = ns(EC$ID$ORIGIN_DATE)),
+      col_menu_UI(id = ns(EC$ID$CENSOR_DATE)),
+      shiny::tags$hr(),
+      shiny::checkboxInput(ns(EC$ID$RISK_FLAG),
+                           label = shiny::span(EC$LBL$RISK_FLAG,
+                                               shiny::icon("circle-info",
+                                                           title = EC$INFO$RISK_FLAG)),
+                           value = default_risk)
+    )
+  } else {
+    time_at_risk_options <- NULL
+  }
+
   shiny::div(
     class = "hier_count_table",
     shiny::tagList(
@@ -777,16 +798,7 @@ hierarchical_count_table_ui <- function(id,
                                        label = EC$LBL$MIN_PERCENT,
                                        value = 0, min = 0, max = 100),
                    shiny::checkboxInput(ns(EC$ID$TOTAL_FLAG), label = EC$LBL$TOTAL_FLAG, value = default_total),
-                   shiny::tags$hr(),
-                   col_menu_UI(id = ns(EC$ID$EVENT_DATE)),
-                   col_menu_UI(id = ns(EC$ID$ORIGIN_DATE)),
-                   col_menu_UI(id = ns(EC$ID$CENSOR_DATE)),
-                   shiny::tags$hr(),
-                   shiny::checkboxInput(ns(EC$ID$RISK_FLAG),
-                                        label = shiny::span(EC$LBL$RISK_FLAG,
-                                                            shiny::icon("circle-info",
-                                                                        title = EC$INFO$RISK_FLAG)),
-                                        value = default_risk)
+                   time_at_risk_options
                  )),
       shiny::div(style = "display: inline-block;",
                  mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD)))
@@ -810,12 +822,14 @@ hierarchical_count_table_ui <- function(id,
 #' @param subjid_var `character(1)`
 #' A string representing the subject identifier column in both datasets.
 #'
-#' @param on_sbj_click_fun 'function()'
-#'
-#' Function to invoke when a subject is clicked
+#' @param show_time_at_risk_options `logical(1)`
+#' A flag to indicate whether to show the time at risk related user selections.
 #'
 #' @param show_modal_on_click `logical(1)`
 #' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
+#'
+#' @param on_sbj_click_fun 'function()'
+#' Function to invoke when a subject is clicked
 #'
 #' @param default_hierarchy `character(1|2)|NULL`
 #' A default value for the hierarchy variables (optional).
@@ -861,6 +875,7 @@ hierarchical_count_table_server <- function(
   table_dataset,
   pop_dataset,
   subjid_var,
+  show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
   on_sbj_click_fun = function() NULL,
   default_hierarchy = NULL,
@@ -921,82 +936,85 @@ hierarchical_count_table_server <- function(
       }, error = function(e) FALSE)
     }
 
-    inputs[[EC$ID$EVENT_DATE]] <- col_menu_server(
-      id = EC$ID$EVENT_DATE, data = table_dataset,
-      label = shiny::uiOutput(ns(EC$ID$EVENT_DATE_LBL)),
-      include_func = function(var, var_name) {
-        can_be_date(var) &&
-          (is.null(event_date_choices) || var_name %in% event_date_choices)
-      },
-      default = default_event_date,
-      include_none = FALSE
-    )
-
-    inputs[[EC$ID$ORIGIN_DATE]] <- col_menu_server(
-      id = EC$ID$ORIGIN_DATE, data = pop_dataset,
-      label = shiny::uiOutput(ns(EC$ID$ORIGIN_DATE_LBL)),
-      include_func = function(var, var_name) {
-        can_be_date(var) &&
-          (is.null(origin_date_choices) || var_name %in% origin_date_choices)
-      },
-      default = default_origin_date,
-      include_none = FALSE
-    )
-
-    inputs[[EC$ID$CENSOR_DATE]] <- col_menu_server(
-      id = EC$ID$CENSOR_DATE, data = pop_dataset,
-      label = shiny::uiOutput(ns(EC$ID$CENSOR_DATE_LBL)),
-      include_func = function(var, var_name) {
-        can_be_date(var) &&
-          (is.null(censor_date_choices) || var_name %in% censor_date_choices)
-      },
-      default = default_censor_date,
-      include_none = FALSE
-    )
-
-    # Build span label for date column input with warning and info icons
-    date_label_span <- function(flag, date, label_text, label_info) {
-      date_empty <- is.null(date) || length(date) == 0
-
-      shiny::span(
-        if (isTRUE(flag) && date_empty) {
-          shiny::icon("triangle-exclamation",
-                      title = EC$WARN$REQ_TIME_AT_RISK,
-                      style = "color: orange; margin-right: 5px;")
+    if (show_time_at_risk_options) {
+      inputs[[EC$ID$EVENT_DATE]] <- col_menu_server(
+        id = EC$ID$EVENT_DATE, data = table_dataset,
+        label = shiny::uiOutput(ns(EC$ID$EVENT_DATE_LBL)),
+        include_func = function(var, var_name) {
+          can_be_date(var) &&
+            (is.null(event_date_choices) || var_name %in% event_date_choices)
         },
-        label_text,
-        shiny::icon("circle-info",
-                    title = label_info)
+        default = default_event_date,
+        include_none = FALSE
       )
+
+      inputs[[EC$ID$ORIGIN_DATE]] <- col_menu_server(
+        id = EC$ID$ORIGIN_DATE, data = pop_dataset,
+        label = shiny::uiOutput(ns(EC$ID$ORIGIN_DATE_LBL)),
+        include_func = function(var, var_name) {
+          can_be_date(var) &&
+            (is.null(origin_date_choices) || var_name %in% origin_date_choices)
+        },
+        default = default_origin_date,
+        include_none = FALSE
+      )
+
+      inputs[[EC$ID$CENSOR_DATE]] <- col_menu_server(
+        id = EC$ID$CENSOR_DATE, data = pop_dataset,
+        label = shiny::uiOutput(ns(EC$ID$CENSOR_DATE_LBL)),
+        include_func = function(var, var_name) {
+          can_be_date(var) &&
+            (is.null(censor_date_choices) || var_name %in% censor_date_choices)
+        },
+        default = default_censor_date,
+        include_none = FALSE
+      )
+
+      # Build span label for date column input with warning and info icons
+      date_label_span <- function(flag, date, label_text, label_info) {
+        date_empty <- is.null(date) || length(date) == 0
+
+        shiny::span(
+          if (isTRUE(flag) && date_empty) {
+            shiny::icon("triangle-exclamation",
+                        title = EC$WARN$REQ_TIME_AT_RISK,
+                        style = "color: orange; margin-right: 5px;")
+          },
+          label_text,
+          shiny::icon("circle-info",
+                      title = label_info)
+        )
+      }
+
+      # Apply event date span label
+      output[[EC$ID$EVENT_DATE_LBL]] <- shiny::renderUI({
+        date_label_span(flag = input[[EC$ID$RISK_FLAG]],
+                        date = inputs[[EC$ID$EVENT_DATE]](),
+                        label_text = EC$LBL$EVENT_DATE,
+                        label_info = EC$INFO$EVENT_DATE)
+      })
+
+      # Apply origin date span label
+      output[[EC$ID$ORIGIN_DATE_LBL]] <- shiny::renderUI({
+        date_label_span(flag = input[[EC$ID$RISK_FLAG]],
+                        date = inputs[[EC$ID$ORIGIN_DATE]](),
+                        label_text = EC$LBL$ORIGIN_DATE,
+                        label_info = EC$INFO$ORIGIN_DATE)
+      })
+
+      # Apply censor date span label
+      output[[EC$ID$CENSOR_DATE_LBL]] <- shiny::renderUI({
+        date_label_span(flag = input[[EC$ID$RISK_FLAG]],
+                        date = inputs[[EC$ID$CENSOR_DATE]](),
+                        label_text = EC$LBL$CENSOR_DATE,
+                        label_info = EC$INFO$CENSOR_DATE)
+      })
+
+      inputs[[EC$ID$RISK_FLAG]] <- shiny::reactive({
+        input[[EC$ID$RISK_FLAG]]
+      })
+
     }
-
-    # Apply event date span label
-    output[[EC$ID$EVENT_DATE_LBL]] <- shiny::renderUI({
-      date_label_span(flag = input[[EC$ID$RISK_FLAG]],
-                      date = inputs[[EC$ID$EVENT_DATE]](),
-                      label_text = EC$LBL$EVENT_DATE,
-                      label_info = EC$INFO$EVENT_DATE)
-    })
-
-    # Apply origin date span label
-    output[[EC$ID$ORIGIN_DATE_LBL]] <- shiny::renderUI({
-      date_label_span(flag = input[[EC$ID$RISK_FLAG]],
-                      date = inputs[[EC$ID$ORIGIN_DATE]](),
-                      label_text = EC$LBL$ORIGIN_DATE,
-                      label_info = EC$INFO$ORIGIN_DATE)
-    })
-
-    # Apply censor date span label
-    output[[EC$ID$CENSOR_DATE_LBL]] <- shiny::renderUI({
-      date_label_span(flag = input[[EC$ID$RISK_FLAG]],
-                      date = inputs[[EC$ID$CENSOR_DATE]](),
-                      label_text = EC$LBL$CENSOR_DATE,
-                      label_info = EC$INFO$CENSOR_DATE)
-    })
-
-    inputs[[EC$ID$RISK_FLAG]] <- shiny::reactive({
-      input[[EC$ID$RISK_FLAG]]
-    })
 
     et <- shiny::reactive({
       d <- table_dataset()
@@ -1005,10 +1023,18 @@ hierarchical_count_table_server <- function(
       hierarchy <- inputs[[EC$ID$HIERARCHY]]()
       min_percent <- inputs[[EC$ID$MIN_PERCENT]]()
       total <- inputs[[EC$ID$TOTAL_FLAG]]()
-      event_date_var <- inputs[[EC$ID$EVENT_DATE]]()
-      origin_date_var <- inputs[[EC$ID$ORIGIN_DATE]]()
-      censor_date_var <- inputs[[EC$ID$CENSOR_DATE]]()
-      risk <- inputs[[EC$ID$RISK_FLAG]]()
+
+      if (show_time_at_risk_options) {
+        event_date_var <- inputs[[EC$ID$EVENT_DATE]]()
+        origin_date_var <- inputs[[EC$ID$ORIGIN_DATE]]()
+        censor_date_var <- inputs[[EC$ID$CENSOR_DATE]]()
+        risk <- inputs[[EC$ID$RISK_FLAG]]()
+      } else {
+        event_date_var <- NULL
+        origin_date_var <- NULL
+        censor_date_var <- NULL
+        risk <- FALSE
+      }
 
       shiny::validate(
         shiny::need(
@@ -1040,9 +1066,6 @@ hierarchical_count_table_server <- function(
       # Associate labels attribute to hierarchy column names
       hierarchy_labels <- get_lbls_robust(d)[hierarchy]
       attr(hierarchy, "labels") <- unlist(hierarchy_labels)
-
-      events_table_raw <- compute_events_table(d, pd, hierarchy, group_var, subjid_var)
-      sorted_events_table <- compute_order_events_table(events_table_raw)
 
       events_table_raw <- compute_events_table(event_df = d,
                                                pop_df = pd,
@@ -1158,6 +1181,7 @@ mod_hierarchical_count_table <- function(module_id,
                                          table_dataset_name,
                                          pop_dataset_name,
                                          subjid_var = "USUBJID",
+                                         show_time_at_risk_options = FALSE,
                                          show_modal_on_click = TRUE,
                                          default_hierarchy = NULL,
                                          default_group = NULL,
@@ -1176,6 +1200,7 @@ mod_hierarchical_count_table <- function(module_id,
   mod <- list(
     ui = function(module_id) {
       hierarchical_count_table_ui(id = module_id,
+                                  show_time_at_risk_options = show_time_at_risk_options,
                                   default_total = default_total,
                                   default_risk = default_risk)
     },
@@ -1193,6 +1218,7 @@ mod_hierarchical_count_table <- function(module_id,
         table_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[table_dataset_name]]),
         pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
         subjid_var = subjid_var,
+        show_time_at_risk_options = show_time_at_risk_options,
         show_modal_on_click = show_modal_on_click,
         on_sbj_click_fun = on_sbj_click_fun,
         default_hierarchy = default_hierarchy,
@@ -1221,6 +1247,7 @@ mod_hierarchical_count_table_API_docs <- list(
   table_dataset_name = "",
   pop_dataset_name = "",
   subjid_var = "",
+  show_time_at_risk_options = "",
   show_modal_on_click = "",
   default_hierarchy = "",
   default_group = "",
@@ -1243,6 +1270,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   table_dataset_name = TC$dataset_name(),
   pop_dataset_name = TC$dataset_name(),
   subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
+  show_time_at_risk_options = TC$logical(),
   show_modal_on_click = TC$logical(),
   default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("zero_or_more", "optional"),
@@ -1265,10 +1293,10 @@ mod_hierarchical_count_table_API_spec <- TC$group(
 
 
 check_mod_hierarchical_count_table <- function(
-    afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
-    default_hierarchy, default_group, default_total, default_event_date, default_origin_date, default_censor_date,
-    default_risk, hierarchy_choices, group_choices, event_date_choices, origin_date_choices, censor_date_choices,
-    intended_use_label, receiver_id) {
+    afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_time_at_risk_options,
+    show_modal_on_click, default_hierarchy, default_group, default_total, default_event_date, default_origin_date,
+    default_censor_date, default_risk, hierarchy_choices, group_choices, event_date_choices, origin_date_choices,
+    censor_date_choices, intended_use_label, receiver_id) {
   warn <- CM$container()
   err <- CM$container()
 
@@ -1277,7 +1305,7 @@ check_mod_hierarchical_count_table <- function(
 
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
-    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
+    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_time_at_risk_options, show_modal_on_click,
     default_hierarchy, default_group, default_total, default_event_date, default_origin_date, default_censor_date,
     default_risk, hierarchy_choices, group_choices, event_date_choices, origin_date_choices, censor_date_choices,
     intended_use_label, receiver_id,
@@ -1392,13 +1420,14 @@ mock_app_hierarchical_count_table_mm <- function() {
         "hierarchical_count_table",
         table_dataset_name = "adae",
         pop_dataset_name = "adsl",
+        show_time_at_risk_options = TRUE,
         show_modal_on_click = TRUE,
         default_hierarchy = c("AEBODSYS", "AEDECOD"),
         default_group = "TRT01P",
         default_event_date = "AESTDTC",
         default_origin_date = "RFSTDTC",
         default_censor_date = "RFENDTC",
-        default_total = FALSE,
+        default_total = TRUE,
         default_risk = FALSE
       )
     ),

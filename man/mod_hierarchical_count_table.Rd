@@ -6,13 +6,19 @@
 \alias{mod_hierarchical_count_table}
 \title{Invoke hierarchical_count_table module}
 \usage{
-hierarchical_count_table_ui(id, default_total = TRUE, default_risk = FALSE)
+hierarchical_count_table_ui(
+  id,
+  show_time_at_risk_options = FALSE,
+  default_total = TRUE,
+  default_risk = FALSE
+)
 
 hierarchical_count_table_server(
   id,
   table_dataset,
   pop_dataset,
   subjid_var,
+  show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
   on_sbj_click_fun = function() NULL,
   default_hierarchy = NULL,
@@ -33,6 +39,7 @@ mod_hierarchical_count_table(
   table_dataset_name,
   pop_dataset_name,
   subjid_var = "USUBJID",
+  show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
   default_hierarchy = NULL,
   default_group = NULL,
@@ -55,6 +62,9 @@ mod_hierarchical_count_table(
 \item{id}{\code{character(0)}
 The ID for the event count module instance.}
 
+\item{show_time_at_risk_options}{\code{logical(1)}
+A flag to indicate whether to show the time at risk related user selections.}
+
 \item{default_total}{\code{logical(1)}
 A default value for whether to add a total group column.}
 
@@ -74,7 +84,6 @@ A string representing the subject identifier column in both datasets.}
 A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.}
 
 \item{on_sbj_click_fun}{'function()'
-
 Function to invoke when a subject is clicked}
 
 \item{default_hierarchy}{\code{character(1|2)|NULL}
