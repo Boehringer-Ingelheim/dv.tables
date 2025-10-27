@@ -39,6 +39,9 @@
       $meta$table_type
       [1] "frequency"
       
+      $meta$warning_message
+      NULL
+      
       
 
 ---
@@ -94,6 +97,9 @@
       
       $meta$table_type
       [1] "frequency"
+      
+      $meta$warning_message
+      NULL
       
       $meta$rank_col
       [1] "\035rank"
@@ -272,6 +278,9 @@
       
       $meta$table_type
       [1] "frequency"
+      
+      $meta$warning_message
+      NULL
       
       
 

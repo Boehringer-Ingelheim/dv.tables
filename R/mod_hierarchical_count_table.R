@@ -173,8 +173,7 @@ create_adtte <- function(event_df,
 
     # Add hierarchy level to data
     hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
-    adtte <- adtte |>
-      dplyr::mutate(!!hier_lvl_col := hierarchy_level)
+    adtte[[hier_lvl_col]] <- hierarchy_level
 
     bind_adtte <- dplyr::bind_rows(bind_adtte, adtte)
   }
