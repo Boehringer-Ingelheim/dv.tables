@@ -1094,28 +1094,28 @@ hierarchical_count_table_server <- function(
         col <- input[["cell_click"]][["column"]]
         subj_ids <- et()[["df"]][[col]][[row]][["subjid"]]
 
-        # If no subjects defined in the cell then do nothing
-        if (length(subj_ids) == 0) return()
+        # Only run when subjects defined in the cell
+        if (length(subj_ids) > 0) {
+          id_elements <- vector(mode = "list", length = (length(subj_ids) * 2) - 1)
+          for (idx in seq_along(subj_ids)) {
+            link_idx <- (idx * 2) - 1
+            comma_idx <- link_idx + 1
+            id_elements[[link_idx]] <- shiny::a(subj_ids[[idx]], "data-id" = subj_ids[[idx]])
+            if (idx < length(subj_ids)) id_elements[[comma_idx]] <- ","
+          }
 
-        id_elements <- vector(mode = "list", length = (length(subj_ids) * 2) - 1)
-        for (idx in seq_along(subj_ids)) {
-          link_idx <- (idx * 2) - 1
-          comma_idx <- link_idx + 1
-          id_elements[[link_idx]] <- shiny::a(subj_ids[[idx]], "data-id" = subj_ids[[idx]])
-          if (idx < length(subj_ids)) id_elements[[comma_idx]] <- ","
-        }
+          input_id <- ns("clicked_sbj")
 
-        input_id <- ns("clicked_sbj")
-
-        d <- shiny::modalDialog(
-          shiny::div(
-            id = ns("sbj_list"),
-            shiny::h3("Subjects"),
-            do.call(shiny::p, id_elements),
-            onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
+          d <- shiny::modalDialog(
+            shiny::div(
+              id = ns("sbj_list"),
+              shiny::h3("Subjects"),
+              do.call(shiny::p, id_elements),
+              onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
+            )
           )
-        )
-        shiny::showModal(d)
+          shiny::showModal(d)
+        }
       })
     }
 
