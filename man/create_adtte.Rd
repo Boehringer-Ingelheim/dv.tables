@@ -14,8 +14,7 @@ create_adtte(
   censor_date_var,
   event_date_var,
   param_val = "Time to Event",
-  paramcd_val = "EVENT",
-  recurse = TRUE
+  paramcd_val = "EVENT"
 )
 }
 \arguments{
@@ -52,9 +51,6 @@ with \code{L# } where \verb{#} is \code{0} for the top level, \code{1} for the n
 \item{paramcd_val}{\code{character(1)}
 A string representing the value to assign to \code{PARAMCD} column. When \code{recurse} is \code{TRUE} hierarchy level is prepended
 with \code{L#_} where \verb{#} is \code{0} for the top level, \code{1} for the next level, and so on.}
-
-\item{recurse}{\code{logical(1)}
-A logical indicating whether to prepend data from calling the function again for higher hierarchy levels.}
 }
 \value{
 A data frame in the form of an ADaM ADTTE, with the addition of hierarchy columns and hierarchy level.

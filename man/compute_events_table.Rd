@@ -5,17 +5,17 @@
 \title{Computes an event table with subject counts and percentages}
 \usage{
 compute_events_table(
-  event_df = pharmaverseadam::adae,
-  pop_df = pharmaverseadam::adsl,
-  hierarchy = c("AEBODSYS", "AEDECOD"),
-  group_var = "TRT01P",
-  subjid_var = "USUBJID",
+  event_df,
+  pop_df,
+  hierarchy = NULL,
+  group_var = NULL,
+  subjid_var = NULL,
   origin_date_var = NULL,
   censor_date_var = NULL,
   event_date_var = NULL,
   total = TRUE,
   total_group_val = "Total",
-  risk = FALSE
+  compute_risk = FALSE
 )
 }
 \arguments{
@@ -52,7 +52,7 @@ A logical indicating whether to add a total group column.}
 \item{total_group_val}{\code{character(0|1)}
 A string representing the value to assign to the \code{group_var} column for totals.}
 
-\item{risk}{\code{logical(1)}
+\item{compute_risk}{\code{logical(1)}
 A logical indicating whether to calculate time at risk and incidence rate.}
 }
 \value{
