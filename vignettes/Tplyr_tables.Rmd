@@ -39,7 +39,7 @@ creator should specify the values for these arguments as applicable.
   For summary tables:
     - `tplyr_tab_fun` A function that takes one or more datasets as input and returns a `tplyr_table` object.
     - `build_fun` A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).  
-    *Note:  The metadata argument of `Tplyr::build()` needs to be set to `TURE`, so that the corresponding listing can be shown.*  
+    *Note:  The metadata argument of `Tplyr::build()` needs to be set to `TRUE`, so that the corresponding listing can be shown.*  
     
   For standalone listings:
     - `dataset_names` A character vector of dataset names required to generate the listing.
@@ -224,4 +224,38 @@ dv.manager::run_app(
   enable_dataset_filter = TRUE
 )
 ```
+
+
+\textcolor{red}{**(Important) Preserving All Levels in tplyr_table Outputs**}
+
+In `mod_tplyr_table` function, grouping variable levels with no data may be omitted as unused factor levels are dropped by default. To ensure all levels appear in the output, even those with zero counts, explicitly define the levels of the grouping variable as factors.
+
+Here’s an example where we ensure all levels of the `ARM` variable (including an "empty level") are retained in the table:
+
+```{r, eval=FALSE}
+
+# Create table function
+my_tplyr_fun <- function(dm) {
+  dm <- dm |>
+    # to preserve all levels
+    dplyr::mutate(
+      ARM = factor(ARM, levels = c("Placebo", "Xanomeline High Dose", 
+                                   "Xanomeline Low Dose", "Screen Failure", 
+                                   "empty level"))
+    )
+  
+  tab <- Tplyr::tplyr_table(dm, ARM) |>
+    Tplyr::add_layer(Tplyr::group_desc(AGE, by = "Age (years)")) |>
+    Tplyr::add_layer(Tplyr::group_count(SEX, by = "Sex")) |>
+    Tplyr::add_layer(Tplyr::group_count(RACE, by = "Race"))
+  return(tab)
+}
+
+# Building the table
+build_func <- function(tab) {
+  Tplyr::build(tab, metadata = TRUE)
+}
+
+```
+
 
