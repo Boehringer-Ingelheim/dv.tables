@@ -252,8 +252,7 @@ compute_events_table <- function(event_df,
   checkmate::assert_string(subjid_var, min.chars = 1)
 
   # Time at risk dates, if specified, must be on population and event data frames
-  checkmate::assert_names(names(pop_df), must.include = origin_date_var)
-  checkmate::assert_names(names(pop_df), must.include = censor_date_var)
+  checkmate::assert_names(names(pop_df), must.include = c(origin_date_var, censor_date_var))
   checkmate::assert_names(names(event_df), must.include = event_date_var)
 
   # If total group column requested then check that `total_group_val` is a string

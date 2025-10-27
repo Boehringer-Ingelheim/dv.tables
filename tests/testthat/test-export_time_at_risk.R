@@ -30,7 +30,7 @@ local({
     event_date_var = "evntdtc",
     total = FALSE,
     total_group_val = NULL,
-    risk = TRUE
+    compute_risk = TRUE
   )
 
   s <- compute_order_events_table(x)
