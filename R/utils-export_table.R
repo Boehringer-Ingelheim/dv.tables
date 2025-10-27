@@ -61,7 +61,7 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
                           c("count", "time_at_risk", "incidence_rate"))
 
   df_prep <- count_table[["df"]] |>
-    dplyr::select(dplyr::all_of(event_vars), group_names) |>
+    dplyr::select(dplyr::all_of(event_vars), dplyr::all_of(group_names)) |>
 
     # Subset on the statistical results in each cell list (dropping subjid)
     dplyr::mutate(dplyr::across(dplyr::all_of(group_names),
