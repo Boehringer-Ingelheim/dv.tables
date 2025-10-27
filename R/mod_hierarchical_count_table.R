@@ -295,7 +295,7 @@ compute_events_table <- function(event_df,
     subset_event_df <- subset_event_df |>
       dplyr::left_join(subset_pop_df[, c(subjid_var, origin_date_var)], by = subjid_var) |>
       dplyr::filter(.data[[event_date_var]] >= .data[[origin_date_var]]) |>
-      dplyr::select(-origin_date_var)
+      dplyr::select(-dplyr::all_of(origin_date_var))
   }
 
   # Remove events that occur after non-missing censor date
@@ -303,7 +303,7 @@ compute_events_table <- function(event_df,
     subset_event_df <- subset_event_df |>
       dplyr::left_join(subset_pop_df[, c(subjid_var, censor_date_var)], by = subjid_var) |>
       dplyr::filter(is.na(.data[[censor_date_var]]) | .data[[event_date_var]] <= .data[[censor_date_var]]) |>
-      dplyr::select(-censor_date_var)
+      dplyr::select(-dplyr::all_of(censor_date_var))
   }
 
   # Prepare subject level analysis data ----
