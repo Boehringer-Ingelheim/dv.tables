@@ -71,16 +71,16 @@ A drop-down "Options" menu provides the following inputs:
 The following inputs will also be available in the "Options" menu when the `show_time_at_risk_options` module argument
 is set to `TRUE`:
 
-- **Event Date**: An ISO 8601 formatted character date (e.g. `AESTDTC`) or "Date" class (e.g. `ASTDT`) from the table
-  events dataset. Events with missing or partial dates will be excluded from the analysis.
-- **Origin Date**: An ISO 8601 formatted character date (e.g. `RFXSTDTC`) or "Date" class (e.g. `TRTSDT`) from the
-  subject-level population dataset. Events occurring before origin date will be excluded from the analysis.
-- **Censor Date**: An ISO 8601 formatted character date (e.g. `RFXENDTC`) or "Date" class (e.g. `TRTEDT`) from the
-  subject-level population dataset. Events occurring after censor date will be excluded from the analysis.
+- **Event Date**: A "Date" class (e.g. `ASTDT`) from the table events dataset. Events with missing dates will be
+  excluded from the analysis.
+- **Origin Date**: A "Date" class (e.g. `RANDDT`) from the subject-level population dataset. Events occurring before
+  origin date will be excluded from the analysis.
+- **Censor Date**: A "Date" class (e.g. `EOSDT`) from the subject-level population dataset. Events occurring after
+  censor date will be excluded from the analysis.
 - **Time at Risk**: Checkbox that controls whether or not to display time at risk and incidence rate columns. If a
-  subject has a missing or partial origin or censor date, time at risk cannot be calculated and the subject will be
-  excluded from the population count. Note that even if the checkbox is unchecked, events will still be selected based
-  on event, origin and censor dates, but population count will not be affected.
+  subject has a missing origin or censor date, time at risk cannot be calculated and the subject will be excluded from
+  the population count. Note that even if the checkbox is unchecked, events will still be selected based on event,
+  origin and censor dates, but population count will not be affected.
 
 # Visualizations
 
