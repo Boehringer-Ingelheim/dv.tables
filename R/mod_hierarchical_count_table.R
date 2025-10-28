@@ -49,7 +49,10 @@ EC <- poc( # nolint
       ORIG_AFTER_CENSOR = "One or more origin dates are after non-missing censor date",
       EVENT_ORIG_CLASH = "Event date must not be the same as origin date",
       EVENT_CENSOR_CLASH = "Event date must not be the same as censor date",
-      ORIG_CENSOR_CLASH = "Origin date must not be the same as censor date"
+      ORIG_CENSOR_CLASH = "Origin date must not be the same as censor date",
+      NO_EVENT_DATE = "No event date selected",
+      NO_ORIGIN_DATE = "No origin date selected",
+      NO_CENSOR_DATE = "No censor date selected"
     )
   ),
   VAL = poc(
@@ -340,7 +343,7 @@ compute_events_table <- function(event_df,
 
     dplyr::group_by(dplyr::across(dplyr::all_of(c(hierarchy, group_var, hier_lvl_col))))
 
-  if (compute_risk && time_at_risk_col %in% names(adtte)) {
+  if (compute_risk) {
     # Time-to-event data
 
     table_type <- "time_at_risk"
@@ -1034,6 +1037,18 @@ hierarchical_count_table_server <- function(
           checkmate::test_disjunct(origin_date_var, censor_date_var),
           EC$MSG$VALIDATE$ORIG_CENSOR_CLASH
         ),
+        shiny::need(
+          !compute_risk || checkmate::test_string(event_date_var, min.chars = 1),
+          EC$MSG$VALIDATE$NO_EVENT_DATE
+        ),
+        shiny::need(
+          !compute_risk || checkmate::test_string(origin_date_var, min.chars = 1),
+          EC$MSG$VALIDATE$NO_ORIGIN_DATE
+        ),
+        shiny::need(
+          !compute_risk || checkmate::test_string(censor_date_var, min.chars = 1),
+          EC$MSG$VALIDATE$NO_CENSOR_DATE
+        )
       )
 
       # Associate labels attribute to hierarchy column names
