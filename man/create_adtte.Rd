@@ -2,7 +2,7 @@
 % Please edit documentation in R/mod_hierarchical_count_table.R
 \name{create_adtte}
 \alias{create_adtte}
-\title{Create analysis data in the form of an ADaM ADTTE dataset}
+\title{Perform count and time at risk analysis on hierarchical data}
 \usage{
 create_adtte(
   event_df,
@@ -43,9 +43,10 @@ A string representing the column name in \code{pop_df} holding the censor date.}
 A string representing the column name in \code{event_df} holding the event date.}
 }
 \value{
-A data frame in the form of an ADaM ADTTE, with the addition of hierarchy columns and hierarchy level.
+A data frame loosely based on ADaM ADTTE format, with count and time at risk analysis for all hierarchy
+levels.
 }
 \description{
-Create analysis data in the form of an ADaM ADTTE dataset
+Perform count and time at risk analysis on hierarchical data
 }
 \keyword{internal}

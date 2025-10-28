@@ -57,7 +57,7 @@ EC <- poc( # nolint
   )
 )
 
-#' Create analysis data in the form of an ADaM ADTTE dataset
+#' Perform count and time at risk analysis on hierarchical data
 #'
 #' @param event_df `data.frame`
 #' A data frame containing the event data. It should have columns corresponding to subjects,
@@ -85,7 +85,8 @@ EC <- poc( # nolint
 #' @param event_date_var `character(1)`
 #' A string representing the column name in `event_df` holding the event date.
 #'
-#' @return A data frame in the form of an ADaM ADTTE, with the addition of hierarchy columns and hierarchy level.
+#' @return A data frame loosely based on ADaM ADTTE format, with count and time at risk analysis for all hierarchy
+#' levels.
 #'
 #' @keywords internal
 create_adtte <- function(event_df,
@@ -101,6 +102,12 @@ create_adtte <- function(event_df,
   has_origin_dt <- !is.null(origin_date_var) && length(origin_date_var) > 0
   has_censor_dt <- !is.null(censor_date_var) && length(censor_date_var) > 0
   has_event_dt <- !is.null(event_date_var) && length(event_date_var) > 0
+
+  # Define column names for columns creating in function
+  hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
+  time_at_risk_col <- paste0(EC$VAL$SPECIAL_CHAR, "time_at_risk")
+  censor_col <- paste0(EC$VAL$SPECIAL_CHAR, "censor")
+  evt_cens_date_col <- paste0(EC$VAL$SPECIAL_CHAR, "evt_cens_date")
 
   # Initialise data frame to hold results from different hierarchy levels
   bind_adtte <- NULL
@@ -126,7 +133,7 @@ create_adtte <- function(event_df,
     }
 
     # Identify records with events before merging onto all hierarchy combinations
-    subset_event_df[["CNSR"]] <- 0
+    subset_event_df[[censor_col]] <- FALSE
 
     # Expand population data using grid of hierarchy combinations to create base records for ADTTE ----
 
@@ -141,23 +148,20 @@ create_adtte <- function(event_df,
 
     adtte <- dplyr::left_join(adtte, subset_event_df, by = c(subjid_var, hierarchy_cols))
 
-    # Derive ADTTE variables ----
+    # Derive time at risk variables ----
 
-    if (has_origin_dt) adtte[["STARTDT"]] <- adtte[[origin_date_var]]
-
-    if (has_event_dt && has_censor_dt) {
-      adtte[["ADT"]] <- pmin(adtte[[event_date_var]], adtte[[censor_date_var]], na.rm = TRUE)
-      if (has_origin_dt) adtte[["AVAL"]] <- as.numeric(adtte[["ADT"]] - adtte[["STARTDT"]] + 1)
+    if (has_event_dt && has_censor_dt && has_origin_dt) {
+      adtte[[evt_cens_date_col]] <- pmin(adtte[[event_date_var]], adtte[[censor_date_var]], na.rm = TRUE)
+      adtte[[time_at_risk_col]] <- as.numeric(adtte[[evt_cens_date_col]] - adtte[[origin_date_var]] + 1)
     }
 
-    adtte[["CNSR"]][is.na(adtte[["CNSR"]])] <- 1
+    adtte[[censor_col]][is.na(adtte[[censor_col]])] <- TRUE
 
     # Some ADTTE variables are not required for purpose of app, so only keep necessary ones
     adtte <- adtte |>
-      dplyr::select(dplyr::any_of(c(subjid_var, hierarchy_cols, group_var, "AVAL", "CNSR")))
+      dplyr::select(dplyr::any_of(c(subjid_var, hierarchy_cols, group_var, time_at_risk_col, censor_col)))
 
     # Add hierarchy level to data
-    hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
     adtte[[hier_lvl_col]] <- hierarchy_level
 
     bind_adtte <- dplyr::bind_rows(bind_adtte, adtte)
@@ -243,12 +247,15 @@ compute_events_table <- function(event_df,
   # If total group column requested then check that `total_group_val` is a string
   if (total) checkmate::assert_string(total_group_val)
 
-  hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
-
   # Flags when time at risk dates are specified for population and event data frames
   has_origin_dt <- !is.null(origin_date_var) && length(origin_date_var) > 0
   has_censor_dt <- !is.null(censor_date_var) && length(censor_date_var) > 0
   has_event_dt <- !is.null(event_date_var) && length(event_date_var) > 0
+
+  # Define column names for columns used in function
+  hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
+  time_at_risk_col <- paste0(EC$VAL$SPECIAL_CHAR, "time_at_risk")
+  censor_col <- paste0(EC$VAL$SPECIAL_CHAR, "censor")
 
   # Prepare population data ----
 
@@ -304,7 +311,7 @@ compute_events_table <- function(event_df,
 
   # Drop rows where time at risk could not be determined
   if (compute_risk) {
-    invalid_rows <- which(is.na(adtte[["AVAL"]]))
+    invalid_rows <- which(is.na(adtte[[time_at_risk_col]]))
     if (length(invalid_rows) > 0) {
       invalid_subjects <- unique(adtte[[subjid_var]][invalid_rows])
       log_inform(paste("Time at risk could not be determined for the following subjects:",
@@ -333,7 +340,7 @@ compute_events_table <- function(event_df,
 
     dplyr::group_by(dplyr::across(dplyr::all_of(c(hierarchy, group_var, hier_lvl_col))))
 
-  if (compute_risk && "AVAL" %in% names(adtte)) {
+  if (compute_risk && time_at_risk_col %in% names(adtte)) {
     # Time-to-event data
 
     table_type <- "time_at_risk"
@@ -342,9 +349,9 @@ compute_events_table <- function(event_df,
 
       # Calculate summary stats including time at risk
       dplyr::summarise(N = dplyr::n(),
-                       n = sum(.data[["CNSR"]] == 0),
-                       subjid = list(.data[[subjid_var]][.data[["CNSR"]] == 0]),
-                       time_at_risk = sum(.data[["AVAL"]], na.rm = TRUE) / 365.25,
+                       n = sum(!.data[[censor_col]]),
+                       subjid = list(.data[[subjid_var]][.data[[censor_col]] == 0]),
+                       time_at_risk = sum(.data[[time_at_risk_col]], na.rm = TRUE) / 365.25,
                        .groups = "drop") |>
 
       # Calculate incidence rate and percent
@@ -359,8 +366,8 @@ compute_events_table <- function(event_df,
 
       # Calculate summary stats
       dplyr::summarise(N = dplyr::n(),
-                       n = sum(.data[["CNSR"]] == 0),
-                       subjid = list(.data[[subjid_var]][.data[["CNSR"]] == 0]),
+                       n = sum(.data[[censor_col]] == 0),
+                       subjid = list(.data[[subjid_var]][.data[[censor_col]] == 0]),
                        .groups = "drop") |>
 
       # Calculate percent
