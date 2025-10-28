@@ -12,9 +12,7 @@ create_adtte(
   subjid_var,
   origin_date_var,
   censor_date_var,
-  event_date_var,
-  param_val = "Time to Event",
-  paramcd_val = "EVENT"
+  event_date_var
 )
 }
 \arguments{
@@ -43,14 +41,6 @@ A string representing the column name in \code{pop_df} holding the censor date.}
 
 \item{event_date_var}{\code{character(1)}
 A string representing the column name in \code{event_df} holding the event date.}
-
-\item{param_val}{\code{character(1)}
-A string representing the value to assign to \code{PARAM} column. When \code{recurse} is \code{TRUE} hierarchy level is prepended
-with \code{L# } where \verb{#} is \code{0} for the top level, \code{1} for the next level, and so on.}
-
-\item{paramcd_val}{\code{character(1)}
-A string representing the value to assign to \code{PARAMCD} column. When \code{recurse} is \code{TRUE} hierarchy level is prepended
-with \code{L#_} where \verb{#} is \code{0} for the top level, \code{1} for the next level, and so on.}
 }
 \value{
 A data frame in the form of an ADaM ADTTE, with the addition of hierarchy columns and hierarchy level.

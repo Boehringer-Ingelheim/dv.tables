@@ -85,14 +85,6 @@ EC <- poc( # nolint
 #' @param event_date_var `character(1)`
 #' A string representing the column name in `event_df` holding the event date.
 #'
-#' @param param_val `character(1)`
-#' A string representing the value to assign to `PARAM` column. When `recurse` is `TRUE` hierarchy level is prepended
-#' with `L# ` where `#` is `0` for the top level, `1` for the next level, and so on.
-#'
-#' @param paramcd_val `character(1)`
-#' A string representing the value to assign to `PARAMCD` column. When `recurse` is `TRUE` hierarchy level is prepended
-#' with `L#_` where `#` is `0` for the top level, `1` for the next level, and so on.
-#'
 #' @return A data frame in the form of an ADaM ADTTE, with the addition of hierarchy columns and hierarchy level.
 #'
 #' @keywords internal
@@ -103,9 +95,7 @@ create_adtte <- function(event_df,
                          subjid_var,
                          origin_date_var,
                          censor_date_var,
-                         event_date_var,
-                         param_val = "Time to Event",
-                         paramcd_val = "EVENT") {
+                         event_date_var) {
 
   # Flags when time at risk dates are specified for population and event data frames
   has_origin_dt <- !is.null(origin_date_var) && length(origin_date_var) > 0
@@ -152,11 +142,6 @@ create_adtte <- function(event_df,
     adtte <- dplyr::left_join(adtte, subset_event_df, by = c(subjid_var, hierarchy_cols))
 
     # Derive ADTTE variables ----
-
-    # Prepend hierarchy level to parameter value
-    adtte <- adtte |>
-      dplyr::mutate(PARAM = paste0("L", hierarchy_level, ": ", param_val),
-                    PARAMCD = paste0("L", hierarchy_level, "_", paramcd_val))
 
     if (has_origin_dt) adtte[["STARTDT"]] <- adtte[[origin_date_var]]
 
