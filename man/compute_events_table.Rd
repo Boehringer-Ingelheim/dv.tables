@@ -37,8 +37,7 @@ A string representing the subject identifier column name. This column must be pr
 \code{pop_df}.}
 
 \item{origin_date_var}{\code{character(1)}
-A string representing the column name in \code{pop_df} holding the origin date (optional).
-If provided, rows in \code{pop_df} with missing or partial origin date are dropped.}
+A string representing the column name in \code{pop_df} holding the origin date (optional).}
 
 \item{censor_date_var}{\code{character(1)}
 A string representing the column name in \code{pop_df} holding the censor date (optional).}

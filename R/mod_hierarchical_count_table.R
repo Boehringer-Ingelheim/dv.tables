@@ -29,11 +29,11 @@ EC <- poc( # nolint
   ),
   INFO = poc(
     HIERARCHY = "Up to 2 selections allowed",
-    EVENT_DATE = "Events with missing or partial dates will be dropped",
+    EVENT_DATE = "Events with missing dates will be dropped",
     ORIGIN_DATE = "Events occurring before origin date will be dropped",
     CENSOR_DATE = "Events occurring after censor date will be dropped",
     RISK_FLAG = paste("Event date, origin date and censor date must be provided; data with",
-                      "missing or partial dates will be excluded from time at risk analysis.", sep = "\n")
+                      "missing dates will be excluded from time at risk analysis.", sep = "\n")
   ),
   WARN = poc(
     REQ_TIME_AT_RISK = "Required for Time at Risk"
@@ -196,7 +196,6 @@ create_adtte <- function(event_df,
 #'
 #' @param origin_date_var `character(1)`
 #' A string representing the column name in `pop_df` holding the origin date (optional).
-#' If provided, rows in `pop_df` with missing or partial origin date are dropped.
 #'
 #' @param censor_date_var `character(1)`
 #' A string representing the column name in `pop_df` holding the censor date (optional).
@@ -383,11 +382,8 @@ compute_events_table <- function(event_df,
 
   # Ensure all groups from the population data are included
   all_denoms <- union(levels(subset_pop_df[[group_var]]), names(n_denominator))
-  n_denominator <- stats::setNames(sapply(all_denoms,
-                                          function(x) {
-                                            if (x %in% names(n_denominator)) n_denominator[[x]] else 0
-                                          }),
-                                   all_denoms)
+  missing_denoms <- setdiff(all_denoms, names(n_denominator))
+  n_denominator[missing_denoms] <- 0
 
   # Return from function ----
 
@@ -416,6 +412,9 @@ compute_events_table <- function(event_df,
 #'
 #' @keywords internal
 compute_order_events_table <- function(d) {
+
+  checkmate::assert_data_frame(d[["df"]])
+  checkmate::assert_list(d[["meta"]])
 
   hierarchy <- d[["meta"]][["hierarchy"]]
   group_var <- d[["meta"]][["group_var"]]
@@ -725,6 +724,9 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @param id `character(0)`
 #' The ID for the event count module instance.
 #'
+#' @param show_time_at_risk_options `logical(1)`
+#' A logical indicating whether or not to show time at risk options.
+#'
 #' @param default_total `logical(1)`
 #' A default value for whether to add a total group column.
 #'
@@ -1000,6 +1002,11 @@ hierarchical_count_table_server <- function(
         compute_risk <- FALSE
       }
 
+      # Helper: checks whether a value is actually "provided"
+      is_provided <- function(x) {
+        checkmate::test_string(x, min.chars = 1)
+      }
+
       shiny::validate(
         shiny::need(
           checkmate::test_data_frame(d, min.rows = 1),
@@ -1038,15 +1045,16 @@ hierarchical_count_table_server <- function(
           EC$MSG$VALIDATE$ORIG_CENSOR_CLASH
         ),
         shiny::need(
-          !compute_risk || checkmate::test_string(event_date_var, min.chars = 1),
+          (!compute_risk || is_provided(event_date_var)) &&
+            (!(is_provided(origin_date_var) || is_provided(censor_date_var)) || is_provided(event_date_var)),
           EC$MSG$VALIDATE$NO_EVENT_DATE
         ),
         shiny::need(
-          !compute_risk || checkmate::test_string(origin_date_var, min.chars = 1),
+          !compute_risk || is_provided(origin_date_var),
           EC$MSG$VALIDATE$NO_ORIGIN_DATE
         ),
         shiny::need(
-          !compute_risk || checkmate::test_string(censor_date_var, min.chars = 1),
+          !compute_risk || is_provided(censor_date_var),
           EC$MSG$VALIDATE$NO_CENSOR_DATE
         )
       )
