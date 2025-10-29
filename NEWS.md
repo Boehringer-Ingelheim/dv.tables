@@ -1,3 +1,9 @@
+# dv.tables 0.2.0-9003
+
+* Add time-at-risk functionality
+* Fix application error when clicking on a cell with no event counts
+* Move options into a drop-down box
+
 # dv.tables 0.2.0-9002
 
 * Tplyr_table module, Add titles to the outputs

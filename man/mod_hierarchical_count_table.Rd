@@ -6,19 +6,31 @@
 \alias{mod_hierarchical_count_table}
 \title{Invoke hierarchical_count_table module}
 \usage{
-hierarchical_count_table_ui(id)
+hierarchical_count_table_ui(
+  id,
+  show_time_at_risk_options = FALSE,
+  default_total = TRUE,
+  default_risk = FALSE
+)
 
 hierarchical_count_table_server(
   id,
   table_dataset,
   pop_dataset,
   subjid_var,
+  show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
   on_sbj_click_fun = function() NULL,
   default_hierarchy = NULL,
   default_group = NULL,
+  default_event_date = NULL,
+  default_origin_date = NULL,
+  default_censor_date = NULL,
   hierarchy_choices = NULL,
   group_choices = NULL,
+  event_date_choices = NULL,
+  origin_date_choices = NULL,
+  censor_date_choices = NULL,
   intended_use_label = NULL
 )
 
@@ -27,11 +39,20 @@ mod_hierarchical_count_table(
   table_dataset_name,
   pop_dataset_name,
   subjid_var = "USUBJID",
+  show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
   default_hierarchy = NULL,
   default_group = NULL,
+  default_total = TRUE,
+  default_event_date = NULL,
+  default_origin_date = NULL,
+  default_censor_date = NULL,
+  default_risk = FALSE,
   hierarchy_choices = NULL,
   group_choices = NULL,
+  event_date_choices = NULL,
+  origin_date_choices = NULL,
+  censor_date_choices = NULL,
   intended_use_label =
     "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL
@@ -40,6 +61,15 @@ mod_hierarchical_count_table(
 \arguments{
 \item{id}{\code{character(0)}
 The ID for the event count module instance.}
+
+\item{show_time_at_risk_options}{\code{logical(1)}
+A flag to indicate whether to show the time at risk related user selections.}
+
+\item{default_total}{\code{logical(1)}
+A default value for whether to add a total group column.}
+
+\item{default_risk}{\code{logical(1)}
+A default value for whether to calculate time-at-risk.}
 
 \item{table_dataset}{\code{data.frame}
 A reactive dataset containing the event data.}
@@ -54,7 +84,6 @@ A string representing the subject identifier column in both datasets.}
 A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.}
 
 \item{on_sbj_click_fun}{'function()'
-
 Function to invoke when a subject is clicked}
 
 \item{default_hierarchy}{\code{character(1|2)|NULL}
@@ -63,11 +92,29 @@ A default value for the hierarchy variables (optional).}
 \item{default_group}{\code{character(1)|NULL}
 A default value for the group variable (optional).}
 
+\item{default_event_date}{\code{character(1)|NULL}
+A default value for the event date variable (optional).}
+
+\item{default_origin_date}{\code{character(1)|NULL}
+A default value for the origin date variable (optional).}
+
+\item{default_censor_date}{\code{character(1)|NULL}
+A default value for the censor date variable (optional).}
+
 \item{hierarchy_choices}{\verb{character(1+)|NULL}
 A character vector specifying the possible choices for the hierarchy variables (optional).}
 
 \item{group_choices}{\verb{character(1+)|NULL}
 A character vector specifying the possible choices for the group variable (optional).}
+
+\item{event_date_choices}{\verb{character(1+)|NULL}
+A character vector specifying the possible choices for the event date variable (optional).}
+
+\item{origin_date_choices}{\verb{character(1+)|NULL}
+A character vector specifying the possible choices for the origin date variable (optional).}
+
+\item{censor_date_choices}{\verb{character(1+)|NULL}
+A character vector specifying the possible choices for the censor date variable (optional).}
 
 \item{intended_use_label}{Either a string indicating the intended use for export, or
 NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}

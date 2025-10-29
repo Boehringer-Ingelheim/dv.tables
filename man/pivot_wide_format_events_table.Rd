@@ -4,7 +4,7 @@
 \alias{pivot_wide_format_events_table}
 \title{Converts the event table to wide format}
 \usage{
-pivot_wide_format_events_table(d, min_percent)
+pivot_wide_format_events_table(d, min_percent = 0)
 }
 \arguments{
 \item{d}{\code{list}

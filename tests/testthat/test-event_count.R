@@ -1,4 +1,4 @@
-# Event count
+# Event count tests
 local({
   event_list <- list()
   event_list[["subj"]] <- factor(c("1", "1", "1", "1", "2", "2", "2", "3"))
@@ -27,8 +27,7 @@ local({
 
   html <- sort_wide_format_event_table_to_HTML(sw)
 
-  # Testing is done in a simpler way at the end of the count and sorting
-  # We will test against an snapshot that we have checked is correct
+  # We will test against snapshots that we have checked is correct
 
   test_that("counting is correct, sorting, against (snapshot)" |>
     vdoc[["add_spec"]](
@@ -40,9 +39,19 @@ local({
       )
     ), {
     expect_snapshot(x)
+    expect_snapshot(s)
+    expect_snapshot(sw)
+
+    # Focus on the ranking for the totals
+    total_ranking <- sw$df |>
+      dplyr::select(-dplyr::all_of(c("GA", "GB", "GC"))) |>
+      dplyr::mutate(Total = purrr::map_chr(.data[["Total"]], "count"))
+    expect_snapshot(total_ranking)
+
+    expect_snapshot(html)
   })
 
-  test_that("filtering is correct, agains (snapshot)" |>
+  test_that("filtering is correct, against (snapshot)" |>
     vdoc[["add_spec"]](c(specs$hierarchical_count_table$minimum_percentage_filter)), {
     w <- pivot_wide_format_events_table(x, 50)
     expect_snapshot(w)
