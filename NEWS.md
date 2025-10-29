@@ -1,3 +1,7 @@
+# dv.tables 0.2.0-9004
+
+* Retain dash fill-in for RTF downloads
+
 # dv.tables 0.2.0-9003
 
 * Add time-at-risk functionality
