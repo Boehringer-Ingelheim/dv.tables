@@ -1,5 +1,10 @@
-# dv.tables 0.2.0-9004
+# dv.tables 0.2.0-9005
+
 * Early diagnostic messages for the review parameter of the Tplyr_table module.
+
+# dv.tables 0.2.0-9004
+
+* Retain dash fill-in for RTF downloads
 
 # dv.tables 0.2.0-9003
 

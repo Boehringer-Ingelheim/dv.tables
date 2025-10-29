@@ -67,10 +67,6 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
     dplyr::mutate(dplyr::across(dplyr::all_of(group_names),
                                 ~ purrr::map(.x, ~ .x[stat_names]))) |>
 
-    # Replace the Em Dash character with empty string
-    dplyr::mutate(dplyr::across(dplyr::all_of(group_names),
-                                ~ purrr::map(.x, function(lst) purrr::map(lst, ~ sub("\u2014", "", .x))))) |>
-
     # Remove factors from event columns
     dplyr::mutate(dplyr::across(dplyr::all_of(event_vars), as.character)) |>
 
@@ -107,8 +103,14 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   } else if (download_type == ".xlsx") {
 
-    # Add label in square-brackets after variable name
     df_prep <- df_prep |>
+
+      # Replace the Em Dash character with empty string
+      dplyr::mutate(dplyr::across(dplyr::all_of(group_names),
+                                  ~ purrr::map(.x, function(lst) purrr::map(lst, ~ sub("\u2014", "", .x))))) |>
+
+
+      # Add label in square-brackets after variable name
       dplyr::rename_with(~ ifelse(event_var_labels != event_vars,
                                   paste0(event_vars, " [", event_var_labels, "]"),
                                   event_vars), dplyr::all_of(event_vars))
