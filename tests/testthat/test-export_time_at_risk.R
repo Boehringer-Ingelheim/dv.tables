@@ -84,6 +84,6 @@ local({
     vdoc[["add_spec"]](c(specs$export_time_at_risk_table$export_tar_single_n_pct_cols)), {
     group_cols <- tail(names(exp_tab), ncol(exp_tab) - 1)
     expect_true(all(grepl("<br>N \\(%\\)|<br>Time at Risk|<br>Incidence Rate", group_cols)))
-    expect_true(all(grepl("^[0-9]+ \\([0-9.]+\\)$|^$", tail(exp_tab[[2]], nrow(exp_tab) - 1))))
+    expect_true(all(grepl("^[0-9]+ \\([0-9.]+\\)$|^\u2014$", tail(exp_tab[[2]], nrow(exp_tab) - 1))))
   })
 })
