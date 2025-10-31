@@ -8,8 +8,8 @@
 <title>Event Count module • dv.tables</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Event Count module">
 </head>
 <body>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,8 @@
 
     
     
-<p><img src="images%2Fhierarchical_count_table.png"></p>
+<p><img src="images/hierarchical_count_table.png"></p>
+<p><img src="images/hierarchical_count_table_time_at_risk.png"></p>
 <p>This guide provides a detailed overview of the
 <code>hierarchical_count_table</code> module and its features. It is
 meant to provide guidance to App Creators on creating Apps in DaVinci
@@ -76,18 +77,27 @@ using the <code>hierarchical_count_table</code> module. Walk-throughs
 for sample app creation using the module are also included to
 demonstrate the various module specific features.</p>
 <p>The <code>hierarchical_count_table</code> module makes it possible to
-visualize a hierarchy table with event counts for each of the
-levels.</p>
+visualize a hierarchy table with event counts for each of the levels,
+with the option of showing time at risk and incidence rates.</p>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
-<p><code>hierarchical_count_table</code> features the following
-tables:</p>
 <ul>
-<li>A hierarchy table arranged by highest to lowest event count
-normalized by population.</li>
+<li>One or two levels of hierarchy, and a top-level summary of subjects
+with any event.</li>
+<li>Second level of hierarchy can be collapsed to only show the first
+level.</li>
+<li>First level of hierarchy can be collapsed to only show the subjects
+with any event.</li>
+<li>Grouping with group population size (N) displayed across columns of
+the table, with an optional “Total” column.</li>
+<li>Event counts and percentages are displayed, and optionally time at
+risk and incidence rates can be displayed.</li>
+<li>Events within the hierarchy ordered by descending event count
+(totalled across all groups).</li>
+<li>Tables can be downloaded as Excel (.xlsx) or Word (.rtf).</li>
+<li>It supports bookmarking.</li>
 </ul>
-<p>It supports bookmarking.</p>
 </div>
 <div class="section level2">
 <h2 id="arguments-for-the-module">Arguments for the module<a class="anchor" aria-label="anchor" href="#arguments-for-the-module"></a>
@@ -106,9 +116,8 @@ uniquely identify subjects. By default: “SUBJID”</p></li>
 events per row. For example, <code>ADAE</code></p></li>
 <li><p><code>pop_dataset_name</code>: The dataset that contains one row
 per subject in the total population. For example, <code>ADSL</code> It
-expects a dataset with an structure similar to <a href="https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806" class="external-link uri">https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806</a>
-, one record per subject It expects to contain, at least,
-<code>subjid_var</code></p></li>
+expects a one-record-per-subject dataset at least containing
+<code>subjid_var</code>, with a structure similar to <a href="https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806" class="external-link uri">https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806</a></p></li>
 </ul>
 <p>Refer to <code><a href="../reference/mod_hierarchical_count_table.html">dv.tables::mod_hierarchical_count_table()</a></code> for
 the complete list of arguments and their description.</p>
@@ -116,8 +125,52 @@ the complete list of arguments and their description.</p>
 <div class="section level2">
 <h2 id="input-menus">Input menus<a class="anchor" aria-label="anchor" href="#input-menus"></a>
 </h2>
-<p>A set of menus allows to select a hierarchy, groupings and settings
-of the table.</p>
+<p>A drop-down “Options” menu provides the following inputs:</p>
+<ul>
+<li>
+<strong>Event count by</strong>: Selection of one or two levels of
+hierarchy variables from the table (events) dataset, to be displayed
+down the left side of the table, e.g. <code>AEBODSYS</code>,
+<code>AEDECOD</code>.</li>
+<li>
+<strong>Group by</strong>: Selection of a grouping variable from the
+subject-level population dataset, to be displayed across the top of the
+table, e.g. <code>TRT01P</code>.</li>
+<li>
+<strong>Minimum %</strong>: The minimum percentage threshold for
+filtering events. Rows where the percentage of subjects (totalled across
+all group categories) is below this threshold will be removed from the
+output. Defaults to <code>0</code>.</li>
+<li>
+<strong>Total</strong>: Checkbox that controls whether or not to
+display a “Total” column totalling data from all group categories.</li>
+</ul>
+<p>The following inputs will also be available in the “Options” menu
+when the <code>show_time_at_risk_options</code> module argument is set
+to <code>TRUE</code>:</p>
+<ul>
+<li>
+<strong>Event Date</strong>: A “Date” class
+(e.g. <code>ASTDT</code>) from the table events dataset. Events with
+missing dates will be excluded from the analysis.</li>
+<li>
+<strong>Origin Date</strong>: A “Date” class
+(e.g. <code>RANDDT</code>) from the subject-level population dataset.
+Events occurring before origin date will be excluded from the
+analysis.</li>
+<li>
+<strong>Censor Date</strong>: A “Date” class
+(e.g. <code>EOSDT</code>) from the subject-level population dataset.
+Events occurring after censor date will be excluded from the
+analysis.</li>
+<li>
+<strong>Time at Risk</strong>: Checkbox that controls whether or not
+to display time at risk and incidence rate columns. If a subject has a
+missing origin or censor date, time at risk cannot be calculated and the
+subject will be excluded from the population count. Note that even if
+the checkbox is unchecked, events will still be selected based on event,
+origin and censor dates, but population count will not be affected.</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="visualizations">Visualizations<a class="anchor" aria-label="anchor" href="#visualizations"></a>
@@ -125,12 +178,15 @@ of the table.</p>
 <div class="section level3">
 <h3 id="hierarchy-event-count-table">Hierarchy Event Count table<a class="anchor" aria-label="anchor" href="#hierarchy-event-count-table"></a>
 </h3>
-<p>A collapsable hierarchy table.</p>
+<p>A collapsible hierarchy table that can optionally display time at
+risk and incidence rate.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="creating-a-hierarchical-count-table-application">Creating a hierarchical count table application<a class="anchor" aria-label="anchor" href="#creating-a-hierarchical-count-table-application"></a>
 </h2>
+<p>The following code specifies the bare minimum module arguments with
+no default hierarchy or group specified:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pharmaverseadam"</span><span class="op">)</span></span>
 <span></span>
@@ -142,6 +198,35 @@ of the table.</p>
 <span>      module_id <span class="op">=</span> <span class="st">"hierarchical_count_table"</span>,</span>
 <span>      table_dataset_name <span class="op">=</span> <span class="st">"adae"</span>,</span>
 <span>      pop_dataset_name <span class="op">=</span> <span class="st">"adsl"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The following code specifies module arguments for the display of a
+body system and preferred term hierarchy and planned treatment group,
+with date variables specified for time at risk and incidence rate
+analysis:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pharmaverseadam"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">dv.manager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dv.manager/man/run_app.html" class="external-link">run_app</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>adsl <span class="op">=</span> <span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adsl.html" class="external-link">adsl</a></span>,</span>
+<span>                           adae <span class="op">=</span> <span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adae.html" class="external-link">adae</a></span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  module_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="st">"AE Time at Risk Hierarchy Table"</span> <span class="op">=</span> <span class="fu">dv.tables</span><span class="fu">::</span><span class="fu"><a href="../reference/mod_hierarchical_count_table.html">mod_hierarchical_count_table</a></span><span class="op">(</span></span>
+<span>      module_id <span class="op">=</span> <span class="st">"hierarchical_count_table"</span>,</span>
+<span>      table_dataset_name <span class="op">=</span> <span class="st">"adae"</span>,</span>
+<span>      pop_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>      show_time_at_risk_options <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>      show_modal_on_click <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>      default_hierarchy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AEBODSYS"</span>, <span class="st">"AEDECOD"</span><span class="op">)</span>,</span>
+<span>      default_group <span class="op">=</span> <span class="st">"TRT01P"</span>,</span>
+<span>      default_event_date <span class="op">=</span> <span class="st">"AESTDTC"</span>,</span>
+<span>      default_origin_date <span class="op">=</span> <span class="st">"RFSTDTC"</span>,</span>
+<span>      default_censor_date <span class="op">=</span> <span class="st">"RFENDTC"</span>,</span>
+<span>      default_total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>      default_risk <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
@@ -166,7 +251,7 @@ percentage.</p>
 <h2 id="drill-down-functionality">Drill down functionality<a class="anchor" aria-label="anchor" href="#drill-down-functionality"></a>
 </h2>
 <p>When a cell is clicked the set of subjects in the cell is shown. Each
-of the ids is clickable and it allows exploring that participant in
+of the ids is clickable and it allows exploring that participant in an
 additional module, for example <code>dv.papo</code>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -180,7 +265,7 @@ additional module, for example <code>dv.papo</code>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer>
