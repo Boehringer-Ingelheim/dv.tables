@@ -1,3 +1,13 @@
+# dv.tables 0.3.0
+
+* Retain dash fill-in for RTF downloads
+* Add time-at-risk functionality
+* Fix application error when clicking on a cell with no event counts
+* Move options into a drop-down box
+* Tplyr_table module, Add titles to the outputs
+* Remove pharmaverseadam dependency
+* Provide early error feedback for the review parameter of mod_Tplyr_table
+
 # dv.tables 0.2.0
 
 * Add Tplyr_table module 

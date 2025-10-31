@@ -1,7 +1,7 @@
 utils::globalVariables(
   c("EOSSTT", "ARM", "AGE", "row_label1", "row_label2", "TRT01A", "USUBJID",
     "distinct_total", "distinct_n", "distinct_pct", "AESEV", "AESER")
-  )
+)
 #' Mock app integrated in the module manager
 #'
 #' \code{mock_Tplyr_table} launches a mock app for the Tplyr_table shiny module by means of
@@ -11,7 +11,9 @@ utils::globalVariables(
 #' @export
 #'
 mock_Tplyr_table_mm <- function() {
-
+  if (!requireNamespace("pharmaverseadam")) {
+    stop("Install pharmaverseadam")
+  }
   adsl <- pharmaverseadam::adsl
   adae <- pharmaverseadam::adae
 
@@ -108,11 +110,11 @@ mock_Tplyr_table_mm <- function() {
         datasets = list(
           adsl = list(
             id_vars = "USUBJID",
-            tracked_vars = c("RFENDTC", "RFXENDTC")
+            tracked_vars = c("RFENDTC", "RFXENDTC", "TRTEDT")
           ),
           adae = list(
             id_vars = c("USUBJID", "AESEQ"),
-            tracked_vars = c("AESEV")
+            tracked_vars = c("AESEV", "AESER", "AEREL")
           )
         ),
         choices = c("Pending", "Reviewed with no issues", "Action required", "Resolved"),
@@ -124,12 +126,15 @@ mock_Tplyr_table_mm <- function() {
   dv.manager::run_app(
     data = list("test" = list(adae = adae, adsl = adsl)),
     module_list = module_list,
-    filter_data = "adsl"
+    filter_data = "adsl",
+    filter_type = "datasets"
   )
 }
 
 mock_Tplyr_table <- function() {
-
+  if (!requireNamespace("pharmaverseadam")) {
+    stop("Install pharmaverseadam")
+  }
   adsl <- pharmaverseadam::adsl
 
   my_tplyr_fun <- function(adsl) {

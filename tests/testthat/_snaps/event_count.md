@@ -4,41 +4,245 @@
       x
     Output
       $df
-      # A tibble: 28 x 7
-         lvl2  lvl1  group     N subjid     perc `\035lvl`
-         <fct> <fct> <fct> <int> <list>    <dbl>     <dbl>
-       1 A2    A1    GA        1 <fct [1]>   100         1
-       2 A2    A1    GB        1 <fct [1]>   100         1
-       3 A2    A1    GC        1 <fct [1]>    50         1
-       4 A2    B1    GA        1 <fct [1]>   100         1
-       5 A2    B1    GB        0 <chr [0]>     0         1
-       6 A2    B1    GC        0 <chr [0]>     0         1
-       7 B2    A1    GA        1 <fct [1]>   100         1
-       8 B2    A1    GB        1 <fct [1]>   100         1
-       9 B2    A1    GC        0 <chr [0]>     0         1
-      10 B2    B1    GA        1 <fct [1]>   100         1
+      # A tibble: 28 x 8
+         lvl1     lvl2     group `\035lvl`     N     n subjid      pct
+         <fct>    <fct>    <fct>     <int> <int> <int> <list>    <dbl>
+       1 "\u001d" "\u001d" GA            0     1     1 <fct [1]>   100
+       2 "\u001d" "\u001d" GB            0     1     1 <fct [1]>   100
+       3 "\u001d" "\u001d" GC            0     2     1 <fct [1]>    50
+       4 "\u001d" "\u001d" Total         0     4     3 <fct [3]>    75
+       5 "A1"     "\u001d" GA            1     1     1 <fct [1]>   100
+       6 "A1"     "\u001d" GB            1     1     1 <fct [1]>   100
+       7 "A1"     "\u001d" GC            1     2     1 <fct [1]>    50
+       8 "A1"     "\u001d" Total         1     4     3 <fct [3]>    75
+       9 "A1"     "A2"     GA            2     1     1 <fct [1]>   100
+      10 "A1"     "A2"     GB            2     1     1 <fct [1]>   100
       # i 18 more rows
       
       $meta
       $meta$hierarchy
       [1] "lvl1" "lvl2"
       
-      $meta$group_var
-      [1] "group"
-      
       $meta$hier_lvl_col
       [1] "\035lvl"
       
-      $meta$special_char
-      [1] "\035"
+      $meta$group_var
+      [1] "group"
+      
+      $meta$total_group_val
+      [1] "Total"
       
       $meta$n_denominator
          GA    GB    GC Total 
           1     1     2     4 
       
+      $meta$table_type
+      [1] "frequency"
+      
+      $meta$warning_message
+      NULL
+      
       
 
-# filtering is correct, agains (snapshot)__spec_ids{hierarchical_count_table$minimum_percentage_filter}
+---
+
+    Code
+      s
+    Output
+      # A tibble: 7 x 6
+        lvl1     lvl2     `\035lvl` `\035count1` `\035count2` `\035rank`
+        <fct>    <fct>        <int>        <dbl>        <dbl>      <int>
+      1 "\u001d" "\u001d"         0          Inf          Inf          1
+      2 "A1"     "\u001d"         1            3          Inf          2
+      3 "A1"     "A2"             2            3            3          3
+      4 "A1"     "B2"             2            3            2          4
+      5 "B1"     "\u001d"         1            2          Inf          5
+      6 "B1"     "B2"             2            2            2          6
+      7 "B1"     "A2"             2            2            1          7
+
+---
+
+    Code
+      sw
+    Output
+      $df
+      # A tibble: 7 x 8
+        lvl1     lvl2     `\035lvl` `\035rank` GA           GB           GC          
+        <fct>    <fct>        <int>      <int> <list>       <list>       <list>      
+      1 "\u001d" "\u001d"         0          1 <named list> <named list> <named list>
+      2 "A1"     "\u001d"         1          2 <named list> <named list> <named list>
+      3 "A1"     "A2"             2          3 <named list> <named list> <named list>
+      4 "A1"     "B2"             2          4 <named list> <named list> <named list>
+      5 "B1"     "\u001d"         1          5 <named list> <named list> <named list>
+      6 "B1"     "B2"             2          6 <named list> <named list> <named list>
+      7 "B1"     "A2"             2          7 <named list> <named list> <named list>
+      # i 1 more variable: Total <list>
+      
+      $meta
+      $meta$hierarchy
+      [1] "lvl1" "lvl2"
+      
+      $meta$hier_lvl_col
+      [1] "\035lvl"
+      
+      $meta$group_var
+      [1] "group"
+      
+      $meta$total_group_val
+      [1] "Total"
+      
+      $meta$n_denominator
+         GA    GB    GC Total 
+          1     1     2     4 
+      
+      $meta$table_type
+      [1] "frequency"
+      
+      $meta$warning_message
+      NULL
+      
+      $meta$rank_col
+      [1] "\035rank"
+      
+      
+
+---
+
+    Code
+      total_ranking
+    Output
+      # A tibble: 7 x 5
+        lvl1     lvl2     `\035lvl` `\035rank` Total       
+        <fct>    <fct>        <int>      <int> <chr>       
+      1 "\u001d" "\u001d"         0          1 3 ( 75.00 %)
+      2 "A1"     "\u001d"         1          2 3 ( 75.00 %)
+      3 "A1"     "A2"             2          3 3 ( 75.00 %)
+      4 "A1"     "B2"             2          4 2 ( 50.00 %)
+      5 "B1"     "\u001d"         1          5 2 ( 50.00 %)
+      6 "B1"     "B2"             2          6 2 ( 50.00 %)
+      7 "B1"     "A2"             2          7 1 ( 25.00 %)
+
+---
+
+    Code
+      html
+    Output
+      <div>
+        <p>Event count by lvl1, lvl2</p>
+        <table class="table event-count">
+          <tr class="no-border">
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                
+                <br/>
+                
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                GA
+                <br/>
+                (N = 1)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                GB
+                <br/>
+                (N = 1)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                GC
+                <br/>
+                (N = 2)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
+              <span>
+                Total
+                <br/>
+                (N = 4)
+              </span>
+            </th>
+          </tr>
+          <tr row-id="1" class="indent-0" indent="0">
+            <td>
+              <span class="truncate" title="Subjects with any event">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                Subjects with any event
+              </span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">1 ( 50.00 %)</td>
+            <td class="text-center" column="Total">3 ( 75.00 %)</td>
+          </tr>
+          <tr row-id="2" class="indent-1" indent="1">
+            <td>
+              <span class="truncate" title="A1">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                A1
+              </span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">1 ( 50.00 %)</td>
+            <td class="text-center" column="Total">3 ( 75.00 %)</td>
+          </tr>
+          <tr row-id="3" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="A2">A2</span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">1 ( 50.00 %)</td>
+            <td class="text-center" column="Total">3 ( 75.00 %)</td>
+          </tr>
+          <tr row-id="4" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="B2">B2</span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="Total">2 ( 50.00 %)</td>
+          </tr>
+          <tr row-id="5" class="indent-1" indent="1">
+            <td>
+              <span class="truncate" title="B1">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                B1
+              </span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="Total">2 ( 50.00 %)</td>
+          </tr>
+          <tr row-id="6" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="B2">B2</span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">1 ( 100.00 %)</td>
+            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="Total">2 ( 50.00 %)</td>
+          </tr>
+          <tr row-id="7" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="A2">A2</span>
+            </td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GB">—</td>
+            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="Total">1 ( 25.00 %)</td>
+          </tr>
+        </table>
+      </div>
+
+# filtering is correct, against (snapshot)__spec_ids{hierarchical_count_table$minimum_percentage_filter}
 
     Code
       w
@@ -47,30 +251,36 @@
       # A tibble: 7 x 6
         lvl1     lvl2     GA               GB               GC           Total       
         <fct>    <fct>    <list>           <list>           <list>       <list>      
-      1 "A1"     "A2"     <named list [2]> <named list [2]> <named list> <named list>
-      2 "B1"     "A2"     <named list [2]> <named list [2]> <named list> <named list>
-      3 "A1"     "B2"     <named list [2]> <named list [2]> <named list> <named list>
-      4 "B1"     "B2"     <named list [2]> <named list [2]> <named list> <named list>
-      5 "A1"     "\u001d" <named list [2]> <named list [2]> <named list> <named list>
-      6 "B1"     "\u001d" <named list [2]> <named list [2]> <named list> <named list>
-      7 "\u001d" "\u001d" <named list [2]> <named list [2]> <named list> <named list>
+      1 "\u001d" "\u001d" <named list [2]> <named list [2]> <named list> <named list>
+      2 "A1"     "\u001d" <named list [2]> <named list [2]> <named list> <named list>
+      3 "A1"     "A2"     <named list [2]> <named list [2]> <named list> <named list>
+      4 "A1"     "B2"     <named list [2]> <named list [2]> <named list> <named list>
+      5 "B1"     "\u001d" <named list [2]> <named list [2]> <named list> <named list>
+      6 "B1"     "A2"     <named list [2]> <named list [2]> <named list> <named list>
+      7 "B1"     "B2"     <named list [2]> <named list [2]> <named list> <named list>
       
       $meta
       $meta$hierarchy
       [1] "lvl1" "lvl2"
       
-      $meta$group_var
-      [1] "group"
-      
       $meta$hier_lvl_col
       [1] "\035lvl"
       
-      $meta$special_char
-      [1] "\035"
+      $meta$group_var
+      [1] "group"
+      
+      $meta$total_group_val
+      [1] "Total"
       
       $meta$n_denominator
          GA    GB    GC Total 
           1     1     2     4 
+      
+      $meta$table_type
+      [1] "frequency"
+      
+      $meta$warning_message
+      NULL
       
       
 
@@ -83,28 +293,28 @@
         <p>Event count by AEBODSYS, AETERM</p>
         <table class="table event-count">
           <tr class="no-border">
-            <th class="text-center">
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
               <span>
                 
                 <br/>
                 
               </span>
             </th>
-            <th class="text-center">
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
               <span>
                 F
                 <br/>
                 (N = 179)
               </span>
             </th>
-            <th class="text-center">
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
               <span>
                 M
                 <br/>
                 (N = 127)
               </span>
             </th>
-            <th class="text-center">
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
               <span>
                 Total
                 <br/>
@@ -152,34 +362,34 @@
           </tr>
           <tr row-id="5" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="APPLICATION SITE IRRITATION">APPLICATION SITE IRRITATION</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">14 ( 7.82 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">7 ( 5.51 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">21 ( 6.86 %)</td>
-          </tr>
-          <tr row-id="6" class="indent-2" indent="2">
-            <td>
               <span class="truncate" title="APPLICATION SITE DERMATITIS">APPLICATION SITE DERMATITIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">11 ( 6.15 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">10 ( 7.87 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">21 ( 6.86 %)</td>
           </tr>
-          <tr row-id="7" class="indent-2" indent="2">
+          <tr row-id="6" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="FATIGUE">FATIGUE</span>
+              <span class="truncate" title="APPLICATION SITE IRRITATION">APPLICATION SITE IRRITATION</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">6 ( 3.35 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">5 ( 3.94 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">11 ( 3.59 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">14 ( 7.82 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">7 ( 5.51 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">21 ( 6.86 %)</td>
           </tr>
-          <tr row-id="8" class="indent-2" indent="2">
+          <tr row-id="7" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="APPLICATION SITE VESICLES">APPLICATION SITE VESICLES</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 2.23 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">7 ( 5.51 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">11 ( 3.59 %)</td>
+          </tr>
+          <tr row-id="8" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="FATIGUE">FATIGUE</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">6 ( 3.35 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">5 ( 3.94 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">11 ( 3.59 %)</td>
           </tr>
           <tr row-id="9" class="indent-2" indent="2">
@@ -192,18 +402,18 @@
           </tr>
           <tr row-id="10" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="PYREXIA">PYREXIA</span>
+              <span class="truncate" title="APPLICATION SITE SWELLING">APPLICATION SITE SWELLING</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 2.36 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
           </tr>
           <tr row-id="11" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="MALAISE">MALAISE</span>
+              <span class="truncate" title="APPLICATION SITE URTICARIA">APPLICATION SITE URTICARIA</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 2.36 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
           </tr>
           <tr row-id="12" class="indent-2" indent="2">
@@ -216,77 +426,21 @@
           </tr>
           <tr row-id="13" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="APPLICATION SITE URTICARIA">APPLICATION SITE URTICARIA</span>
+              <span class="truncate" title="MALAISE">MALAISE</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 2.36 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
           </tr>
           <tr row-id="14" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="APPLICATION SITE SWELLING">APPLICATION SITE SWELLING</span>
+              <span class="truncate" title="PYREXIA">PYREXIA</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 2.36 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
           </tr>
           <tr row-id="15" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="PAIN">PAIN</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="16" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="OEDEMA">OEDEMA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="17" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="CHEST PAIN">CHEST PAIN</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="18" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="CHEST DISCOMFORT">CHEST DISCOMFORT</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="19" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="ASTHENIA">ASTHENIA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="20" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="APPLICATION SITE REACTION">APPLICATION SITE REACTION</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="21" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="APPLICATION SITE PERSPIRATION">APPLICATION SITE PERSPIRATION</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="22" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="APPLICATION SITE PAIN">APPLICATION SITE PAIN</span>
             </td>
@@ -294,103 +448,71 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
-          <tr row-id="23" class="indent-2" indent="2">
+          <tr row-id="16" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ULCER">ULCER</span>
+              <span class="truncate" title="APPLICATION SITE PERSPIRATION">APPLICATION SITE PERSPIRATION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="17" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="APPLICATION SITE REACTION">APPLICATION SITE REACTION</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="18" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="ASTHENIA">ASTHENIA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="19" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="CHEST DISCOMFORT">CHEST DISCOMFORT</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="20" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="CHEST PAIN">CHEST PAIN</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="21" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="OEDEMA">OEDEMA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="22" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="PAIN">PAIN</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="23" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="APPLICATION SITE BLEEDING">APPLICATION SITE BLEEDING</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="24" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="SWELLING">SWELLING</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="25" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="SUDDEN DEATH">SUDDEN DEATH</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="26" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="SECRETION DISCHARGE">SECRETION DISCHARGE</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="27" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="INFLAMMATION">INFLAMMATION</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="28" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="FEELING COLD">FEELING COLD</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="29" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="FEELING ABNORMAL">FEELING ABNORMAL</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="30" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="CYST">CYST</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="31" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="APPLICATION SITE WARMTH">APPLICATION SITE WARMTH</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="32" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="APPLICATION SITE INDURATION">APPLICATION SITE INDURATION</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="33" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="APPLICATION SITE DISCOLOURATION">APPLICATION SITE DISCOLOURATION</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="34" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="APPLICATION SITE DISCHARGE">APPLICATION SITE DISCHARGE</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="35" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="APPLICATION SITE DESQUAMATION">APPLICATION SITE DESQUAMATION</span>
             </td>
@@ -398,12 +520,100 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
-          <tr row-id="36" class="indent-2" indent="2">
+          <tr row-id="25" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="APPLICATION SITE BLEEDING">APPLICATION SITE BLEEDING</span>
+              <span class="truncate" title="APPLICATION SITE DISCHARGE">APPLICATION SITE DISCHARGE</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="26" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="APPLICATION SITE DISCOLOURATION">APPLICATION SITE DISCOLOURATION</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="27" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="APPLICATION SITE INDURATION">APPLICATION SITE INDURATION</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="28" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="APPLICATION SITE WARMTH">APPLICATION SITE WARMTH</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="29" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="CYST">CYST</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="30" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="FEELING ABNORMAL">FEELING ABNORMAL</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="31" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="FEELING COLD">FEELING COLD</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="32" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="INFLAMMATION">INFLAMMATION</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="33" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="SECRETION DISCHARGE">SECRETION DISCHARGE</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="34" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="SUDDEN DEATH">SUDDEN DEATH</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="35" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="SWELLING">SWELLING</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="36" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="ULCER">ULCER</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="37" class="indent-1" indent="1">
@@ -443,18 +653,18 @@
           </tr>
           <tr row-id="41" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="SKIN IRRITATION">SKIN IRRITATION</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">9 ( 5.03 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">5 ( 3.94 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">14 ( 4.58 %)</td>
-          </tr>
-          <tr row-id="42" class="indent-2" indent="2">
-            <td>
               <span class="truncate" title="HYPERHIDROSIS">HYPERHIDROSIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">5 ( 2.79 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">9 ( 7.09 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">14 ( 4.58 %)</td>
+          </tr>
+          <tr row-id="42" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="SKIN IRRITATION">SKIN IRRITATION</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">9 ( 5.03 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">5 ( 3.94 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">14 ( 4.58 %)</td>
           </tr>
           <tr row-id="43" class="indent-2" indent="2">
@@ -475,10 +685,10 @@
           </tr>
           <tr row-id="45" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="URTICARIA">URTICARIA</span>
+              <span class="truncate" title="PRURITUS GENERALISED">PRURITUS GENERALISED</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
           <tr row-id="46" class="indent-2" indent="2">
@@ -491,15 +701,15 @@
           </tr>
           <tr row-id="47" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="PRURITUS GENERALISED">PRURITUS GENERALISED</span>
+              <span class="truncate" title="URTICARIA">URTICARIA</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
           <tr row-id="48" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="SKIN ULCER">SKIN ULCER</span>
+              <span class="truncate" title="ACTINIC KERATOSIS">ACTINIC KERATOSIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -507,23 +717,23 @@
           </tr>
           <tr row-id="49" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="SKIN ODOUR ABNORMAL">SKIN ODOUR ABNORMAL</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="50" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="SKIN EXFOLIATION">SKIN EXFOLIATION</span>
+              <span class="truncate" title="ALOPECIA">ALOPECIA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
+          <tr row-id="50" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="COLD SWEAT">COLD SWEAT</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
           <tr row-id="51" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="RASH PAPULAR">RASH PAPULAR</span>
+              <span class="truncate" title="DERMATITIS ATOPIC">DERMATITIS ATOPIC</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -531,7 +741,7 @@
           </tr>
           <tr row-id="52" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="RASH MACULO-PAPULAR">RASH MACULO-PAPULAR</span>
+              <span class="truncate" title="DERMATITIS CONTACT">DERMATITIS CONTACT</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -547,7 +757,7 @@
           </tr>
           <tr row-id="54" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DERMATITIS CONTACT">DERMATITIS CONTACT</span>
+              <span class="truncate" title="RASH MACULO-PAPULAR">RASH MACULO-PAPULAR</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -555,7 +765,7 @@
           </tr>
           <tr row-id="55" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DERMATITIS ATOPIC">DERMATITIS ATOPIC</span>
+              <span class="truncate" title="RASH PAPULAR">RASH PAPULAR</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -563,23 +773,23 @@
           </tr>
           <tr row-id="56" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="COLD SWEAT">COLD SWEAT</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="57" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="ALOPECIA">ALOPECIA</span>
+              <span class="truncate" title="SKIN EXFOLIATION">SKIN EXFOLIATION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
+          <tr row-id="57" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="SKIN ODOUR ABNORMAL">SKIN ODOUR ABNORMAL</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
           <tr row-id="58" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ACTINIC KERATOSIS">ACTINIC KERATOSIS</span>
+              <span class="truncate" title="SKIN ULCER">SKIN ULCER</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -638,23 +848,23 @@
           </tr>
           <tr row-id="65" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="LETHARGY">LETHARGY</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="66" class="indent-2" indent="2">
-            <td>
               <span class="truncate" title="BURNING SENSATION">BURNING SENSATION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
+          <tr row-id="66" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="LETHARGY">LETHARGY</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
           <tr row-id="67" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="SYNCOPE VASOVAGAL">SYNCOPE VASOVAGAL</span>
+              <span class="truncate" title="AMNESIA">AMNESIA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -662,23 +872,23 @@
           </tr>
           <tr row-id="68" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="STUPOR">STUPOR</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="69" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="PSYCHOMOTOR HYPERACTIVITY">PSYCHOMOTOR HYPERACTIVITY</span>
+              <span class="truncate" title="BALANCE DISORDER">BALANCE DISORDER</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
+          <tr row-id="69" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="COGNITIVE DISORDER">COGNITIVE DISORDER</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
           <tr row-id="70" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="PARTIAL SEIZURES WITH SECONDARY GENERALISATION">PARTIAL SEIZURES WITH SECONDARY GENERALISATION</span>
+              <span class="truncate" title="COMPLEX PARTIAL SEIZURES">COMPLEX PARTIAL SEIZURES</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -686,15 +896,15 @@
           </tr>
           <tr row-id="71" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="PAROSMIA">PAROSMIA</span>
+              <span class="truncate" title="COORDINATION ABNORMAL">COORDINATION ABNORMAL</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="72" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="PARKINSON&#39;S DISEASE">PARKINSON'S DISEASE</span>
+              <span class="truncate" title="HEMIANOPIA HOMONYMOUS">HEMIANOPIA HOMONYMOUS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -702,7 +912,7 @@
           </tr>
           <tr row-id="73" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="PARAESTHESIA ORAL">PARAESTHESIA ORAL</span>
+              <span class="truncate" title="HYPERSOMNIA">HYPERSOMNIA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -718,7 +928,7 @@
           </tr>
           <tr row-id="75" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HYPERSOMNIA">HYPERSOMNIA</span>
+              <span class="truncate" title="PARAESTHESIA ORAL">PARAESTHESIA ORAL</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -726,7 +936,7 @@
           </tr>
           <tr row-id="76" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HEMIANOPIA HOMONYMOUS">HEMIANOPIA HOMONYMOUS</span>
+              <span class="truncate" title="PARKINSON&#39;S DISEASE">PARKINSON'S DISEASE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -734,15 +944,15 @@
           </tr>
           <tr row-id="77" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="COORDINATION ABNORMAL">COORDINATION ABNORMAL</span>
+              <span class="truncate" title="PAROSMIA">PAROSMIA</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="78" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="COMPLEX PARTIAL SEIZURES">COMPLEX PARTIAL SEIZURES</span>
+              <span class="truncate" title="PARTIAL SEIZURES WITH SECONDARY GENERALISATION">PARTIAL SEIZURES WITH SECONDARY GENERALISATION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -750,23 +960,23 @@
           </tr>
           <tr row-id="79" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="COGNITIVE DISORDER">COGNITIVE DISORDER</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="80" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="BALANCE DISORDER">BALANCE DISORDER</span>
+              <span class="truncate" title="PSYCHOMOTOR HYPERACTIVITY">PSYCHOMOTOR HYPERACTIVITY</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
+          <tr row-id="80" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="STUPOR">STUPOR</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
           <tr row-id="81" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="AMNESIA">AMNESIA</span>
+              <span class="truncate" title="SYNCOPE VASOVAGAL">SYNCOPE VASOVAGAL</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -833,7 +1043,7 @@
           </tr>
           <tr row-id="89" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="STOMACH DISCOMFORT">STOMACH DISCOMFORT</span>
+              <span class="truncate" title="ABDOMINAL DISCOMFORT">ABDOMINAL DISCOMFORT</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -841,7 +1051,7 @@
           </tr>
           <tr row-id="90" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="RECTAL HAEMORRHAGE">RECTAL HAEMORRHAGE</span>
+              <span class="truncate" title="CONSTIPATION">CONSTIPATION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -849,37 +1059,13 @@
           </tr>
           <tr row-id="91" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HIATUS HERNIA">HIATUS HERNIA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="92" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="GLOSSITIS">GLOSSITIS</span>
+              <span class="truncate" title="DYSPHAGIA">DYSPHAGIA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
-          <tr row-id="93" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="GASTROOESOPHAGEAL REFLUX DISEASE">GASTROOESOPHAGEAL REFLUX DISEASE</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="94" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="GASTROINTESTINAL HAEMORRHAGE">GASTROINTESTINAL HAEMORRHAGE</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="95" class="indent-2" indent="2">
+          <tr row-id="92" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="FLATULENCE">FLATULENCE</span>
             </td>
@@ -887,17 +1073,41 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
-          <tr row-id="96" class="indent-2" indent="2">
+          <tr row-id="93" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DYSPHAGIA">DYSPHAGIA</span>
+              <span class="truncate" title="GASTROINTESTINAL HAEMORRHAGE">GASTROINTESTINAL HAEMORRHAGE</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="94" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="GASTROOESOPHAGEAL REFLUX DISEASE">GASTROOESOPHAGEAL REFLUX DISEASE</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="95" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="GLOSSITIS">GLOSSITIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
+          <tr row-id="96" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="HIATUS HERNIA">HIATUS HERNIA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
           <tr row-id="97" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="CONSTIPATION">CONSTIPATION</span>
+              <span class="truncate" title="RECTAL HAEMORRHAGE">RECTAL HAEMORRHAGE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -905,7 +1115,7 @@
           </tr>
           <tr row-id="98" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ABDOMINAL DISCOMFORT">ABDOMINAL DISCOMFORT</span>
+              <span class="truncate" title="STOMACH DISCOMFORT">STOMACH DISCOMFORT</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -940,29 +1150,21 @@
           </tr>
           <tr row-id="102" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ATRIOVENTRICULAR BLOCK SECOND DEGREE">ATRIOVENTRICULAR BLOCK SECOND DEGREE</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 3.15 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">5 ( 1.63 %)</td>
-          </tr>
-          <tr row-id="103" class="indent-2" indent="2">
-            <td>
               <span class="truncate" title="ATRIAL FIBRILLATION">ATRIAL FIBRILLATION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 1.68 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">5 ( 1.63 %)</td>
           </tr>
-          <tr row-id="104" class="indent-2" indent="2">
+          <tr row-id="103" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="VENTRICULAR EXTRASYSTOLES">VENTRICULAR EXTRASYSTOLES</span>
+              <span class="truncate" title="ATRIOVENTRICULAR BLOCK SECOND DEGREE">ATRIOVENTRICULAR BLOCK SECOND DEGREE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 3.15 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">5 ( 1.63 %)</td>
           </tr>
-          <tr row-id="105" class="indent-2" indent="2">
+          <tr row-id="104" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="SUPRAVENTRICULAR EXTRASYSTOLES">SUPRAVENTRICULAR EXTRASYSTOLES</span>
             </td>
@@ -970,31 +1172,15 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
           </tr>
+          <tr row-id="105" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="VENTRICULAR EXTRASYSTOLES">VENTRICULAR EXTRASYSTOLES</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
+          </tr>
           <tr row-id="106" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="PALPITATIONS">PALPITATIONS</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="107" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="BUNDLE BRANCH BLOCK RIGHT">BUNDLE BRANCH BLOCK RIGHT</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="108" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="ATRIOVENTRICULAR BLOCK FIRST DEGREE">ATRIOVENTRICULAR BLOCK FIRST DEGREE</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="109" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="ATRIAL FLUTTER">ATRIAL FLUTTER</span>
             </td>
@@ -1002,71 +1188,39 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
-          <tr row-id="110" class="indent-2" indent="2">
+          <tr row-id="107" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="WOLFF-PARKINSON-WHITE SYNDROME">WOLFF-PARKINSON-WHITE SYNDROME</span>
+              <span class="truncate" title="ATRIOVENTRICULAR BLOCK FIRST DEGREE">ATRIOVENTRICULAR BLOCK FIRST DEGREE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="108" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="BUNDLE BRANCH BLOCK RIGHT">BUNDLE BRANCH BLOCK RIGHT</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="109" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="PALPITATIONS">PALPITATIONS</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="110" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="ATRIAL HYPERTROPHY">ATRIAL HYPERTROPHY</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="111" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="VENTRICULAR HYPERTROPHY">VENTRICULAR HYPERTROPHY</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="112" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="TACHYCARDIA">TACHYCARDIA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="113" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="SUPRAVENTRICULAR TACHYCARDIA">SUPRAVENTRICULAR TACHYCARDIA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="114" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="SINUS ARRHYTHMIA">SINUS ARRHYTHMIA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="115" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="CARDIAC FAILURE CONGESTIVE">CARDIAC FAILURE CONGESTIVE</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="116" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="CARDIAC DISORDER">CARDIAC DISORDER</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="117" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="BUNDLE BRANCH BLOCK LEFT">BUNDLE BRANCH BLOCK LEFT</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="118" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="BRADYCARDIA">BRADYCARDIA</span>
             </td>
@@ -1074,12 +1228,68 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
-          <tr row-id="119" class="indent-2" indent="2">
+          <tr row-id="112" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ATRIAL HYPERTROPHY">ATRIAL HYPERTROPHY</span>
+              <span class="truncate" title="BUNDLE BRANCH BLOCK LEFT">BUNDLE BRANCH BLOCK LEFT</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="113" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="CARDIAC DISORDER">CARDIAC DISORDER</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="114" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="CARDIAC FAILURE CONGESTIVE">CARDIAC FAILURE CONGESTIVE</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="115" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="SINUS ARRHYTHMIA">SINUS ARRHYTHMIA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="116" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="SUPRAVENTRICULAR TACHYCARDIA">SUPRAVENTRICULAR TACHYCARDIA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="117" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="TACHYCARDIA">TACHYCARDIA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="118" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="VENTRICULAR HYPERTROPHY">VENTRICULAR HYPERTROPHY</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="119" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="WOLFF-PARKINSON-WHITE SYNDROME">WOLFF-PARKINSON-WHITE SYNDROME</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="120" class="indent-1" indent="1">
@@ -1111,7 +1321,7 @@
           </tr>
           <tr row-id="123" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="URINARY TRACT INFECTION">URINARY TRACT INFECTION</span>
+              <span class="truncate" title="INFLUENZA">INFLUENZA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
@@ -1119,7 +1329,7 @@
           </tr>
           <tr row-id="124" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="INFLUENZA">INFLUENZA</span>
+              <span class="truncate" title="URINARY TRACT INFECTION">URINARY TRACT INFECTION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
@@ -1127,7 +1337,7 @@
           </tr>
           <tr row-id="125" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="LOCALISED INFECTION">LOCALISED INFECTION</span>
+              <span class="truncate" title="CYSTITIS">CYSTITIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1143,7 +1353,7 @@
           </tr>
           <tr row-id="127" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="CYSTITIS">CYSTITIS</span>
+              <span class="truncate" title="LOCALISED INFECTION">LOCALISED INFECTION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1151,7 +1361,7 @@
           </tr>
           <tr row-id="128" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="VIRAL INFECTION">VIRAL INFECTION</span>
+              <span class="truncate" title="BRONCHITIS">BRONCHITIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1159,7 +1369,7 @@
           </tr>
           <tr row-id="129" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="VAGINAL MYCOSIS">VAGINAL MYCOSIS</span>
+              <span class="truncate" title="CELLULITIS">CELLULITIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1167,15 +1377,15 @@
           </tr>
           <tr row-id="130" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="RHINITIS">RHINITIS</span>
+              <span class="truncate" title="CERVICITIS">CERVICITIS</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="131" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="PNEUMONIA">PNEUMONIA</span>
+              <span class="truncate" title="GASTROENTERITIS VIRAL">GASTROENTERITIS VIRAL</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1183,7 +1393,7 @@
           </tr>
           <tr row-id="132" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ONYCHOMYCOSIS">ONYCHOMYCOSIS</span>
+              <span class="truncate" title="HORDEOLUM">HORDEOLUM</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1199,7 +1409,7 @@
           </tr>
           <tr row-id="134" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HORDEOLUM">HORDEOLUM</span>
+              <span class="truncate" title="ONYCHOMYCOSIS">ONYCHOMYCOSIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1207,7 +1417,7 @@
           </tr>
           <tr row-id="135" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="GASTROENTERITIS VIRAL">GASTROENTERITIS VIRAL</span>
+              <span class="truncate" title="PNEUMONIA">PNEUMONIA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1215,15 +1425,15 @@
           </tr>
           <tr row-id="136" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="CERVICITIS">CERVICITIS</span>
+              <span class="truncate" title="RHINITIS">RHINITIS</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="137" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="CELLULITIS">CELLULITIS</span>
+              <span class="truncate" title="VAGINAL MYCOSIS">VAGINAL MYCOSIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1231,7 +1441,7 @@
           </tr>
           <tr row-id="138" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="BRONCHITIS">BRONCHITIS</span>
+              <span class="truncate" title="VIRAL INFECTION">VIRAL INFECTION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1266,29 +1476,21 @@
           </tr>
           <tr row-id="142" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="EPISTAXIS">EPISTAXIS</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
-          </tr>
-          <tr row-id="143" class="indent-2" indent="2">
-            <td>
               <span class="truncate" title="DYSPNOEA">DYSPNOEA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
           </tr>
-          <tr row-id="144" class="indent-2" indent="2">
+          <tr row-id="143" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="RHINORRHOEA">RHINORRHOEA</span>
+              <span class="truncate" title="EPISTAXIS">EPISTAXIS</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
           </tr>
-          <tr row-id="145" class="indent-2" indent="2">
+          <tr row-id="144" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="PHARYNGOLARYNGEAL PAIN">PHARYNGOLARYNGEAL PAIN</span>
             </td>
@@ -1296,9 +1498,17 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
+          <tr row-id="145" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="RHINORRHOEA">RHINORRHOEA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
           <tr row-id="146" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="RESPIRATORY TRACT CONGESTION">RESPIRATORY TRACT CONGESTION</span>
+              <span class="truncate" title="ALLERGIC GRANULOMATOUS ANGIITIS">ALLERGIC GRANULOMATOUS ANGIITIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1306,7 +1516,7 @@
           </tr>
           <tr row-id="147" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="RALES">RALES</span>
+              <span class="truncate" title="DYSPHONIA">DYSPHONIA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1314,15 +1524,15 @@
           </tr>
           <tr row-id="148" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="PRODUCTIVE COUGH">PRODUCTIVE COUGH</span>
+              <span class="truncate" title="EMPHYSEMA">EMPHYSEMA</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="149" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="POSTNASAL DRIP">POSTNASAL DRIP</span>
+              <span class="truncate" title="HAEMOPTYSIS">HAEMOPTYSIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1338,7 +1548,7 @@
           </tr>
           <tr row-id="151" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HAEMOPTYSIS">HAEMOPTYSIS</span>
+              <span class="truncate" title="POSTNASAL DRIP">POSTNASAL DRIP</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1346,15 +1556,15 @@
           </tr>
           <tr row-id="152" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="EMPHYSEMA">EMPHYSEMA</span>
+              <span class="truncate" title="PRODUCTIVE COUGH">PRODUCTIVE COUGH</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="153" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DYSPHONIA">DYSPHONIA</span>
+              <span class="truncate" title="RALES">RALES</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1362,7 +1572,7 @@
           </tr>
           <tr row-id="154" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ALLERGIC GRANULOMATOUS ANGIITIS">ALLERGIC GRANULOMATOUS ANGIITIS</span>
+              <span class="truncate" title="RESPIRATORY TRACT CONGESTION">RESPIRATORY TRACT CONGESTION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1397,26 +1607,26 @@
           </tr>
           <tr row-id="158" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="INSOMNIA">INSOMNIA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 3.15 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 1.31 %)</td>
-          </tr>
-          <tr row-id="159" class="indent-2" indent="2">
-            <td>
               <span class="truncate" title="ANXIETY">ANXIETY</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 2.23 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 1.31 %)</td>
           </tr>
+          <tr row-id="159" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="INSOMNIA">INSOMNIA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 3.15 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 1.31 %)</td>
+          </tr>
           <tr row-id="160" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="IRRITABILITY">IRRITABILITY</span>
+              <span class="truncate" title="DELUSION">DELUSION</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
           <tr row-id="161" class="indent-2" indent="2">
@@ -1429,15 +1639,15 @@
           </tr>
           <tr row-id="162" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DELUSION">DELUSION</span>
+              <span class="truncate" title="IRRITABILITY">IRRITABILITY</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
           <tr row-id="163" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="RESTLESSNESS">RESTLESSNESS</span>
+              <span class="truncate" title="COMPLETED SUICIDE">COMPLETED SUICIDE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1445,7 +1655,7 @@
           </tr>
           <tr row-id="164" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="NIGHTMARE">NIGHTMARE</span>
+              <span class="truncate" title="DELIRIUM">DELIRIUM</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1453,15 +1663,15 @@
           </tr>
           <tr row-id="165" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="LISTLESS">LISTLESS</span>
+              <span class="truncate" title="DISORIENTATION">DISORIENTATION</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="166" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="LIBIDO DECREASED">LIBIDO DECREASED</span>
+              <span class="truncate" title="HALLUCINATION">HALLUCINATION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1477,7 +1687,7 @@
           </tr>
           <tr row-id="168" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HALLUCINATION">HALLUCINATION</span>
+              <span class="truncate" title="LIBIDO DECREASED">LIBIDO DECREASED</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1485,15 +1695,15 @@
           </tr>
           <tr row-id="169" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DISORIENTATION">DISORIENTATION</span>
+              <span class="truncate" title="LISTLESS">LISTLESS</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="170" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DELIRIUM">DELIRIUM</span>
+              <span class="truncate" title="NIGHTMARE">NIGHTMARE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1501,7 +1711,7 @@
           </tr>
           <tr row-id="171" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="COMPLETED SUICIDE">COMPLETED SUICIDE</span>
+              <span class="truncate" title="RESTLESSNESS">RESTLESSNESS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1536,7 +1746,7 @@
           </tr>
           <tr row-id="175" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ELECTROCARDIOGRAM T WAVE AMPLITUDE DECREASED">ELECTROCARDIOGRAM T WAVE AMPLITUDE DECREASED</span>
+              <span class="truncate" title="BLOOD GLUCOSE INCREASED">BLOOD GLUCOSE INCREASED</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1544,7 +1754,7 @@
           </tr>
           <tr row-id="176" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="BLOOD GLUCOSE INCREASED">BLOOD GLUCOSE INCREASED</span>
+              <span class="truncate" title="ELECTROCARDIOGRAM T WAVE AMPLITUDE DECREASED">ELECTROCARDIOGRAM T WAVE AMPLITUDE DECREASED</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1552,15 +1762,15 @@
           </tr>
           <tr row-id="177" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="WHITE BLOOD CELL COUNT INCREASED">WHITE BLOOD CELL COUNT INCREASED</span>
+              <span class="truncate" title="BIOPSY">BIOPSY</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="178" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="WEIGHT DECREASED">WEIGHT DECREASED</span>
+              <span class="truncate" title="BIOPSY PROSTATE">BIOPSY PROSTATE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1568,15 +1778,15 @@
           </tr>
           <tr row-id="179" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="URINE ANALYSIS ABNORMAL">URINE ANALYSIS ABNORMAL</span>
+              <span class="truncate" title="BLOOD ALKALINE PHOSPHATASE INCREASED">BLOOD ALKALINE PHOSPHATASE INCREASED</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="180" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="NEUTROPHIL COUNT INCREASED">NEUTROPHIL COUNT INCREASED</span>
+              <span class="truncate" title="BLOOD CHOLESTEROL INCREASED">BLOOD CHOLESTEROL INCREASED</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1584,26 +1794,26 @@
           </tr>
           <tr row-id="181" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="NASAL MUCOSA BIOPSY">NASAL MUCOSA BIOPSY</span>
+              <span class="truncate" title="BLOOD CREATINE PHOSPHOKINASE INCREASED">BLOOD CREATINE PHOSPHOKINASE INCREASED</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="182" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HEART RATE IRREGULAR">HEART RATE IRREGULAR</span>
+              <span class="truncate" title="BLOOD URINE PRESENT">BLOOD URINE PRESENT</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="183" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HEART RATE INCREASED">HEART RATE INCREASED</span>
+              <span class="truncate" title="BODY TEMPERATURE INCREASED">BODY TEMPERATURE INCREASED</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="184" class="indent-2" indent="2">
@@ -1616,31 +1826,31 @@
           </tr>
           <tr row-id="185" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="BODY TEMPERATURE INCREASED">BODY TEMPERATURE INCREASED</span>
+              <span class="truncate" title="HEART RATE INCREASED">HEART RATE INCREASED</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="186" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="HEART RATE IRREGULAR">HEART RATE IRREGULAR</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
-          <tr row-id="186" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="BLOOD URINE PRESENT">BLOOD URINE PRESENT</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
           <tr row-id="187" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="BLOOD CREATINE PHOSPHOKINASE INCREASED">BLOOD CREATINE PHOSPHOKINASE INCREASED</span>
+              <span class="truncate" title="NASAL MUCOSA BIOPSY">NASAL MUCOSA BIOPSY</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="188" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="BLOOD CHOLESTEROL INCREASED">BLOOD CHOLESTEROL INCREASED</span>
+              <span class="truncate" title="NEUTROPHIL COUNT INCREASED">NEUTROPHIL COUNT INCREASED</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1648,15 +1858,15 @@
           </tr>
           <tr row-id="189" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="BLOOD ALKALINE PHOSPHATASE INCREASED">BLOOD ALKALINE PHOSPHATASE INCREASED</span>
+              <span class="truncate" title="URINE ANALYSIS ABNORMAL">URINE ANALYSIS ABNORMAL</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="190" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="BIOPSY PROSTATE">BIOPSY PROSTATE</span>
+              <span class="truncate" title="WEIGHT DECREASED">WEIGHT DECREASED</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1664,10 +1874,10 @@
           </tr>
           <tr row-id="191" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="BIOPSY">BIOPSY</span>
+              <span class="truncate" title="WHITE BLOOD CELL COUNT INCREASED">WHITE BLOOD CELL COUNT INCREASED</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="192" class="indent-1" indent="1">
@@ -1707,10 +1917,10 @@
           </tr>
           <tr row-id="196" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="MUSCLE SPASMS">MUSCLE SPASMS</span>
+              <span class="truncate" title="ARTHRITIS">ARTHRITIS</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
           <tr row-id="197" class="indent-2" indent="2">
@@ -1723,18 +1933,18 @@
           </tr>
           <tr row-id="198" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ARTHRITIS">ARTHRITIS</span>
+              <span class="truncate" title="MUSCLE SPASMS">MUSCLE SPASMS</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
           <tr row-id="199" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="PAIN IN EXTREMITY">PAIN IN EXTREMITY</span>
+              <span class="truncate" title="MUSCULAR WEAKNESS">MUSCULAR WEAKNESS</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="200" class="indent-2" indent="2">
@@ -1747,10 +1957,10 @@
           </tr>
           <tr row-id="201" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="MUSCULAR WEAKNESS">MUSCULAR WEAKNESS</span>
+              <span class="truncate" title="PAIN IN EXTREMITY">PAIN IN EXTREMITY</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="202" class="indent-1" indent="1">
@@ -1766,10 +1976,10 @@
           </tr>
           <tr row-id="203" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="FALL">FALL</span>
+              <span class="truncate" title="CONTUSION">CONTUSION</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 2.36 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 1.31 %)</td>
           </tr>
           <tr row-id="204" class="indent-2" indent="2">
@@ -1782,21 +1992,13 @@
           </tr>
           <tr row-id="205" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="CONTUSION">CONTUSION</span>
+              <span class="truncate" title="FALL">FALL</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 2.36 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">4 ( 1.31 %)</td>
           </tr>
           <tr row-id="206" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="SKIN LACERATION">SKIN LACERATION</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
-          </tr>
-          <tr row-id="207" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="HIP FRACTURE">HIP FRACTURE</span>
             </td>
@@ -1804,12 +2006,20 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
           </tr>
+          <tr row-id="207" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="SKIN LACERATION">SKIN LACERATION</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
+          </tr>
           <tr row-id="208" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="WOUND">WOUND</span>
+              <span class="truncate" title="FACIAL BONES FRACTURE">FACIAL BONES FRACTURE</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="209" class="indent-2" indent="2">
@@ -1822,10 +2032,10 @@
           </tr>
           <tr row-id="210" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="FACIAL BONES FRACTURE">FACIAL BONES FRACTURE</span>
+              <span class="truncate" title="WOUND">WOUND</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="211" class="indent-1" indent="1">
@@ -1849,7 +2059,7 @@
           </tr>
           <tr row-id="213" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="NEPHROLITHIASIS">NEPHROLITHIASIS</span>
+              <span class="truncate" title="DYSURIA">DYSURIA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1857,7 +2067,7 @@
           </tr>
           <tr row-id="214" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DYSURIA">DYSURIA</span>
+              <span class="truncate" title="NEPHROLITHIASIS">NEPHROLITHIASIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1865,7 +2075,7 @@
           </tr>
           <tr row-id="215" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="POLLAKIURIA">POLLAKIURIA</span>
+              <span class="truncate" title="CALCULUS URETHRAL">CALCULUS URETHRAL</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1873,7 +2083,7 @@
           </tr>
           <tr row-id="216" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="INCONTINENCE">INCONTINENCE</span>
+              <span class="truncate" title="ENURESIS">ENURESIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1881,7 +2091,7 @@
           </tr>
           <tr row-id="217" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ENURESIS">ENURESIS</span>
+              <span class="truncate" title="INCONTINENCE">INCONTINENCE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -1889,7 +2099,7 @@
           </tr>
           <tr row-id="218" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="CALCULUS URETHRAL">CALCULUS URETHRAL</span>
+              <span class="truncate" title="POLLAKIURIA">POLLAKIURIA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1908,10 +2118,10 @@
           </tr>
           <tr row-id="220" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="INCREASED APPETITE">INCREASED APPETITE</span>
+              <span class="truncate" title="DECREASED APPETITE">DECREASED APPETITE</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
           <tr row-id="221" class="indent-2" indent="2">
@@ -1924,29 +2134,21 @@
           </tr>
           <tr row-id="222" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DECREASED APPETITE">DECREASED APPETITE</span>
+              <span class="truncate" title="INCREASED APPETITE">INCREASED APPETITE</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
           <tr row-id="223" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HYPONATRAEMIA">HYPONATRAEMIA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="224" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="HYPERCHOLESTEROLAEMIA">HYPERCHOLESTEROLAEMIA</span>
+              <span class="truncate" title="DEHYDRATION">DEHYDRATION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
-          <tr row-id="225" class="indent-2" indent="2">
+          <tr row-id="224" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="DIABETES MELLITUS">DIABETES MELLITUS</span>
             </td>
@@ -1954,12 +2156,20 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
-          <tr row-id="226" class="indent-2" indent="2">
+          <tr row-id="225" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="DEHYDRATION">DEHYDRATION</span>
+              <span class="truncate" title="HYPERCHOLESTEROLAEMIA">HYPERCHOLESTEROLAEMIA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="226" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="HYPONATRAEMIA">HYPONATRAEMIA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="227" class="indent-1" indent="1">
@@ -1975,7 +2185,7 @@
           </tr>
           <tr row-id="228" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HYPOTENSION">HYPOTENSION</span>
+              <span class="truncate" title="HYPERTENSION">HYPERTENSION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1983,7 +2193,7 @@
           </tr>
           <tr row-id="229" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HYPERTENSION">HYPERTENSION</span>
+              <span class="truncate" title="HYPOTENSION">HYPOTENSION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -1991,10 +2201,10 @@
           </tr>
           <tr row-id="230" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="WOUND HAEMORRHAGE">WOUND HAEMORRHAGE</span>
+              <span class="truncate" title="HOT FLUSH">HOT FLUSH</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="231" class="indent-2" indent="2">
@@ -2007,10 +2217,10 @@
           </tr>
           <tr row-id="232" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HOT FLUSH">HOT FLUSH</span>
+              <span class="truncate" title="WOUND HAEMORRHAGE">WOUND HAEMORRHAGE</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="233" class="indent-1" indent="1">
@@ -2026,23 +2236,23 @@
           </tr>
           <tr row-id="234" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="VISION BLURRED">VISION BLURRED</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="235" class="indent-2" indent="2">
-            <td>
               <span class="truncate" title="CONJUNCTIVITIS">CONJUNCTIVITIS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
           </tr>
+          <tr row-id="235" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="VISION BLURRED">VISION BLURRED</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
           <tr row-id="236" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="GLAUCOMA">GLAUCOMA</span>
+              <span class="truncate" title="CONJUNCTIVAL HAEMORRHAGE">CONJUNCTIVAL HAEMORRHAGE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -2050,7 +2260,7 @@
           </tr>
           <tr row-id="237" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="EYE SWELLING">EYE SWELLING</span>
+              <span class="truncate" title="EYE ALLERGY">EYE ALLERGY</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -2066,7 +2276,7 @@
           </tr>
           <tr row-id="239" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="EYE ALLERGY">EYE ALLERGY</span>
+              <span class="truncate" title="EYE SWELLING">EYE SWELLING</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -2074,7 +2284,7 @@
           </tr>
           <tr row-id="240" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="CONJUNCTIVAL HAEMORRHAGE">CONJUNCTIVAL HAEMORRHAGE</span>
+              <span class="truncate" title="GLAUCOMA">GLAUCOMA</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -2101,10 +2311,10 @@
           </tr>
           <tr row-id="243" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="SKIN LESION EXCISION">SKIN LESION EXCISION</span>
+              <span class="truncate" title="ACROCHORDON EXCISION">ACROCHORDON EXCISION</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="244" class="indent-2" indent="2">
@@ -2117,10 +2327,10 @@
           </tr>
           <tr row-id="245" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="ACROCHORDON EXCISION">ACROCHORDON EXCISION</span>
+              <span class="truncate" title="SKIN LESION EXCISION">SKIN LESION EXCISION</span>
             </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="246" class="indent-1" indent="1">
@@ -2144,7 +2354,7 @@
           </tr>
           <tr row-id="248" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="TINNITUS">TINNITUS</span>
+              <span class="truncate" title="CERUMEN IMPACTION">CERUMEN IMPACTION</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
@@ -2160,75 +2370,13 @@
           </tr>
           <tr row-id="250" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="CERUMEN IMPACTION">CERUMEN IMPACTION</span>
+              <span class="truncate" title="TINNITUS">TINNITUS</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="251" class="indent-1" indent="1">
-            <td>
-              <span class="truncate" title="REPRODUCTIVE SYSTEM AND BREAST DISORDERS">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                REPRODUCTIVE SYSTEM AND BREAST DISORDERS
-              </span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
-          </tr>
-          <tr row-id="252" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="BENIGN PROSTATIC HYPERPLASIA">BENIGN PROSTATIC HYPERPLASIA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
-          </tr>
-          <tr row-id="253" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="PELVIC PAIN">PELVIC PAIN</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="254" class="indent-1" indent="1">
-            <td>
-              <span class="truncate" title="NEOPLASMS BENIGN, MALIGNANT AND UNSPECIFIED (INCL CYSTS AND POLYPS)">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                NEOPLASMS BENIGN, MALIGNANT AND UNSPECIFIED (INCL CYSTS AND POLYPS)
-              </span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
-          </tr>
-          <tr row-id="255" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="PROSTATE CANCER">PROSTATE CANCER</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="256" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="MALIGNANT FIBROUS HISTIOCYTOMA">MALIGNANT FIBROUS HISTIOCYTOMA</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="257" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="COLON CANCER">COLON CANCER</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="258" class="indent-1" indent="1">
             <td>
               <span class="truncate" title="CONGENITAL, FAMILIAL AND GENETIC DISORDERS">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
@@ -2239,13 +2387,75 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
           </tr>
-          <tr row-id="259" class="indent-2" indent="2">
+          <tr row-id="252" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="VENTRICULAR SEPTAL DEFECT">VENTRICULAR SEPTAL DEFECT</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
+          </tr>
+          <tr row-id="253" class="indent-1" indent="1">
+            <td>
+              <span class="truncate" title="NEOPLASMS BENIGN, MALIGNANT AND UNSPECIFIED (INCL CYSTS AND POLYPS)">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                NEOPLASMS BENIGN, MALIGNANT AND UNSPECIFIED (INCL CYSTS AND POLYPS)
+              </span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.12 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
+          </tr>
+          <tr row-id="254" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="COLON CANCER">COLON CANCER</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="255" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="MALIGNANT FIBROUS HISTIOCYTOMA">MALIGNANT FIBROUS HISTIOCYTOMA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="256" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="PROSTATE CANCER">PROSTATE CANCER</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="257" class="indent-1" indent="1">
+            <td>
+              <span class="truncate" title="REPRODUCTIVE SYSTEM AND BREAST DISORDERS">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                REPRODUCTIVE SYSTEM AND BREAST DISORDERS
+              </span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">3 ( 0.98 %)</td>
+          </tr>
+          <tr row-id="258" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="BENIGN PROSTATIC HYPERPLASIA">BENIGN PROSTATIC HYPERPLASIA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 1.57 %)</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">2 ( 0.65 %)</td>
+          </tr>
+          <tr row-id="259" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="PELVIC PAIN">PELVIC PAIN</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="260" class="indent-1" indent="1">
             <td>
@@ -2260,7 +2470,7 @@
           </tr>
           <tr row-id="261" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="SEASONAL ALLERGY">SEASONAL ALLERGY</span>
+              <span class="truncate" title="HYPERSENSITIVITY">HYPERSENSITIVITY</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
@@ -2268,32 +2478,13 @@
           </tr>
           <tr row-id="262" class="indent-2" indent="2">
             <td>
-              <span class="truncate" title="HYPERSENSITIVITY">HYPERSENSITIVITY</span>
+              <span class="truncate" title="SEASONAL ALLERGY">SEASONAL ALLERGY</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.79 %)</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
           <tr row-id="263" class="indent-1" indent="1">
-            <td>
-              <span class="truncate" title="SOCIAL CIRCUMSTANCES">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                SOCIAL CIRCUMSTANCES
-              </span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="264" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="ALCOHOL USE">ALCOHOL USE</span>
-            </td>
-            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
-            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
-            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
-          </tr>
-          <tr row-id="265" class="indent-1" indent="1">
             <td>
               <span class="truncate" title="HEPATOBILIARY DISORDERS">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
@@ -2304,9 +2495,28 @@
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
             <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
           </tr>
-          <tr row-id="266" class="indent-2" indent="2">
+          <tr row-id="264" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="HYPERBILIRUBINAEMIA">HYPERBILIRUBINAEMIA</span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="265" class="indent-1" indent="1">
+            <td>
+              <span class="truncate" title="SOCIAL CIRCUMSTANCES">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                SOCIAL CIRCUMSTANCES
+              </span>
+            </td>
+            <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
+            <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>
+            <td class="text-center" column="Total" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.33 %)</td>
+          </tr>
+          <tr row-id="266" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="ALCOHOL USE">ALCOHOL USE</span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">1 ( 0.56 %)</td>
             <td class="text-center" column="M" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})">—</td>

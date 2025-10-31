@@ -2,7 +2,7 @@
 % Please edit documentation in R/mod_hierarchical_count_table.R
 \name{compute_order_events_table}
 \alias{compute_order_events_table}
-\title{Orders event table by subject counts}
+\title{Provide hierarchy ordering based on descending counts and alphabetical values}
 \usage{
 compute_order_events_table(d)
 }
@@ -14,6 +14,6 @@ A list returned from \code{compute_events_table()} containing the event data and
 A data frame with the event data sorted by subject counts within each hierarchy level.
 }
 \description{
-Orders event table by subject counts
+Provide hierarchy ordering based on descending counts and alphabetical values
 }
 \keyword{internal}
