@@ -664,3 +664,36 @@ mod_Tplyr_table <- function(
   )
   return(mod)
 }
+
+dataset_info_Tplyr_table <- function(...) NULL # TODO: Return datasets used according to parameterization of the module
+
+check_mod_Tplyr_table <- function(
+    afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
+    receiver_id, review) {
+  warn <- CM$container()
+  err <- CM$container()
+
+  # TODO: Write the API spec for the module and generate the check function below. Complement that with manual checks
+  #       for parameters not representable by the API spec description language
+  # nolint start
+  # OK <- check_mod_Tplyr_table_auto(
+  #   afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
+  #   receiver_id, review, warn, err
+  # )
+  # nolint stop
+ 
+  dv.listings::check_review_parameter(
+    datasets = datasets,
+    dataset_names = names(review[["datasets"]]), 
+    review,
+    err
+  )
+  
+  res <- list(warnings = warn[["messages"]], errors = err[["messages"]])
+  return(res)
+}
+
+mod_Tplyr_table <- CM$module(
+  mod_Tplyr_table, check_mod_Tplyr_table, dataset_info_Tplyr_table
+)
+

@@ -110,11 +110,11 @@ mock_Tplyr_table_mm <- function() {
         datasets = list(
           adsl = list(
             id_vars = "USUBJID",
-            tracked_vars = c("RFENDTC", "RFXENDTC")
+            tracked_vars = c("RFENDTC", "RFXENDTC", "TRTEDT")
           ),
           adae = list(
             id_vars = c("USUBJID", "AESEQ"),
-            tracked_vars = c("AESEV")
+            tracked_vars = c("AESEV", "AESER", "AEREL")
           )
         ),
         choices = c("Pending", "Reviewed with no issues", "Action required", "Resolved"),
