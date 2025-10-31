@@ -549,7 +549,7 @@ Tplyr_table_server <- function(
 #'   data = list("My data" = list(ae = ae, dm = dm)),
 #'   module_list = module_list,
 #'   filter_data = "dm",
-#'   enable_dataset_filter = TRUE
+#'   filter_type = "datasets"
 #' )
 #' }
 #'
