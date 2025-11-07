@@ -1,3 +1,7 @@
+# dv.tables 0.3.0-9000
+
+* Clarify use of choice arguments in documentation for mod_hierarchical_count_table.
+
 # dv.tables 0.3.0
 
 * Retain dash fill-in for RTF downloads
