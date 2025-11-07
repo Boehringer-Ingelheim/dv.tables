@@ -102,19 +102,24 @@ A default value for the origin date variable (optional).}
 A default value for the censor date variable (optional).}
 
 \item{hierarchy_choices}{\verb{character(1+)|NULL}
-A character vector specifying the possible choices for the hierarchy variables (optional).}
+A character vector specifying the possible choices for the hierarchy variables (optional).
+If it is not specified then all factor and character variables from the event data will be used.}
 
 \item{group_choices}{\verb{character(1+)|NULL}
-A character vector specifying the possible choices for the group variable (optional).}
+A character vector specifying the possible choices for the group variable (optional).
+If it is not specified then all factor and character variables from the population data will be used.}
 
 \item{event_date_choices}{\verb{character(1+)|NULL}
-A character vector specifying the possible choices for the event date variable (optional).}
+A character vector specifying the possible choices for the event date variable (optional).
+If it is not specified then all variables of class "Date" from the event data will be used.}
 
 \item{origin_date_choices}{\verb{character(1+)|NULL}
-A character vector specifying the possible choices for the origin date variable (optional).}
+A character vector specifying the possible choices for the origin date variable (optional).
+If it is not specified then all variables of class "Date" from the population data will be used.}
 
 \item{censor_date_choices}{\verb{character(1+)|NULL}
-A character vector specifying the possible choices for the censor date variable (optional).}
+A character vector specifying the possible choices for the censor date variable (optional).
+If it is not specified then all variables of class "Date" from the population data will be used.}
 
 \item{intended_use_label}{Either a string indicating the intended use for export, or
 NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}
