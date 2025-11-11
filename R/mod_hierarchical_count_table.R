@@ -727,6 +727,8 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @return A `shiny::tagList` containing the user interface for selecting hierarchy, group,
 #' and minimum percentage for event counting.
 #'
+#' @keywords main
+#'
 #' @export
 hierarchical_count_table_ui <- function(id,
                                         show_time_at_risk_options = FALSE,
@@ -793,6 +795,8 @@ hierarchical_count_table_ui <- function(id,
 #' @inheritParams mod_hierarchical_count_table
 #'
 #' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
+#'
+#' @keywords main
 #'
 #' @export
 #'

@@ -37,3 +37,4 @@ and minimum percentage for event counting.
 \description{
 UI for the event count module
 }
+\keyword{main}

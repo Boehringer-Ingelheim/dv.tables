@@ -117,3 +117,4 @@ A reactive value containing the list of subjects in the clicked cell, if applica
 \description{
 Server logic for the event count module
 }
+\keyword{main}
