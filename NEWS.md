@@ -1,6 +1,7 @@
 # dv.tables 0.3.0-9000
 
-* Clarify use of choice arguments in documentation for mod_hierarchical_count_table.
+* Reorganise parameter doucmentation for hierarchical count table functions.
+* Clarify use of time at risk related arguments in documentation for mod_hierarchical_count_table.
 
 # dv.tables 0.3.0
 
