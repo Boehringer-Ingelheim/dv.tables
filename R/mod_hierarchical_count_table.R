@@ -719,22 +719,16 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   )
 }
 
-#' @describeIn mod_hierarchical_count_table UI for the event count module
+#' UI for the event count module
 #'
-#' @param id `character(0)`
-#' The ID for the event count module instance.
-#'
-#' @param show_time_at_risk_options `logical(1)`
-#' A logical indicating whether or not to show time at risk options.
-#'
-#' @param default_total `logical(1)`
-#' A default value for whether to add a total group column.
-#'
-#' @param default_risk `logical(1)`
-#' A default value for whether to calculate time-at-risk.
+#' @inheritParams mod_hierarchical_count_table
+#' @inheritParams hierarchical_count_table_server
 #'
 #' @return A `shiny::tagList` containing the user interface for selecting hierarchy, group,
 #' and minimum percentage for event counting.
+#'
+#' @keywords main
+#'
 #' @export
 hierarchical_count_table_ui <- function(id,
                                         show_time_at_risk_options = FALSE,
@@ -780,64 +774,29 @@ hierarchical_count_table_ui <- function(id,
   )
 }
 
-#' @describeIn mod_hierarchical_count_table server
 #' Server logic for the event count module
 #'
-#' @param id `character(0)`
+#' @param id `[character(0)]`
+#'
 #' The ID for the event count module instance.
 #'
-#' @param table_dataset `data.frame`
+#' @param table_dataset `[data.frame]`
+#'
 #' A reactive dataset containing the event data.
 #'
-#' @param pop_dataset `data.frame`
+#' @param pop_dataset `[data.frame]`
+#'
 #' A reactive dataset containing the population data.
 #'
-#' @param subjid_var `character(1)`
-#' A string representing the subject identifier column in both datasets.
+#' @param on_sbj_click_fun `[function]`
 #'
-#' @param show_time_at_risk_options `logical(1)`
-#' A flag to indicate whether to show the time at risk related user selections.
-#'
-#' @param show_modal_on_click `logical(1)`
-#' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
-#'
-#' @param on_sbj_click_fun 'function()'
 #' Function to invoke when a subject is clicked
 #'
-#' @param default_hierarchy `character(1|2)|NULL`
-#' A default value for the hierarchy variables (optional).
-#'
-#' @param default_group `character(1)|NULL`
-#' A default value for the group variable (optional).
-#'
-#' @param default_event_date `character(1)|NULL`
-#' A default value for the event date variable (optional).
-#'
-#' @param default_origin_date `character(1)|NULL`
-#' A default value for the origin date variable (optional).
-#'
-#' @param default_censor_date `character(1)|NULL`
-#' A default value for the censor date variable (optional).
-#'
-#' @param hierarchy_choices `character(1+)|NULL`
-#' A character vector specifying the possible choices for the hierarchy variables (optional).
-#'
-#' @param group_choices `character(1+)|NULL`
-#' A character vector specifying the possible choices for the group variable (optional).
-#'
-#' @param event_date_choices `character(1+)|NULL`
-#' A character vector specifying the possible choices for the event date variable (optional).
-#'
-#' @param origin_date_choices `character(1+)|NULL`
-#' A character vector specifying the possible choices for the origin date variable (optional).
-#'
-#' @param censor_date_choices `character(1+)|NULL`
-#' A character vector specifying the possible choices for the censor date variable (optional).
-#'
-#' @param intended_use_label Either a string indicating the intended use for export, or
-#' NULL. The provided label will be displayed prior to the download and will also be included in the exported file.
+#' @inheritParams mod_hierarchical_count_table
 #'
 #' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
+#'
+#' @keywords main
 #'
 #' @export
 #'
@@ -1159,24 +1118,102 @@ hierarchical_count_table_server <- function(
   )
 }
 
-#' Invoke hierarchical_count_table module
+#' Hierarchical Count Table Module
 #'
 #' @param module_id `[character(1)]`
 #'
-#' Module Shiny id
+#' Module Shiny id.
 #'
-#' @param table_dataset_name,pop_dataset_name `[character(1)]`
+#' @param table_dataset_name `[character(1)]`
 #'
-#' Name of the dataset
+#' Name of the event dataset.
 #'
-#' @param table_dataset_disp,pop_dataset_disp `[mm_dispatcher(1)]`
+#' @param pop_dataset_name `[character(1)]`
 #'
-#' Dataset dispatcher. This parameter is incompatible with its *_dataset_name counterpart. Only for advanced use.
+#' Name of the population dataset.
 #'
-#' @param receiver_id `character(1)`
+#' @param subjid_var `[character(1)]`
 #'
-#' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app or be NULL.
+#' A string representing the subject identifier column in both datasets.
 #'
+#' @param show_time_at_risk_options `[logical(1)]`
+#'
+#' A flag to indicate whether to show the time at risk related user selections (event/origin/censor
+#' date selections, and time at risk checkbox).
+#'
+#' @param show_modal_on_click `[logical(1)]`
+#'
+#' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
+#'
+#' @param default_hierarchy `[character(1|2)|NULL]`
+#'
+#' A default value for the hierarchy variables selection (optional).
+#'
+#' @param default_group `[character(1)|NULL]`
+#'
+#' A default value for the group variable selection (optional).
+#'
+#' @param default_total `[logical(1)]`
+#'
+#' A default value for checkbox determining whether to add a total group column.
+#'
+#' @param default_event_date `[character(1)|NULL]`
+#'
+#' A default value for the event date variable selection (optional). Not applicable when
+#' `show_time_at_risk_options` is `FALSE`.
+#'
+#' @param default_origin_date `[character(1)|NULL]`
+#'
+#' A default value for the origin date variable selection (optional). Not applicable when
+#' `show_time_at_risk_options` is `FALSE`.
+#'
+#' @param default_censor_date `[character(1)|NULL]`
+#'
+#' A default value for the censor date variable selection (optional). Not applicable when
+#' `show_time_at_risk_options` is `FALSE`.
+#'
+#' @param default_risk `[logical(1)]`
+#'
+#' A default value for for checkbox determining whether to calculate time at risk. Not
+#' applicable when `show_time_at_risk_options` is `FALSE`.
+#'
+#' @param hierarchy_choices `[character(1+)|NULL]`
+#'
+#' A character vector specifying the possible choices for the hierarchy variables selection (optional).
+#' If it is not specified then all factor and character variables from the event data will be used.
+#'
+#' @param group_choices `[character(1+)|NULL]`
+#'
+#' A character vector specifying the possible choices for the group variable selection (optional).
+#' If it is not specified then all factor and character variables from the population data will be used.
+#'
+#' @param event_date_choices `[character(1+)|NULL]`
+#'
+#' A character vector specifying the possible choices for the event date variable selection (optional).
+#' If it is not specified then all variables of class "Date" from the event data will be used.
+#' Not applicable when `show_time_at_risk_options` is `FALSE`.
+#'
+#' @param origin_date_choices `[character(1+)|NULL]`
+#'
+#' A character vector specifying the possible choices for the origin date variable selection (optional).
+#' If it is not specified then all variables of class "Date" from the population data will be used.
+#' Not applicable when `show_time_at_risk_options` is `FALSE`.
+#'
+#' @param censor_date_choices `[character(1+)|NULL]`
+#'
+#' A character vector specifying the possible choices for the censor date variable selection (optional).
+#' If it is not specified then all variables of class "Date" from the population data will be used.
+#' Not applicable when `show_time_at_risk_options` is `FALSE`.
+#'
+#' @param intended_use_label `[character(1)|NULL]`
+#'
+#' Either a string indicating the intended use for export, or NULL. The provided label will be displayed
+#' prior to the download and will also be included in the exported file.
+#'
+#' @param receiver_id `[character(1)]`
+#'
+#' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app
+#' or be NULL.
 #'
 #' @keywords main
 #'

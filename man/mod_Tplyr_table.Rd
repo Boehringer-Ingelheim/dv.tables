@@ -87,8 +87,8 @@ my_tplyr_fun2 <- function(dm, ae) {
     Tplyr::set_pop_treat_var(ARM) |>
     Tplyr::add_layer(
       Tplyr::group_count("All subjects") |>
-      Tplyr::set_distinct_by(USUBJID) |>
-      Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
+        Tplyr::set_distinct_by(USUBJID) |>
+        Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
     ) |>
     Tplyr::add_layer(
       Tplyr::group_count("Subjects with adverse events") |>
@@ -97,8 +97,8 @@ my_tplyr_fun2 <- function(dm, ae) {
     ) |>
     Tplyr::add_layer(
       Tplyr::group_count(AESEV, by = "Adverse event severity") |>
-      Tplyr::set_distinct_by(USUBJID) |>
-      Tplyr::set_format_strings(Tplyr::f_str("xx (xx \%)", distinct_n, distinct_pct))
+        Tplyr::set_distinct_by(USUBJID) |>
+        Tplyr::set_format_strings(Tplyr::f_str("xx (xx \%)", distinct_n, distinct_pct))
     ) |>
     Tplyr::add_layer(
       Tplyr::group_count("Subjects with serious AE", where = AESER == "Y") |>
@@ -138,9 +138,8 @@ dv.manager::run_app(
   data = list("My data" = list(ae = ae, dm = dm)),
   module_list = module_list,
   filter_data = "dm",
-  enable_dataset_filter = TRUE
+  filter_type = "datasets"
 )
-
 }
 
 }
