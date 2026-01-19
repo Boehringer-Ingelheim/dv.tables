@@ -62,6 +62,16 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #'
 #'   The names of the top-level list elements are used as identifiers for the outputs.
 #'
+#' @param title_layout `[character(1)]`
+#'
+#' Controls how users select the output UI for outputs in `output_list`.
+#' Supported values are:
+#' \describe{
+#'   \item{`"dropdown"` (default)}{Renders the current interactive title with a drop-down selector.}
+#'   \item{`"tabs"`}{Renders a horizontal `tabsetPanel` with one tab per entry in `output_list`.
+#'     Tabs will wrap to the next line if there are many. The rest of the module behavior is unchanged.}
+#' }
+#'
 #' @param dataset_metadata `[list(character(1), character(1+))]` A list with the following two elements:
 #' \code{dataset_metadata$name()} containing a reactive string specifying the name of the selected
 #' dataset and \code{dataset_metadata$date_range()} containing a reactive character vector with two entries
@@ -79,6 +89,7 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #'
 #'
 #' @param review an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
+#'
 #'
 #' @keywords main
 #' @export
