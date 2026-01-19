@@ -7,7 +7,8 @@ TPLYR_TBL <- pack_of_constants( # nolint
   SEL_OUTPUT_LABEL = "Select Output:",
   TITLE_OUTPUT_ID = "title_id",
   TITLE_OUTPUT_LABEL = "Output:",
-  SEL_ACT_ID = "menu_button"
+  SEL_ACT_ID = "menu_button",
+  TABS_ID = "title_tabs"
 )
 
 
@@ -91,7 +92,11 @@ Tplyr_table_server <- function(
     intended_use_label,
     pagination,
     on_sbj_click = NULL,
-    review = NULL) {
+    review = NULL,
+    title_layout = c("dropdown", "tabs")) {
+
+  title_layout <- match.arg(title_layout)
+
   checkmate::assert(
     checkmate::check_character(module_id, min.chars = 1),
     checkmate::check_multi_class(dataset_list, c("reactive", "shinymeta_reactive")),
@@ -147,6 +152,9 @@ Tplyr_table_server <- function(
 
     # define action button & output selector
     title_ui <- local({
+
+      if (identical(title_layout, "dropdown")) {
+
       output_menu <- shiny::tagAppendAttributes(
         shinyWidgets::dropMenu(
           shiny::actionButton(
@@ -178,7 +186,25 @@ Tplyr_table_server <- function(
         output_menu
       )
       interactive_title
+
+      }
+
+      else{
+
+        # Standard Shiny tabs; they will wrap to the next line naturally.
+        tabs <- lapply(names(output_list), function(nm) {
+          shiny::tabPanel(title = nm, value = nm)
+        })
+        do.call(
+          shiny::tabsetPanel,
+          c(
+            list(id = ns(TPLYR_TBL$TABS_ID), selected = names(output_list)[1]),
+            tabs
+          )
+        )
+      }
     })
+
 
     output[[TPLYR_TBL$TITLE_OUTPUT_ID]] <- shiny::renderUI({
       title_ui
@@ -189,7 +215,7 @@ Tplyr_table_server <- function(
     )
 
     # Update the action button label
-
+    if (identical(title_layout, "dropdown")) {
     shiny::observeEvent(input[[TPLYR_TBL$SEL_OUTPUT_ID]], {
       selected_value <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
       shiny::updateActionButton(
@@ -198,6 +224,17 @@ Tplyr_table_server <- function(
         label = selected_value
       )
     })
+    }
+
+    selected_output_id <- shiny::reactive({
+      if (identical(title_layout, "tabs")) {
+        input[[TPLYR_TBL$TABS_ID]]
+      } else {
+        input[[TPLYR_TBL$SEL_OUTPUT_ID]]
+      }
+    })
+
+
     ### Table title end ---
 
     # consider using DT
@@ -290,12 +327,15 @@ Tplyr_table_server <- function(
 
     click_info_contents <- shiny::reactiveVal(NULL)
 
-    shiny::observeEvent(list(input[[TPLYR_TBL$SEL_OUTPUT_ID]], v_dataset_list()), {
-      shiny::req(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
+    shiny::observeEvent(list(selected_output_id(),
+                             v_dataset_list()), {
+      shiny::req(selected_output_id())
 
       r_dataset_list <- v_dataset_list()
-      selected_output_id <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
-      selected_output <- output_list[[selected_output_id]]
+
+      sel_id <- selected_output_id()
+      selected_output <- output_list[[sel_id]]
+
       tplyr_tab_fun <- selected_output[["tplyr_tab_fun"]]
 
       new_state <- list(tplyr_tab = NULL, needed_data = NULL, tplyr_tab_build = NULL, is_table = FALSE)
@@ -336,7 +376,7 @@ Tplyr_table_server <- function(
             if (!("row_id" %in% names(res))) {
               warning(
                 paste(
-                  "For output", input[[TPLYR_TBL$SEL_OUTPUT_ID]],
+                  "For output", sel_id,
                   "the metadata is not set to TRUE in the build function. Drill down will not be working"
                 )
               )
@@ -561,7 +601,10 @@ mod_Tplyr_table <- function(
     pagination = NULL,
     intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
     receiver_id = NULL,
-    review = NULL) {
+    review = NULL,
+    title_layout = c("dropdown", "tabs")) {
+
+  title_layout <- match.arg(title_layout)
   checkmate::assert_list(output_list, types = "list")
 
   for (output in output_list) {
@@ -657,43 +700,11 @@ mod_Tplyr_table <- function(
         intended_use_label = intended_use_label,
         pagination = pagination,
         on_sbj_click = on_sbj_click_fun,
-        review = review
+        review = review,
+        title_layout = title_layout
       )
     },
     module_id = module_id
   )
   return(mod)
 }
-
-dataset_info_Tplyr_table <- function(...) NULL # TODO: Return datasets used according to parameterization of the module
-
-check_mod_Tplyr_table <- function(
-    afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
-    receiver_id, review) {
-  warn <- CM$container()
-  err <- CM$container()
-
-  # TODO: Write the API spec for the module and generate the check function below. Complement that with manual checks
-  #       for parameters not representable by the API spec description language
-  # nolint start
-  # OK <- check_mod_Tplyr_table_auto(
-  #   afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
-  #   receiver_id, review, warn, err
-  # )
-  # nolint stop
- 
-  dv.listings::check_review_parameter(
-    datasets = datasets,
-    dataset_names = names(review[["datasets"]]), 
-    review,
-    err
-  )
-  
-  res <- list(warnings = warn[["messages"]], errors = err[["messages"]])
-  return(res)
-}
-
-mod_Tplyr_table <- CM$module(
-  mod_Tplyr_table, check_mod_Tplyr_table, dataset_info_Tplyr_table
-)
-
