@@ -13,7 +13,8 @@ mod_Tplyr_table(
   intended_use_label =
     "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL,
-  review = NULL
+  review = NULL,
+  title_layout = c("dropdown", "tabs")
 )
 }
 \arguments{
@@ -53,6 +54,16 @@ Column corresponding to subject ID. Default value is 'USUBJID'}
 \item{receiver_id}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through}
 
 \item{review}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
+
+\item{title_layout}{\verb{[character(1)]}
+
+Controls how users select the output UI for outputs in \code{output_list}.
+Supported values are:
+\describe{
+\item{\code{"dropdown"} (default)}{Renders the current interactive title with a drop-down selector.}
+\item{\code{"tabs"}}{Renders a horizontal \code{tabsetPanel} with one tab per entry in \code{output_list}.
+Tabs will wrap to the next line if there are many. The rest of the module behavior is unchanged.}
+}}
 }
 \description{
 This module integrates Tplyr-based table generation into the DaVinci module manager framework.

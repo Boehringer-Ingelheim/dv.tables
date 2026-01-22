@@ -157,9 +157,17 @@ Tplyr_table_server <- function(
       dataset_list_droppedlevels
     })
 
-    ## table part start ---
-
     ### Table title start --
+
+    # Central selected output id
+
+    selected_output_id <- shiny::reactive({
+      if (identical(title_layout, "tabs")) {
+        input[[TPLYR_TBL$TABS_ID]]
+      } else {
+        input[[TPLYR_TBL$SEL_OUTPUT_ID]]
+      }
+    })
 
     # define action button & output selector
     title_ui <- local({
@@ -202,7 +210,7 @@ Tplyr_table_server <- function(
 
       else{
 
-        # Standard Shiny tabs; they will wrap to the next line naturally.
+        # Standard Shiny tabs; wraps to next line
         tabs <- lapply(names(output_list), function(nm) {
           shiny::tabPanel(title = nm, value = nm)
         })
@@ -225,7 +233,7 @@ Tplyr_table_server <- function(
       suspendWhenHidden = FALSE
     )
 
-    # Update the action button label
+    # Update the action button label (only if its interactive dropdown)
     if (identical(title_layout, "dropdown")) {
     shiny::observeEvent(input[[TPLYR_TBL$SEL_OUTPUT_ID]], {
       selected_value <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
@@ -237,16 +245,10 @@ Tplyr_table_server <- function(
     })
     }
 
-    selected_output_id <- shiny::reactive({
-      if (identical(title_layout, "tabs")) {
-        input[[TPLYR_TBL$TABS_ID]]
-      } else {
-        input[[TPLYR_TBL$SEL_OUTPUT_ID]]
-      }
-    })
-
 
     ### Table title end ---
+
+    ## table part start ---
 
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
