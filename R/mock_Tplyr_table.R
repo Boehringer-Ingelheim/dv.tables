@@ -302,7 +302,7 @@ mock_Tplyr_table_tabs <- function() {
 
   ui <- function(id) {
     ns <- ifelse(is.character(id), shiny::NS(id), shiny::NS(NULL))
-    shiny::fluidPage(Tplyr_table_UI(ns("mock_tplyr_tabs"), output_list = output_list))
+    shiny::fluidPage(Tplyr_table_UI(ns("test"), output_list = output_list))
   }
 
   server  <- function(input, output, session) {

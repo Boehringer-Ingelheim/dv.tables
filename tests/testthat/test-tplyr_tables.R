@@ -13,8 +13,7 @@ local({
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
   test_that("App initialization is correct" |>
-    vdoc[["add_spec"]](specs$Tplyr_tables$framework)
-    , {
+    vdoc[["add_spec"]](specs$Tplyr_tables$framework), {
     app_outputs <- app$get_values(output = "mock_tplyr-table_output")
 
     # Parse the JSON
@@ -36,10 +35,8 @@ local({
   })
 
 
-
   test_that("Click event generates dv.listings output" |>
-    vdoc[["add_spec"]](specs$Tplyr_tables$clickevent)
-    , {
+    vdoc[["add_spec"]](specs$Tplyr_tables$clickevent), {
     # Update output value
     app$set_inputs(
       `mock_tplyr-row_id` = list(index = 8),
@@ -82,8 +79,7 @@ local({
   })
 
   test_that("Click event outside required area does not generate listing" |>
-    vdoc[["add_spec"]](specs$Tplyr_tables$error)
-    , {
+    vdoc[["add_spec"]](specs$Tplyr_tables$error), {
     # Update output value
     app$set_inputs(
       `mock_tplyr-row_id` = list(index = 3),
@@ -97,8 +93,8 @@ local({
     sel_data <- app$get_value(export = "mock_tplyr-sel_data")
 
     expect_equal(
-     sel_data,
-     list(cell = NULL, listings_data = NULL)
+      sel_data,
+      list(cell = NULL, listings_data = NULL)
     )
   })
 })
@@ -119,8 +115,7 @@ local({
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
   testthat::test_that("Table cell click generates corresponding listing" |>
-                        vdoc[["add_spec"]](specs$Tplyr_tables$clickevent), {
-
+    vdoc[["add_spec"]](specs$Tplyr_tables$clickevent), {
     app$set_inputs(
       `test-row_id` = list(index = 8),
       `test-col_id` = list(column = "var1_Xanomeline Low Dose"),
@@ -139,12 +134,10 @@ local({
     )
 
     testthat::expect_equal(actual, expected)
-
   })
 
   testthat::test_that("output can be switched" |>
-                        vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
-
+    vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
     table1 <- app$get_value(output = "test-table_output")
     app$set_inputs(`test-sel_output` = "Tabel 2")
     table2 <- app$get_value(output = "test-table_output")
@@ -152,7 +145,7 @@ local({
   })
 
   testthat::test_that("only a listing without a table can be displayed" |>
-                        vdoc[["add_spec"]](specs$Tplyr_tables$only_listing), {
+    vdoc[["add_spec"]](specs$Tplyr_tables$only_listing), {
     app$set_inputs(`test-sel_output` = "Listing")
     state <- app$get_value(export = "test-state")
     listings_data <- app$get_value(export = "test-listings_data")
@@ -167,7 +160,7 @@ local({
   })
 
   testthat::test_that("module works with global filter" |>
-                        vdoc[["add_spec"]](specs$Tplyr_tables$global_filter), {
+    vdoc[["add_spec"]](specs$Tplyr_tables$global_filter), {
     table_output <- app$get_value(output = "test-table_output")
     parsed_table_output <- jsonlite::fromJSON(table_output)
     default_table_data <- parsed_table_output$x$tag$attribs$data
@@ -183,12 +176,10 @@ local({
     filtered_table_data <- parsed_table_output_filtered$x$tag$attribs$data
 
     expect_equal(filtered_table_data, default_table_data_filtered)
-
   })
 })
 
 local({
-
   root_app <- start_app_driver(rlang::quo(dv.tables:::mock_Tplyr_table_tabs()))
   on.exit(if ("stop" %in% names(root_app)) root_app$stop())
 
@@ -203,13 +194,25 @@ local({
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
   testthat::test_that("tabbed output can be switched" |>
-                        vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
+    vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
 
-                          table1 <- app$get_value(output = "test-table_output")
-                          app$set_inputs(`test-title_tabs` = "Tabel 2")
-                          table2 <- app$get_value(output = "test-table_output")
-                          testthat::expect_false(table1 == table2)
-                        })
+    # Wait until the tabsetPanel element exists AND has input binding
+    app$wait_for_js(
+      "(() => {
+         const el = document.getElementById('test-title_tabs');
+         return !!el && el.classList.contains('shiny-bound-input');
+       })()",
+      timeout = 10000
+    )
 
 
+    table1 <- app$get_value(output = "test-table_output")
+
+    app$set_inputs(`test-title_tabs` = "Tabel 2")
+    app$wait_for_value(input = "test-title_tabs", value = "Tabel 2")
+    app$wait_for_idle()
+
+    table2 <- app$get_value(output = "test-table_output")
+    testthat::expect_false(table1 == table2)
+  })
 })
