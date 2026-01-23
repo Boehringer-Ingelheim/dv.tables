@@ -1,3 +1,7 @@
+# dv.tables 0.3.1-9000
+
+* Tplyr_table module, added option for Tabs layout (default is dropdown selector)
+
 # dv.tables 0.3.0-9000
 
 * Reorganise parameter documentation for hierarchical count table functions.
