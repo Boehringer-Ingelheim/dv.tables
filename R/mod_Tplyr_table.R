@@ -206,9 +206,7 @@ Tplyr_table_server <- function(
       )
       interactive_title
 
-      }
-
-      else{
+      }else {
 
         # Standard Shiny tabs; wraps to next line
         tabs <- lapply(names(output_list), function(nm) {
