@@ -186,3 +186,30 @@ local({
 
   })
 })
+
+local({
+
+  root_app <- start_app_driver(rlang::quo(dv.tables:::mock_Tplyr_table_tabs()))
+  on.exit(if ("stop" %in% names(root_app)) root_app$stop())
+
+  fail_if_app_not_started <- function() {
+    if (is.null(root_app)) rlang::abort("App could not be started")
+  }
+
+  fail_if_app_not_started()
+  skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
+  skip_if_suspect_check <- function() testthat::skip_if(suspect_check, message = "Suspected check")
+
+  app <- shinytest2::AppDriver$new(root_app$get_url())
+
+  testthat::test_that("tabbed output can be switched" |>
+                        vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
+
+                          table1 <- app$get_value(output = "mock_tplyr_tabs-table_output")
+                          app$set_inputs(`mock_tplyr_tabs-sel_output` = "Tabel 2")
+                          table2 <- app$get_value(output = "mock_tplyr_tabs-table_output")
+                          testthat::expect_false(table1 == table2)
+                        })
+
+
+})

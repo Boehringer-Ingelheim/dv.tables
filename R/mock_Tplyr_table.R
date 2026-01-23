@@ -4,7 +4,7 @@ utils::globalVariables(
 )
 #' Mock app integrated in the module manager
 #'
-#' \code{mock_Tplyr_table} launches a mock app for the Tplyr_table shiny module by means of
+#' \code{mock_Tplyr_table_mm} launches a mock app for the Tplyr_table shiny module by means of
 #' the module manager (dv.manager).
 #'
 #' @keywords mock
@@ -131,6 +131,13 @@ mock_Tplyr_table_mm <- function() {
   )
 }
 
+#' Mock app without module manager
+#'
+#' \code{mock_Tplyr_table} launches a mock app for the Tplyr_table shiny module.
+#'
+#' @keywords mock
+#' @export
+#'
 mock_Tplyr_table <- function() {
   if (!requireNamespace("pharmaverseadam")) {
     stop("Install pharmaverseadam")
@@ -187,6 +194,135 @@ mock_Tplyr_table <- function() {
       default_vars = NULL,
       intended_use_label = "Test Label",
       pagination = NULL
+    )
+  }
+
+  shiny::shinyApp(
+    ui,
+    server
+  )
+}
+
+#' Mock app tabbed UI layout
+#'
+#' \code{mock_Tplyr_table_tabs} launches a mock app for the Tplyr_table shiny module with tab UI layout
+#' (default is drop-down selector).
+#'
+#' @keywords mock
+#' @export
+#'
+mock_Tplyr_table_tabs <- function() {
+  if (!requireNamespace("pharmaverseadam")) {
+    stop("Install pharmaverseadam")
+  }
+  adsl <- pharmaverseadam::adsl
+  adae <- pharmaverseadam::adae
+
+  adsl <- adsl |>
+    dplyr::mutate(
+      EOSSTT = dplyr::if_else(is.na(EOSSTT), "NA", EOSSTT)
+    )
+
+  my_tplyr_fun <- function(adsl) {
+    # Create summary table object
+    tab <- Tplyr::tplyr_table(adsl, ARM) |>
+      Tplyr::add_layer(
+        Tplyr::group_desc(AGE, by = "Age (years)")
+      ) |>
+      Tplyr::add_layer(
+        Tplyr::group_count(EOSSTT, by = "End of Study status (%)")
+      )
+    return(tab)
+  }
+
+  build_func <- function(tab) {
+    Tplyr::build(tab, metadata = TRUE) |>
+      dplyr::mutate(
+        row_label2 = ifelse(row_label2 == row_label1, "Total (%)", row_label2)
+      ) |>
+      Tplyr::apply_row_masks(row_breaks = TRUE)
+  }
+
+  my_tplyr_fun2 <- function(adsl, adae) {
+    tab <- Tplyr::tplyr_table(adae, TRT01A) |>
+      Tplyr::set_pop_data(adsl) |>
+      Tplyr::set_pop_treat_var(TRT01A) |>
+      Tplyr::add_layer(
+        Tplyr::group_count("All subject") |>
+          Tplyr::set_distinct_by(USUBJID) |>
+          Tplyr::set_format_strings(Tplyr::f_str(
+            "xx",
+            distinct_total
+          ))
+      ) |>
+      Tplyr::add_layer(
+        Tplyr::group_count("Subjects with adverse events") |>
+          Tplyr::set_distinct_by(USUBJID) |>
+          Tplyr::set_format_strings(Tplyr::f_str(
+            "xx (xx %)",
+            distinct_n, distinct_pct
+          ))
+      ) |>
+      Tplyr::add_layer(
+        Tplyr::group_count(AESEV, by = "Adverse event severity") |>
+          Tplyr::set_distinct_by(USUBJID) |>
+          Tplyr::set_format_strings(Tplyr::f_str(
+            "xx (xx %)",
+            distinct_n, distinct_pct
+          ))
+      ) |>
+      Tplyr::add_layer(
+        Tplyr::group_count("Subjects with severe AE", where = AESER == "Y") |>
+          Tplyr::set_distinct_by(USUBJID) |>
+          Tplyr::set_format_strings(Tplyr::f_str(
+            "xx (xx %)",
+            distinct_n, distinct_pct
+          ))
+      )
+
+    return(tab)
+  }
+
+  build_func2 <- function(tab) {
+
+    Tplyr::build(tab, metadata = TRUE) |>
+      Tplyr::apply_row_masks(row_breaks = TRUE)
+  }
+
+  output_list <- list(
+    "Table 1" = list(
+      tplyr_tab_fun = my_tplyr_fun,
+      build_fun = build_func
+    ),
+    "Tabel 2" = list(
+      tplyr_tab_fun = my_tplyr_fun2,
+      build_fun = build_func2
+    )
+  )
+
+  ui <- function(id) {
+    ns <- ifelse(is.character(id), shiny::NS(id), shiny::NS(NULL))
+    shiny::fluidPage(Tplyr_table_UI(ns("mock_tplyr_tabs"), output_list = output_list))
+  }
+
+  server  <- function(input, output, session) {
+    Tplyr_table_server(
+      module_id = "mock_tplyr_tabs",
+      dataset_list = shiny::reactive({
+        list("adae" = adae, "adsl" = adsl)
+      }),
+      output_list = output_list,
+      dataset_metadata = list(
+        name = shiny::reactive("test_name"),
+        date_range = shiny::reactive({
+          c("2022-01-01", "2022-12-03")
+        })
+      ),
+      subjid_var = "USUBJID",
+      default_vars = NULL,
+      intended_use_label = "Test Label",
+      pagination = NULL,
+      title_layout = "tabs"
     )
   }
 
