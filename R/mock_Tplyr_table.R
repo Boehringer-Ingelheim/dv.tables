@@ -307,7 +307,7 @@ mock_Tplyr_table_tabs <- function() {
 
   server  <- function(input, output, session) {
     Tplyr_table_server(
-      module_id = "mock_tplyr_tabs",
+      module_id = "test",
       dataset_list = shiny::reactive({
         list("adae" = adae, "adsl" = adsl)
       }),
