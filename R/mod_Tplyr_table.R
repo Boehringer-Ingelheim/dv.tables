@@ -94,18 +94,18 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #' @keywords main
 #' @export
 Tplyr_table_server <- function(
-    module_id,
-    dataset_list,
-    output_list,
-    dataset_metadata,
-    subjid_var,
-    default_vars,
-    intended_use_label,
-    pagination,
-    on_sbj_click = NULL,
-    review = NULL,
-    title_layout = c("dropdown", "tabs")) {
-
+  module_id,
+  dataset_list,
+  output_list,
+  dataset_metadata,
+  subjid_var,
+  default_vars,
+  intended_use_label,
+  pagination,
+  on_sbj_click = NULL,
+  review = NULL,
+  title_layout = c("dropdown", "tabs")
+) {
   title_layout <- match.arg(title_layout)
 
   checkmate::assert(
@@ -163,62 +163,66 @@ Tplyr_table_server <- function(
 
     selected_output_id <- shiny::reactive({
       if (identical(title_layout, "tabs")) {
-        input[[TPLYR_TBL$TABS_ID]]
+        # If single output
+
+        input[[TPLYR_TBL$TABS_ID]] %||% names(output_list)[1]
       } else {
-        input[[TPLYR_TBL$SEL_OUTPUT_ID]]
+        input[[TPLYR_TBL$SEL_OUTPUT_ID]] %||% names(output_list)[1]
       }
     })
 
+
     # define action button & output selector
     title_ui <- local({
-
       if (identical(title_layout, "dropdown")) {
-
-      output_menu <- shiny::tagAppendAttributes(
-        shinyWidgets::dropMenu(
-          shiny::actionButton(
-            inputId = ns(TPLYR_TBL$SEL_ACT_ID),
-            label = TPLYR_TBL$TITLE_OUTPUT_LABEL
+        output_menu <- shiny::tagAppendAttributes(
+          shinyWidgets::dropMenu(
+            shiny::actionButton(
+              inputId = ns(TPLYR_TBL$SEL_ACT_ID),
+              label = TPLYR_TBL$TITLE_OUTPUT_LABEL
+            ),
+            shiny::tagList(
+              shiny::tags$style(shiny::HTML(paste0(
+                "#",
+                ns(TPLYR_TBL$SEL_OUTPUT_ID),
+                " + div.selectize-control div.selectize-input.items {max-height:200px; overflow-y:auto;}"
+              ))),
+              shiny::selectizeInput(
+                inputId = ns(TPLYR_TBL$SEL_OUTPUT_ID),
+                label = TPLYR_TBL$SEL_OUTPUT_LABEL,
+                choices = names(output_list),
+                selected = names(output_list)[1],
+                multiple = FALSE
+              )
+            ),
+            arrow = TRUE
           ),
-          shiny::tagList(
-            shiny::tags$style(shiny::HTML(paste0(
-              "#",
-              ns(TPLYR_TBL$SEL_OUTPUT_ID),
-              " + div.selectize-control div.selectize-input.items {max-height:200px; overflow-y:auto;}"
-            ))),
-            shiny::selectizeInput(
-              inputId = ns(TPLYR_TBL$SEL_OUTPUT_ID),
-              label = TPLYR_TBL$SEL_OUTPUT_LABEL,
-              choices = names(output_list),
-              selected = names(output_list)[1],
-              multiple = FALSE
-            )
-          ),
-          arrow = TRUE
-        ),
-        style = "display:inline"
-      )
-
-
-      # Interactive title
-      interactive_title <- it_interactive_title(
-        output_menu
-      )
-      interactive_title
-
-      }else {
-
-        # Standard Shiny tabs; wraps to next line
-        tabs <- lapply(names(output_list), function(nm) {
-          shiny::tabPanel(title = nm, value = nm)
-        })
-        do.call(
-          shiny::tabsetPanel,
-          c(
-            list(id = ns(TPLYR_TBL$TABS_ID), selected = names(output_list)[1]),
-            tabs
-          )
+          style = "display:inline"
         )
+
+
+        # Interactive title
+        interactive_title <- it_interactive_title(
+          output_menu
+        )
+        interactive_title
+      } else {
+        # Single output no tabs (avoid wasted space)
+        if (length(output_list) == 1) {
+          shiny::tags$div(class = "dv-tplyr-single-output-title", names(output_list)[1])
+        } else {
+          # Standard Shiny tabs; wraps to next line
+          tabs <- lapply(names(output_list), function(nm) {
+            shiny::tabPanel(title = nm, value = nm)
+          })
+          do.call(
+            shiny::tabsetPanel,
+            c(
+              list(id = ns(TPLYR_TBL$TABS_ID), selected = names(output_list)[1]),
+              tabs
+            )
+          )
+        }
       }
     })
 
@@ -233,14 +237,14 @@ Tplyr_table_server <- function(
 
     # Update the action button label (only if its interactive dropdown)
     if (identical(title_layout, "dropdown")) {
-    shiny::observeEvent(input[[TPLYR_TBL$SEL_OUTPUT_ID]], {
-      selected_value <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
-      shiny::updateActionButton(
-        session = session,
-        inputId = TPLYR_TBL$SEL_ACT_ID,
-        label = selected_value
-      )
-    })
+      shiny::observeEvent(input[[TPLYR_TBL$SEL_OUTPUT_ID]], {
+        selected_value <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
+        shiny::updateActionButton(
+          session = session,
+          inputId = TPLYR_TBL$SEL_ACT_ID,
+          label = selected_value
+        )
+      })
     }
 
 
@@ -338,8 +342,10 @@ Tplyr_table_server <- function(
 
     click_info_contents <- shiny::reactiveVal(NULL)
 
-    shiny::observeEvent(list(selected_output_id(),
-                             v_dataset_list()), {
+    shiny::observeEvent(list(
+      selected_output_id(),
+      v_dataset_list()
+    ), {
       shiny::req(selected_output_id())
 
       r_dataset_list <- v_dataset_list()
@@ -605,16 +611,16 @@ Tplyr_table_server <- function(
 #' }
 #'
 mod_Tplyr_table <- function(
-    module_id,
-    output_list,
-    subjid_var = "USUBJID",
-    default_vars = NULL,
-    pagination = NULL,
-    intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
-    receiver_id = NULL,
-    review = NULL,
-    title_layout = c("dropdown", "tabs")) {
-
+  module_id,
+  output_list,
+  subjid_var = "USUBJID",
+  default_vars = NULL,
+  pagination = NULL,
+  intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
+  receiver_id = NULL,
+  review = NULL,
+  title_layout = c("dropdown", "tabs")
+) {
   title_layout <- match.arg(title_layout)
   checkmate::assert_list(output_list, types = "list")
 
@@ -656,20 +662,24 @@ mod_Tplyr_table <- function(
         # precede this one in the `module_list` declaration of the DaVinci app. As long as one of them has declared
         # that it offers the review interface, we will refuse to start our own.
         # The mod_output[["enabled_review]] flag is set by `dv.listings::listings_server`.
-        for (mod_output in afmm[["module_output"]]()){
+        for (mod_output in afmm[["module_output"]]()) {
           if (is.list(mod_output) && isTRUE(mod_output[["enabled_review"]])) {
             this_tab_name <- afmm[["module_names"]][[module_id]]
 
-            shiny::showNotification({
-              paste(
-                "This app is configured to review listings in more than one tab. However,",
-                "only one instance of the `dv.tables` module can offer review functionality on any given app.<br>",
-                sprintf(
-                  'We have <b>disabled the review interface on the tab labeled "%s" (with module ID "%s")</b>',
-                  this_tab_name, module_id
-                ), "to sidestep this issue. Sorry for the inconvenience."
-              ) |> htmltools::HTML()
-            }, duration = NULL, type = "error")
+            shiny::showNotification(
+              {
+                paste(
+                  "This app is configured to review listings in more than one tab. However,",
+                  "only one instance of the `dv.tables` module can offer review functionality on any given app.<br>",
+                  sprintf(
+                    'We have <b>disabled the review interface on the tab labeled "%s" (with module ID "%s")</b>',
+                    this_tab_name, module_id
+                  ), "to sidestep this issue. Sorry for the inconvenience."
+                ) |> htmltools::HTML()
+              },
+              duration = NULL,
+              type = "error"
+            )
 
             review <- NULL
             break
