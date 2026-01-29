@@ -199,24 +199,11 @@ local({
       table1 <- app$get_value(output = "mock_tplyr_tabs-table_output")
 
 
-      app$wait_for_js(
-        "(() => {
-     return (window.Shiny &&
-             Shiny.shinyapp &&
-             Shiny.shinyapp.$inputValues &&
-             Object.prototype.hasOwnProperty.call(
-               Shiny.shinyapp.$inputValues,
-               'mock_tplyr_tabs-title_tabs'
-             ));
-   })()",
-        timeout = 20000
-      )
-
-
-
       app$set_inputs(`mock_tplyr_tabs-title_tabs` = "Tabel 2")
-      app$wait_for_value(input = "mock_tplyr_tabs-title_tabs", value = "Tabel 2", timeout = 20000)
-      app$wait_for_idle(timeout = 20000)
+      table2 <- app$get_value(output = "mock_tplyr_tabs-table_output")
+
+      print(table1 == table2)
+
 
       testthat::expect_false(identical(table1, table2))
 
