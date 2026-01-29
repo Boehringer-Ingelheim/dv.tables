@@ -196,11 +196,14 @@ local({
   testthat::test_that("tabbed output can be switched" |>
     vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
 
-    table1 <- app$get_value(output = "mock_tplyr_tabs-table_output")
-    app$set_inputs(`mock_tplyr_tabs-title_tabs` = "Tabel 2")
-    table2 <- app$get_value(output = "mock_tplyr_tabs-table_output")
+      table1 <- app$get_value(output = "mock_tplyr_tabs-table_output")
 
-    testthat::expect_false(table1 == table2)
+      app$set_inputs(`mock_tplyr_tabs-title_tabs` = "Tabel 2")
+
+      app$wait_for_idle(timeout = 15000)
+
+      table2 <- app$get_value(output = "mock_tplyr_tabs-table_output")
+      testthat::expect_false(identical(table1, table2))
 
   })
 })
