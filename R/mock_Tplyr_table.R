@@ -126,8 +126,7 @@ mock_Tplyr_table_mm <- function() {
   dv.manager::run_app(
     data = list("test" = list(adae = adae, adsl = adsl)),
     module_list = module_list,
-    filter_data = "adsl",
-    filter_type = "datasets"
+    filter_data = "adsl"
   )
 }
 
