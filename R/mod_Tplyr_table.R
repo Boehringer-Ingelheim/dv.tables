@@ -64,7 +64,7 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #'
 #' @param title_layout `[character(1)]`
 #'
-#' Controls how users select the output UI for outputs in `output_list`.
+#' A character string defining how users can select the outputs in `output_list`.
 #' Supported values are:
 #' \describe{
 #'   \item{`"dropdown"` (default)}{Renders the current interactive title with a drop-down selector.}
