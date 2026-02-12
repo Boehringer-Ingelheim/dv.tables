@@ -697,7 +697,7 @@ mod_Tplyr_table <- function(
         unlist() |>
         unique()
 
-      dataset_present <- needed_datasets %in% shiny::isolate(names(afmm$unfiltered_dataset()))
+      dataset_present <- needed_datasets %in% shiny::isolate(names(afmm$unfiltered_dataset_list()))
       if (!all(dataset_present)) {
         stop(paste(
           "Not all datasets provided in tplyr_tab_fun are present in the provided data list!",
@@ -713,7 +713,7 @@ mod_Tplyr_table <- function(
 
       Tplyr_table_server(
         module_id = module_id,
-        dataset_list = shiny::reactive(afmm$filtered_dataset()[needed_datasets]),
+        dataset_list = shiny::reactive(afmm$filtered_dataset_list()[needed_datasets]),
         output_list = output_list,
         dataset_metadata = afmm$dataset_metadata,
         subjid_var = subjid_var,
