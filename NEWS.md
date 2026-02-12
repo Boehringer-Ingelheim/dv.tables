@@ -1,4 +1,4 @@
-# dv.tables 0.3.1-9000
+# dv.tables 0.3.0-9001
 
 * Tplyr_table module, added option for Tabs layout (default is dropdown selector)
 
