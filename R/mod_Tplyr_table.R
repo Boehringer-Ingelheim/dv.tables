@@ -147,14 +147,6 @@ Tplyr_table_server <- function(
 
     v_dataset_list <- shiny::reactive({
       checkmate::assert_list(dataset_list(), types = "data.frame", null.ok = TRUE, names = "named")
-      # ensure that global filter works as expected
-      dataset_list_droppedlevels <- lapply(dataset_list(), function(df) {
-        lbls <- get_lbls(df)
-        df <- droplevels(df)
-        df <- set_lbls(df, lbls)
-      })
-
-      dataset_list_droppedlevels
     })
 
     ### Table title start --
