@@ -37,6 +37,12 @@
       $meta$group_var
       [1] "group"
       
+      $meta$event_group_var
+      NULL
+      
+      $meta$event_group_vals
+      character(0)
+      
       $meta$total_group_val
       character(0)
       
@@ -92,6 +98,12 @@
       
       $meta$group_var
       [1] "group"
+      
+      $meta$event_group_var
+      NULL
+      
+      $meta$event_group_vals
+      character(0)
       
       $meta$total_group_val
       character(0)
@@ -157,33 +169,15 @@
                 
               </span>
             </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>n (%)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Time at risk<br>(pt-yrs)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Rate/100<br>pt-yrs</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>n (%)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Time at risk<br>(pt-yrs)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Rate/100<br>pt-yrs</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>n (%)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Time at risk<br>(pt-yrs)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Rate/100<br>pt-yrs</span>
-            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">n (%)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Time at risk<br>(pt-yrs)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Rate/100<br>pt-yrs</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">n (%)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Time at risk<br>(pt-yrs)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Rate/100<br>pt-yrs</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">n (%)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Time at risk<br>(pt-yrs)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Rate/100<br>pt-yrs</th>
           </tr>
           <tr row-id="1" class="indent-0" indent="0">
             <td>

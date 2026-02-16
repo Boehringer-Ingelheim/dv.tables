@@ -29,6 +29,12 @@
       $meta$group_var
       [1] "group"
       
+      $meta$event_group_var
+      NULL
+      
+      $meta$event_group_vals
+      character(0)
+      
       $meta$total_group_val
       [1] "Total"
       
@@ -87,6 +93,12 @@
       
       $meta$group_var
       [1] "group"
+      
+      $meta$event_group_var
+      NULL
+      
+      $meta$event_group_vals
+      character(0)
       
       $meta$total_group_val
       [1] "Total"
@@ -268,6 +280,12 @@
       
       $meta$group_var
       [1] "group"
+      
+      $meta$event_group_var
+      NULL
+      
+      $meta$event_group_vals
+      character(0)
       
       $meta$total_group_val
       [1] "Total"
