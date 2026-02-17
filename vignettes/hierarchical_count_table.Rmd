@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 ![](images/hierarchical_count_table.png)
 
+![](images/hierarchical_count_table_event_group_by.png)
+
 ![](images/hierarchical_count_table_time_at_risk.png)
 
 This guide provides a detailed overview of the `hierarchical_count_table` module and its features. It is meant to
@@ -31,6 +33,7 @@ levels, with the option of showing time at risk and incidence rates.
 - Second level of hierarchy can be collapsed to only show the first level.
 - First level of hierarchy can be collapsed to only show the subjects with any event.
 - Grouping with group population size (N) displayed across columns of the table, with an optional "Total" column.
+- Optionally apply sub-grouping by a variable from the events data (e.g. event severity).
 - Event counts and percentages are displayed, and optionally time at risk and incidence rates can be displayed.
 - Events within the hierarchy ordered by descending event count (totalled across all groups).
 - Tables can be downloaded as Excel (.xlsx) or Word (.rtf).
@@ -68,6 +71,12 @@ A drop-down "Options" menu provides the following inputs:
   across all group categories) is below this threshold will be removed from the output. Defaults to `0`.
 - **Total**: Checkbox that controls whether or not to display a "Total" column totalling data from all group categories.
 
+The following input will also be available in the "Options" menu when the `show_event_group_by` module argument
+is set to `TRUE`:
+
+- **Event group by**: Selection of a sub-grouping variable from the table (events) dataset, to be displayed across the
+  top of the table under the main grouping, e.g. `AESEV`.
+
 The following inputs will also be available in the "Options" menu when the `show_time_at_risk_options` module argument
 is set to `TRUE`:
 
@@ -81,6 +90,9 @@ is set to `TRUE`:
   subject has a missing origin or censor date, time at risk cannot be calculated and the subject will be excluded from
   the population count. Note that even if the checkbox is unchecked, events will still be selected based on event,
   origin and censor dates, but population count will not be affected.
+
+Note that if event group-by has been specified (`show_event_group_by` module argument set to TRUE) then time-at-risk
+options are not available.
 
 # Visualizations
 
@@ -110,6 +122,33 @@ dv.manager::run_app(
 )
 ```
 
+The following code specifies module arguments for the display of a body system and preferred term hierarchy grouped
+by planned treatment group, and event severity:
+
+```{r, eval=FALSE}
+requireNamespace("pharmaverseadam")
+
+dv.manager::run_app(
+  data = list(dummy = list(adsl = pharmaverseadam::adsl,
+                           adae = pharmaverseadam::adae)),
+  module_list = list(
+    "AE Hierarchy Table by Severity" = dv.tables::mod_hierarchical_count_table(
+      module_id = "hierarchical_count_table",
+      table_dataset_name = "adae",
+      pop_dataset_name = "adsl",
+      show_event_group_by = TRUE,
+      default_hierarchy = c("AEBODSYS", "AEDECOD"),
+      default_group = "TRT01P",
+      default_event_group = "AESEV",
+      default_total = FALSE,
+      event_group_choices = c("AESEV", "AETOXGR")
+    )
+  ),
+  filter_data = "adsl",
+  filter_key = "USUBJID"
+)
+```
+
 The following code specifies module arguments for the display of a body system and preferred term hierarchy and planned
 treatment group, with date variables specified for time at risk and incidence rate analysis:
 
@@ -125,7 +164,6 @@ dv.manager::run_app(
       table_dataset_name = "adae",
       pop_dataset_name = "adsl",
       show_time_at_risk_options = TRUE,
-      show_modal_on_click = TRUE,
       default_hierarchy = c("AEBODSYS", "AEDECOD"),
       default_group = "TRT01P",
       default_event_date = "AESTDTC",
