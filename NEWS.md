@@ -1,3 +1,7 @@
+# dv.tables 0.3.0-9001
+
+* Add functionality to optionally apply sub-grouping by a variable from the events data.
+
 # dv.tables 0.3.0-9000
 
 * Reorganise parameter documentation for hierarchical count table functions.
