@@ -687,6 +687,12 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   internal_columns <- df_names[startsWith(df_names, EC$VAL$SPECIAL_CHAR)]
   data_columns <- df_names[!df_names %in% c(hierarchy, internal_columns)]
 
+  # Replace spaces with non-breaking spaces to avoid columns being squashed in display
+  df[data_columns] <- rapply(df[data_columns],
+                             function(.x) gsub(" ", "\u00A0", .x),
+                             classes = "character",
+                             how = "replace")
+
   entry_header <- shiny::span("", shiny::br(), "")
   data_headers <- purrr::map2(data_columns,
                               paste0("(N = ", n_denominator[data_columns], ")"),
@@ -709,7 +715,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
   if (table_type == "time_at_risk") {
     entry_subheader <- shiny::span("", shiny::br(), "")
     data_subheaders <- purrr::map(rep(c("n (%)",
-                                        "Time at risk<br>(pt-yrs)",
+                                        "Time\u00A0at\u00A0risk<br>(pt-yrs)",
                                         "Rate/100<br>pt-yrs"),
                                       length(data_columns)),
                                   ~ shiny::HTML(.x))
@@ -1192,6 +1198,10 @@ hierarchical_count_table_server <- function(
 
         # Only run when subjects defined in the cell
         if (length(subj_ids) > 0) {
+
+          # Ensure that non-breaking spaces are converted back to ordinary spaces
+          subj_ids <- gsub("\u00A0", " ", subj_ids)
+
           id_elements <- vector(mode = "list", length = (length(subj_ids) * 2) - 1)
           for (idx in seq_along(subj_ids)) {
             link_idx <- (idx * 2) - 1
