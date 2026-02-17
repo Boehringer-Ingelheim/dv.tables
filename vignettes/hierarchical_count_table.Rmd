@@ -166,9 +166,9 @@ dv.manager::run_app(
       show_time_at_risk_options = TRUE,
       default_hierarchy = c("AEBODSYS", "AEDECOD"),
       default_group = "TRT01P",
-      default_event_date = "AESTDTC",
-      default_origin_date = "RFSTDTC",
-      default_censor_date = "RFENDTC",
+      default_event_date = "ASTDT",
+      default_origin_date = "TRTSDT",
+      default_censor_date = "EOSDT",
       default_total = FALSE,
       default_risk = TRUE
     )
