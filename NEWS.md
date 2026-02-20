@@ -1,3 +1,7 @@
+# dv.tables 0.3.0-9001
+
+* Relayout table. Reduce main header size and align cells to baseline.
+
 # dv.tables 0.3.0-9000
 
 * Reorganise parameter documentation for hierarchical count table functions.

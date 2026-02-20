@@ -12,7 +12,7 @@
 
 .hier_count_table tr.indent-0 span{
     font-weight: bold;    
-    font-size: 2rem;    
+    font-size: 1.5rem;    
 }
 .hier_count_table tr.indent-1 span {
     padding-left: 2em;
@@ -29,4 +29,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   overflow-wrap: break-word;
+}
+
+.hier_count_table td{
+    vertical-align: baseline;
 }
