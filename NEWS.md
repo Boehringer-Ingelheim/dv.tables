@@ -1,6 +1,10 @@
-# dv.tables 0.3.0-9001
+# dv.tables 0.3.0-9002
 
 * Relayout table. Reduce main header size and align cells to baseline.
+
+# dv.tables 0.3.0-9001
+
+* Add functionality to optionally apply sub-grouping by a variable from the events data.
 
 # dv.tables 0.3.0-9000
 
