@@ -6,6 +6,7 @@
 \usage{
 hierarchical_count_table_ui(
   id,
+  show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
   default_total = TRUE,
   default_risk = FALSE
@@ -16,10 +17,16 @@ hierarchical_count_table_ui(
 
 The ID for the event count module instance.}
 
+\item{show_event_group_by}{\verb{[logical(1)]}
+
+A flag to indicate whether to show the event by-group selection. This takes precedence over
+\code{show_time_at_risk_options}, both cannot be shown together.}
+
 \item{show_time_at_risk_options}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the time at risk related user selections (event/origin/censor
-date selections, and time at risk checkbox).}
+date selections, and time at risk checkbox). This is ignored when \code{show_event_group_by} is \code{TRUE},
+both cannot be shown together.}
 
 \item{default_total}{\verb{[logical(1)]}
 

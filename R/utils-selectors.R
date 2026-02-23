@@ -55,8 +55,7 @@ col_menu_server <- function(id,
         log_warn(ssub("`DEFAULT` not found in `SET` for selector `ID`",
           DEFAULT = default,
           SET = paste(choices,
-            collapse = ",
-"
+            collapse = ",\n"
           ),
           ID = ns("val")
         ))

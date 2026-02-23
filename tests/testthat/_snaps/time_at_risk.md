@@ -37,6 +37,12 @@
       $meta$group_var
       [1] "group"
       
+      $meta$event_group_var
+      NULL
+      
+      $meta$event_group_vals
+      character(0)
+      
       $meta$total_group_val
       character(0)
       
@@ -92,6 +98,12 @@
       
       $meta$group_var
       [1] "group"
+      
+      $meta$event_group_var
+      NULL
+      
+      $meta$event_group_vals
+      character(0)
       
       $meta$total_group_val
       character(0)
@@ -157,33 +169,15 @@
                 
               </span>
             </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>n (%)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Time at risk<br>(pt-yrs)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Rate/100<br>pt-yrs</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>n (%)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Time at risk<br>(pt-yrs)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Rate/100<br>pt-yrs</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>n (%)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Time at risk<br>(pt-yrs)</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
-              <span>Rate/100<br>pt-yrs</span>
-            </th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">n (%)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Time at risk<br>(pt-yrs)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Rate/100<br>pt-yrs</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">n (%)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Time at risk<br>(pt-yrs)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Rate/100<br>pt-yrs</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">n (%)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Time at risk<br>(pt-yrs)</th>
+            <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">Rate/100<br>pt-yrs</th>
           </tr>
           <tr row-id="1" class="indent-0" indent="0">
             <td>
@@ -192,10 +186,10 @@
                 Subjects with any event
               </span>
             </td>
-            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
             <td class="text-center" column="GA">0.00</td>
             <td class="text-center" column="GA">36525.00</td>
-            <td class="text-center" column="GB">2 ( 100.00 %)</td>
+            <td class="text-center" column="GB">2 ( 100.00 %)</td>
             <td class="text-center" column="GB">0.05</td>
             <td class="text-center" column="GB">3844.74</td>
             <td class="text-center" column="GC">—</td>
@@ -209,10 +203,10 @@
                 A1
               </span>
             </td>
-            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
             <td class="text-center" column="GA">0.00</td>
             <td class="text-center" column="GA">36525.00</td>
-            <td class="text-center" column="GB">2 ( 100.00 %)</td>
+            <td class="text-center" column="GB">2 ( 100.00 %)</td>
             <td class="text-center" column="GB">0.05</td>
             <td class="text-center" column="GB">3844.74</td>
             <td class="text-center" column="GC">—</td>
@@ -226,7 +220,7 @@
             <td class="text-center" column="GA">—</td>
             <td class="text-center" column="GA">—</td>
             <td class="text-center" column="GA">—</td>
-            <td class="text-center" column="GB">2 ( 100.00 %)</td>
+            <td class="text-center" column="GB">2 ( 100.00 %)</td>
             <td class="text-center" column="GB">0.05</td>
             <td class="text-center" column="GB">3844.74</td>
             <td class="text-center" column="GC">—</td>
@@ -237,7 +231,7 @@
             <td>
               <span class="truncate" title="B2">B2</span>
             </td>
-            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
             <td class="text-center" column="GA">0.00</td>
             <td class="text-center" column="GA">36525.00</td>
             <td class="text-center" column="GB">—</td>
@@ -254,10 +248,10 @@
                 B1
               </span>
             </td>
-            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
             <td class="text-center" column="GA">0.03</td>
             <td class="text-center" column="GA">3652.50</td>
-            <td class="text-center" column="GB">1 ( 50.00 %)</td>
+            <td class="text-center" column="GB">1 ( 50.00 %)</td>
             <td class="text-center" column="GB">0.11</td>
             <td class="text-center" column="GB">913.12</td>
             <td class="text-center" column="GC">—</td>
@@ -268,10 +262,10 @@
             <td>
               <span class="truncate" title="B2">B2</span>
             </td>
-            <td class="text-center" column="GA">1 ( 100.00 %)</td>
+            <td class="text-center" column="GA">1 ( 100.00 %)</td>
             <td class="text-center" column="GA">0.03</td>
             <td class="text-center" column="GA">3652.50</td>
-            <td class="text-center" column="GB">1 ( 50.00 %)</td>
+            <td class="text-center" column="GB">1 ( 50.00 %)</td>
             <td class="text-center" column="GB">0.11</td>
             <td class="text-center" column="GB">913.12</td>
             <td class="text-center" column="GC">—</td>
