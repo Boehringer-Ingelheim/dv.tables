@@ -8,10 +8,10 @@ var ec_collapse = function (element) {
     let curr_sibling = parent_tr.nextElementSibling;
     while (curr_sibling !== null && curr_sibling.getAttribute("indent") > indent) {
         if (child_hidden) {
-            curr_sibling.classList.remove('hidden')
+            curr_sibling.classList.remove('d-none')
             curr_sibling.removeAttribute("child-hidden")
         } else {
-            curr_sibling.classList.add('hidden')
+            curr_sibling.classList.add('d-none')
             curr_sibling.setAttribute("child-hidden", "")
         }
         curr_sibling = curr_sibling.nextElementSibling;
