@@ -1,6 +1,10 @@
-# dv.tables 0.3.0-9001
+# dv.tables 0.3.0-9002
 
 * Tplyr_table module, added option for Tabs layout (default is dropdown selector)
+
+# dv.tables 0.3.0-9001
+
+* Add functionality to optionally apply sub-grouping by a variable from the events data.
 
 # dv.tables 0.3.0-9000
 
