@@ -53,6 +53,3 @@ specs
 
 # Clicktable initialization, "framework as dv module initialization is correct
 # Global filter correctly updates the output summary table
-
-
-
