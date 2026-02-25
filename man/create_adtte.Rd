@@ -10,6 +10,7 @@ create_adtte(
   hierarchy = character(),
   group_var,
   subjid_var,
+  event_group_var,
   origin_date_var,
   censor_date_var,
   event_date_var
@@ -32,6 +33,9 @@ A string representing the column name in \code{pop_df} used for grouping the pop
 \item{subjid_var}{\code{character(1)}
 A string representing the subject identifier column name. This column must be present in both \code{event_df} and
 \code{pop_df}.}
+
+\item{event_group_var}{\code{character(1)}
+A string representing the column name in \code{event_df} used for grouping the event data.}
 
 \item{origin_date_var}{\code{character(1)}
 A string representing the column name in \code{pop_df} holding the origin date.}

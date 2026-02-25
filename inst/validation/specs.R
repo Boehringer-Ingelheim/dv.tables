@@ -5,6 +5,7 @@ specs[["hierarchical_count_table"]] <- list(
   "events_table_display" = "A table will be displayed, showing the event counts and the percentage of subjects that meet the criteria for each combination of hierarchy and group variable.",
   "cell_interactivity" = "Each cell in the table supports interactivity. Clicking a cell triggers an action that gives access to the the list of subjects included in the cell.",
   "event_count" = "Counts the number of subjects that had a given event at least once. Its percentage is calculated using as denominator the total number of participants in a given group.",
+  "event_group_by_display" = "A table will be displayed, showing counts and percentages, for each combination of hierarchy, group, and event group variable.",
   "time_at_risk" = "Time at risk and incidence rate are calculated using event, origin and censor dates.",
   "time_at_risk_display" = "A table will be displayed, showing counts, percentages, time at risk and incidence rate of subjects summarised over two hierarchy levels, and group variable.",
   "minimum_percentage_filter" = "A minimum percentage filter can be applied to the event table. The filter will hide rows where the percentage of subjects is below the specified threshold.",

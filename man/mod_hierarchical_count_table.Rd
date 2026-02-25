@@ -9,17 +9,20 @@ mod_hierarchical_count_table(
   table_dataset_name,
   pop_dataset_name,
   subjid_var = "USUBJID",
+  show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
   default_hierarchy = NULL,
   default_group = NULL,
   default_total = TRUE,
+  default_event_group = NULL,
   default_event_date = NULL,
   default_origin_date = NULL,
   default_censor_date = NULL,
   default_risk = FALSE,
   hierarchy_choices = NULL,
   group_choices = NULL,
+  event_group_choices = NULL,
   event_date_choices = NULL,
   origin_date_choices = NULL,
   censor_date_choices = NULL,
@@ -45,10 +48,16 @@ Name of the population dataset.}
 
 A string representing the subject identifier column in both datasets.}
 
+\item{show_event_group_by}{\verb{[logical(1)]}
+
+A flag to indicate whether to show the event by-group selection. This takes precedence over
+\code{show_time_at_risk_options}, both cannot be shown together.}
+
 \item{show_time_at_risk_options}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the time at risk related user selections (event/origin/censor
-date selections, and time at risk checkbox).}
+date selections, and time at risk checkbox). This is ignored when \code{show_event_group_by} is \code{TRUE},
+both cannot be shown together.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
@@ -95,6 +104,11 @@ If it is not specified then all factor and character variables from the event da
 
 A character vector specifying the possible choices for the group variable selection (optional).
 If it is not specified then all factor and character variables from the population data will be used.}
+
+\item{event_group_choices}{\verb{[character(1+)|NULL]}
+
+A character vector specifying the possible choices for the event group variable selection (optional).
+If it is not specified then all factor and character variables from the event data will be used.}
 
 \item{event_date_choices}{\verb{[character(1+)|NULL]}
 

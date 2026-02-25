@@ -10,6 +10,7 @@ compute_events_table(
   hierarchy = NULL,
   group_var = NULL,
   subjid_var = NULL,
+  event_group_var = NULL,
   origin_date_var = NULL,
   censor_date_var = NULL,
   event_date_var = NULL,
@@ -35,6 +36,9 @@ A string representing the column name in \code{pop_df} used for grouping the pop
 \item{subjid_var}{\code{character(1)}
 A string representing the subject identifier column name. This column must be present in both \code{event_df} and
 \code{pop_df}.}
+
+\item{event_group_var}{\code{character(1)}
+A string representing the column name in \code{event_df} used for grouping the event data.}
 
 \item{origin_date_var}{\code{character(1)}
 A string representing the column name in \code{pop_df} holding the origin date (optional).}
