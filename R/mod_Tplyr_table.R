@@ -38,58 +38,57 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #' Server for the Tplyr_table module
 #'
 #' @param module_id `[character(1)]`
+#' A character string that serves as a unique identifier for the module.
 #'
-#' A character string that serves as unique identifier for the module.
-#' @param dataset_list `[shiny::reactive(list(data.frame)]`
+#' @param dataset_list `[shiny::reactive(list(data.frame))]`
+#' A reactive list of data.frame-like dataset(s) that will be used to create the table and the listing(s).
 #'
-#' A reactive list of data.framish dataset(s) that will be used to create the table and the listing(s).
 #' @param output_list `[list(list())]`
-#'
 #' A named list defining the outputs to be generated. Each element of the list
 #' corresponds to a table or listing and must be a named list with one of the following structures:
 #'
 #' For summary tables:
-#'  \describe{
-#'     \item{tplyr_tab_fun}{A function that takes one or more datasets as input and returns a `tplyr_table` object.}
-#'     \item{build_fun}{A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).
-#'     The metadata argument of `Tplyr::build()` needs to be set to `TURE`, so that the corresponding listing can be shown.}
-#'  }
+#' \describe{
+#'   \item{tplyr_tab_fun}{A function that takes one or more datasets as input and returns a `tplyr_table` object.}
+#'   \item{build_fun}{A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).
+#'   The metadata argument of `Tplyr::build()` needs to be set to `TRUE`, so that the corresponding listing can be shown.}
+#' }
 #'
-#'  For listings:
-#'   \describe{
-#'     \item{dataset_names}{A character vector of dataset names required to generate the listing.}
-#'   }
+#' For listings:
+#' \describe{
+#'   \item{dataset_names}{A character vector of dataset names required to generate the listing.}
+#' }
 #'
-#'   The names of the top-level list elements are used as identifiers for the outputs.
+#' The names of the top-level list elements are used as identifiers for the outputs.
 #'
 #' @param title_layout `[character(1)]`
-#'
 #' A character string defining how users can select the outputs in `output_list`.
 #' Supported values are:
 #' \describe{
-#'   \item{`"dropdown"` (default)}{Renders the current interactive title with a drop-down selector.}
-#'   \item{`"tabs"`}{Renders a horizontal `tabsetPanel` with one tab per entry in `output_list`.
-#'     Tabs will wrap to the next line if there are many. The rest of the module behavior is unchanged.}
+#'   \item{"dropdown" (default)}{Renders the current interactive title with a drop-down selector.}
+#'   \item{"tabs"}{Renders a horizontal `tabsetPanel` with one tab per entry in `output_list`.
+#'   Tabs will wrap to the next line if there are many. The rest of the module behavior is unchanged.}
 #' }
 #'
-#' @param dataset_metadata `[list(character(1), character(1+))]` A list with the following two elements:
+#' @param dataset_metadata `[list(character(1), character(1+))]`
+#' A list with the following two elements:
 #' \code{dataset_metadata$name()} containing a reactive string specifying the name of the selected
 #' dataset and \code{dataset_metadata$date_range()} containing a reactive character vector with two entries
 #' specifying the earliest and latest modification date in the dataset.
-#' Usually obtained from module manager.
+#' Usually obtained from the module manager.
+#'
 #' @param subjid_var `[character(1) | NULL]`
+#' Column corresponding to subject ID. Default value is 'USUBJID'.
 #'
-#' Column corresponding to subject ID. Default value is 'USUBJID'
-#' @param default_vars an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
-#' @param intended_use_label an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
+#' @param default_vars An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
-#' @param pagination an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
+#' @param intended_use_label An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
-#' @param on_sbj_click an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
+#' @param pagination An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
+#' @param on_sbj_click An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
-#' @param review an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
-#'
+#' @param review An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
 #' @keywords main
 #' @export
@@ -514,7 +513,7 @@ Tplyr_table_server <- function(
 #'
 #' @inheritParams Tplyr_table_server
 #'
-#' @param receiver_id an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through
+#' @param receiver_id An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
 #' @keywords main
 #' @export
