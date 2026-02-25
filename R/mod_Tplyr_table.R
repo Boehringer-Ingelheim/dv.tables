@@ -491,6 +491,7 @@ Tplyr_table_server <- function(
     res_listings <- dv.listings::listings_server(
       module_id = TPLYR_TBL$LISTINGS_ID,
       dataset_list = listings_data,
+      subjid_var = subjid_var,
       dataset_metadata = dataset_metadata,
       default_vars = default_vars,
       intended_use_label = intended_use_label,
