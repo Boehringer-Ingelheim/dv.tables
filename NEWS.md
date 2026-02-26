@@ -1,3 +1,7 @@
+# dv.tables 0.3.0-9004
+
+* Update screenshots.
+
 # dv.tables 0.3.0-9003
 
 * Replace `hidden` class for `d-none`
