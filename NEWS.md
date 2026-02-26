@@ -1,3 +1,11 @@
+# dv.tables 0.3.0-9003
+
+* Replace `hidden` class for `d-none`
+
+# dv.tables 0.3.0-9002
+
+* Relayout table. Reduce main header size and align cells to baseline.
+
 # dv.tables 0.3.0-9001
 
 * Add functionality to optionally apply sub-grouping by a variable from the events data.
