@@ -722,11 +722,27 @@ mod_Tplyr_table <- function(
   return(mod)
 }
 
-dataset_info_Tplyr_table <- function(...) NULL # TODO: Return datasets used according to parameterization of the module
+dataset_info_Tplyr_table <- function(output_list, ...) {
+  needed_datasets <- sapply(output_list, function(tab) {
+    if ("tplyr_tab_fun" %in% names(tab)) {
+      names(formals(tab[["tplyr_tab_fun"]]))
+    } else {
+      tab[["dataset_names"]]
+    }
+  }, simplify = TRUE, USE.NAMES = FALSE) |>
+    unlist() |>
+    unique()
+
+  return(list(
+    all = unlist(as.list(needed_datasets)),
+    subject_level = character(0)
+  ))
+}
 
 check_mod_Tplyr_table <- function(
-    afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
-    receiver_id, review, title_layout) {
+  afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
+  receiver_id, review, title_layout
+) {
   warn <- CM$container()
   err <- CM$container()
 
