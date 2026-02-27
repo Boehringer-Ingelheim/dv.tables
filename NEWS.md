@@ -1,6 +1,20 @@
-# dv.tables 0.3.0-9002
+# dv.tables 0.3.0-9005
 
 * Tplyr_table module, added option for Tabs layout (default is dropdown selector)
+* remove drop empty levels; moved to dv.manager
+* bug fix; PaPo jumping
+
+# dv.tables 0.3.0-9004
+
+* Update screenshots.
+
+# dv.tables 0.3.0-9003
+
+* Replace `hidden` class for `d-none`
+
+# dv.tables 0.3.0-9002
+
+* Relayout table. Reduce main header size and align cells to baseline.
 
 # dv.tables 0.3.0-9001
 

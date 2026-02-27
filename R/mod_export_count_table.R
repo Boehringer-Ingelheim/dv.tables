@@ -106,10 +106,13 @@ mod_export_counttable_server <- function(module_id, dataset,
                 )
               ),
               title = "Download table",
-              footer = list(shiny::fluidRow(
-                shiny::column(5, shinyjs::disabled(shiny::downloadButton(ns(EXP$ID$DOWNLOAD_BUTTON))), offset = 5),
-                shiny::column(1, shiny::modalButton("Cancel"))
-              )),
+              footer = list(
+                shiny::div(
+                  class = "ms-auto",
+                  shinyjs::disabled(shiny::downloadButton(ns(EXP$ID$DOWNLOAD_BUTTON))),
+                  shiny::modalButton("Cancel")
+                )                
+              ),
               easyClose = TRUE
             )
           )
