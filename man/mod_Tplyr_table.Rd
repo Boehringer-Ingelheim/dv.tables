@@ -48,7 +48,7 @@ Column corresponding to subject ID. Default value is 'USUBJID'.}
 
 \item{intended_use_label}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 
-\item{receiver_id}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through}
+\item{receiver_id}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 
 \item{review}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 
