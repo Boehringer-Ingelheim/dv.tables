@@ -167,9 +167,13 @@ local({
     # remove placebo from data
     default_table_data_filtered <- default_table_data[!names(default_table_data) %in% "var1_Placebo"]
 
-    app$set_inputs(`global_filter-vars` = "ARM")
+    app$set_inputs(`filter-filter_state_json_input` = "{\"filters\":{\"datasets_filter\":{\"children\":[]},\"subject_filter\":{\"children\":[{\"kind\":\"row_operation\",\"operation\":\"and\",\"children\":[{\"kind\":\"filter\",\"dataset\":\"adsl\",\"operation\":\"select_subset\",\"variable\":\"ARM\",\"values\":[\"Placebo\",\"Xanomeline High Dose\",\"Xanomeline Low Dose\",\"Screen Failure\"],\"include_NA\":true}]}]}},\"dataset_list_name\":\"test\"}",
+                   allow_no_input_binding_ = TRUE,
+                   priority_ = "event")
     app$wait_for_idle()
-    app$set_inputs(`global_filter-ARM` = c("Xanomeline High Dose", "Xanomeline Low Dose", "Screen Failure"))
+    app$set_inputs(`filter-filter_state_json_input` = "{\"filters\":{\"datasets_filter\":{\"children\":[]},\"subject_filter\":{\"children\":[{\"kind\":\"row_operation\",\"operation\":\"and\",\"children\":[{\"kind\":\"filter\",\"dataset\":\"adsl\",\"operation\":\"select_subset\",\"variable\":\"ARM\",\"values\":[\"Xanomeline High Dose\",\"Xanomeline Low Dose\",\"Screen Failure\"],\"include_NA\":true}]}]}},\"dataset_list_name\":\"test\"}",
+                   allow_no_input_binding_ = TRUE,
+                   priority_ = "event")
 
     table_output_filtered <- app$get_value(output = "test-table_output")
     parsed_table_output_filtered <- jsonlite::fromJSON(table_output_filtered)
