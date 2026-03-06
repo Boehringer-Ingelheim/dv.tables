@@ -1,27 +1,12 @@
-# dv.tables 0.3.0-9005
+# dv.tables 0.4.0
 
-* Tplyr_table module, added option for Tabs layout (default is dropdown selector)
-* remove drop empty levels; moved to dv.manager
-* bug fix; PaPo jumping
-
-# dv.tables 0.3.0-9004
-
+* [Tplyr_table module] added option for Tabs layout (default is dropdown selector)
+* [Tplyr_table module] remove drop empty levels; moved to dv.manager
+* [Tplyr_table module] bug fix; PaPo jumping
 * Update screenshots.
-
-# dv.tables 0.3.0-9003
-
 * Replace `hidden` class for `d-none`
-
-# dv.tables 0.3.0-9002
-
 * Relayout table. Reduce main header size and align cells to baseline.
-
-# dv.tables 0.3.0-9001
-
 * Add functionality to optionally apply sub-grouping by a variable from the events data.
-
-# dv.tables 0.3.0-9000
-
 * Reorganise parameter documentation for hierarchical count table functions.
 * Clarify use of time at risk related arguments in documentation for mod_hierarchical_count_table.
 
