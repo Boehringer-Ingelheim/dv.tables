@@ -8,7 +8,6 @@ local({
 
   fail_if_app_not_started()
   skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
-  skip_if_suspect_check <- function() testthat::skip_if(suspect_check, message = "Suspected check")
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
@@ -110,7 +109,6 @@ local({
 
   fail_if_app_not_started()
   skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
-  skip_if_suspect_check <- function() testthat::skip_if(suspect_check, message = "Suspected check")
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
@@ -193,7 +191,6 @@ local({
 
   fail_if_app_not_started()
   skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
-  skip_if_suspect_check <- function() testthat::skip_if(suspect_check, message = "Suspected check")
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
