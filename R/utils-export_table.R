@@ -65,7 +65,7 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
   # For event group data, expand groups into columns for each event group value
   if (has_event_group) {
     old_names <- names(df_prep)
-    df_prep <- df_prep |> tidyr::unnest_wider(col = group_names, names_sep = EC$VAL$SPECIAL_CHAR)
+    df_prep <- df_prep |> tidyr::unnest_wider(col = tidyr::all_of(group_names), names_sep = EC$VAL$SPECIAL_CHAR)
     group_names <- setdiff(names(df_prep), old_names)
   }
 
