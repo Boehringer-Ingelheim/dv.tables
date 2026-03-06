@@ -75,6 +75,10 @@ A default value for the group variable selection (optional).}
 
 A default value for checkbox determining whether to add a total group column.}
 
+\item{default_event_group}{\verb{[character(1)|NULL]}
+
+A default value for the event group variable selection.}
+
 \item{default_event_date}{\verb{[character(1)|NULL]}
 
 A default value for the event date variable selection (optional). Not applicable when

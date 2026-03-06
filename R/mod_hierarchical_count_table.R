@@ -1295,6 +1295,10 @@ hierarchical_count_table_server <- function(
 #'
 #' A default value for checkbox determining whether to add a total group column.
 #'
+#' @param default_event_group `[character(1)|NULL]`
+#'
+#' A default value for the event group variable selection.
+#'
 #' @param default_event_date `[character(1)|NULL]`
 #'
 #' A default value for the event date variable selection (optional). Not applicable when

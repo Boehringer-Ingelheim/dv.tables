@@ -7,7 +7,7 @@
 mock_Tplyr_table_mm()
 }
 \description{
-\code{mock_Tplyr_table} launches a mock app for the Tplyr_table shiny module by means of
+\code{mock_Tplyr_table_mm} launches a mock app for the Tplyr_table shiny module by means of
 the module manager (dv.manager).
 }
 \keyword{mock}

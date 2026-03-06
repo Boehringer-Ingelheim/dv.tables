@@ -8,13 +8,11 @@ local({
 
   fail_if_app_not_started()
   skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
-  skip_if_suspect_check <- function() testthat::skip_if(suspect_check, message = "Suspected check")
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
   test_that("App initialization is correct" |>
-    vdoc[["add_spec"]](specs$Tplyr_tables$framework)
-    , {
+    vdoc[["add_spec"]](specs$Tplyr_tables$framework), {
     app_outputs <- app$get_values(output = "mock_tplyr-table_output")
 
     # Parse the JSON
@@ -36,10 +34,8 @@ local({
   })
 
 
-
   test_that("Click event generates dv.listings output" |>
-    vdoc[["add_spec"]](specs$Tplyr_tables$clickevent)
-    , {
+    vdoc[["add_spec"]](specs$Tplyr_tables$clickevent), {
     # Update output value
     app$set_inputs(
       `mock_tplyr-row_id` = list(index = 8),
@@ -82,8 +78,7 @@ local({
   })
 
   test_that("Click event outside required area does not generate listing" |>
-    vdoc[["add_spec"]](specs$Tplyr_tables$error)
-    , {
+    vdoc[["add_spec"]](specs$Tplyr_tables$error), {
     # Update output value
     app$set_inputs(
       `mock_tplyr-row_id` = list(index = 3),
@@ -97,8 +92,8 @@ local({
     sel_data <- app$get_value(export = "mock_tplyr-sel_data")
 
     expect_equal(
-     sel_data,
-     list(cell = NULL, listings_data = NULL)
+      sel_data,
+      list(cell = NULL, listings_data = NULL)
     )
   })
 })
@@ -114,13 +109,11 @@ local({
 
   fail_if_app_not_started()
   skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
-  skip_if_suspect_check <- function() testthat::skip_if(suspect_check, message = "Suspected check")
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
   testthat::test_that("Table cell click generates corresponding listing" |>
-                        vdoc[["add_spec"]](specs$Tplyr_tables$clickevent), {
-
+    vdoc[["add_spec"]](specs$Tplyr_tables$clickevent), {
     app$set_inputs(
       `test-row_id` = list(index = 8),
       `test-col_id` = list(column = "var1_Xanomeline Low Dose"),
@@ -139,12 +132,10 @@ local({
     )
 
     testthat::expect_equal(actual, expected)
-
   })
 
   testthat::test_that("output can be switched" |>
-                        vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
-
+    vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
     table1 <- app$get_value(output = "test-table_output")
     app$set_inputs(`test-sel_output` = "Tabel 2")
     table2 <- app$get_value(output = "test-table_output")
@@ -152,7 +143,7 @@ local({
   })
 
   testthat::test_that("only a listing without a table can be displayed" |>
-                        vdoc[["add_spec"]](specs$Tplyr_tables$only_listing), {
+    vdoc[["add_spec"]](specs$Tplyr_tables$only_listing), {
     app$set_inputs(`test-sel_output` = "Listing")
     state <- app$get_value(export = "test-state")
     listings_data <- app$get_value(export = "test-listings_data")
@@ -167,22 +158,52 @@ local({
   })
 
   testthat::test_that("module works with global filter" |>
-                        vdoc[["add_spec"]](specs$Tplyr_tables$global_filter), {
+    vdoc[["add_spec"]](specs$Tplyr_tables$global_filter), {
     table_output <- app$get_value(output = "test-table_output")
     parsed_table_output <- jsonlite::fromJSON(table_output)
     default_table_data <- parsed_table_output$x$tag$attribs$data
     # remove placebo from data
     default_table_data_filtered <- default_table_data[!names(default_table_data) %in% "var1_Placebo"]
 
-    app$set_inputs(`global_filter-vars` = "ARM")
+    app$set_inputs(`filter-filter_state_json_input` = "{\"filters\":{\"datasets_filter\":{\"children\":[]},\"subject_filter\":{\"children\":[{\"kind\":\"row_operation\",\"operation\":\"and\",\"children\":[{\"kind\":\"filter\",\"dataset\":\"adsl\",\"operation\":\"select_subset\",\"variable\":\"ARM\",\"values\":[\"Placebo\",\"Xanomeline High Dose\",\"Xanomeline Low Dose\",\"Screen Failure\"],\"include_NA\":true}]}]}},\"dataset_list_name\":\"test\"}",
+                   allow_no_input_binding_ = TRUE,
+                   priority_ = "event")
     app$wait_for_idle()
-    app$set_inputs(`global_filter-ARM` = c("Xanomeline High Dose", "Xanomeline Low Dose", "Screen Failure"))
+    app$set_inputs(`filter-filter_state_json_input` = "{\"filters\":{\"datasets_filter\":{\"children\":[]},\"subject_filter\":{\"children\":[{\"kind\":\"row_operation\",\"operation\":\"and\",\"children\":[{\"kind\":\"filter\",\"dataset\":\"adsl\",\"operation\":\"select_subset\",\"variable\":\"ARM\",\"values\":[\"Xanomeline High Dose\",\"Xanomeline Low Dose\",\"Screen Failure\"],\"include_NA\":true}]}]}},\"dataset_list_name\":\"test\"}",
+                   allow_no_input_binding_ = TRUE,
+                   priority_ = "event")
 
     table_output_filtered <- app$get_value(output = "test-table_output")
     parsed_table_output_filtered <- jsonlite::fromJSON(table_output_filtered)
     filtered_table_data <- parsed_table_output_filtered$x$tag$attribs$data
 
     expect_equal(filtered_table_data, default_table_data_filtered)
+  })
+})
+
+local({
+  root_app <- start_app_driver(rlang::quo(dv.tables:::mock_Tplyr_table_tabs()))
+  on.exit(if ("stop" %in% names(root_app)) root_app$stop())
+
+  fail_if_app_not_started <- function() {
+    if (is.null(root_app)) rlang::abort("App could not be started")
+  }
+
+  fail_if_app_not_started()
+  skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
+
+  app <- shinytest2::AppDriver$new(root_app$get_url())
+
+  testthat::test_that("tabbed output can be switched" |>
+    vdoc[["add_spec"]](specs$Tplyr_tables$output_switching), {
+
+      table1 <- app$get_value(output = "test-table_output")
+
+      app$set_inputs(`test-title_tabs` = "Tabel 2")
+      table2 <- app$get_value(output = "test-table_output")
+
+
+      testthat::expect_false(identical(table1, table2))
 
   })
 })
