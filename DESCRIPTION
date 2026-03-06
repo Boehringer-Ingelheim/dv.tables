@@ -8,7 +8,7 @@ Authors@R: c(
         person(given = "Mark", family = "Luff", role = "aut", email = "mark.luff.ext@boehringer-ingelheim.com"),
         person(given = "Korbinian", family = "Matthias", role = c("aut"), email = "korbinian.matthias@boehringer-ingelheim.com")
         )
-Description: Modules for table outputs
+Description: This package provides davinci table modules (Hierachical counts and Tplyr tables) for interactive table outputs.
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
@@ -22,7 +22,7 @@ Imports: shiny (>= 1.7.1), dplyr (>= 1.0.7), purrr (>= 0.3.4),
         tidyr (>= 1.1.4),
         rlang, checkmate (>= 2.0.0), htmltools, 
         stats, openxlsx, shinyjs, gt, dv.listings (>= 4.3.1),
-        reactable, Tplyr
+        reactable, Tplyr, fs, htmlwidgets, shinyFeedback, shinyWidgets
 Depends: R (>= 4.2.0)
 VignetteBuilder: knitr
 Remotes: boehringer-ingelheim/dv.manager,
