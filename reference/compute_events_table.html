@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +52,7 @@
 <span>  hierarchy <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  group_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  subjid_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  event_group_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  origin_date_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  censor_date_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  event_date_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -90,6 +91,11 @@ A string representing the column name in <code>pop_df</code> used for grouping t
 <dd><p><code>character(1)</code>
 A string representing the subject identifier column name. This column must be present in both <code>event_df</code> and
 <code>pop_df</code>.</p></dd>
+
+
+<dt id="arg-event-group-var">event_group_var<a class="anchor" aria-label="anchor" href="#arg-event-group-var"></a></dt>
+<dd><p><code>character(1)</code>
+A string representing the column name in <code>event_df</code> used for grouping the event data.</p></dd>
 
 
 <dt id="arg-origin-date-var">origin_date_var<a class="anchor" aria-label="anchor" href="#arg-origin-date-var"></a></dt>

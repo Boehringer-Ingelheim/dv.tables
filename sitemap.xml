@@ -20,8 +20,12 @@
 <url><loc>/reference/get_lbl.html</loc></url>
 <url><loc>/reference/get_lbl_robust.html</loc></url>
 <url><loc>/reference/get_lbls.html</loc></url>
+<url><loc>/reference/hierarchical_count_table_server.html</loc></url>
+<url><loc>/reference/hierarchical_count_table_ui.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/mock_Tplyr_table.html</loc></url>
 <url><loc>/reference/mock_Tplyr_table_mm.html</loc></url>
+<url><loc>/reference/mock_Tplyr_table_tabs.html</loc></url>
 <url><loc>/reference/mock_app_hierarchical_count_table.html</loc></url>
 <url><loc>/reference/mock_app_hierarchical_count_table_mm.html</loc></url>
 <url><loc>/reference/mod_Tplyr_table.html</loc></url>

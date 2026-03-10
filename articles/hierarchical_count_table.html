@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,6 +69,7 @@
     
     
 <p><img src="images/hierarchical_count_table.png"></p>
+<p><img src="images/hierarchical_count_table_event_group_by.png"></p>
 <p><img src="images/hierarchical_count_table_time_at_risk.png"></p>
 <p>This guide provides a detailed overview of the
 <code>hierarchical_count_table</code> module and its features. It is
@@ -91,6 +92,8 @@ level.</li>
 with any event.</li>
 <li>Grouping with group population size (N) displayed across columns of
 the table, with an optional “Total” column.</li>
+<li>Optionally apply sub-grouping by a variable from the events data
+(e.g. event severity).</li>
 <li>Event counts and percentages are displayed, and optionally time at
 risk and incidence rates can be displayed.</li>
 <li>Events within the hierarchy ordered by descending event count
@@ -145,6 +148,15 @@ output. Defaults to <code>0</code>.</li>
 <strong>Total</strong>: Checkbox that controls whether or not to
 display a “Total” column totalling data from all group categories.</li>
 </ul>
+<p>The following input will also be available in the “Options” menu when
+the <code>show_event_group_by</code> module argument is set to
+<code>TRUE</code>:</p>
+<ul>
+<li>
+<strong>Event group by</strong>: Selection of a sub-grouping
+variable from the table (events) dataset, to be displayed across the top
+of the table under the main grouping, e.g. <code>AESEV</code>.</li>
+</ul>
 <p>The following inputs will also be available in the “Options” menu
 when the <code>show_time_at_risk_options</code> module argument is set
 to <code>TRUE</code>:</p>
@@ -171,6 +183,9 @@ subject will be excluded from the population count. Note that even if
 the checkbox is unchecked, events will still be selected based on event,
 origin and censor dates, but population count will not be affected.</li>
 </ul>
+<p>Note that if event group-by has been specified
+(<code>show_event_group_by</code> module argument set to TRUE) then
+time-at-risk options are not available.</p>
 </div>
 <div class="section level2">
 <h2 id="visualizations">Visualizations<a class="anchor" aria-label="anchor" href="#visualizations"></a>
@@ -204,10 +219,35 @@ no default hierarchy or group specified:</p>
 <span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The following code specifies module arguments for the display of a
+body system and preferred term hierarchy grouped by planned treatment
+group, and event severity:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pharmaverseadam"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">dv.manager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dv.manager/man/run_app.html" class="external-link">run_app</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>adsl <span class="op">=</span> <span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adsl.html" class="external-link">adsl</a></span>,</span>
+<span>                           adae <span class="op">=</span> <span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adae.html" class="external-link">adae</a></span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  module_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="st">"AE Hierarchy Table by Severity"</span> <span class="op">=</span> <span class="fu">dv.tables</span><span class="fu">::</span><span class="fu"><a href="../reference/mod_hierarchical_count_table.html">mod_hierarchical_count_table</a></span><span class="op">(</span></span>
+<span>      module_id <span class="op">=</span> <span class="st">"hierarchical_count_table"</span>,</span>
+<span>      table_dataset_name <span class="op">=</span> <span class="st">"adae"</span>,</span>
+<span>      pop_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>      show_event_group_by <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>      default_hierarchy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AEBODSYS"</span>, <span class="st">"AEDECOD"</span><span class="op">)</span>,</span>
+<span>      default_group <span class="op">=</span> <span class="st">"TRT01P"</span>,</span>
+<span>      default_event_group <span class="op">=</span> <span class="st">"AESEV"</span>,</span>
+<span>      default_total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>      event_group_choices <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AESEV"</span>, <span class="st">"AETOXGR"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The following code specifies module arguments for the display of a
 body system and preferred term hierarchy and planned treatment group,
 with date variables specified for time at risk and incidence rate
 analysis:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pharmaverseadam"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">dv.manager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dv.manager/man/run_app.html" class="external-link">run_app</a></span><span class="op">(</span></span>
@@ -219,12 +259,11 @@ analysis:</p>
 <span>      table_dataset_name <span class="op">=</span> <span class="st">"adae"</span>,</span>
 <span>      pop_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
 <span>      show_time_at_risk_options <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>      show_modal_on_click <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>      default_hierarchy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AEBODSYS"</span>, <span class="st">"AEDECOD"</span><span class="op">)</span>,</span>
 <span>      default_group <span class="op">=</span> <span class="st">"TRT01P"</span>,</span>
-<span>      default_event_date <span class="op">=</span> <span class="st">"AESTDTC"</span>,</span>
-<span>      default_origin_date <span class="op">=</span> <span class="st">"RFSTDTC"</span>,</span>
-<span>      default_censor_date <span class="op">=</span> <span class="st">"RFENDTC"</span>,</span>
+<span>      default_event_date <span class="op">=</span> <span class="st">"ASTDT"</span>,</span>
+<span>      default_origin_date <span class="op">=</span> <span class="st">"TRTSDT"</span>,</span>
+<span>      default_censor_date <span class="op">=</span> <span class="st">"EOSDT"</span>,</span>
 <span>      default_total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>      default_risk <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span>    <span class="op">)</span></span>

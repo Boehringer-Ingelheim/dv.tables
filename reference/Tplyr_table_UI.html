@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,20 +54,20 @@
 
 
 <dl><dt id="arg-module-id">module_id<a class="anchor" aria-label="anchor" href="#arg-module-id"></a></dt>
-<dd><p><code>[character(1)]</code></p>
-<p>A character string that serves as unique identifier for the module.</p></dd>
+<dd><p><code>[character(1)]</code>
+A character string that serves as a unique identifier for the module.</p></dd>
 
 
 <dt id="arg-output-list">output_list<a class="anchor" aria-label="anchor" href="#arg-output-list"></a></dt>
-<dd><p><code>[list(list())]</code></p>
-<p>A named list defining the outputs to be generated. Each element of the list
+<dd><p><code>[list(list())]</code>
+A named list defining the outputs to be generated. Each element of the list
 corresponds to a table or listing and must be a named list with one of the following structures:</p>
 <p>For summary tables:</p><dl><dt>tplyr_tab_fun</dt>
 <dd><p>A function that takes one or more datasets as input and returns a <code>tplyr_table</code> object.</p></dd>
 
 <dt>build_fun</dt>
 <dd><p>A function that takes the <code>tplyr_table</code> object and returns a built table (typically using <code><a href="https://rdrr.io/pkg/Tplyr/man/build.html" class="external-link">Tplyr::build()</a></code>).
-The metadata argument of <code><a href="https://rdrr.io/pkg/Tplyr/man/build.html" class="external-link">Tplyr::build()</a></code> needs to be set to <code>TURE</code>, so that the corresponding listing can be shown.</p></dd>
+The metadata argument of <code><a href="https://rdrr.io/pkg/Tplyr/man/build.html" class="external-link">Tplyr::build()</a></code> needs to be set to <code>TRUE</code>, so that the corresponding listing can be shown.</p></dd>
 
 
 </dl><p>For listings:</p><dl><dt>dataset_names</dt>
