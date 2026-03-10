@@ -12,3 +12,4 @@ local_lib
 local_test
 auto_app
 .github
+workflows.md

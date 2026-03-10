@@ -11,8 +11,10 @@ mod_export_counttable_server(module_id, dataset, intended_use_label)
 
 \item{dataset}{A reactive list containing dataset containing the event data and other metadata.}
 
-\item{intended_use_label}{Either a string indicating the intended use for export, or
-NULL. The provided label will be displayed prior to the download and will also be included in the exported file.}
+\item{intended_use_label}{\verb{[character(1)|NULL]}
+
+Either a string indicating the intended use for export, or NULL. The provided label will be displayed
+prior to the download and will also be included in the exported file.}
 }
 \value{
 Event data downloaded as an Excel (\code{.xlsx}) or Word (\code{.rtf}) file.

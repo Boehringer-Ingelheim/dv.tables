@@ -53,14 +53,27 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
   event_vars <- count_table[["meta"]]$hierarchy
   event_var_labels <- attr(event_vars, "labels")
 
+  # Get event group values (empty vector if no event group specified)
+  event_group_vals <- count_table[["meta"]]$event_group_vals
+
+  # Flag when event group has been specified
+  has_event_group <- length(event_group_vals) > 0
+
   # Get data frame
   df_prep <- count_table[["df"]]
 
+  # For event group data, expand groups into columns for each event group value
+  if (has_event_group) {
+    old_names <- names(df_prep)
+    df_prep <- df_prep |> tidyr::unnest_wider(col = tidyr::all_of(group_names), names_sep = EC$VAL$SPECIAL_CHAR)
+    group_names <- setdiff(names(df_prep), old_names)
+  }
+
   # Names of statistical results in each cell list
-  stat_names <- intersect(names(count_table[["df"]][1, ][[group_names[1]]][[1]]),
+  stat_names <- intersect(names(df_prep[1, ][[group_names[1]]][[1]]),
                           c("count", "time_at_risk", "incidence_rate"))
 
-  df_prep <- count_table[["df"]] |>
+  df_prep <- df_prep |>
     dplyr::select(dplyr::all_of(event_vars), dplyr::all_of(group_names)) |>
 
     # Subset on the statistical results in each cell list (dropping subjid)
@@ -129,7 +142,13 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   for (col in group_names) {
     new_row[[col]] <- list(empty_stat_list)
-    new_row[[col]][[1]][["count"]] <- as.character(total_colname[col])
+
+    if (has_event_group) {
+      group_val <- strsplit(col, EC$VAL$SPECIAL_CHAR)[[1]][[1]]
+      new_row[[col]][[1]][["count"]] <- as.character(total_colname[group_val])
+    } else {
+      new_row[[col]][[1]][["count"]] <- as.character(total_colname[col])
+    }
   }
 
   df_prep <- rbind(new_row, df_prep)
@@ -203,6 +222,11 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
     dplyr::bind_cols(df_prep, new_cols),
     -dplyr::all_of(group_names)
   )
+
+  # For event group column names, replace special separator character with display-friendly "/"
+  if (has_event_group) {
+    names(df_prep) <- sub(EC$VAL$SPECIAL_CHAR, "/", names(df_prep), fixed = TRUE)
+  }
 
   return(df_prep)
 }

@@ -7,7 +7,8 @@ TPLYR_TBL <- pack_of_constants( # nolint
   SEL_OUTPUT_LABEL = "Select Output:",
   TITLE_OUTPUT_ID = "title_id",
   TITLE_OUTPUT_LABEL = "Output:",
-  SEL_ACT_ID = "menu_button"
+  SEL_ACT_ID = "menu_button",
+  TABS_ID = "title_tabs"
 )
 
 
@@ -37,61 +38,75 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #' Server for the Tplyr_table module
 #'
 #' @param module_id `[character(1)]`
+#' A character string that serves as a unique identifier for the module.
 #'
-#' A character string that serves as unique identifier for the module.
-#' @param dataset_list `[shiny::reactive(list(data.frame)]`
+#' @param dataset_list `[shiny::reactive(list(data.frame))]`
+#' A reactive list of data.frame-like dataset(s) that will be used to create the table and the listing(s).
 #'
-#' A reactive list of data.framish dataset(s) that will be used to create the table and the listing(s).
 #' @param output_list `[list(list())]`
-#'
 #' A named list defining the outputs to be generated. Each element of the list
 #' corresponds to a table or listing and must be a named list with one of the following structures:
 #'
 #' For summary tables:
-#'  \describe{
-#'     \item{tplyr_tab_fun}{A function that takes one or more datasets as input and returns a `tplyr_table` object.}
-#'     \item{build_fun}{A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).
-#'     The metadata argument of `Tplyr::build()` needs to be set to `TURE`, so that the corresponding listing can be shown.}
-#'  }
+#' \describe{
+#'   \item{tplyr_tab_fun}{A function that takes one or more datasets as input and returns a `tplyr_table` object.}
+#'   \item{build_fun}{A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).
+#'   The metadata argument of `Tplyr::build()` needs to be set to `TRUE`, so that the corresponding listing can be shown.}
+#' }
 #'
-#'  For listings:
-#'   \describe{
-#'     \item{dataset_names}{A character vector of dataset names required to generate the listing.}
-#'   }
+#' For listings:
+#' \describe{
+#'   \item{dataset_names}{A character vector of dataset names required to generate the listing.}
+#' }
 #'
-#'   The names of the top-level list elements are used as identifiers for the outputs.
+#' The names of the top-level list elements are used as identifiers for the outputs.
 #'
-#' @param dataset_metadata `[list(character(1), character(1+))]` A list with the following two elements:
+#' @param title_layout `[character(1)]`
+#' A character string defining how users can select the outputs in `output_list`.
+#' Supported values are:
+#' \describe{
+#'   \item{"dropdown" (default)}{Renders the current interactive title with a drop-down selector.}
+#'   \item{"tabs"}{Renders a horizontal `tabsetPanel` with one tab per entry in `output_list`.
+#'   Tabs will wrap to the next line if there are many. The rest of the module behavior is unchanged.}
+#' }
+#'
+#' @param dataset_metadata `[list(character(1), character(1+))]`
+#' A list with the following two elements:
 #' \code{dataset_metadata$name()} containing a reactive string specifying the name of the selected
 #' dataset and \code{dataset_metadata$date_range()} containing a reactive character vector with two entries
 #' specifying the earliest and latest modification date in the dataset.
-#' Usually obtained from module manager.
+#' Usually obtained from the module manager.
+#'
 #' @param subjid_var `[character(1) | NULL]`
+#' Column corresponding to subject ID. Default value is 'USUBJID'.
 #'
-#' Column corresponding to subject ID. Default value is 'USUBJID'
-#' @param default_vars an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
-#' @param intended_use_label an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
+#' @param default_vars An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
-#' @param pagination an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
+#' @param intended_use_label An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
-#' @param on_sbj_click an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
+#' @param pagination An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
+#' @param on_sbj_click An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
-#' @param review an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through.
+#' @param review An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
 #' @keywords main
 #' @export
 Tplyr_table_server <- function(
-    module_id,
-    dataset_list,
-    output_list,
-    dataset_metadata,
-    subjid_var,
-    default_vars,
-    intended_use_label,
-    pagination,
-    on_sbj_click = NULL,
-    review = NULL) {
+  module_id,
+  dataset_list,
+  output_list,
+  dataset_metadata,
+  subjid_var,
+  default_vars,
+  intended_use_label,
+  pagination,
+  on_sbj_click = NULL,
+  review = NULL,
+  title_layout = c("dropdown", "tabs")
+) {
+  title_layout <- match.arg(title_layout)
+
   checkmate::assert(
     checkmate::check_character(module_id, min.chars = 1),
     checkmate::check_multi_class(dataset_list, c("reactive", "shinymeta_reactive")),
@@ -131,54 +146,77 @@ Tplyr_table_server <- function(
 
     v_dataset_list <- shiny::reactive({
       checkmate::assert_list(dataset_list(), types = "data.frame", null.ok = TRUE, names = "named")
-      # ensure that global filter works as expected
-      dataset_list_droppedlevels <- lapply(dataset_list(), function(df) {
-        lbls <- get_lbls(df)
-        df <- droplevels(df)
-        df <- set_lbls(df, lbls)
-      })
-
-      dataset_list_droppedlevels
     })
-
-    ## table part start ---
 
     ### Table title start --
 
+    # Central selected output id
+
+    selected_output_id <- shiny::reactive({
+      if (identical(title_layout, "tabs")) {
+        # If single output
+
+        input[[TPLYR_TBL$TABS_ID]] %||% names(output_list)[1]
+      } else {
+        input[[TPLYR_TBL$SEL_OUTPUT_ID]] %||% names(output_list)[1]
+      }
+    })
+
+
     # define action button & output selector
     title_ui <- local({
-      output_menu <- shiny::tagAppendAttributes(
-        shinyWidgets::dropMenu(
-          shiny::actionButton(
-            inputId = ns(TPLYR_TBL$SEL_ACT_ID),
-            label = TPLYR_TBL$TITLE_OUTPUT_LABEL
+      if (identical(title_layout, "dropdown")) {
+        output_menu <- shiny::tagAppendAttributes(
+          shinyWidgets::dropMenu(
+            shiny::actionButton(
+              inputId = ns(TPLYR_TBL$SEL_ACT_ID),
+              label = TPLYR_TBL$TITLE_OUTPUT_LABEL
+            ),
+            shiny::tagList(
+              shiny::tags$style(shiny::HTML(paste0(
+                "#",
+                ns(TPLYR_TBL$SEL_OUTPUT_ID),
+                " + div.selectize-control div.selectize-input.items {max-height:200px; overflow-y:auto;}"
+              ))),
+              shiny::selectizeInput(
+                inputId = ns(TPLYR_TBL$SEL_OUTPUT_ID),
+                label = TPLYR_TBL$SEL_OUTPUT_LABEL,
+                choices = names(output_list),
+                selected = names(output_list)[1],
+                multiple = FALSE
+              )
+            ),
+            arrow = TRUE
           ),
-          shiny::tagList(
-            shiny::tags$style(shiny::HTML(paste0(
-              "#",
-              ns(TPLYR_TBL$SEL_OUTPUT_ID),
-              " + div.selectize-control div.selectize-input.items {max-height:200px; overflow-y:auto;}"
-            ))),
-            shiny::selectizeInput(
-              inputId = ns(TPLYR_TBL$SEL_OUTPUT_ID),
-              label = TPLYR_TBL$SEL_OUTPUT_LABEL,
-              choices = names(output_list),
-              selected = names(output_list)[1],
-              multiple = FALSE
+          style = "display:inline"
+        )
+
+
+        # Interactive title
+        interactive_title <- it_interactive_title(
+          output_menu
+        )
+        interactive_title
+      } else {
+        # Single output no tabs (avoid wasted space)
+        if (length(output_list) == 1) {
+          shiny::tags$div(class = "dv-tplyr-single-output-title", names(output_list)[1])
+        } else {
+          # Standard Shiny tabs; wraps to next line
+          tabs <- lapply(names(output_list), function(nm) {
+            shiny::tabPanel(title = nm, value = nm)
+          })
+          do.call(
+            shiny::tabsetPanel,
+            c(
+              list(id = ns(TPLYR_TBL$TABS_ID), selected = names(output_list)[1]),
+              tabs
             )
-          ),
-          arrow = TRUE
-        ),
-        style = "display:inline"
-      )
-
-
-      # Interactive title
-      interactive_title <- it_interactive_title(
-        output_menu
-      )
-      interactive_title
+          )
+        }
+      }
     })
+
 
     output[[TPLYR_TBL$TITLE_OUTPUT_ID]] <- shiny::renderUI({
       title_ui
@@ -188,17 +226,22 @@ Tplyr_table_server <- function(
       suspendWhenHidden = FALSE
     )
 
-    # Update the action button label
+    # Update the action button label (only if its interactive dropdown)
+    if (identical(title_layout, "dropdown")) {
+      shiny::observeEvent(input[[TPLYR_TBL$SEL_OUTPUT_ID]], {
+        selected_value <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
+        shiny::updateActionButton(
+          session = session,
+          inputId = TPLYR_TBL$SEL_ACT_ID,
+          label = selected_value
+        )
+      })
+    }
 
-    shiny::observeEvent(input[[TPLYR_TBL$SEL_OUTPUT_ID]], {
-      selected_value <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
-      shiny::updateActionButton(
-        session = session,
-        inputId = TPLYR_TBL$SEL_ACT_ID,
-        label = selected_value
-      )
-    })
+
     ### Table title end ---
+
+    ## table part start ---
 
     # consider using DT
     output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
@@ -290,12 +333,17 @@ Tplyr_table_server <- function(
 
     click_info_contents <- shiny::reactiveVal(NULL)
 
-    shiny::observeEvent(list(input[[TPLYR_TBL$SEL_OUTPUT_ID]], v_dataset_list()), {
-      shiny::req(input[[TPLYR_TBL$SEL_OUTPUT_ID]])
+    shiny::observeEvent(list(
+      selected_output_id(),
+      v_dataset_list()
+    ), {
+      shiny::req(selected_output_id())
 
       r_dataset_list <- v_dataset_list()
-      selected_output_id <- input[[TPLYR_TBL$SEL_OUTPUT_ID]]
-      selected_output <- output_list[[selected_output_id]]
+
+      sel_id <- selected_output_id()
+      selected_output <- output_list[[sel_id]]
+
       tplyr_tab_fun <- selected_output[["tplyr_tab_fun"]]
 
       new_state <- list(tplyr_tab = NULL, needed_data = NULL, tplyr_tab_build = NULL, is_table = FALSE)
@@ -336,7 +384,7 @@ Tplyr_table_server <- function(
             if (!("row_id" %in% names(res))) {
               warning(
                 paste(
-                  "For output", input[[TPLYR_TBL$SEL_OUTPUT_ID]],
+                  "For output", sel_id,
                   "the metadata is not set to TRUE in the build function. Drill down will not be working"
                 )
               )
@@ -443,6 +491,7 @@ Tplyr_table_server <- function(
     res_listings <- dv.listings::listings_server(
       module_id = TPLYR_TBL$LISTINGS_ID,
       dataset_list = listings_data,
+      subjid_var = subjid_var,
       dataset_metadata = dataset_metadata,
       default_vars = default_vars,
       intended_use_label = intended_use_label,
@@ -465,7 +514,7 @@ Tplyr_table_server <- function(
 #'
 #' @inheritParams Tplyr_table_server
 #'
-#' @param receiver_id an argument of [listings_server](https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html) of {dv.listings} will be passed through
+#' @param receiver_id An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
 #' @keywords main
 #' @export
@@ -554,14 +603,17 @@ Tplyr_table_server <- function(
 #' }
 #'
 mod_Tplyr_table <- function(
-    module_id,
-    output_list,
-    subjid_var = "USUBJID",
-    default_vars = NULL,
-    pagination = NULL,
-    intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
-    receiver_id = NULL,
-    review = NULL) {
+  module_id,
+  output_list,
+  subjid_var = "USUBJID",
+  default_vars = NULL,
+  pagination = NULL,
+  intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
+  receiver_id = NULL,
+  review = NULL,
+  title_layout = c("dropdown", "tabs")
+) {
+  title_layout <- match.arg(title_layout)
   checkmate::assert_list(output_list, types = "list")
 
   for (output in output_list) {
@@ -602,20 +654,24 @@ mod_Tplyr_table <- function(
         # precede this one in the `module_list` declaration of the DaVinci app. As long as one of them has declared
         # that it offers the review interface, we will refuse to start our own.
         # The mod_output[["enabled_review]] flag is set by `dv.listings::listings_server`.
-        for (mod_output in afmm[["module_output"]]()){
+        for (mod_output in afmm[["module_output"]]()) {
           if (is.list(mod_output) && isTRUE(mod_output[["enabled_review"]])) {
             this_tab_name <- afmm[["module_names"]][[module_id]]
 
-            shiny::showNotification({
-              paste(
-                "This app is configured to review listings in more than one tab. However,",
-                "only one instance of the `dv.tables` module can offer review functionality on any given app.<br>",
-                sprintf(
-                  'We have <b>disabled the review interface on the tab labeled "%s" (with module ID "%s")</b>',
-                  this_tab_name, module_id
-                ), "to sidestep this issue. Sorry for the inconvenience."
-              ) |> htmltools::HTML()
-            }, duration = NULL, type = "error")
+            shiny::showNotification(
+              {
+                paste(
+                  "This app is configured to review listings in more than one tab. However,",
+                  "only one instance of the `dv.tables` module can offer review functionality on any given app.<br>",
+                  sprintf(
+                    'We have <b>disabled the review interface on the tab labeled "%s" (with module ID "%s")</b>',
+                    this_tab_name, module_id
+                  ), "to sidestep this issue. Sorry for the inconvenience."
+                ) |> htmltools::HTML()
+              },
+              duration = NULL,
+              type = "error"
+            )
 
             review <- NULL
             break
@@ -633,7 +689,7 @@ mod_Tplyr_table <- function(
         unlist() |>
         unique()
 
-      dataset_present <- needed_datasets %in% shiny::isolate(names(afmm$unfiltered_dataset()))
+      dataset_present <- needed_datasets %in% shiny::isolate(names(afmm$unfiltered_dataset_list()))
       if (!all(dataset_present)) {
         stop(paste(
           "Not all datasets provided in tplyr_tab_fun are present in the provided data list!",
@@ -649,7 +705,7 @@ mod_Tplyr_table <- function(
 
       Tplyr_table_server(
         module_id = module_id,
-        dataset_list = shiny::reactive(afmm$filtered_dataset()[needed_datasets]),
+        dataset_list = shiny::reactive(afmm$filtered_dataset_list()[needed_datasets]),
         output_list = output_list,
         dataset_metadata = afmm$dataset_metadata,
         subjid_var = subjid_var,
@@ -657,7 +713,8 @@ mod_Tplyr_table <- function(
         intended_use_label = intended_use_label,
         pagination = pagination,
         on_sbj_click = on_sbj_click_fun,
-        review = review
+        review = review,
+        title_layout = title_layout
       )
     },
     module_id = module_id
@@ -665,11 +722,27 @@ mod_Tplyr_table <- function(
   return(mod)
 }
 
-dataset_info_Tplyr_table <- function(...) NULL # TODO: Return datasets used according to parameterization of the module
+dataset_info_Tplyr_table <- function(output_list, ...) {
+  needed_datasets <- sapply(output_list, function(tab) {
+    if ("tplyr_tab_fun" %in% names(tab)) {
+      names(formals(tab[["tplyr_tab_fun"]]))
+    } else {
+      tab[["dataset_names"]]
+    }
+  }, simplify = TRUE, USE.NAMES = FALSE) |>
+    unlist() |>
+    unique()
+
+  return(list(
+    all = unlist(as.list(needed_datasets)),
+    subject_level = character(0)
+  ))
+}
 
 check_mod_Tplyr_table <- function(
-    afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
-    receiver_id, review) {
+  afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
+  receiver_id, review, title_layout
+) {
   warn <- CM$container()
   err <- CM$container()
 
@@ -681,14 +754,14 @@ check_mod_Tplyr_table <- function(
   #   receiver_id, review, warn, err
   # )
   # nolint stop
- 
+
   dv.listings::check_review_parameter(
     datasets = datasets,
-    dataset_names = names(review[["datasets"]]), 
+    dataset_names = names(review[["datasets"]]),
     review,
     err
   )
-  
+
   res <- list(warnings = warn[["messages"]], errors = err[["messages"]])
   return(res)
 }
@@ -696,4 +769,3 @@ check_mod_Tplyr_table <- function(
 mod_Tplyr_table <- CM$module(
   mod_Tplyr_table, check_mod_Tplyr_table, dataset_info_Tplyr_table
 )
-

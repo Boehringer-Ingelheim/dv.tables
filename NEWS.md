@@ -1,3 +1,15 @@
+# dv.tables 0.4.0
+
+* [Tplyr_table module] added option for Tabs layout (default is dropdown selector)
+* [Tplyr_table module] remove drop empty levels; moved to dv.manager
+* [Tplyr_table module] bug fix; PaPo jumping
+* Update screenshots.
+* Replace `hidden` class for `d-none`
+* Relayout table. Reduce main header size and align cells to baseline.
+* Add functionality to optionally apply sub-grouping by a variable from the events data.
+* Reorganise parameter documentation for hierarchical count table functions.
+* Clarify use of time at risk related arguments in documentation for mod_hierarchical_count_table.
+
 # dv.tables 0.3.0
 
 * Retain dash fill-in for RTF downloads

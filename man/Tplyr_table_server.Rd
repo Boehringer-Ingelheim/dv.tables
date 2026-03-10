@@ -14,20 +14,18 @@ Tplyr_table_server(
   intended_use_label,
   pagination,
   on_sbj_click = NULL,
-  review = NULL
+  review = NULL,
+  title_layout = c("dropdown", "tabs")
 )
 }
 \arguments{
 \item{module_id}{\verb{[character(1)]}
+A character string that serves as a unique identifier for the module.}
 
-A character string that serves as unique identifier for the module.}
-
-\item{dataset_list}{\verb{[shiny::reactive(list(data.frame)]}
-
-A reactive list of data.framish dataset(s) that will be used to create the table and the listing(s).}
+\item{dataset_list}{\verb{[shiny::reactive(list(data.frame))]}
+A reactive list of data.frame-like dataset(s) that will be used to create the table and the listing(s).}
 
 \item{output_list}{\verb{[list(list())]}
-
 A named list defining the outputs to be generated. Each element of the list
 corresponds to a table or listing and must be a named list with one of the following structures:
 
@@ -35,7 +33,7 @@ For summary tables:
 \describe{
 \item{tplyr_tab_fun}{A function that takes one or more datasets as input and returns a \code{tplyr_table} object.}
 \item{build_fun}{A function that takes the \code{tplyr_table} object and returns a built table (typically using \code{Tplyr::build()}).
-The metadata argument of \code{Tplyr::build()} needs to be set to \code{TURE}, so that the corresponding listing can be shown.}
+The metadata argument of \code{Tplyr::build()} needs to be set to \code{TRUE}, so that the corresponding listing can be shown.}
 }
 
 For listings:
@@ -45,25 +43,34 @@ For listings:
 
 The names of the top-level list elements are used as identifiers for the outputs.}
 
-\item{dataset_metadata}{\verb{[list(character(1), character(1+))]} A list with the following two elements:
+\item{dataset_metadata}{\verb{[list(character(1), character(1+))]}
+A list with the following two elements:
 \code{dataset_metadata$name()} containing a reactive string specifying the name of the selected
 dataset and \code{dataset_metadata$date_range()} containing a reactive character vector with two entries
 specifying the earliest and latest modification date in the dataset.
-Usually obtained from module manager.}
+Usually obtained from the module manager.}
 
 \item{subjid_var}{\verb{[character(1) | NULL]}
+Column corresponding to subject ID. Default value is 'USUBJID'.}
 
-Column corresponding to subject ID. Default value is 'USUBJID'}
+\item{default_vars}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 
-\item{default_vars}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
+\item{intended_use_label}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 
-\item{intended_use_label}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
+\item{pagination}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 
-\item{pagination}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
+\item{on_sbj_click}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 
-\item{on_sbj_click}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
+\item{review}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 
-\item{review}{an argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of {dv.listings} will be passed through.}
+\item{title_layout}{\verb{[character(1)]}
+A character string defining how users can select the outputs in \code{output_list}.
+Supported values are:
+\describe{
+\item{"dropdown" (default)}{Renders the current interactive title with a drop-down selector.}
+\item{"tabs"}{Renders a horizontal \code{tabsetPanel} with one tab per entry in \code{output_list}.
+Tabs will wrap to the next line if there are many. The rest of the module behavior is unchanged.}
+}}
 }
 \description{
 Server for the Tplyr_table module
