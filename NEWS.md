@@ -1,3 +1,6 @@
+# dv.tables 0.4.0-9000
+- [NOT USER-FACING] Update CM.R snippet
+
 # dv.tables 0.4.0
 
 * [Tplyr_table module] added option for Tabs layout (default is dropdown selector)
