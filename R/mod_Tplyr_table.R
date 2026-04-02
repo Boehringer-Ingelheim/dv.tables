@@ -743,7 +743,6 @@ check_mod_Tplyr_table <- function(
   afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
   receiver_id, review, title_layout
 ) {
-  warn <- CM$container()
   err <- CM$container()
 
   # TODO: Write the API spec for the module and generate the check function below. Complement that with manual checks
@@ -751,7 +750,7 @@ check_mod_Tplyr_table <- function(
   # nolint start
   # OK <- check_mod_Tplyr_table_auto(
   #   afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
-  #   receiver_id, review, warn, err
+  #   receiver_id, review, err
   # )
   # nolint stop
 
@@ -762,7 +761,7 @@ check_mod_Tplyr_table <- function(
     err
   )
 
-  res <- list(warnings = warn[["messages"]], errors = err[["messages"]])
+  res <- list(errors = err[["messages"]])
   return(res)
 }
 

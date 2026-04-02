@@ -1499,11 +1499,10 @@ check_mod_hierarchical_count_table <- function(
     show_modal_on_click, default_hierarchy, default_group, default_total, default_event_group, default_event_date, default_origin_date,
     default_censor_date, default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
     censor_date_choices, intended_use_label, receiver_id) {
-  warn <- CM$container()
   err <- CM$container()
 
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
-  # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), warn, err)
+  # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), err)
 
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
@@ -1511,28 +1510,10 @@ check_mod_hierarchical_count_table <- function(
     default_hierarchy, default_group, default_total, default_event_group, default_event_date, default_origin_date, default_censor_date,
     default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices, censor_date_choices,
     intended_use_label, receiver_id,
-    warn, err
+    err
   )
 
-  # TODO: Checks not covered by auto
-  # Checks that API spec does not (yet?) capture
-  if (FALSE) {
-    # nolint start
-    if (OK[["subjid_var"]]) {
-      dataset <- datasets[[bm_dataset_name]]
-      OK[["subjid_var"]] <- CM$assert(err, is.factor(dataset[[subjid_var]]), "Column referenced by `subjid_var` should be a factor.")
-    }
-
-    if (OK[["subjid_var"]] && OK[["cat_var"]] && OK[["par_var"]] && OK[["visit_var"]]) {
-      CM$check_unique_sub_cat_par_vis(
-        datasets, "bm_dataset_name", bm_dataset_name,
-        subjid_var, cat_var, par_var, visit_var, warn, err
-      )
-    }
-    # nolint end
-  }
-
-  res <- list(warnings = warn[["messages"]], errors = err[["messages"]])
+  res <- list(errors = err[["messages"]])
   return(res)
 }
 
