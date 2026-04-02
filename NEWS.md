@@ -1,4 +1,9 @@
+# dv.tables 0.4.0-9001
+
+- [NOT USER-FACING] Update TC.R and DR.R snippet
+
 # dv.tables 0.4.0-9000
+
 - [NOT USER-FACING] Update CM.R snippet
 
 # dv.tables 0.4.0
