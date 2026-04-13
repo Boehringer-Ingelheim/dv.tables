@@ -1207,6 +1207,7 @@ hierarchical_count_table_server <- function(
 
     # The output displays the stored HTML
     output[[EC$ID$TABLE]] <- shiny::renderUI({
+      data <- et() # Ensure UI is aware of the validation state
       table_html()
     })
 
