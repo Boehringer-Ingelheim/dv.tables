@@ -2542,4 +2542,5 @@
           </tr>
         </table>
       </div>
+      <script>Shiny.setInputValue('mod-table_rendered', Math.random());</script>
 
