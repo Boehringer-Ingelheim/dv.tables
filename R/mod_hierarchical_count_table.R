@@ -1143,38 +1143,71 @@ hierarchical_count_table_server <- function(
       hierarchy_labels <- get_lbls_robust(d)[hierarchy]
       attr(hierarchy, "labels") <- unlist(hierarchy_labels)
 
-      events_table_raw <- compute_events_table(event_df = d,
-                                               pop_df = pd,
-                                               hierarchy = hierarchy,
-                                               group_var = group_var,
-                                               subjid_var = subjid_var,
-                                               event_group_var = event_group_var,
-                                               origin_date_var = origin_date_var,
-                                               censor_date_var = censor_date_var,
-                                               event_date_var = event_date_var,
-                                               total = total,
-                                               total_group_val = "Total",
-                                               compute_risk = compute_risk)
+      shiny::withProgress(message = "1) Processing data", value = 0.5, {
 
-      # Show warning when origin date is after non-missing censor date (bad data!)
-      shiny::validate(
-        shiny::need(
-          is.null(events_table_raw$meta$warning_message),
-          events_table_raw$meta$warning_message
+        events_table_raw <- compute_events_table(event_df = d,
+                                                 pop_df = pd,
+                                                 hierarchy = hierarchy,
+                                                 group_var = group_var,
+                                                 subjid_var = subjid_var,
+                                                 event_group_var = event_group_var,
+                                                 origin_date_var = origin_date_var,
+                                                 censor_date_var = censor_date_var,
+                                                 event_date_var = event_date_var,
+                                                 total = total,
+                                                 total_group_val = "Total",
+                                                 compute_risk = compute_risk)
+
+        # Show warning when origin date is after non-missing censor date (bad data!)
+        shiny::validate(
+          shiny::need(
+            is.null(events_table_raw$meta$warning_message),
+            events_table_raw$meta$warning_message
+          )
         )
-      )
 
-      sorted_events_table <- compute_order_events_table(events_table_raw)
+        sorted_events_table <- compute_order_events_table(events_table_raw)
 
-      t <- pivot_wide_format_events_table(events_table_raw, min_percent) |>
-        sort_wider_formatter_events_table(sorted_events_table)
+        t <- pivot_wide_format_events_table(events_table_raw, min_percent) |>
+          sort_wider_formatter_events_table(sorted_events_table)
+      })
 
       t
     })
 
+    # Create a reactive value to store the table HTML
+    table_html <- shiny::reactiveVal("")
+
+    # Use an observer to handle the progress bar update
+    shiny::observe({
+      shiny::req(et()) # Only run if data exists
+
+      # Create the progress bar manually
+      p <- shiny::Progress$new()
+      p$set(message = "2) Generating & Rendering Table", value = 0.2)
+
+      # Generate the JS string
+      on_cell_click <- sprintf(
+        "Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})",
+        ns("cell_click")
+      )
+
+      rendered_content <- et() |> sort_wide_format_event_table_to_HTML(on_cell_click)
+
+      p$set(value = 0.5)
+
+      render_script <- shiny::tags$script(sprintf("Shiny.setInputValue('%s', Math.random());", ns("table_rendered")))
+
+      table_html(shiny::tagList(rendered_content, render_script))
+
+      shiny::observeEvent(input$table_rendered, {
+        p$close()
+      }, once = TRUE)
+    })
+
+    # The output displays the stored HTML
     output[[EC$ID$TABLE]] <- shiny::renderUI({
-      on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
-      et() |> sort_wide_format_event_table_to_HTML(on_cell_click)
+      table_html()
     })
 
     # Table download module
