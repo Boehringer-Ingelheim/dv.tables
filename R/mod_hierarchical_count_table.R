@@ -14,7 +14,8 @@ EC <- poc( # nolint
     EVENT_DATE_LBL = "event_date_label",
     ORIGIN_DATE_LBL = "origin_date_label",
     CENSOR_DATE_LBL = "censor_date_label",
-    TAB_DOWNLOAD = "table_download"
+    TAB_DOWNLOAD = "table_download",
+    RENDER_COMPLETION_CALLBACK = "render_completion_callback"
   ),
   LBL = poc(
     DROP_MENU = "Options",
@@ -1143,6 +1144,12 @@ hierarchical_count_table_server <- function(
       hierarchy_labels <- get_lbls_robust(d)[hierarchy]
       attr(hierarchy, "labels") <- unlist(hierarchy_labels)
 
+      # Show a progress bar for the remainder of the execution of this reactive
+      # This bar does not really progress; it just disappears once we're through
+      p <- shiny::Progress$new(session = session)
+      on.exit(p$close())
+      p$set(message = "1) Processing data", value = 0.50)
+      
       events_table_raw <- compute_events_table(event_df = d,
                                                pop_df = pd,
                                                hierarchy = hierarchy,
@@ -1171,10 +1178,34 @@ hierarchical_count_table_server <- function(
 
       t
     })
+   
+    render_completion_callback <- shiny::tags$script(shiny::HTML(sprintf("
+    requestAnimationFrame(() => { // repaint preceding the table render
+      requestAnimationFrame(() => { // repaint following the table render
+        Shiny.setInputValue('%s', 'done', {priority: 'event'});
+      });
+    });
+    ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))))
+
+    table_progress_bars <- list() # keep a list of progress bars to cope with trigger-happy users
+    
+    shiny::observeEvent(input[[EC$ID$RENDER_COMPLETION_CALLBACK]], {
+      for (p in table_progress_bars) p$close()
+      table_progress_bars <<- list()
+    })
 
     output[[EC$ID$TABLE]] <- shiny::renderUI({
       on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
-      et() |> sort_wide_format_event_table_to_HTML(on_cell_click)
+      et <- et()
+      
+      # Start a progress bar and leave its cleanup to the `input[[EC$ID$RENDER_COMPLETION_CALLBACK]]` observer
+      p <- shiny::Progress$new(session = session)
+      table_progress_bars[[length(table_progress_bars) + 1]] <<- p
+      on.exit(p$inc(amount = 0.3))
+      p$set(message = "2) Generating & Rendering Table", value = 0.2)
+      
+      rendered_content <- sort_wide_format_event_table_to_HTML(et, on_cell_click)
+      shiny::tagList(rendered_content, render_completion_callback)
     })
 
     # Table download module
