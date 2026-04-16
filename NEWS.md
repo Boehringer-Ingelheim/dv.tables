@@ -1,3 +1,6 @@
+# dv.tables 0.4.1
+* [NOT USER-FACING] Update test snapshots because of new version of dependencies
+
 # dv.tables 0.4.0
 
 * [Tplyr_table module] added option for Tabs layout (default is dropdown selector)
