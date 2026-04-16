@@ -1,5 +1,5 @@
-# dv.tables 0.4.0.9001
-* Update snapshots for snapshot tests because of new version of dependencies
+# dv.tables 0.4.1
+* [NOT USER-FACING] Update test snapshots because of new version of dependencies
 
 # dv.tables 0.4.0
 
