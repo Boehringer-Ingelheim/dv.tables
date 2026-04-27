@@ -2542,4 +2542,11 @@
           </tr>
         </table>
       </div>
+      <script>
+          requestAnimationFrame(() => { // repaint preceding the table render
+            requestAnimationFrame(() => { // repaint following the table render
+              Shiny.setInputValue('mod-render_completion_callback', 'done', {priority: 'event'});
+            });
+          });
+          </script>
 

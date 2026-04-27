@@ -1,10 +1,18 @@
-# dv.tables 0.4.0-9001
+# dv.tables 0.4.1-9002
+
+- Add progress bar shown during table generation.
+
+# dv.tables 0.4.1-9001
 
 - [NOT USER-FACING] Update TC.R and DR.R snippet
 
-# dv.tables 0.4.0-9000
+# dv.tables 0.4.1-9000
 
 - [NOT USER-FACING] Update CM.R snippet
+
+# dv.tables 0.4.1
+
+- [PLACEHOLDER TO INCLUDE CHANGES TO main THAT BYPASSED test]
 
 # dv.tables 0.4.0
 
