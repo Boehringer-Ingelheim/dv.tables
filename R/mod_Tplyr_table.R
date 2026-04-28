@@ -752,15 +752,20 @@ check_mod_Tplyr_table <- function(
   #   afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
   #   receiver_id, review, err
   # )
-  # nolint stop
+  # nolint end
 
-  dv.listings::check_review_parameter(
-    datasets = datasets,
-    dataset_names = names(review[["datasets"]]),
-    review,
-    err
+  check_review_parameter_args <- list(
+      datasets = datasets,
+      dataset_names = names(review[["datasets"]]),
+      review = review,
+      err = err
   )
-
+  if ("afmm" %in% names(formals(dv.listings::check_review_parameter))) {
+    check_review_parameter_args[["afmm"]] <- afmm
+  } 
+  
+  do.call(dv.listings::check_review_parameter, check_review_parameter_args)
+  
   res <- list(errors = err[["messages"]])
   return(res)
 }
