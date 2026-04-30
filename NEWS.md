@@ -1,6 +1,10 @@
+# dv.tables 0.4.1-9003
+
+- [NOT USER-FACING] Provide `afmm` to newer version of `dv.listings::check_review_parameter`
+
 # dv.tables 0.4.1-9002
 
-- Add progress bar shown during table generation.
+- Add progress bar shown during table generation
 
 # dv.tables 0.4.1-9001
 
