@@ -1,3 +1,7 @@
+# dv.tables 0.4.1-9004
+
+- Add scrollbar to options dropdown to avoid truncation in short window space.
+
 # dv.tables 0.4.1-9003
 
 - [NOT USER-FACING] Provide `afmm` to newer version of `dv.listings::check_review_parameter`
