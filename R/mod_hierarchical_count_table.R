@@ -817,7 +817,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @inheritParams mod_hierarchical_count_table
 #' @inheritParams hierarchical_count_table_server
 #'
-#' @return A `shiny::tagList` containing the user interface for selecting hierarchy, group,
+#' @return A `shiny::div` containing the user interface for selecting hierarchy, group,
 #' and minimum percentage for event counting.
 #'
 #' @keywords main
@@ -854,21 +854,35 @@ hierarchical_count_table_ui <- function(id,
     )
   }
 
+  drop_menu <- shinyWidgets::dropMenu(
+    shiny::tags[["button"]](id = ns(EC$ID$DROP_MENU), EC$LBL$DROP_MENU, class = "btn btn-default"),
+    col_menu_UI(id = ns(EC$ID$HIERARCHY)),
+    col_menu_UI(id = ns(EC$ID$GRP)),
+    shiny::numericInput(ns(EC$ID$MIN_PERCENT),
+                        label = EC$LBL$MIN_PERCENT,
+                        value = 0, min = 0, max = 100),
+    shiny::checkboxInput(ns(EC$ID$TOTAL_FLAG), label = EC$LBL$TOTAL_FLAG, value = default_total),
+    event_by_group,
+    time_at_risk_options,
+    options = shinyWidgets::dropMenuOptions(
+      popperOptions = list(
+        modifiers = list(
+          preventOverflow = list(
+            enabled = TRUE,
+            boundariesElement = "scrollParent",
+            priority = list("left", "right", "bottom", "top")
+          )
+        )
+      )
+    ),
+    style = "max-height: 85vh; overflow-y: auto; overflow-x: hidden; padding: 10px;"
+  )
+
   shiny::div(
     class = "hier_count_table",
     shiny::tagList(
       shiny::div(style = "display: inline-block;",
-                 shinyWidgets::dropMenu(
-                   shiny::tags[["button"]](id = ns(EC$ID$DROP_MENU), EC$LBL$DROP_MENU, class = "btn btn-default"),
-                   col_menu_UI(id = ns(EC$ID$HIERARCHY)),
-                   col_menu_UI(id = ns(EC$ID$GRP)),
-                   shiny::numericInput(ns(EC$ID$MIN_PERCENT),
-                                       label = EC$LBL$MIN_PERCENT,
-                                       value = 0, min = 0, max = 100),
-                   shiny::checkboxInput(ns(EC$ID$TOTAL_FLAG), label = EC$LBL$TOTAL_FLAG, value = default_total),
-                   event_by_group,
-                   time_at_risk_options
-                 )),
+                 drop_menu),
       shiny::div(style = "display: inline-block;",
                  mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD)))
     ),
@@ -1149,7 +1163,7 @@ hierarchical_count_table_server <- function(
       p <- shiny::Progress$new(session = session)
       on.exit(p$close())
       p$set(message = "1) Processing data", value = 0.50)
-      
+
       events_table_raw <- compute_events_table(event_df = d,
                                                pop_df = pd,
                                                hierarchy = hierarchy,
@@ -1178,7 +1192,7 @@ hierarchical_count_table_server <- function(
 
       t
     })
-   
+
     render_completion_callback <- shiny::tags$script(shiny::HTML(sprintf("
     requestAnimationFrame(() => { // repaint preceding the table render
       requestAnimationFrame(() => { // repaint following the table render
@@ -1188,7 +1202,7 @@ hierarchical_count_table_server <- function(
     ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))))
 
     table_progress_bars <- list() # keep a list of progress bars to cope with trigger-happy users
-    
+
     shiny::observeEvent(input[[EC$ID$RENDER_COMPLETION_CALLBACK]], {
       for (p in table_progress_bars) p$close()
       table_progress_bars <<- list()
@@ -1197,13 +1211,13 @@ hierarchical_count_table_server <- function(
     output[[EC$ID$TABLE]] <- shiny::renderUI({
       on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
       et <- et()
-      
+
       # Start a progress bar and leave its cleanup to the `input[[EC$ID$RENDER_COMPLETION_CALLBACK]]` observer
       p <- shiny::Progress$new(session = session)
       table_progress_bars[[length(table_progress_bars) + 1]] <<- p
       on.exit(p$inc(amount = 0.3))
       p$set(message = "2) Generating & Rendering Table", value = 0.2)
-      
+
       rendered_content <- sort_wide_format_event_table_to_HTML(et, on_cell_click)
       shiny::tagList(rendered_content, render_completion_callback)
     })

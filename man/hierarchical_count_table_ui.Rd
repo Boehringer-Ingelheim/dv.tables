@@ -38,7 +38,7 @@ A default value for for checkbox determining whether to calculate time at risk. 
 applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 }
 \value{
-A \code{shiny::tagList} containing the user interface for selecting hierarchy, group,
+A \code{shiny::div} containing the user interface for selecting hierarchy, group,
 and minimum percentage for event counting.
 }
 \description{
