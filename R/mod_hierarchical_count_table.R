@@ -817,7 +817,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @inheritParams mod_hierarchical_count_table
 #' @inheritParams hierarchical_count_table_server
 #'
-#' @return A `shiny::tagList` containing the user interface for selecting hierarchy, group,
+#' @return A `shiny::div` containing the user interface for selecting hierarchy, group,
 #' and minimum percentage for event counting.
 #'
 #' @keywords main
