@@ -144,13 +144,16 @@ Tplyr_table_server <- function(
   shiny::moduleServer(module_id, function(input, output, session) {
     ns <- session$ns
 
-    v_dataset_list <- shiny::reactive({
+    v_dataset_list <- shinymeta::metaReactive2({
       checkmate::assert_list(
         dataset_list(),
         types = "data.frame",
         null.ok = TRUE,
         names = "named"
       )
+      shinymeta::metaExpr({
+        ..(dataset_list())
+      })      
     })
 
     ### Table title start --
@@ -250,12 +253,96 @@ Tplyr_table_server <- function(
 
     ### Table title end ---
 
-    ## table part start ---
+        ## table part start ---
 
-    # consider using DT
-    output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
-      is_table <- selected_output()[["is_table"]]
-      tplyr_tab_build <- selected_output()[["tplyr_tab_build"]]
+    selected_output <- shinymeta::metaReactive2({
+      shiny::req(selected_output_id())
+
+      sel_id <- selected_output_id()
+
+      curr_selected_output <- output_list[[sel_id]]
+
+      tplyr_tab_fun <- curr_selected_output[["tplyr_tab_fun"]]
+
+      is_table <- "tplyr_tab_fun" %in% names(curr_selected_output)
+
+      if (!is_table) {
+        res <- shinymeta::metaExpr({
+          list(
+            tplyr_tab = NULL,
+            needed_data = ..(v_dataset_list())[..(curr_selected_output[["dataset_names"]])],
+            tplyr_tab_build = NULL,
+            is_table = ..(is_table)
+          )
+        })
+      } else {        
+          if (
+            all(sapply(
+              v_dataset_list()[names(formals(tplyr_tab_fun))],
+              function(tbl) nrow(tbl) == 0
+            ))
+          ) {
+            res <- shinymeta::metaExpr({
+              list(
+                tplyr_tab = NULL,
+                needed_data = ..(v_dataset_list())[..(names(formals(
+                  tplyr_tab_fun
+                )))],
+                tplyr_tab_build = NULL,
+                is_table = ..(is_table)
+              )
+            })            
+          } else {
+            res <- shinymeta::metaExpr(
+              {
+                l_needed_data <- ..(v_dataset_list())[..(names(formals(tplyr_tab_fun)))]
+                
+                l_tplyr_tab <- do.call(..(tplyr_tab_fun), l_needed_data)
+
+                checkmate::assert_class(
+                  l_tplyr_tab,
+                  classes = c("tplyr_table", "environment")
+                ) # What does this checkmate do?
+
+                l_tplyr_tab_build <- local({
+                  build_fun <- ..(curr_selected_output[["build_fun"]])
+                  res <- build_fun(l_tplyr_tab)
+                  checkmate::assert_class(
+                    res,
+                    classes = c("tbl_df", "tbl", "data.frame")
+                  )
+
+                  if (!("row_id" %in% names(res))) {
+                    warning(
+                      paste(
+                        "For output",
+                        sel_id,
+                        "the metadata is not set to TRUE in the build function. Drill down will not be working"
+                      )
+                    )
+                  }
+                  res
+                })
+
+                res <- list(
+                  tplyr_tab = l_tplyr_tab,
+                  needed_data = l_needed_data,
+                  tplyr_tab_build = l_tplyr_tab_build,
+                  is_table = ..(is_table)
+                )
+
+              },
+              localize = TRUE
+            )
+            
+          } 
+      }
+
+      res
+    })
+
+    table_tplyr_df <- shinymeta::metaReactive2({
+      is_table <- selected_output()[["is_table"]]      
       needed_data <- selected_output()[["needed_data"]]
 
       shiny::validate(
@@ -266,13 +353,26 @@ Tplyr_table_server <- function(
       )
 
       if (is_table) {
-        selected_columns <- dplyr::select(
-          tplyr_tab_build,
-          -dplyr::any_of(c("row_id")),
-          -dplyr::starts_with("ord")
-        )
+        shinymeta::metaExpr({
+          dplyr::select(
+            ..(selected_output())[["tplyr_tab_build"]],
+            -dplyr::any_of(c("row_id")),
+            -dplyr::starts_with("ord")
+          )
+        })        
+      } else {
+        shinymeta::metaExpr({
+          NULL
+        })
+      }
+    })
 
-        paging <- nrow(selected_columns) > 50
+    # consider using DT
+    output[[TPLYR_TBL$TABLE_ID]] <- reactable::renderReactable({
+      shiny::req(!is.null(table_tplyr_df()))
+      r_table_tplyr_df <- table_tplyr_df()      
+
+        paging <- nrow(r_table_tplyr_df) > 50
 
         cell_click_input_js <- paste0(
           "function(rowInfo, colInfo) {
@@ -288,97 +388,23 @@ Tplyr_table_server <- function(
         )
 
         reactable::reactable(
-          selected_columns,
+          r_table_tplyr_df,
           sortable = FALSE,
           onClick = htmlwidgets::JS(cell_click_input_js),
           pagination = paging,
           showPageSizeOptions = paging,
           columns = stats::setNames(
-            lapply(colnames(selected_columns), function(col) {
+            lapply(colnames(r_table_tplyr_df), function(col) {
               reactable::colDef(name = rename_columns(col))
             }),
-            colnames(selected_columns)
+            colnames(r_table_tplyr_df)
           )
-        )
-      }
+        )      
     })
 
     ## table part end ---
 
     ## listings part start ---
-
-    selected_output <- shiny::reactive({
-      shiny::req(selected_output_id())
-
-      r_dataset_list <- v_dataset_list()
-
-      sel_id <- selected_output_id()
-
-      curr_selected_output <- output_list[[sel_id]]
-
-      tplyr_tab_fun <- curr_selected_output[["tplyr_tab_fun"]]
-
-      is_table <- "tplyr_tab_fun" %in% names(curr_selected_output)
-
-      dataset_names <- local({
-        if (is_table) {
-          names(formals(tplyr_tab_fun))
-        } else {
-          curr_selected_output[["dataset_names"]]
-        }
-      })
-
-      l_needed_data <- r_dataset_list[dataset_names]
-
-      l_tplyr_tab <- local({
-        if (is_table) {
-          # Global filter empty, prevent crash
-          if (all(sapply(l_needed_data, function(tbl) nrow(tbl) == 0))) {
-            return(NULL)
-          }
-          res <- do.call(tplyr_tab_fun, l_needed_data)
-          checkmate::assert_class(
-            res,
-            classes = c("tplyr_table", "environment")
-          )
-          res
-        }
-      })
-
-      l_tplyr_tab_build <- local({
-        if (!is.null(l_tplyr_tab)) {
-          if (is_table) {
-            build_fun <- curr_selected_output[["build_fun"]]
-            res <- build_fun(l_tplyr_tab)
-            checkmate::assert_class(
-              res,
-              classes = c("tbl_df", "tbl", "data.frame")
-            )
-            if (!("row_id" %in% names(res))) {
-              warning(
-                paste(
-                  "For output",
-                  sel_id,
-                  "the metadata is not set to TRUE in the build function. Drill down will not be working"
-                )
-              )
-            }
-            res
-          }
-        } else {
-          NULL
-        }
-      })
-
-      res <- list(
-        tplyr_tab = l_tplyr_tab,
-        needed_data = l_needed_data,
-        tplyr_tab_build = l_tplyr_tab_build,
-        is_table = is_table
-      )
-
-      res
-    })
 
     click_info_contents <- shiny::reactiveVal(NULL)
 
@@ -530,6 +556,10 @@ Tplyr_table_server <- function(
       review = review
     )
     ## listings part end ---
+
+    res_listings[["to_report"]] <- list(
+      table = table_tplyr_df
+    )
 
     return(res_listings)
   })
@@ -735,7 +765,7 @@ mod_Tplyr_table <- function(
 
       Tplyr_table_server(
         module_id = module_id,
-        dataset_list = shiny::reactive(afmm$filtered_dataset_list()[needed_datasets]),
+        dataset_list = shinymeta::metaReactive({..(afmm$filtered_dataset_list())[..(needed_datasets)]}),
         output_list = output_list,
         dataset_metadata = afmm$dataset_metadata,
         subjid_var = subjid_var,
