@@ -14,7 +14,8 @@ EC <- poc( # nolint
     EVENT_DATE_LBL = "event_date_label",
     ORIGIN_DATE_LBL = "origin_date_label",
     CENSOR_DATE_LBL = "censor_date_label",
-    TAB_DOWNLOAD = "table_download"
+    TAB_DOWNLOAD = "table_download",
+    RENDER_COMPLETION_CALLBACK = "render_completion_callback"
   ),
   LBL = poc(
     DROP_MENU = "Options",
@@ -816,7 +817,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 #' @inheritParams mod_hierarchical_count_table
 #' @inheritParams hierarchical_count_table_server
 #'
-#' @return A `shiny::tagList` containing the user interface for selecting hierarchy, group,
+#' @return A `shiny::div` containing the user interface for selecting hierarchy, group,
 #' and minimum percentage for event counting.
 #'
 #' @keywords main
@@ -853,21 +854,35 @@ hierarchical_count_table_ui <- function(id,
     )
   }
 
+  drop_menu <- shinyWidgets::dropMenu(
+    shiny::tags[["button"]](id = ns(EC$ID$DROP_MENU), EC$LBL$DROP_MENU, class = "btn btn-default"),
+    col_menu_UI(id = ns(EC$ID$HIERARCHY)),
+    col_menu_UI(id = ns(EC$ID$GRP)),
+    shiny::numericInput(ns(EC$ID$MIN_PERCENT),
+                        label = EC$LBL$MIN_PERCENT,
+                        value = 0, min = 0, max = 100),
+    shiny::checkboxInput(ns(EC$ID$TOTAL_FLAG), label = EC$LBL$TOTAL_FLAG, value = default_total),
+    event_by_group,
+    time_at_risk_options,
+    options = shinyWidgets::dropMenuOptions(
+      popperOptions = list(
+        modifiers = list(
+          preventOverflow = list(
+            enabled = TRUE,
+            boundariesElement = "scrollParent",
+            priority = list("left", "right", "bottom", "top")
+          )
+        )
+      )
+    ),
+    style = "max-height: 85vh; overflow-y: auto; overflow-x: hidden; padding: 10px;"
+  )
+
   shiny::div(
     class = "hier_count_table",
     shiny::tagList(
       shiny::div(style = "display: inline-block;",
-                 shinyWidgets::dropMenu(
-                   shiny::tags[["button"]](id = ns(EC$ID$DROP_MENU), EC$LBL$DROP_MENU, class = "btn btn-default"),
-                   col_menu_UI(id = ns(EC$ID$HIERARCHY)),
-                   col_menu_UI(id = ns(EC$ID$GRP)),
-                   shiny::numericInput(ns(EC$ID$MIN_PERCENT),
-                                       label = EC$LBL$MIN_PERCENT,
-                                       value = 0, min = 0, max = 100),
-                   shiny::checkboxInput(ns(EC$ID$TOTAL_FLAG), label = EC$LBL$TOTAL_FLAG, value = default_total),
-                   event_by_group,
-                   time_at_risk_options
-                 )),
+                 drop_menu),
       shiny::div(style = "display: inline-block;",
                  mod_export_counttable_UI(ns(EC$ID$TAB_DOWNLOAD)))
     ),
@@ -1143,6 +1158,12 @@ hierarchical_count_table_server <- function(
       hierarchy_labels <- get_lbls_robust(d)[hierarchy]
       attr(hierarchy, "labels") <- unlist(hierarchy_labels)
 
+      # Show a progress bar for the remainder of the execution of this reactive
+      # This bar does not really progress; it just disappears once we're through
+      p <- shiny::Progress$new(session = session)
+      on.exit(p$close())
+      p$set(message = "1) Processing data", value = 0.50)
+
       events_table_raw <- compute_events_table(event_df = d,
                                                pop_df = pd,
                                                hierarchy = hierarchy,
@@ -1172,9 +1193,33 @@ hierarchical_count_table_server <- function(
       t
     })
 
+    render_completion_callback <- shiny::tags$script(shiny::HTML(sprintf("
+    requestAnimationFrame(() => { // repaint preceding the table render
+      requestAnimationFrame(() => { // repaint following the table render
+        Shiny.setInputValue('%s', 'done', {priority: 'event'});
+      });
+    });
+    ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))))
+
+    table_progress_bars <- list() # keep a list of progress bars to cope with trigger-happy users
+
+    shiny::observeEvent(input[[EC$ID$RENDER_COMPLETION_CALLBACK]], {
+      for (p in table_progress_bars) p$close()
+      table_progress_bars <<- list()
+    })
+
     output[[EC$ID$TABLE]] <- shiny::renderUI({
       on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
-      et() |> sort_wide_format_event_table_to_HTML(on_cell_click)
+      et <- et()
+
+      # Start a progress bar and leave its cleanup to the `input[[EC$ID$RENDER_COMPLETION_CALLBACK]]` observer
+      p <- shiny::Progress$new(session = session)
+      table_progress_bars[[length(table_progress_bars) + 1]] <<- p
+      on.exit(p$inc(amount = 0.3))
+      p$set(message = "2) Generating & Rendering Table", value = 0.2)
+
+      rendered_content <- sort_wide_format_event_table_to_HTML(et, on_cell_click)
+      shiny::tagList(rendered_content, render_completion_callback)
     })
 
     # Table download module
@@ -1499,11 +1544,10 @@ check_mod_hierarchical_count_table <- function(
     show_modal_on_click, default_hierarchy, default_group, default_total, default_event_group, default_event_date, default_origin_date,
     default_censor_date, default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
     censor_date_choices, intended_use_label, receiver_id) {
-  warn <- CM$container()
   err <- CM$container()
 
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
-  # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), warn, err)
+  # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), err)
 
   OK <- check_mod_hierarchical_count_table_auto( # nolint unused
     afmm, datasets,
@@ -1511,28 +1555,10 @@ check_mod_hierarchical_count_table <- function(
     default_hierarchy, default_group, default_total, default_event_group, default_event_date, default_origin_date, default_censor_date,
     default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices, censor_date_choices,
     intended_use_label, receiver_id,
-    warn, err
+    err
   )
 
-  # TODO: Checks not covered by auto
-  # Checks that API spec does not (yet?) capture
-  if (FALSE) {
-    # nolint start
-    if (OK[["subjid_var"]]) {
-      dataset <- datasets[[bm_dataset_name]]
-      OK[["subjid_var"]] <- CM$assert(err, is.factor(dataset[[subjid_var]]), "Column referenced by `subjid_var` should be a factor.")
-    }
-
-    if (OK[["subjid_var"]] && OK[["cat_var"]] && OK[["par_var"]] && OK[["visit_var"]]) {
-      CM$check_unique_sub_cat_par_vis(
-        datasets, "bm_dataset_name", bm_dataset_name,
-        subjid_var, cat_var, par_var, visit_var, warn, err
-      )
-    }
-    # nolint end
-  }
-
-  res <- list(warnings = warn[["messages"]], errors = err[["messages"]])
+  res <- list(errors = err[["messages"]])
   return(res)
 }
 

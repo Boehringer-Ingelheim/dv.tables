@@ -1,5 +1,26 @@
+# dv.tables 0.4.1-9004
+
+- Add scrollbar to options dropdown to avoid truncation in short window space.
+
+# dv.tables 0.4.1-9003
+
+- [NOT USER-FACING] Provide `afmm` to newer version of `dv.listings::check_review_parameter`
+
+# dv.tables 0.4.1-9002
+
+- Add progress bar shown during table generation
+
+# dv.tables 0.4.1-9001
+
+- [NOT USER-FACING] Update TC.R and DR.R snippet
+
+# dv.tables 0.4.1-9000
+
+- [NOT USER-FACING] Update CM.R snippet
+
 # dv.tables 0.4.1
-* [NOT USER-FACING] Update test snapshots because of new version of dependencies
+
+- [PLACEHOLDER TO INCLUDE CHANGES TO main THAT BYPASSED test]
 
 # dv.tables 0.4.0
 

@@ -803,7 +803,6 @@ check_mod_Tplyr_table <- function(
   afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
   receiver_id, review, title_layout
 ) {
-  warn <- CM$container()
   err <- CM$container()
 
   # TODO: Write the API spec for the module and generate the check function below. Complement that with manual checks
@@ -811,18 +810,23 @@ check_mod_Tplyr_table <- function(
   # nolint start
   # OK <- check_mod_Tplyr_table_auto(
   #   afmm, datasets, module_id, output_list, subjid_var, default_vars, pagination, intended_use_label,
-  #   receiver_id, review, warn, err
+  #   receiver_id, review, err
   # )
-  # nolint stop
+  # nolint end
 
-  dv.listings::check_review_parameter(
-    datasets = datasets,
-    dataset_names = names(review[["datasets"]]),
-    review,
-    err
+  check_review_parameter_args <- list(
+      datasets = datasets,
+      dataset_names = names(review[["datasets"]]),
+      review = review,
+      err = err
   )
-
-  res <- list(warnings = warn[["messages"]], errors = err[["messages"]])
+  if ("afmm" %in% names(formals(dv.listings::check_review_parameter))) {
+    check_review_parameter_args[["afmm"]] <- afmm
+  } 
+  
+  do.call(dv.listings::check_review_parameter, check_review_parameter_args)
+  
+  res <- list(errors = err[["messages"]])
   return(res)
 }
 
