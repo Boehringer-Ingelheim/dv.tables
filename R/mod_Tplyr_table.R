@@ -29,7 +29,8 @@ Tplyr_table_UI <- function(module_id, output_list) {
     shiny::br(),
     shiny::uiOutput(ns(TPLYR_TBL$LISTINGS_HEADER_ID)),
     shiny::br(),
-    shiny::div(id = ns(TPLYR_TBL$LISTINGS_DIV_ID), dv.listings::listings_UI(ns(TPLYR_TBL$LISTINGS_ID)))
+    shiny::div(id = ns(TPLYR_TBL$LISTINGS_DIV_ID), style = "height:100%",
+               dv.listings::listings_UI(ns(TPLYR_TBL$LISTINGS_ID)))
   )
 
   return(ui)

@@ -1,3 +1,7 @@
+# dv.tables 0.4.1-9005
+
+- [NOT USER-FACING] CSS tweak to container of dv.listings Tplyr_table.
+
 # dv.tables 0.4.1-9004
 
 - Add scrollbar to options dropdown to avoid truncation in short window space.
