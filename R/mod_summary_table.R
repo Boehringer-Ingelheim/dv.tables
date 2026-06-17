@@ -5,6 +5,7 @@ SUMMTAB <- poc(
     GROUP_VARS = "group_vars",
     ROW_VARS = "row_vars",
     TOTAL_FLAG = "total",
+    DENOM = "denom",
     TBL_OUTPUT = "table_output"
   ),
   LBL = poc(
@@ -12,6 +13,7 @@ SUMMTAB <- poc(
     ANL_VARS = "Summarize on:",
     GROUP_VARS = "Group by:",
     ROW_VARS = "Row by:",
+    DENOM = "Denominator:",
     TOTAL_FLAG = "Total"
   ),
   VALIDATE = poc(
@@ -28,23 +30,45 @@ SUMMTAB <- poc(
 )
 
 meta_env <- new.env()
-calc_pct <- function(x) 100 * length(x) / meta_env$N
+calc_pct <- function(x, n) 100 * length(x) / n # meta_env$N
+#calc_pct <- function(x) 100 * length(x) / 99
 
 calc_stats <- function(analysis_df,
                        subjid_var,
                        anl_var,
-                       stats) {
+                       stats,
+                       denom = "N") {
+
+  #return(list(list(n = 99, pct = 5.5, subjid = list("123")  )))
+
+  # ADD ARG CHECKS HERE!!!
 
   # Convert the stats list to use safe wrappers
   safe_stats <- lapply(stats, function(f) {
-    function(x, stat_name) {
+    #force(f)  # NEEDED???
+
+    function(x, stat_name, ...) {
+
       if (length(x) == 0) {
         if (stat_name %in% c("n")) 0 else NA_real_
+      } else if (length(list(...)) > 0) {
+        f(x, ...)
       } else {
         f(x)
       }
     }
   })
+
+  # safe_stats <- lapply(stats, function(f) {
+  #   function(x, stat_name) {
+  #
+  #     if (length(x) == 0) {
+  #       if (stat_name %in% c("n")) 0 else NA_real_
+  #     } else {
+  #       f(x)
+  #     }
+  #   }
+  # })
 
   # Get Big N from analysis data
   meta_env$N <- analysis_df[[".N"]][1]
@@ -60,37 +84,59 @@ calc_stats <- function(analysis_df,
 
   results_list <- list()
 
-  #results_list[[".N"]] <- meta_env$N
-  #results_list[["n"]] <- nrow(filter_df)
-  #results_list[["pct"]] <- 100 * results_list[["n"]] / meta_env$N
+  # THIS DUMMY RETURN WORKS WITH NO WARNINGS GIVEN
+  #return(list(list(n = 122L, pct = 68.2, subjid = list("01-701-1015", "01-701-1015"))))
 
   stat_names <- names(safe_stats)
   for (stat_name in stat_names) {
-    results_list[[stat_name]] <- safe_stats[[stat_name]](filter_df[[anl_var]], stat_name)
+    arg_list <- {
+      if (stat_name == "pct") {
+        if (denom == "N") list(filter_df[[anl_var]], stat_name, n = meta_env$N)
+        else list(filter_df[[anl_var]], stat_name, n = meta_env$n)
+      }
+      else {
+        list(filter_df[[anl_var]], stat_name)
+      }
+    }
+
+    #results_list[[stat_name]] <- safe_stats[[stat_name]](filter_df[[anl_var]], stat_name)
+    results_list[[stat_name]] <- do.call(safe_stats[[stat_name]], arg_list)
+
+    # Save the total count for the grouping, so it can be used later in percent calculation.
+    # Note: the `n` in `group_df` refers to the total category, whereas the `n` in `results_list`
+    # refers to the statistic.
+    if (anl_var == ".dummy") {
+      group_df <- dplyr::cur_group()
+      if (group_df[[ncol(group_df)]] == "n") {
+        meta_env$n <- results_list[["n"]]
+      }
+    }
   }
 
+  # DOES NOT WORK IF DUMMY RETURNED HERE!!
+  #return(list(list(n = 122L, pct = 68.2, subjid = list("01-701-1015", "01-701-1015"))))
+
+  # Get subject identifiers
   results_list[["subjid"]] <- filter_df[[subjid_var]]
 
   # dplyr::relocate(".anl_var", .before = "n")
 
-  # 1) Apply decimal places, converting to character string
-  # 2) Concatenate e.g. Min - Max
-  # 3) Calculate Big N for group_vars
-  # 4) Calculate percent 100*n/N
+  #str(results_list)
 
   return(list(results_list))
 }
 
-calc_n_pct <- function(analysis_df,
-                       subjid_var,
-                       anl_var) {
-
-  group_vars <- dplyr::cur_group()
-
-  # Get Big N from analysis data
-  big_n <- analysis_df[[".N"]][1]
-
-}
+# calc_n_pct <- function(analysis_df,
+#                        subjid_var,
+#                        anl_var) {
+#
+#   group_vars <- dplyr::cur_group()
+#
+#   # Get Big N from analysis data
+#   big_n <- analysis_df[[".N"]][1]
+#
+#   return(list(list(n_pct = "9 (99.9 %)")))
+# }
 
 # ========================================================================================================= format_stats
 format_stats <- function(analysis_df,
@@ -140,7 +186,8 @@ compute_summary_table <- function(tbl_df,
                                   row_vars = NULL,
                                   subjid_var = NULL,
                                   total = NULL,
-                                  total_group_val = "Total") {
+                                  total_group_val = "Total",
+                                  denom = NULL) {
 
   denom_df <- pop_df |>
     dplyr::count(dplyr::across(dplyr::all_of(group_vars)), name = ".N") |>
@@ -163,14 +210,8 @@ compute_summary_table <- function(tbl_df,
 
     dplyr::mutate(.dummy = 1)
 
-  # dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, row_vars))), .drop = FALSE)
-
   anl_vars_num <- intersect(anl_vars, names(analysis_df)[sapply(analysis_df, is.numeric)])
   anl_vars_cat <- setdiff(anl_vars, anl_vars_num)
-
-  # stats_df <- analysis_df |>
-  #   calc_num_stats(subjid_var, anl_vars[1], group_vars, row_vars) |>
-  #   dplyr::ungroup()
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
@@ -201,6 +242,13 @@ compute_summary_table <- function(tbl_df,
       group_by_vars <- c(group_vars, row_vars)
       av_mod <- av
 
+      # calc_stats_fun <- calc_stats
+      # calc_stats_fun_args <- list(
+      #   subjid_var = subjid_var,
+      #   anl_var = av_mod,
+      #   stats = stats
+      # )
+
       av_df <- analysis_df
     } else {
       stats <- list(n = length,
@@ -209,6 +257,12 @@ compute_summary_table <- function(tbl_df,
 
       group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
       av_mod <- ".dummy" # Counts done on dummy variable
+
+      # calc_stats_fun <- calc_n_pct
+      # calc_stats_fun_args <- list(
+      #   subjid_var = subjid_var,
+      #   anl_var = av_mod
+      # )
 
       # Duplicate all rows so that small n can be calculated for categorical analysis vars
       av_df <- analysis_df |>
@@ -220,21 +274,21 @@ compute_summary_table <- function(tbl_df,
     av_label <- attr(tbl_df[[av]], "label")
     if (is.null(av_label)) av_label <- av
 
-    # analysis_df <- analysis_df |>
-    #   dplyr::group_by(dplyr::across(dplyr::all_of(c(group_by_vars, subjid_var, ".N"))), .drop = FALSE) |>
-    #
-    #   dplyr::summarise(!!av_mod := mean(.data[[av_mod]], na.rm = TRUE),
-    #                    .groups = "drop")
-
     av_df <- av_df |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_by_vars)), .drop = FALSE) |>
 
       dplyr::summarise(.stats = calc_stats(
         dplyr::pick(dplyr::all_of(c(subjid_var, av_mod, ".N"))),
-        subjid_var,
-        av_mod,
-        stats = stats
+        subjid_var = subjid_var,
+        anl_var = av_mod,
+        stats = stats,
+        denom = denom
       )) |>
+      # dplyr::summarise(.stats = do.call(
+      #   calc_stats_fun,
+      #   c(list(dplyr::pick(dplyr::all_of(c(subjid_var, av_mod, ".N")))),
+      #     calc_stats_fun_args)
+      # )) |>
       dplyr::mutate(!!anl_var := av_label) |>
       dplyr::ungroup()
 
@@ -277,22 +331,6 @@ compute_summary_table <- function(tbl_df,
   results_df <- results_list |>
     dplyr::bind_rows()
 
-  # # Extract statistics from their single column lists into their own columns
-  # tidyr::unnest_wider(tidyr::all_of(".stats"))
-
-  # # Add big N back onto analysis results (is this necessary??????)
-  # dplyr::left_join(denom_df, by = group_vars)
-
-  # stat_cols <- setdiff(names(results_df), c(group_vars, row_vars, anl_var, "subjid"))
-  # stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
-
-  # long_df <- tidyr::pivot_longer(
-  #   results_df,
-  #   cols = stat_cols,
-  #   names_to = stat_col,
-  #   values_to = ".val",
-  # )
-
   # Convert statistics value column into a list-column where each element is a
   # list of the value and its related subject identifiers
   results_df[[".val"]] <- purrr::map2(results_df[[".val"]], results_df[["subjid"]], ~ list(stat = .x, subjid = .y))
@@ -321,7 +359,7 @@ compute_summary_table <- function(tbl_df,
 
     flagged_df <- flagged_df |>
       dplyr::group_by(dplyr::across(dplyr::all_of(current_group))) |>
-      dplyr::mutate(!!first_col := dplyr::if_else(dplyr::row_number() == 1, T, F)) |>
+      dplyr::mutate(!!first_col := dplyr::if_else(dplyr::row_number() == 1, TRUE, FALSE)) |>
       dplyr::ungroup()
   }
 
@@ -576,6 +614,7 @@ summary_table_ui <- function(id,
     col_menu_UI(id = ns(SUMMTAB$ID$GROUP_VARS)),
     col_menu_UI(id = ns(SUMMTAB$ID$ROW_VARS)),
     shiny::checkboxInput(ns(SUMMTAB$ID$TOTAL_FLAG), label = SUMMTAB$LBL$TOTAL_FLAG, value = default_total),
+    shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"))
   )
 
   ui <- shiny::div(
@@ -668,6 +707,10 @@ summary_table_server <- function(id,
       input[[SUMMTAB$ID$TOTAL_FLAG]]
     })
 
+    inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive({
+      input[[SUMMTAB$ID$DENOM]]
+    })
+
     summtab <- shiny::reactive({
 
       anl_vars <- inputs[[SUMMTAB$ID$ANL_VARS]]()
@@ -675,6 +718,7 @@ summary_table_server <- function(id,
       row_vars <- inputs[[SUMMTAB$ID$ROW_VARS]]()
 
       total <- inputs[[SUMMTAB$ID$TOTAL_FLAG]]()
+      denom <- inputs[[SUMMTAB$ID$DENOM]]()
 
       pop_df <- pop_dataset()
       tbl_df <- table_dataset() |>
@@ -710,7 +754,8 @@ summary_table_server <- function(id,
                                              row_vars = row_vars,
                                              subjid_var = subjid_var,
                                              total = total,
-                                             total_group_val = "Total")
+                                             total_group_val = "Total",
+                                             denom = denom)
 
 
       summary_table
@@ -855,7 +900,6 @@ mod_summary_table <- function(module_id,
 }
 
 
-
 mock_summary_table <- function() {
 
   adlb <- pharmaverseadam::adlb |>
@@ -863,19 +907,42 @@ mock_summary_table <- function() {
                   .data[["AVISITN"]] %in% c(0, 4, 5, 7))
   adsl <- pharmaverseadam::adsl
 
+  attr(adlb, "meta") <- base::file.info("NEWS.md")
+  attr(adsl, "meta") <- base::file.info("NEWS.md")
+
+  # adlb <- pharmaverseadam::adlb |>
+  #   dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP"),
+  #                 .data[["AVISITN"]] %in% c(0),
+  #                 .data[["RACE"]] == "WHITE",
+  #                 .data[["SEX"]] == "F")
+  # adsl <- pharmaverseadam::adsl |>
+  #   dplyr::filter(.data[["SEX"]] == "F")
+
   dv.manager::run_app(
     data = list(
-      dummy = list(adlb = adlb, adsl = adsl)
+      pharmaverseadam = list(adlb = adlb, adsl = adsl)
     ),
     module_list = list(
-      "Summary Table" = mod_summary_table(
-        "summary_table",
+      "Lab Summary" = mod_summary_table(
+        "lb_summtab",
         table_dataset_name = "adlb",
         pop_dataset_name = "adsl",
-        #default_summarize_on = c("RACE"),
+        #
+        # default_summarize_on = c("RACE"),
+        # default_group_by = c("SEX"),
+        # default_row_by = c("PARAM", "AVISIT")
+        #
         default_summarize_on = c("AVAL", "CHG", "RACE"),
         default_group_by = c("TRT01P", "SEX"),
         default_row_by = c("PARAM", "AVISIT")
+      ),
+      "Demography Summary" = mod_summary_table(
+        "dm_summtab",
+        table_dataset_name = "adsl",
+        pop_dataset_name = "adsl",
+        default_summarize_on = c("AGE", "SEX", "RACE"),
+        default_group_by = c("TRT01P"),
+        default_row_by = NULL
       )
     ),
     filter_data = "adsl",
