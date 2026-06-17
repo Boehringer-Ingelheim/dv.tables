@@ -419,12 +419,11 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
   # }
   thc <- function(..., colspan = 1, entry = FALSE) {
     if (entry) {
-      th(class = "text-center", style = "", ...)
+      th(class = "text-center", ...)
     } else if (colspan == 1) {
-      th(class = "text-center", style = "vertical-align: bottom; border: 1px solid gray", ...)
+      th(class = "text-center", style = "vertical-align: bottom;", ...)
     } else {
-      th(class = "text-center", colspan = as.character(colspan),
-         style = "border: 1px solid gray", ...)
+      th(class = "text-center short-border", colspan = as.character(colspan), ...)
     }
   }
   tr <- shiny::tags[["tr"]]
