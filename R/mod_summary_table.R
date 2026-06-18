@@ -21,7 +21,8 @@ SUMMTAB <- poc(
     NO_POP_ROWS = "Population dataset has 0 rows",
     NO_ANL_VARS = "No variables selected to summarize on",
     NO_GROUP_VARS = "No variables selected to group by",
-    TOO_MANY_ROW_VARS = "Maximum of 8 row variables allowed"
+    TOO_MANY_ROW_VARS = "Maximum of 8 row variables allowed",
+    VAR_OVERLAP = "Variable has been selected in more than one selection"
   ),
   VAL = poc(
     SPECIAL_CHAR = "\u001D", # For naming and processing row levels
@@ -189,14 +190,36 @@ compute_summary_table <- function(tbl_df,
                                   total_group_val = "Total",
                                   denom = NULL) {
 
+  anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
+  stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
+
+  anl_vars_num <- intersect(anl_vars, names(tbl_df)[sapply(tbl_df, is.numeric)])
+  anl_vars_cat <- setdiff(anl_vars, anl_vars_num)
+
+
+  # ENSURE anl_vars/group_vars/row_vars ARE FACTORS???
+
+    # SHOULD BE OPTION TO REMOVE NA VALUES!!!
+    # ...
+  # Replace NA values in selected variables with "<NA>" and add associated level
+  pop_df[group_vars] <- lapply(pop_df[group_vars], add_na_factor_level)
+  tbl_df[row_vars] <- lapply(tbl_df[row_vars], add_na_factor_level)
+  tbl_df[anl_vars_cat] <- lapply(tbl_df[anl_vars_cat], add_na_factor_level)
+
+  # Remove any population group vars that occur in table data frame
+  tbl_df <- tbl_df[setdiff(names(tbl_df), group_vars)]
+
   denom_df <- pop_df |>
     dplyr::count(dplyr::across(dplyr::all_of(group_vars)), name = ".N") |>
     dplyr::mutate(.lookup = do.call(paste, c(dplyr::pick(dplyr::all_of(group_vars)),
                                              sep = SUMMTAB$VAL$SPECIAL_CHAR)))
 
+  #browser()
+
   pop_df_subset <- pop_df |>
     dplyr::left_join(denom_df, by = group_vars) |>
-    dplyr::select(dplyr::all_of(c(subjid_var, setdiff(names(pop_df), names(tbl_df)), ".N")))
+    dplyr::select(dplyr::all_of(c(subjid_var, group_vars, ".N")))
+    #dplyr::select(dplyr::all_of(c(subjid_var, setdiff(names(pop_df), names(tbl_df)), ".N")))
 
   #pop_df[, c(subjid_var, setdiff(names(pop_df), names(tbl_df))), drop = FALSE]
 
@@ -205,16 +228,10 @@ compute_summary_table <- function(tbl_df,
     #dplyr::right_join(pop_df_subset, by = subjid_var) |>
     dplyr::select(dplyr::all_of(c(subjid_var, group_vars, row_vars, anl_vars, ".N"))) |>
 
-    dplyr::mutate(dplyr::across(dplyr::all_of(row_vars),
-                                ~ as.factor(replace(as.character(.), is.na(.), SUMMTAB$VAL$SPECIAL_CHAR)))) |>
+    # dplyr::mutate(dplyr::across(dplyr::all_of(row_vars),
+    #                             ~ as.factor(replace(as.character(.), is.na(.), SUMMTAB$VAL$SPECIAL_CHAR)))) |>
 
     dplyr::mutate(.dummy = 1)
-
-  anl_vars_num <- intersect(anl_vars, names(analysis_df)[sapply(analysis_df, is.numeric)])
-  anl_vars_cat <- setdiff(anl_vars, anl_vars_num)
-
-  anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
-  stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
 
   # Define labels for statistics
   stats_lbls <- c(n = "n",
@@ -267,7 +284,7 @@ compute_summary_table <- function(tbl_df,
       # Duplicate all rows so that small n can be calculated for categorical analysis vars
       av_df <- analysis_df |>
         dplyr::bind_rows(dplyr::mutate(analysis_df, !!av := "n")) |>
-        dplyr::mutate(!!av := factor(.data[[av]], levels = c("n", setdiff(unique(.data[[av]]), "n"))))
+        dplyr::mutate(!!av := factor(.data[[av]], levels = c("n", levels(analysis_df[[av]]))))
     }
 
     # Retrieve the label of the analysis variable if it exists, otherwise fall back to column name
@@ -720,8 +737,10 @@ summary_table_server <- function(id,
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
 
       pop_df <- pop_dataset()
-      tbl_df <- table_dataset() |>
-        dplyr::select(-dplyr::any_of(group_vars))
+      tbl_df <- table_dataset() #|>
+        #dplyr::select(-dplyr::any_of(group_vars))
+
+      selected_vars <- c(anl_vars, group_vars, row_vars)
 
       shiny::validate(
         shiny::need(
@@ -743,6 +762,10 @@ summary_table_server <- function(id,
         shiny::need(
           checkmate::test_character(row_vars, min.chars = 1, min.len = 0, max.len = 8),
           SUMMTAB$VALIDATE$TOO_MANY_ROW_VARS
+        ),
+        shiny::need(
+          checkmate::test_set_equal(selected_vars, unique(selected_vars), ordered = TRUE),
+          SUMMTAB$VALIDATE$VAR_OVERLAP
         )
       )
 
@@ -927,9 +950,14 @@ mock_summary_table <- function() {
         table_dataset_name = "adlb",
         pop_dataset_name = "adsl",
         #
-        # default_summarize_on = c("RACE"),
-        # default_group_by = c("SEX"),
-        # default_row_by = c("PARAM", "AVISIT")
+        #default_summarize_on = c("RACE"),
+        #default_summarize_on = c("AVAL"),
+        #default_summarize_on = c("ANL01FL"),
+        #default_summarize_on = c("DTHCAUS"),
+        #default_group_by = c("SEX"),
+        #default_group_by = c("DTHCAUS"),
+        #default_row_by = c("PARAM", "AVISIT")
+        #default_row_by = c("DTHDOM")
         #
         default_summarize_on = c("AVAL", "CHG", "RACE"),
         default_group_by = c("TRT01P", "SEX"),
