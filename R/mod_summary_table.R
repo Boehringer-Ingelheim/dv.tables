@@ -209,6 +209,14 @@ compute_summary_table <- function(tbl_df,
   # Remove any population group vars that occur in table data frame
   tbl_df <- tbl_df[setdiff(names(tbl_df), group_vars)]
 
+  # Duplicate all rows so that total can be calculated for first group var
+  if (total) {
+    group_var_1 <- group_vars[[1]]
+    pop_df <- pop_df |>
+      dplyr::bind_rows(dplyr::mutate(pop_df, !!group_var_1 := total_group_val)) |>
+      dplyr::mutate(!!group_var_1 := factor(.data[[group_var_1]], levels = c(levels(pop_df[[group_var_1]]), total_group_val)))
+  }
+
   denom_df <- pop_df |>
     dplyr::count(dplyr::across(dplyr::all_of(group_vars)), name = ".N") |>
     dplyr::mutate(.lookup = do.call(paste, c(dplyr::pick(dplyr::all_of(group_vars)),
