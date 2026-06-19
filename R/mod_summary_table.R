@@ -5,6 +5,7 @@ SUMMTAB <- poc(
     GROUP_VARS = "group_vars",
     ROW_VARS = "row_vars",
     TOTAL_FLAG = "total",
+    DROP_NA_FLAG = "drop_na",
     DENOM = "denom",
     TBL_OUTPUT = "table_output"
   ),
@@ -13,8 +14,9 @@ SUMMTAB <- poc(
     ANL_VARS = "Summarize on:",
     GROUP_VARS = "Group by:",
     ROW_VARS = "Row by:",
-    DENOM = "Denominator:",
-    TOTAL_FLAG = "Total"
+    TOTAL_FLAG = "Total column",
+    DROP_NA_FLAG = "Drop NA values",
+    DENOM = "Denominator:"
   ),
   VALIDATE = poc(
     NO_TABLE_ROWS = "Table dataset has 0 rows",
@@ -188,7 +190,10 @@ compute_summary_table <- function(tbl_df,
                                   subjid_var = NULL,
                                   total = NULL,
                                   total_group_val = "Total",
+                                  drop_na = NULL,
                                   denom = NULL) {
+
+  # NOTE: Early error feedback should check that pop_df is one row per subject
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
@@ -199,12 +204,20 @@ compute_summary_table <- function(tbl_df,
 
   # ENSURE anl_vars/group_vars/row_vars ARE FACTORS???
 
-    # SHOULD BE OPTION TO REMOVE NA VALUES!!!
-    # ...
-  # Replace NA values in selected variables with "<NA>" and add associated level
-  pop_df[group_vars] <- lapply(pop_df[group_vars], add_na_factor_level)
-  tbl_df[row_vars] <- lapply(tbl_df[row_vars], add_na_factor_level)
-  tbl_df[anl_vars_cat] <- lapply(tbl_df[anl_vars_cat], add_na_factor_level)
+  if (drop_na) {
+    # Remove NA values
+    pop_df <- tidyr::drop_na(pop_df, dplyr::all_of(group_vars))
+    tbl_df <- tidyr::drop_na(tbl_df, dplyr::all_of(row_vars))
+    tbl_df <- tidyr::drop_na(tbl_df, dplyr::all_of(anl_vars_cat))
+    # pop_df <- pop_df[complete.cases(pop_df[group_vars]), ]
+    # tbl_df <- tbl_df[complete.cases(tbl_df[row_vars]), ]
+    # tbl_df <- tbl_df[complete.cases(tbl_df[anl_vars_cat]), ]
+  } else {
+    # Replace NA values in selected variables with "<NA>" and add associated level
+    pop_df[group_vars] <- lapply(pop_df[group_vars], add_na_factor_level)
+    tbl_df[row_vars] <- lapply(tbl_df[row_vars], add_na_factor_level)
+    tbl_df[anl_vars_cat] <- lapply(tbl_df[anl_vars_cat], add_na_factor_level)
+  }
 
   # Remove any population group vars that occur in table data frame
   tbl_df <- tbl_df[setdiff(names(tbl_df), group_vars)]
@@ -218,11 +231,12 @@ compute_summary_table <- function(tbl_df,
   }
 
   denom_df <- pop_df |>
-    dplyr::count(dplyr::across(dplyr::all_of(group_vars)), name = ".N") |>
+    #dplyr::count(dplyr::across(dplyr::all_of(group_vars)), name = ".N") |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_vars)), .drop = FALSE) |>
+    dplyr::tally(name = ".N") |>
+    dplyr::ungroup() |>
     dplyr::mutate(.lookup = do.call(paste, c(dplyr::pick(dplyr::all_of(group_vars)),
                                              sep = SUMMTAB$VAL$SPECIAL_CHAR)))
-
-  #browser()
 
   pop_df_subset <- pop_df |>
     dplyr::left_join(denom_df, by = group_vars) |>
@@ -232,7 +246,8 @@ compute_summary_table <- function(tbl_df,
   #pop_df[, c(subjid_var, setdiff(names(pop_df), names(tbl_df))), drop = FALSE]
 
   analysis_df <- tbl_df |>
-    dplyr::left_join(pop_df_subset, by = subjid_var) |>
+    dplyr::inner_join(pop_df_subset, by = subjid_var) |>
+    #dplyr::left_join(pop_df_subset, by = subjid_var) |>
     #dplyr::right_join(pop_df_subset, by = subjid_var) |>
     dplyr::select(dplyr::all_of(c(subjid_var, group_vars, row_vars, anl_vars, ".N"))) |>
 
@@ -240,6 +255,8 @@ compute_summary_table <- function(tbl_df,
     #                             ~ as.factor(replace(as.character(.), is.na(.), SUMMTAB$VAL$SPECIAL_CHAR)))) |>
 
     dplyr::mutate(.dummy = 1)
+
+  #browser()
 
   # Define labels for statistics
   stats_lbls <- c(n = "n",
@@ -431,7 +448,6 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
   #
   # return(shiny::pre(collapsed_text))
 
-
   table <- shiny::tags[["table"]]
   th <- shiny::tags[["th"]]
   # thc <- function(..., colspan = 1) {
@@ -498,9 +514,10 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
     )
   }
 
-  title <- sprintf("Summary of %s%s",
+  title <- sprintf("Summary of %s%s; group by %s",
                    paste(anl_vars, collapse = ", "),
-                   ifelse(length(row_vars) == 0, "", paste(" by", paste(row_vars, collapse = ", "))))
+                   ifelse(length(row_vars) == 0, "", paste("; row by", paste(row_vars, collapse = ", "))),
+                   paste(group_vars, collapse = ", "))
 
   # df[[entry_name_col]] <- local({
   #   purrr::pmap_chr(
@@ -624,7 +641,9 @@ summary_table_dep <- function() {
 #'
 #' @export
 summary_table_ui <- function(id,
-                             default_total = TRUE) {
+                             default_total = TRUE,
+                             default_drop_na = FALSE,
+                             default_denom = "N") {
 
   ns <- shiny::NS(id)
 
@@ -638,7 +657,8 @@ summary_table_ui <- function(id,
     col_menu_UI(id = ns(SUMMTAB$ID$GROUP_VARS)),
     col_menu_UI(id = ns(SUMMTAB$ID$ROW_VARS)),
     shiny::checkboxInput(ns(SUMMTAB$ID$TOTAL_FLAG), label = SUMMTAB$LBL$TOTAL_FLAG, value = default_total),
-    shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"))
+    shiny::checkboxInput(ns(SUMMTAB$ID$DROP_NA_FLAG), label = SUMMTAB$LBL$DROP_NA_FLAG, value = default_drop_na),
+    shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, selected = default_denom, choices = c("N", "n"))
   )
 
   ui <- shiny::div(
@@ -731,6 +751,10 @@ summary_table_server <- function(id,
       input[[SUMMTAB$ID$TOTAL_FLAG]]
     })
 
+    inputs[[SUMMTAB$ID$DROP_NA_FLAG]] <- shiny::reactive({
+      input[[SUMMTAB$ID$DROP_NA_FLAG]]
+    })
+
     inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive({
       input[[SUMMTAB$ID$DENOM]]
     })
@@ -742,6 +766,7 @@ summary_table_server <- function(id,
       row_vars <- inputs[[SUMMTAB$ID$ROW_VARS]]()
 
       total <- inputs[[SUMMTAB$ID$TOTAL_FLAG]]()
+      drop_na <- inputs[[SUMMTAB$ID$DROP_NA_FLAG]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
 
       pop_df <- pop_dataset()
@@ -785,6 +810,7 @@ summary_table_server <- function(id,
                                              subjid_var = subjid_var,
                                              total = total,
                                              total_group_val = "Total",
+                                             drop_na = drop_na,
                                              denom = denom)
 
 
@@ -870,34 +896,25 @@ mod_summary_table <- function(module_id,
                               table_dataset_name,
                               pop_dataset_name,
                               subjid_var = "USUBJID",
-                              # show_event_group_by = FALSE,
-                              # show_time_at_risk_options = FALSE,
                               show_modal_on_click = TRUE,
-                              # default_hierarchy = NULL,
                               default_summarize_on = NULL,
                               default_group_by = NULL,
                               default_row_by = NULL,
                               default_total = TRUE,
-                              # default_event_group = NULL,
-                              # default_event_date = NULL,
-                              # default_origin_date = NULL,
-                              # default_censor_date = NULL,
-                              # default_risk = FALSE,
-                              # hierarchy_choices = NULL,
+                              default_drop_na = FALSE,
+                              default_denom = "N",
                               summarize_on_choices = NULL,
                               group_by_choices = NULL,
                               row_by_choices = NULL,
-                              # event_group_choices = NULL,
-                              # event_date_choices = NULL,
-                              # origin_date_choices = NULL,
-                              # censor_date_choices = NULL,
                               intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
                               receiver_id = NULL) {
 
   mod <- list(
     ui = function(module_id) {
       summary_table_ui(module_id,
-                       default_total = default_total)
+                       default_total = default_total,
+                       default_drop_na = default_drop_na,
+                       default_denom = default_denom)
     },
     server = function(afmm) {
 
@@ -953,6 +970,23 @@ mock_summary_table <- function() {
       pharmaverseadam = list(adlb = adlb, adsl = adsl)
     ),
     module_list = list(
+      "Disposition Summary" = mod_summary_table(
+        "ds_summtab",
+        table_dataset_name = "adsl",
+        pop_dataset_name = "adsl",
+        default_summarize_on = c("EOSSTT", "DTHCAUS", "SAFFL"),
+        default_group_by = c("TRT01P"),
+        default_row_by = NULL,
+        default_drop_na = TRUE
+      ),
+      "Demography Summary" = mod_summary_table(
+        "dm_summtab",
+        table_dataset_name = "adsl",
+        pop_dataset_name = "adsl",
+        default_summarize_on = c("AGE", "SEX", "RACE"),
+        default_group_by = c("TRT01P"),
+        default_row_by = NULL
+      ),
       "Lab Summary" = mod_summary_table(
         "lb_summtab",
         table_dataset_name = "adlb",
@@ -967,17 +1001,10 @@ mock_summary_table <- function() {
         #default_row_by = c("PARAM", "AVISIT")
         #default_row_by = c("DTHDOM")
         #
-        default_summarize_on = c("AVAL", "CHG", "RACE"),
+        default_summarize_on = c("AVAL", "CHG", "ATOXGR"),
         default_group_by = c("TRT01P", "SEX"),
-        default_row_by = c("PARAM", "AVISIT")
-      ),
-      "Demography Summary" = mod_summary_table(
-        "dm_summtab",
-        table_dataset_name = "adsl",
-        pop_dataset_name = "adsl",
-        default_summarize_on = c("AGE", "SEX", "RACE"),
-        default_group_by = c("TRT01P"),
-        default_row_by = NULL
+        default_row_by = c("PARAM", "AVISIT"),
+        default_denom = "n"
       )
     ),
     filter_data = "adsl",
