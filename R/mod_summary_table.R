@@ -76,12 +76,12 @@ calc_stats <- function(analysis_df,
   # Get Big N from analysis data
   meta_env$N <- analysis_df[[".N"]][1]
 
-  # Remove NA values
-  filter_df <- analysis_df |>
-    dplyr::filter(!is.na(.data[[anl_var]]))
+  # # Remove NA values
+  # filter_df <- analysis_df |>
+  #   dplyr::filter(!is.na(.data[[anl_var]]))
 
   # Collapse multiple rows per subject into one
-  filter_df <- filter_df |>
+  filter_df <- analysis_df |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, ".N")))) |>
     dplyr::summarise(!!anl_var := mean(.data[[anl_var]]), .groups = "drop")
 
@@ -201,17 +201,12 @@ compute_summary_table <- function(tbl_df,
   anl_vars_num <- intersect(anl_vars, names(tbl_df)[sapply(tbl_df, is.numeric)])
   anl_vars_cat <- setdiff(anl_vars, anl_vars_num)
 
-
   # ENSURE anl_vars/group_vars/row_vars ARE FACTORS???
 
   if (drop_na) {
-    # Remove NA values
+    # Remove NA values (analysis variables handled individually later on)
     pop_df <- tidyr::drop_na(pop_df, dplyr::all_of(group_vars))
     tbl_df <- tidyr::drop_na(tbl_df, dplyr::all_of(row_vars))
-    tbl_df <- tidyr::drop_na(tbl_df, dplyr::all_of(anl_vars_cat))
-    # pop_df <- pop_df[complete.cases(pop_df[group_vars]), ]
-    # tbl_df <- tbl_df[complete.cases(tbl_df[row_vars]), ]
-    # tbl_df <- tbl_df[complete.cases(tbl_df[anl_vars_cat]), ]
   } else {
     # Replace NA values in selected variables with "<NA>" and add associated level
     pop_df[group_vars] <- lapply(pop_df[group_vars], add_na_factor_level)
@@ -222,12 +217,32 @@ compute_summary_table <- function(tbl_df,
   # Remove any population group vars that occur in table data frame
   tbl_df <- tbl_df[setdiff(names(tbl_df), group_vars)]
 
+  store_col_labels <- function(df) {
+    lapply(df, function(col) attr(col, "label"))
+  }
+
+  restore_col_labels <- function(df, orig_labels) {
+    for (col_name in names(orig_labels)) {
+      attr(df[[col_name]], "label") <- orig_labels[[col_name]]
+    }
+
+    return(df)
+  }
+
   # Duplicate all rows so that total can be calculated for first group var
   if (total) {
     group_var_1 <- group_vars[[1]]
+    pop_df[[group_var_1]] <- factor(pop_df[[group_var_1]], levels = c(levels(pop_df[[group_var_1]]), total_group_val))
+    total_grp_fct <- factor(total_group_val, levels = c(levels(pop_df[[group_var_1]])))
+    total_rows <- dplyr::mutate(pop_df, !!group_var_1 := total_grp_fct)
+
+    pop_col_labels <- store_col_labels(pop_df)
     pop_df <- pop_df |>
-      dplyr::bind_rows(dplyr::mutate(pop_df, !!group_var_1 := total_group_val)) |>
-      dplyr::mutate(!!group_var_1 := factor(.data[[group_var_1]], levels = c(levels(pop_df[[group_var_1]]), total_group_val)))
+      rbind(total_rows) |>
+      restore_col_labels(pop_col_labels)
+    # pop_df <- pop_df |>
+    #   dplyr::bind_rows(dplyr::mutate(pop_df, !!group_var_1 := total_group_val)) |>
+    #   dplyr::mutate(!!group_var_1 := factor(.data[[group_var_1]], levels = c(levels(pop_df[[group_var_1]]), total_group_val)))
   }
 
   denom_df <- pop_df |>
@@ -247,16 +262,12 @@ compute_summary_table <- function(tbl_df,
 
   analysis_df <- tbl_df |>
     dplyr::inner_join(pop_df_subset, by = subjid_var) |>
-    #dplyr::left_join(pop_df_subset, by = subjid_var) |>
-    #dplyr::right_join(pop_df_subset, by = subjid_var) |>
     dplyr::select(dplyr::all_of(c(subjid_var, group_vars, row_vars, anl_vars, ".N"))) |>
 
     # dplyr::mutate(dplyr::across(dplyr::all_of(row_vars),
     #                             ~ as.factor(replace(as.character(.), is.na(.), SUMMTAB$VAL$SPECIAL_CHAR)))) |>
 
     dplyr::mutate(.dummy = 1)
-
-  #browser()
 
   # Define labels for statistics
   stats_lbls <- c(n = "n",
@@ -284,13 +295,6 @@ compute_summary_table <- function(tbl_df,
       group_by_vars <- c(group_vars, row_vars)
       av_mod <- av
 
-      # calc_stats_fun <- calc_stats
-      # calc_stats_fun_args <- list(
-      #   subjid_var = subjid_var,
-      #   anl_var = av_mod,
-      #   stats = stats
-      # )
-
       av_df <- analysis_df
     } else {
       stats <- list(n = length,
@@ -300,17 +304,14 @@ compute_summary_table <- function(tbl_df,
       group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
       av_mod <- ".dummy" # Counts done on dummy variable
 
-      # calc_stats_fun <- calc_n_pct
-      # calc_stats_fun_args <- list(
-      #   subjid_var = subjid_var,
-      #   anl_var = av_mod
-      # )
-
       # Duplicate all rows so that small n can be calculated for categorical analysis vars
       av_df <- analysis_df |>
         dplyr::bind_rows(dplyr::mutate(analysis_df, !!av := "n")) |>
         dplyr::mutate(!!av := factor(.data[[av]], levels = c("n", levels(analysis_df[[av]]))))
     }
+
+    # Drop NA values (unless requested otherwise for categorical variables)
+    if (drop_na || is_anl_var_num) av_df <- tidyr::drop_na(av_df, dplyr::all_of(av))
 
     # Retrieve the label of the analysis variable if it exists, otherwise fall back to column name
     av_label <- attr(tbl_df[[av]], "label")
