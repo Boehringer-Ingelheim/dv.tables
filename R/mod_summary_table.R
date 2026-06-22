@@ -144,11 +144,7 @@ calc_stats <- function(analysis_df,
 # ========================================================================================================= format_stats
 format_stats <- function(analysis_df,
                          stats_fmts,
-                         replace = list(n = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
-                                        meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
-                                                   `\\(NA\\)` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
-                                        minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
-                                        n_pct = c(`^0 \\(NA \\%\\)$` = "0"))) {
+                         replace) {
 
   formatted_df <- analysis_df
   drop_stats <- character()
@@ -175,7 +171,8 @@ format_stats <- function(analysis_df,
   }
 
   drop_stats <- setdiff(drop_stats, stat_fmt_names)
-  formatted_df <- dplyr::select(formatted_df, -dplyr::all_of(drop_stats))
+  formatted_df <- dplyr::select(formatted_df, -dplyr::all_of(drop_stats)) |>
+    dplyr::relocate(stat_fmt_names, .after = dplyr::everything())
 
   return(formatted_df)
 }
@@ -188,6 +185,12 @@ compute_summary_table <- function(tbl_df,
                                   group_vars = NULL,
                                   row_vars = NULL,
                                   subjid_var = NULL,
+
+                                  stats_functions = NULL,
+                                  stats_formats = NULL,
+                                  stats_labels = NULL,
+                                  stats_replace = NULL,
+
                                   total = NULL,
                                   total_group_val = "Total",
                                   drop_na = NULL,
@@ -269,10 +272,10 @@ compute_summary_table <- function(tbl_df,
 
     dplyr::mutate(.dummy = 1)
 
-  # Define labels for statistics
-  stats_lbls <- c(n = "n",
-                  meansd = "Mean (SD)",
-                  minmax = "Min - Max")
+  # # Define labels for statistics
+  # stats_lbls <- c(n = "n",
+  #                 meansd = "Mean (SD)",
+  #                 minmax = "Min - Max")
 
   # Initialise list to hold results for each analysis variable
   results_list <- list()
@@ -283,23 +286,17 @@ compute_summary_table <- function(tbl_df,
     is_anl_var_num <- av %in% anl_vars_num
 
     if (is_anl_var_num) {
-      stats <- list(n = length,
-                    mean = mean,
-                    sd = sd,
-                    min = min,
-                    max = max)
-      stats_fmts <- list(n = list(fmt = "%d", "n"),
-                         meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
-                         minmax = list(fmt = "%.1f - %.1f", "min", "max"))
+      av_stats <- stats_functions
+      av_stats_fmts <- stats_formats
 
       group_by_vars <- c(group_vars, row_vars)
       av_mod <- av
 
       av_df <- analysis_df
     } else {
-      stats <- list(n = length,
-                    pct = calc_pct)
-      stats_fmts <- list(n_pct = list(fmt = "%d (%.1f %%)", "n", "pct"))
+      av_stats <- list(n = length,
+                       pct = calc_pct)
+      av_stats_fmts <- list(n_pct = list(fmt = "%d (%.1f %%)", "n", "pct"))
 
       group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
       av_mod <- ".dummy" # Counts done on dummy variable
@@ -324,7 +321,7 @@ compute_summary_table <- function(tbl_df,
         dplyr::pick(dplyr::all_of(c(subjid_var, av_mod, ".N"))),
         subjid_var = subjid_var,
         anl_var = av_mod,
-        stats = stats,
+        stats = av_stats,
         denom = denom
       )) |>
       # dplyr::summarise(.stats = do.call(
@@ -339,7 +336,7 @@ compute_summary_table <- function(tbl_df,
     av_df <- tidyr::unnest_wider(av_df, tidyr::all_of(".stats"))
 
     # Format statistics
-    av_df <- format_stats(av_df, stats_fmts)
+    av_df <- format_stats(av_df, av_stats_fmts, stats_replace)
 
     stat_cols <- setdiff(names(av_df), c(group_by_vars, anl_var, "subjid"))
 
@@ -360,7 +357,7 @@ compute_summary_table <- function(tbl_df,
 
     # Replace names of statistics with their corresponding labels (for numeric analysis variables)
     if (is_anl_var_num) {
-      labelled_stats <- stats_lbls[av_df[[stat_col]]]
+      labelled_stats <- stats_labels[av_df[[stat_col]]]
       av_df[[stat_col]] <- ifelse(
         is.na(labelled_stats),
         av_df[[stat_col]],
@@ -693,6 +690,12 @@ summary_table_server <- function(id,
                                  subjid_var,
                                  show_modal_on_click = TRUE,
                                  on_sbj_click_fun = function() NULL,
+
+                                 stats_functions = NULL,
+                                 stats_formats = NULL,
+                                 stats_labels = NULL,
+                                 stats_replace = NULL,
+
                                  default_summarize_on = NULL,
                                  default_group_by = NULL,
                                  default_row_by = NULL,
@@ -809,6 +812,12 @@ summary_table_server <- function(id,
                                              group_vars = group_vars,
                                              row_vars = row_vars,
                                              subjid_var = subjid_var,
+
+                                             stats_functions = stats_functions,
+                                             stats_formats = stats_formats,
+                                             stats_labels = stats_labels,
+                                             stats_replace = stats_replace,
+
                                              total = total,
                                              total_group_val = "Total",
                                              drop_na = drop_na,
@@ -898,6 +907,24 @@ mod_summary_table <- function(module_id,
                               pop_dataset_name,
                               subjid_var = "USUBJID",
                               show_modal_on_click = TRUE,
+
+                              stats_functions = list(n = length,
+                                                     mean = mean,
+                                                     sd = stats::sd,
+                                                     min = min,
+                                                     max = max),
+                              stats_formats = list(n = list(fmt = "%d", "n"),
+                                                   meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
+                                                   minmax = list(fmt = "%.1f - %.1f", "min", "max")),
+                              stats_labels = c(n = "n",
+                                               meansd = "Mean (SD)",
+                                               minmax = "Min - Max"),
+                              stats_replace  = list(n = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+                                                    meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
+                                                               `\\(NA\\)` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
+                                                    minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
+                                                    n_pct = c(`^0 \\(NA \\%\\)$` = "0")),
+
                               default_summarize_on = NULL,
                               default_group_by = NULL,
                               default_row_by = NULL,
@@ -933,6 +960,12 @@ mod_summary_table <- function(module_id,
                            subjid_var = subjid_var,
                            show_modal_on_click = show_modal_on_click,
                            on_sbj_click_fun = on_sbj_click_fun,
+
+                           stats_functions = stats_functions,
+                           stats_formats = stats_formats,
+                           stats_labels = stats_labels,
+                           stats_replace = stats_replace,
+
                            default_summarize_on = default_summarize_on,
                            default_group_by = default_group_by,
                            default_row_by = default_row_by,
@@ -984,6 +1017,33 @@ mock_summary_table <- function() {
         "dm_summtab",
         table_dataset_name = "adsl",
         pop_dataset_name = "adsl",
+
+        stats_functions = list(n = length,
+                               mean = mean,
+                               sd = stats::sd,
+                               median = stats::median,
+                               q1 = \(x) stats::quantile(x, 0.25),
+                               q3 = \(x) stats::quantile(x, 0.75),
+                               min = min,
+                               max = max),
+        stats_formats = list(n = list(fmt = "%d", "n"),
+                             meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
+                             median = list(fmt = "%.1f", "median"),
+                             q1q3 = list(fmt = "%.1f - %.1f", "q1", "q3"),
+                             minmax = list(fmt = "%.1f - %.1f", "min", "max")),
+        stats_labels = c(n = "n",
+                         meansd = "Mean (SD)",
+                         median = "Median",
+                         q1q3 = "25% and 75%-ile",
+                         minmax = "Min - Max"),
+        stats_replace = list(n = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+                             meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
+                                        `\\(NA\\)` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
+                             median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+                             q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
+                             minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
+                             n_pct = c(`^0 \\(NA \\%\\)$` = "0")),
+
         default_summarize_on = c("AGE", "SEX", "RACE"),
         default_group_by = c("TRT01P"),
         default_row_by = NULL
