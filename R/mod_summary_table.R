@@ -285,6 +285,8 @@ compute_summary_table <- function(tbl_df,
     # Flag if analysis variable is numeric
     is_anl_var_num <- av %in% anl_vars_num
 
+    av_df <- analysis_df
+
     if (is_anl_var_num) {
       av_stats <- stats_functions
       av_stats_fmts <- stats_formats
@@ -292,7 +294,8 @@ compute_summary_table <- function(tbl_df,
       group_by_vars <- c(group_vars, row_vars)
       av_mod <- av
 
-      av_df <- analysis_df
+      # Drop NA values
+      av_df <- tidyr::drop_na(av_df, dplyr::all_of(av))
     } else {
       av_stats <- list(n = length,
                        pct = calc_pct)
@@ -301,14 +304,17 @@ compute_summary_table <- function(tbl_df,
       group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
       av_mod <- ".dummy" # Counts done on dummy variable
 
+      # Drop NA values (unless requested otherwise)
+      if (drop_na) av_df <- tidyr::drop_na(av_df, dplyr::all_of(av))
+
       # Duplicate all rows so that small n can be calculated for categorical analysis vars
-      av_df <- analysis_df |>
-        dplyr::bind_rows(dplyr::mutate(analysis_df, !!av := "n")) |>
-        dplyr::mutate(!!av := factor(.data[[av]], levels = c("n", levels(analysis_df[[av]]))))
+      av_df <- av_df |>
+        dplyr::bind_rows(dplyr::mutate(av_df, !!av := "n")) |>
+        dplyr::mutate(!!av := factor(.data[[av]], levels = c("n", levels(av_df[[av]]))))
     }
 
-    # Drop NA values (unless requested otherwise for categorical variables)
-    if (drop_na || is_anl_var_num) av_df <- tidyr::drop_na(av_df, dplyr::all_of(av))
+    # # Drop NA values (unless requested otherwise for categorical variables)
+    # if (drop_na || is_anl_var_num) av_df <- tidyr::drop_na(av_df, dplyr::all_of(av))
 
     # Retrieve the label of the analysis variable if it exists, otherwise fall back to column name
     av_label <- attr(tbl_df[[av]], "label")
