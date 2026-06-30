@@ -899,6 +899,13 @@ summary_table_server <- function(id,
       })
     }
 
+    # Jumping and communication
+    shiny::observeEvent(input[["clicked_sbj"]], {
+      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+      shiny::removeModal()
+      on_sbj_click_fun()
+    })
+
     res <- list(
       subj_id = shiny::reactive({
         shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
@@ -906,13 +913,12 @@ summary_table_server <- function(id,
       })
     )
 
+    if (isTRUE(getOption("shiny.testmode"))) do.call(shiny::exportTestValues, as.list(environment()))
+
     res
   }
 
-  shiny::moduleServer(
-    id = id,
-    module = mod
-  )
+  shiny::moduleServer(id = id, module = mod)
 }
 
 
@@ -1014,7 +1020,7 @@ mod_summary_table <- function(module_id,
 }
 
 
-mock_summary_table <- function() {
+mock_summary_table_mm <- function() {
 
   adlb <- pharmaverseadam::adlb |>
     dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
@@ -1044,7 +1050,8 @@ mock_summary_table <- function() {
         default_summarize_on = c("EOSSTT", "DTHCAUS", "SAFFL"),
         default_group_by = c("TRT01P"),
         default_row_by = NULL,
-        default_drop_na = TRUE
+        default_drop_na = TRUE,
+        receiver_id = "papo"
       ),
       "Demography Summary" = mod_summary_table(
         module_id = "dm_summtab",
@@ -1083,7 +1090,8 @@ mock_summary_table <- function() {
 
         default_summarize_on = c("AGE", "SEX", "RACE"),
         default_group_by = c("TRT01P"),
-        default_row_by = NULL
+        default_row_by = NULL,
+        receiver_id = "papo"
       ),
       "Lab Summary" = mod_summary_table(
         module_id = "lb_summtab",
@@ -1092,7 +1100,8 @@ mock_summary_table <- function() {
         default_summarize_on = c("AVAL", "CHG", "ATOXGR"),
         default_group_by = c("TRT01P", "SEX"),
         default_row_by = c("PARAM", "AVISIT"),
-        default_denom = "n"
+        default_denom = "n",
+        receiver_id = "papo"
       ),
       "Patient Profile" = dv.papo::mod_patient_profile(
         module_id = "papo",
