@@ -1,22 +1,28 @@
 SUMMTAB <- poc(
   ID = poc(
     TBL_OPTIONS = "tbl_options",
+    STATS_OPTIONS = "stats_options",
+    COL_SELECTIONS = "col_selections",
     ANL_VARS = "anl_vars",
     GROUP_VARS = "group_vars",
     ROW_VARS = "row_vars",
     TOTAL_FLAG = "total",
     DROP_NA_FLAG = "drop_na",
     DENOM = "denom",
+    STATS = "stats",
     TBL_OUTPUT = "table_output"
   ),
   LBL = poc(
     TBL_OPTIONS = "Table Options",
+    STATS_OPTIONS = "Statistics",
+    COL_SELECTIONS = "Column Selection",
     ANL_VARS = "Summarize on:",
     GROUP_VARS = "Group by:",
     ROW_VARS = "Row by:",
     TOTAL_FLAG = "Total column",
     DROP_NA_FLAG = "Drop NA values",
-    DENOM = "Denominator:"
+    DENOM = "Denominator:",
+    STATS = "Statistics:"
   ),
   VALIDATE = poc(
     NO_TABLE_ROWS = "Table dataset has 0 rows",
@@ -24,7 +30,8 @@ SUMMTAB <- poc(
     NO_ANL_VARS = "No variables selected to summarize on",
     NO_GROUP_VARS = "No variables selected to group by",
     TOO_MANY_ROW_VARS = "Maximum of 8 row variables allowed",
-    VAR_OVERLAP = "Variable has been selected in more than one selection"
+    VAR_OVERLAP = "Variable has been selected in more than one selection",
+    NO_STATS = "No statistics selected"
   ),
   VAL = poc(
     SPECIAL_CHAR = "\u001D", # For naming and processing row levels
@@ -33,8 +40,7 @@ SUMMTAB <- poc(
 )
 
 meta_env <- new.env()
-calc_pct <- function(x, n) 100 * length(x) / n # meta_env$N
-#calc_pct <- function(x) 100 * length(x) / 99
+# calc_pct <- function(x, n) 100 * length(x) / n
 
 calc_stats <- function(analysis_df,
                        subjid_var,
@@ -48,8 +54,6 @@ calc_stats <- function(analysis_df,
 
   # Convert the stats list to use safe wrappers
   safe_stats <- lapply(stats, function(f) {
-    #force(f)  # NEEDED???
-
     function(x, stat_name, ...) {
 
       if (length(x) == 0) {
@@ -61,17 +65,6 @@ calc_stats <- function(analysis_df,
       }
     }
   })
-
-  # safe_stats <- lapply(stats, function(f) {
-  #   function(x, stat_name) {
-  #
-  #     if (length(x) == 0) {
-  #       if (stat_name %in% c("n")) 0 else NA_real_
-  #     } else {
-  #       f(x)
-  #     }
-  #   }
-  # })
 
   # Get Big N from analysis data
   meta_env$N <- analysis_df[[".N"]][1]
@@ -87,22 +80,19 @@ calc_stats <- function(analysis_df,
 
   results_list <- list()
 
-  # THIS DUMMY RETURN WORKS WITH NO WARNINGS GIVEN
-  #return(list(list(n = 122L, pct = 68.2, subjid = list("01-701-1015", "01-701-1015"))))
-
   stat_names <- names(safe_stats)
   for (stat_name in stat_names) {
+
+    # Build list of arguments for statistic function call
     arg_list <- {
       if (stat_name == "pct") {
         if (denom == "N") list(filter_df[[anl_var]], stat_name, n = meta_env$N)
         else list(filter_df[[anl_var]], stat_name, n = meta_env$n)
-      }
-      else {
+      } else {
         list(filter_df[[anl_var]], stat_name)
       }
     }
 
-    #results_list[[stat_name]] <- safe_stats[[stat_name]](filter_df[[anl_var]], stat_name)
     results_list[[stat_name]] <- do.call(safe_stats[[stat_name]], arg_list)
 
     # Save the total count for the grouping, so it can be used later in percent calculation.
@@ -116,38 +106,25 @@ calc_stats <- function(analysis_df,
     }
   }
 
-  # DOES NOT WORK IF DUMMY RETURNED HERE!!
-  #return(list(list(n = 122L, pct = 68.2, subjid = list("01-701-1015", "01-701-1015"))))
-
   # Get subject identifiers
   results_list[["subjid"]] <- filter_df[[subjid_var]]
-
-  # dplyr::relocate(".anl_var", .before = "n")
-
-  #str(results_list)
 
   return(list(results_list))
 }
 
-# calc_n_pct <- function(analysis_df,
-#                        subjid_var,
-#                        anl_var) {
-#
-#   group_vars <- dplyr::cur_group()
-#
-#   # Get Big N from analysis data
-#   big_n <- analysis_df[[".N"]][1]
-#
-#   return(list(list(n_pct = "9 (99.9 %)")))
-# }
 
 # ========================================================================================================= format_stats
 format_stats <- function(analysis_df,
                          stats_fmts,
-                         replace) {
+                         replace,
+                         stat_names) {
 
   formatted_df <- analysis_df
   drop_stats <- character()
+
+  #browser()
+
+  # TODO: CHECK THAT STATS WITHIN FORMATS EXIST!!!!!
 
   stat_fmt_names <- names(stats_fmts)
   for (fmt_name in stat_fmt_names) {
@@ -170,9 +147,16 @@ format_stats <- function(analysis_df,
     }
   }
 
+  # Format statistics that were not already combined/formatted
+  unformatted_stats <- setdiff(stat_names, drop_stats)
+  formatted_df[unformatted_stats] <- lapply(formatted_df[unformatted_stats], as.character)
+
+  # Drop stats that have been combined/formatted to a new name
   drop_stats <- setdiff(drop_stats, stat_fmt_names)
-  formatted_df <- dplyr::select(formatted_df, -dplyr::all_of(drop_stats)) |>
-    dplyr::relocate(stat_fmt_names, .after = dplyr::everything())
+  formatted_df <- formatted_df |>
+    dplyr::select(-dplyr::all_of(drop_stats)) |>
+    dplyr::relocate(dplyr::all_of(c(stat_fmt_names, unformatted_stats)),
+                    .after = dplyr::everything())
 
   return(formatted_df)
 }
@@ -264,18 +248,13 @@ compute_summary_table <- function(tbl_df,
   #pop_df[, c(subjid_var, setdiff(names(pop_df), names(tbl_df))), drop = FALSE]
 
   analysis_df <- tbl_df |>
-    dplyr::inner_join(pop_df_subset, by = subjid_var) |>
+    dplyr::inner_join(pop_df_subset, by = subjid_var, relationship = "many-to-many") |>
     dplyr::select(dplyr::all_of(c(subjid_var, group_vars, row_vars, anl_vars, ".N"))) |>
 
     # dplyr::mutate(dplyr::across(dplyr::all_of(row_vars),
     #                             ~ as.factor(replace(as.character(.), is.na(.), SUMMTAB$VAL$SPECIAL_CHAR)))) |>
 
     dplyr::mutate(.dummy = 1)
-
-  # # Define labels for statistics
-  # stats_lbls <- c(n = "n",
-  #                 meansd = "Mean (SD)",
-  #                 minmax = "Min - Max")
 
   # Initialise list to hold results for each analysis variable
   results_list <- list()
@@ -298,7 +277,7 @@ compute_summary_table <- function(tbl_df,
       av_df <- tidyr::drop_na(av_df, dplyr::all_of(av))
     } else {
       av_stats <- list(n = length,
-                       pct = calc_pct)
+                       pct = \(x, n) 100 * length(x) / n) # calc_pct)
       av_stats_fmts <- list(n_pct = list(fmt = "%d (%.1f %%)", "n", "pct"))
 
       group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
@@ -329,12 +308,7 @@ compute_summary_table <- function(tbl_df,
         anl_var = av_mod,
         stats = av_stats,
         denom = denom
-      )) |>
-      # dplyr::summarise(.stats = do.call(
-      #   calc_stats_fun,
-      #   c(list(dplyr::pick(dplyr::all_of(c(subjid_var, av_mod, ".N")))),
-      #     calc_stats_fun_args)
-      # )) |>
+      ), .groups = "keep") |>
       dplyr::mutate(!!anl_var := av_label) |>
       dplyr::ungroup()
 
@@ -342,14 +316,23 @@ compute_summary_table <- function(tbl_df,
     av_df <- tidyr::unnest_wider(av_df, tidyr::all_of(".stats"))
 
     # Format statistics
-    av_df <- format_stats(av_df, av_stats_fmts, stats_replace)
+    av_df <- format_stats(
+      av_df,
+      stats_fmts = av_stats_fmts,
+      replace = stats_replace,
+      stat_names = names(av_stats)
+    )
+
+    # # Ensure any unformatted statistics are converted to character
+    # unformatted_stats <- intersect(names(av_df)[sapply(av_df, is.numeric)], names(stats_functions))
+    # av_df[unformatted_stats] <- lapply(av_df[unformatted_stats], as.character)
 
     stat_cols <- setdiff(names(av_df), c(group_by_vars, anl_var, "subjid"))
 
     # Transpose statistics into a single column
     av_df <- tidyr::pivot_longer(
       av_df,
-      cols = stat_cols,
+      cols = dplyr::all_of(stat_cols),
       names_to = stat_col,
       values_to = ".val",
     )
@@ -625,6 +608,7 @@ summary_table_dep <- function() {
     name = "summary_table",
     version = "1.0",
     src = system.file("assets", package = "dv.tables", mustWork = TRUE),
+    # src = "assets",
     stylesheet = "css/summary_table.css",
     script = "js/hierarchical_count_table.js"
   )
@@ -647,30 +631,45 @@ summary_table_dep <- function() {
 summary_table_ui <- function(id,
                              default_total = TRUE,
                              default_drop_na = FALSE,
-                             default_denom = "N") {
+                             default_denom = "N",
+                             default_stats = "n",
+                             choices_stats = c("n", "Mean (SD)", "Min - Max")) {
 
   ns <- shiny::NS(id)
 
-  drop_menu <- shinyWidgets::dropMenu(
-    #shiny::tags[["button"]](id = ns(SUMMTAB$ID$TBL_OPTIONS), SUMMTAB$LBL$TBL_OPTIONS, class = "btn btn-default"),
+  drop_menu_cols <- shinyWidgets::dropMenu(
+    tag = shiny::actionButton(
+      inputId = ns(SUMMTAB$ID$COL_SELECTIONS),
+      label = SUMMTAB$LBL$COL_SELECTIONS
+    ),
+    col_menu_UI(id = ns(SUMMTAB$ID$ANL_VARS)),
+    col_menu_UI(id = ns(SUMMTAB$ID$GROUP_VARS)),
+    col_menu_UI(id = ns(SUMMTAB$ID$ROW_VARS))
+  )
+
+  drop_menu_stats <- shinyWidgets::dropMenu(
+    tag = shiny::actionButton(
+      inputId = ns(SUMMTAB$ID$STATS_OPTIONS),
+      label = SUMMTAB$LBL$STATS_OPTIONS
+    ),
+    shiny::checkboxGroupInput(ns(SUMMTAB$ID$STATS), label = SUMMTAB$LBL$STATS, choices = choices_stats, selected = default_stats)
+  )
+
+  drop_menu_opts <- shinyWidgets::dropMenu(
     tag = shiny::actionButton(
       inputId = ns(SUMMTAB$ID$TBL_OPTIONS),
       label = SUMMTAB$LBL$TBL_OPTIONS
     ),
-    col_menu_UI(id = ns(SUMMTAB$ID$ANL_VARS)),
-    col_menu_UI(id = ns(SUMMTAB$ID$GROUP_VARS)),
-    col_menu_UI(id = ns(SUMMTAB$ID$ROW_VARS)),
     shiny::checkboxInput(ns(SUMMTAB$ID$TOTAL_FLAG), label = SUMMTAB$LBL$TOTAL_FLAG, value = default_total),
     shiny::checkboxInput(ns(SUMMTAB$ID$DROP_NA_FLAG), label = SUMMTAB$LBL$DROP_NA_FLAG, value = default_drop_na),
-    shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, selected = default_denom, choices = c("N", "n"))
+    shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"), selected = default_denom)
   )
 
-  ui <- shiny::div(
-    class = "summary_table",
-    shiny::tagList(
-      drop_menu
-    ),
-    shiny::uiOutput(ns(SUMMTAB$ID$TBL_OUTPUT))
+  ui <- shiny::tagList(
+    shiny::div(drop_menu_cols, style = "display: inline-block;"),
+    shiny::div(drop_menu_stats, style = "display: inline-block;"),
+    shiny::div(drop_menu_opts, style = "display: inline-block;"),
+    shiny::div(class = "summary_table", shiny::uiOutput(ns(SUMMTAB$ID$TBL_OUTPUT)))
   )
 
   return(ui)
@@ -757,17 +756,10 @@ summary_table_server <- function(id,
       include_none = FALSE
     )
 
-    inputs[[SUMMTAB$ID$TOTAL_FLAG]] <- shiny::reactive({
-      input[[SUMMTAB$ID$TOTAL_FLAG]]
-    })
-
-    inputs[[SUMMTAB$ID$DROP_NA_FLAG]] <- shiny::reactive({
-      input[[SUMMTAB$ID$DROP_NA_FLAG]]
-    })
-
-    inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive({
-      input[[SUMMTAB$ID$DENOM]]
-    })
+    inputs[[SUMMTAB$ID$TOTAL_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$TOTAL_FLAG]])
+    inputs[[SUMMTAB$ID$DROP_NA_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_NA_FLAG]])
+    inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive(input[[SUMMTAB$ID$DENOM]])
+    inputs[[SUMMTAB$ID$STATS]] <- shiny::reactive(input[[SUMMTAB$ID$STATS]])
 
     summtab <- shiny::reactive({
 
@@ -778,6 +770,8 @@ summary_table_server <- function(id,
       total <- inputs[[SUMMTAB$ID$TOTAL_FLAG]]()
       drop_na <- inputs[[SUMMTAB$ID$DROP_NA_FLAG]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
+
+      choices_stats <- inputs[[SUMMTAB$ID$STATS]]()
 
       pop_df <- pop_dataset()
       tbl_df <- table_dataset() #|>
@@ -809,8 +803,22 @@ summary_table_server <- function(id,
         shiny::need(
           checkmate::test_set_equal(selected_vars, unique(selected_vars), ordered = TRUE),
           SUMMTAB$VALIDATE$VAR_OVERLAP
+        ),
+        shiny::need(
+          all(sapply(tbl_df[anl_vars], \(x) !is.numeric(x))) ||
+            checkmate::test_character(choices_stats, min.chars = 1, min.len = 1, max.len = NULL),
+          SUMMTAB$VALIDATE$NO_STATS
         )
       )
+
+      # Subset stats formats on chosen stats
+      stats_formats_subset <- stats_formats[intersect(choices_stats, names(stats_formats))]
+
+      fmt_stats <- lapply(stats_formats_subset, \(sublist) sublist[-1])
+      choices_fmt_stats <- unlist(fmt_stats[choices_stats], use.names = FALSE)
+      choices_unfmt_stats <- setdiff(choices_stats, names(stats_formats_subset))
+      stats_functions_subset <- stats_functions[c(choices_fmt_stats, choices_unfmt_stats)]
+      #browser()
 
       summary_table <- compute_summary_table(tbl_df,
                                              pop_df,
@@ -819,8 +827,8 @@ summary_table_server <- function(id,
                                              row_vars = row_vars,
                                              subjid_var = subjid_var,
 
-                                             stats_functions = stats_functions,
-                                             stats_formats = stats_formats,
+                                             stats_functions = stats_functions_subset,
+                                             stats_formats = stats_formats_subset,
                                              stats_labels = stats_labels,
                                              stats_replace = stats_replace,
 
@@ -920,13 +928,13 @@ mod_summary_table <- function(module_id,
                                                      min = min,
                                                      max = max),
                               stats_formats = list(n = list(fmt = "%d", "n"),
+                                                   #n2 = list(fmt = "%d", "n2"),
                                                    meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
                                                    minmax = list(fmt = "%.1f - %.1f", "min", "max")),
                               stats_labels = c(n = "n",
                                                meansd = "Mean (SD)",
                                                minmax = "Min - Max"),
-                              stats_replace  = list(n = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
-                                                    meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
+                              stats_replace  = list(meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
                                                                `\\(NA\\)` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
                                                     minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
                                                     n_pct = c(`^0 \\(NA \\%\\)$` = "0")),
@@ -943,12 +951,31 @@ mod_summary_table <- function(module_id,
                               intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
                               receiver_id = NULL) {
 
+  all_stats <- names(stats_functions)
+  fmt_stats <- unlist(lapply(stats_formats, \(sublist) sublist[-1]), use.names = FALSE)
+
+  unfmt_stats <- setdiff(all_stats, fmt_stats)
+
+  choices_stats <- c(names(stats_formats), unfmt_stats)
+
+  stats_choices_labels <- ifelse(
+    choices_stats %in% names(stats_labels),
+    stats_labels[choices_stats],
+    choices_stats
+  )
+
+  names(choices_stats) <- stats_choices_labels
+
+  #browser()
+
   mod <- list(
     ui = function(module_id) {
       summary_table_ui(module_id,
                        default_total = default_total,
                        default_drop_na = default_drop_na,
-                       default_denom = default_denom)
+                       default_denom = default_denom,
+                       default_stats = choices_stats,
+                       choices_stats = choices_stats)
     },
     server = function(afmm) {
 
@@ -1011,7 +1038,7 @@ mock_summary_table <- function() {
     ),
     module_list = list(
       "Disposition Summary" = mod_summary_table(
-        "ds_summtab",
+        module_id = "ds_summtab",
         table_dataset_name = "adsl",
         pop_dataset_name = "adsl",
         default_summarize_on = c("EOSSTT", "DTHCAUS", "SAFFL"),
@@ -1020,13 +1047,14 @@ mock_summary_table <- function() {
         default_drop_na = TRUE
       ),
       "Demography Summary" = mod_summary_table(
-        "dm_summtab",
+        module_id = "dm_summtab",
         table_dataset_name = "adsl",
         pop_dataset_name = "adsl",
 
         stats_functions = list(n = length,
                                mean = mean,
                                sd = stats::sd,
+                               geomean = \(x) exp(mean(log(x))),
                                median = stats::median,
                                q1 = \(x) stats::quantile(x, 0.25),
                                q3 = \(x) stats::quantile(x, 0.75),
@@ -1034,17 +1062,20 @@ mock_summary_table <- function() {
                                max = max),
         stats_formats = list(n = list(fmt = "%d", "n"),
                              meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
+                             geomean = list(fmt = "%.1f", "geomean"),
                              median = list(fmt = "%.1f", "median"),
                              q1q3 = list(fmt = "%.1f - %.1f", "q1", "q3"),
                              minmax = list(fmt = "%.1f - %.1f", "min", "max")),
         stats_labels = c(n = "n",
                          meansd = "Mean (SD)",
+                         geomean = "Geometric Mean",
                          median = "Median",
                          q1q3 = "25% and 75%-ile",
                          minmax = "Min - Max"),
         stats_replace = list(n = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
                              meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
                                         `\\(NA\\)` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
+                             geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
                              median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
                              q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
                              minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
@@ -1055,23 +1086,21 @@ mock_summary_table <- function() {
         default_row_by = NULL
       ),
       "Lab Summary" = mod_summary_table(
-        "lb_summtab",
+        module_id = "lb_summtab",
         table_dataset_name = "adlb",
         pop_dataset_name = "adsl",
-        #
-        #default_summarize_on = c("RACE"),
-        #default_summarize_on = c("AVAL"),
-        #default_summarize_on = c("ANL01FL"),
-        #default_summarize_on = c("DTHCAUS"),
-        #default_group_by = c("SEX"),
-        #default_group_by = c("DTHCAUS"),
-        #default_row_by = c("PARAM", "AVISIT")
-        #default_row_by = c("DTHDOM")
-        #
         default_summarize_on = c("AVAL", "CHG", "ATOXGR"),
         default_group_by = c("TRT01P", "SEX"),
         default_row_by = c("PARAM", "AVISIT"),
         default_denom = "n"
+      ),
+      "Patient Profile" = dv.papo::mod_patient_profile(
+        module_id = "papo",
+        subject_level_dataset_name = "adsl",
+        subjid_var = "USUBJID",
+        sender_ids = c("ds_summtab", "dm_summtab", "lb_summtab"),
+        summary = list(vars = c("AGE", "SEX", "RACE", "ETHNIC", "ARM"),
+                       column_count = 1)
       )
     ),
     filter_data = "adsl",
