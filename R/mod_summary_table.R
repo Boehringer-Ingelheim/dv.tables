@@ -820,6 +820,12 @@ summary_table_server <- function(id,
       stats_functions_subset <- stats_functions[c(choices_fmt_stats, choices_unfmt_stats)]
       #browser()
 
+      # Show a progress bar for the remainder of the execution of this reactive
+      # This bar does not really progress; it just disappears once we're through
+      p <- shiny::Progress$new(session = session)
+      on.exit(p$close())
+      p$set(message = "1) Processing data", value = 0.50)
+
       summary_table <- compute_summary_table(tbl_df,
                                              pop_df,
                                              anl_vars = anl_vars,
@@ -841,20 +847,37 @@ summary_table_server <- function(id,
       summary_table
     })
 
-    output[[SUMMTAB$ID$TBL_OUTPUT]] <- shiny::renderUI({
+    render_completion_callback <- shiny::tags$script(shiny::HTML(sprintf("
+    requestAnimationFrame(() => { // repaint preceding the table render
+      requestAnimationFrame(() => { // repaint following the table render
+        Shiny.setInputValue('%s', 'done', {priority: 'event'});
+      });
+    });
+    ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))))
 
-      # on_cell_click <- sprintf(
-      #   "console.log('Row:', this.closest('tr').getAttribute('row-id'), 'Col:', this.getAttribute('column')); Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})",
-      #   ns("cell_click")
-      # )
+    table_progress_bars <- list() # keep a list of progress bars to cope with trigger-happy users
+
+    shiny::observeEvent(input[[EC$ID$RENDER_COMPLETION_CALLBACK]], {
+      for (p in table_progress_bars) p$close()
+      table_progress_bars <<- list()
+    })
+
+    output[[SUMMTAB$ID$TBL_OUTPUT]] <- shiny::renderUI({
 
       on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column: this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
 
       summtab <- summtab()
 
+      # Start a progress bar and leave its cleanup to the `input[[EC$ID$RENDER_COMPLETION_CALLBACK]]` observer
+      p <- shiny::Progress$new(session = session)
+      table_progress_bars[[length(table_progress_bars) + 1]] <<- p
+      on.exit(p$inc(amount = 0.3))
+      p$set(message = "2) Generating & Rendering Table", value = 0.2)
+
       rendered_content <- build_html_table(summtab, on_cell_click)
 
-      rendered_content
+      #rendered_content
+      shiny::tagList(rendered_content, render_completion_callback)
     })
 
     if (show_modal_on_click) {
