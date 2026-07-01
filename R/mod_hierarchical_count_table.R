@@ -56,7 +56,8 @@ EC <- poc( # nolint
       ORIG_CENSOR_CLASH = "Origin date must not be the same as censor date",
       NO_EVENT_DATE = "No event date selected",
       NO_ORIGIN_DATE = "No origin date selected",
-      NO_CENSOR_DATE = "No censor date selected"
+      NO_CENSOR_DATE = "No censor date selected",
+      EVENT_GRP_CLASH = "Event group selection cannot be used in hierarchy"
     )
   ),
   VAL = poc(
@@ -1151,6 +1152,10 @@ hierarchical_count_table_server <- function(
         shiny::need(
           !compute_risk || is_provided(censor_date_var),
           EC$MSG$VALIDATE$NO_CENSOR_DATE
+        ),
+        shiny::need(
+          !checkmate::test_choice(event_group_var, hierarchy, null.ok = TRUE),
+          EC$MSG$VALIDATE$EVENT_GRP_CLASH
         )
       )
 
