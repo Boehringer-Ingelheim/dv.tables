@@ -9,6 +9,7 @@ SUMMTAB <- poc(
     TOTAL_FLAG = "total",
     DROP_NA_FLAG = "drop_na",
     DENOM = "denom",
+    COLLAPSE_METHOD = "collapse_method",
     STATS = "stats",
     TBL_OUTPUT = "table_output"
   ),
@@ -22,6 +23,7 @@ SUMMTAB <- poc(
     TOTAL_FLAG = "Total column",
     DROP_NA_FLAG = "Drop NA values",
     DENOM = "Denominator:",
+    COLLAPSE_METHOD = "Row Collapse Method:",
     STATS = "Statistics:"
   ),
   VALIDATE = poc(
@@ -46,68 +48,66 @@ calc_stats <- function(analysis_df,
                        subjid_var,
                        anl_var,
                        stats,
+                       collapse_func_name,
                        denom = "N") {
 
   #return(list(list(n = 99, pct = 5.5, subjid = list("123")  )))
 
   # ADD ARG CHECKS HERE!!!
 
-  # Convert the stats list to use safe wrappers
-  safe_stats <- lapply(stats, function(f) {
-    function(x, stat_name, ...) {
-
-      if (length(x) == 0) {
-        if (stat_name %in% c("n")) 0 else NA_real_
-      } else if (length(list(...)) > 0) {
-        f(x, ...)
-      } else {
-        f(x)
-      }
-    }
-  })
-
   # Get Big N from analysis data
   meta_env$N <- analysis_df[[".N"]][1]
 
-  # # Remove NA values
-  # filter_df <- analysis_df |>
-  #   dplyr::filter(!is.na(.data[[anl_var]]))
+  stat_names <- names(stats)
 
-  # Collapse multiple rows per subject into one
-  filter_df <- analysis_df |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, ".N")))) |>
-    dplyr::summarise(!!anl_var := mean(.data[[anl_var]]), .groups = "drop")
+  # Initialise a results list at its final size with default values
+  results_list <- as.list(setNames(ifelse(stat_names == "n", 0, NA_real_), stat_names))
 
-  results_list <- list()
+  if (nrow(analysis_df) == 0) {
+    # No subject identifiers
+    results_list[["subjid"]] <- character()
+  } else {
+    # Extract the package and the bare function name dynamically
+    if (grepl("::", collapse_func_name)) {
+      collapse_parts <- strsplit(collapse_func_name, "::")[[1]]
+      collapse_func <- get(collapse_parts[2], envir = asNamespace(collapse_parts[1]), mode = "function")
+    } else {
+      collapse_func <- get(collapse_func_name, mode = "function")
+    }
 
-  stat_names <- names(safe_stats)
-  for (stat_name in stat_names) {
+    # Collapse multiple rows per subject into one
+    filter_df <- analysis_df |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, ".N")))) |>
+      dplyr::summarise(!!anl_var := collapse_func(.data[[anl_var]]), .groups = "drop")
 
-    # Build list of arguments for statistic function call
-    arg_list <- {
+    x_vals <- filter_df[[anl_var]]
+    len_x <- length(x_vals)
+
+    for (stat_name in stat_names) {
+
+      f <- stats[[stat_name]]
+
       if (stat_name == "pct") {
-        if (denom == "N") list(filter_df[[anl_var]], stat_name, n = meta_env$N)
-        else list(filter_df[[anl_var]], stat_name, n = meta_env$n)
+        n_denom <- if (denom == "N") meta_env$N else meta_env$n
+        results_list[[stat_name]] <- f(x_vals, n = n_denom)
       } else {
-        list(filter_df[[anl_var]], stat_name)
+        results_list[[stat_name]] <- f(x_vals)
+      }
+
+      # Save the total count for the grouping, so it can be used later in percent calculation.
+      # Note: the `n` in `group_df` refers to the total category, whereas the `n` in `results_list`
+      # refers to the statistic.
+      if (anl_var == ".dummy") {
+        group_df <- dplyr::cur_group()
+        if (group_df[[ncol(group_df)]] == "n") {
+          meta_env$n <- results_list[["n"]]
+        }
       }
     }
 
-    results_list[[stat_name]] <- do.call(safe_stats[[stat_name]], arg_list)
-
-    # Save the total count for the grouping, so it can be used later in percent calculation.
-    # Note: the `n` in `group_df` refers to the total category, whereas the `n` in `results_list`
-    # refers to the statistic.
-    if (anl_var == ".dummy") {
-      group_df <- dplyr::cur_group()
-      if (group_df[[ncol(group_df)]] == "n") {
-        meta_env$n <- results_list[["n"]]
-      }
-    }
+    # Get subject identifiers
+    results_list[["subjid"]] <- filter_df[[subjid_var]]
   }
-
-  # Get subject identifiers
-  results_list[["subjid"]] <- filter_df[[subjid_var]]
 
   return(list(results_list))
 }
@@ -178,7 +178,8 @@ compute_summary_table <- function(tbl_df,
                                   total = NULL,
                                   total_group_val = "Total",
                                   drop_na = NULL,
-                                  denom = NULL) {
+                                  denom = NULL,
+                                  collapse_func_name = NULL) {
 
   # NOTE: Early error feedback should check that pop_df is one row per subject
 
@@ -307,6 +308,7 @@ compute_summary_table <- function(tbl_df,
         subjid_var = subjid_var,
         anl_var = av_mod,
         stats = av_stats,
+        collapse_func_name = collapse_func_name,
         denom = denom
       ), .groups = "keep") |>
       dplyr::mutate(!!anl_var := av_label) |>
@@ -632,7 +634,9 @@ summary_table_ui <- function(id,
                              default_total = TRUE,
                              default_drop_na = FALSE,
                              default_denom = "N",
+                             default_collapse_method = "mean",
                              default_stats = "n",
+                             collapse_method_choices = c(Mean = "mean", Minimum = "min", Maximum = "max"),
                              choices_stats = c("n", "Mean (SD)", "Min - Max")) {
 
   ns <- shiny::NS(id)
@@ -662,7 +666,8 @@ summary_table_ui <- function(id,
     ),
     shiny::checkboxInput(ns(SUMMTAB$ID$TOTAL_FLAG), label = SUMMTAB$LBL$TOTAL_FLAG, value = default_total),
     shiny::checkboxInput(ns(SUMMTAB$ID$DROP_NA_FLAG), label = SUMMTAB$LBL$DROP_NA_FLAG, value = default_drop_na),
-    shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"), selected = default_denom)
+    shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"), selected = default_denom),
+    shiny::radioButtons(ns(SUMMTAB$ID$COLLAPSE_METHOD), label = SUMMTAB$LBL$COLLAPSE_METHOD, choices = collapse_method_choices, selected = default_collapse_method)
   )
 
   ui <- shiny::tagList(
@@ -759,6 +764,7 @@ summary_table_server <- function(id,
     inputs[[SUMMTAB$ID$TOTAL_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$TOTAL_FLAG]])
     inputs[[SUMMTAB$ID$DROP_NA_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_NA_FLAG]])
     inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive(input[[SUMMTAB$ID$DENOM]])
+    inputs[[SUMMTAB$ID$COLLAPSE_METHOD]] <- shiny::reactive(input[[SUMMTAB$ID$COLLAPSE_METHOD]])
     inputs[[SUMMTAB$ID$STATS]] <- shiny::reactive(input[[SUMMTAB$ID$STATS]])
 
     summtab <- shiny::reactive({
@@ -770,6 +776,7 @@ summary_table_server <- function(id,
       total <- inputs[[SUMMTAB$ID$TOTAL_FLAG]]()
       drop_na <- inputs[[SUMMTAB$ID$DROP_NA_FLAG]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
+      collapse_func_name <- inputs[[SUMMTAB$ID$COLLAPSE_METHOD]]()
 
       choices_stats <- inputs[[SUMMTAB$ID$STATS]]()
 
@@ -841,7 +848,8 @@ summary_table_server <- function(id,
                                              total = total,
                                              total_group_val = "Total",
                                              drop_na = drop_na,
-                                             denom = denom)
+                                             denom = denom,
+                                             collapse_func_name = collapse_func_name)
 
 
       summary_table
@@ -974,9 +982,17 @@ mod_summary_table <- function(module_id,
                               default_total = TRUE,
                               default_drop_na = FALSE,
                               default_denom = "N",
+                              default_collapse_method = "mean",
+
                               summarize_on_choices = NULL,
                               group_by_choices = NULL,
                               row_by_choices = NULL,
+                              collapse_method_choices = c(Mean = "mean",
+                                                          Minimum = "min",
+                                                          Maximum = "max",
+                                                          "First Row" = "dplyr::first",
+                                                          "Last Row" = "dplyr::last"),
+
                               intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
                               receiver_id = NULL) {
 
@@ -1004,6 +1020,7 @@ mod_summary_table <- function(module_id,
                        default_drop_na = default_drop_na,
                        default_denom = default_denom,
                        default_stats = choices_stats,
+                       collapse_method_choices = collapse_method_choices,
                        choices_stats = choices_stats)
     },
     server = function(afmm) {
@@ -1066,6 +1083,16 @@ mock_summary_table_mm <- function() {
       pharmaverseadam = list(adlb = adlb, adsl = adsl)
     ),
     module_list = list(
+      "foobar" = mod_summary_table(
+        module_id = "foobar",
+        table_dataset_name = "adsl",
+        pop_dataset_name = "adsl",
+        default_summarize_on = c("EOSSTT"),
+        default_group_by = c("TRT01P"),
+        default_row_by = NULL,
+        default_total = FALSE,
+        default_drop_na = TRUE
+      ),
       "Disposition Summary" = mod_summary_table(
         module_id = "ds_summtab",
         table_dataset_name = "adsl",
