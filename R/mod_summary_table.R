@@ -181,15 +181,13 @@ compute_summary_table <- function(tbl_df,
                                   denom = NULL,
                                   collapse_func_name = NULL) {
 
-  # NOTE: Early error feedback should check that pop_df is one row per subject
+  # NOTE: Early error feedback should check that pop_df is one row per subject per grouping
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
 
   anl_vars_num <- intersect(anl_vars, names(tbl_df)[sapply(tbl_df, is.numeric)])
   anl_vars_cat <- setdiff(anl_vars, anl_vars_num)
-
-  # ENSURE anl_vars/group_vars/row_vars ARE FACTORS???
 
   if (drop_na) {
     # Remove NA values (analysis variables handled individually later on)
@@ -202,8 +200,8 @@ compute_summary_table <- function(tbl_df,
     tbl_df[anl_vars_cat] <- lapply(tbl_df[anl_vars_cat], add_na_factor_level)
   }
 
-  # Remove any population group vars that occur in table data frame
-  tbl_df <- tbl_df[setdiff(names(tbl_df), group_vars)]
+  # Identify population group vars that occur in table data frame
+  common_group_vars <- intersect(group_vars, names(tbl_df))
 
   store_col_labels <- function(df) {
     lapply(df, function(col) attr(col, "label"))
@@ -220,7 +218,9 @@ compute_summary_table <- function(tbl_df,
   # Duplicate all rows so that total can be calculated for first group var
   if (total) {
     group_var_1 <- group_vars[[1]]
-    pop_df[[group_var_1]] <- factor(pop_df[[group_var_1]], levels = c(levels(pop_df[[group_var_1]]), total_group_val))
+    gv1_fct_levels <- c(levels(pop_df[[group_var_1]]), total_group_val)
+
+    pop_df[[group_var_1]] <- factor(pop_df[[group_var_1]], levels = gv1_fct_levels)
     total_grp_fct <- factor(total_group_val, levels = c(levels(pop_df[[group_var_1]])))
     total_rows <- dplyr::mutate(pop_df, !!group_var_1 := total_grp_fct)
 
@@ -228,32 +228,31 @@ compute_summary_table <- function(tbl_df,
     pop_df <- pop_df |>
       rbind(total_rows) |>
       restore_col_labels(pop_col_labels)
-    # pop_df <- pop_df |>
-    #   dplyr::bind_rows(dplyr::mutate(pop_df, !!group_var_1 := total_group_val)) |>
-    #   dplyr::mutate(!!group_var_1 := factor(.data[[group_var_1]], levels = c(levels(pop_df[[group_var_1]]), total_group_val)))
+
+    if (group_var_1 %in% names(tbl_df)) {
+      tbl_df[[group_var_1]] <- factor(tbl_df[[group_var_1]], levels = gv1_fct_levels)
+      total_rows <- dplyr::mutate(tbl_df, !!group_var_1 := total_grp_fct)
+
+      tbl_col_labels <- store_col_labels(tbl_df)
+      tbl_df <- tbl_df |>
+        rbind(total_rows) |>
+        restore_col_labels(tbl_col_labels)
+    }
   }
 
   denom_df <- pop_df |>
-    #dplyr::count(dplyr::across(dplyr::all_of(group_vars)), name = ".N") |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars)), .drop = FALSE) |>
-    dplyr::tally(name = ".N") |>
-    dplyr::ungroup() |>
+    dplyr::summarise(.N = dplyr::n_distinct(.data[[subjid_var]]), .groups = "drop") |>
     dplyr::mutate(.lookup = do.call(paste, c(dplyr::pick(dplyr::all_of(group_vars)),
                                              sep = SUMMTAB$VAL$SPECIAL_CHAR)))
 
   pop_df_subset <- pop_df |>
     dplyr::left_join(denom_df, by = group_vars) |>
     dplyr::select(dplyr::all_of(c(subjid_var, group_vars, ".N")))
-    #dplyr::select(dplyr::all_of(c(subjid_var, setdiff(names(pop_df), names(tbl_df)), ".N")))
-
-  #pop_df[, c(subjid_var, setdiff(names(pop_df), names(tbl_df))), drop = FALSE]
 
   analysis_df <- tbl_df |>
-    dplyr::inner_join(pop_df_subset, by = subjid_var, relationship = "many-to-many") |>
+    dplyr::inner_join(pop_df_subset, by = c(subjid_var, common_group_vars), relationship = "many-to-many") |>
     dplyr::select(dplyr::all_of(c(subjid_var, group_vars, row_vars, anl_vars, ".N"))) |>
-
-    # dplyr::mutate(dplyr::across(dplyr::all_of(row_vars),
-    #                             ~ as.factor(replace(as.character(.), is.na(.), SUMMTAB$VAL$SPECIAL_CHAR)))) |>
 
     dplyr::mutate(.dummy = 1)
 
