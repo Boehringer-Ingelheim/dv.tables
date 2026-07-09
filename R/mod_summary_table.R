@@ -8,6 +8,7 @@ SUMMTAB <- poc(
     ROW_VARS = "row_vars",
     TOTAL_FLAG = "total",
     DROP_NA_FLAG = "drop_na",
+    SHOW_CATEGORY_N = "show_category_n",
     DENOM = "denom",
     COLLAPSE_METHOD = "collapse_method",
     STATS = "stats",
@@ -22,6 +23,7 @@ SUMMTAB <- poc(
     ROW_VARS = "Row by:",
     TOTAL_FLAG = "Total column",
     DROP_NA_FLAG = "Drop NA values",
+    SHOW_CATEGORY_N = "Show categorical n",
     DENOM = "Denominator:",
     COLLAPSE_METHOD = "Row Collapse Method:",
     STATS = "Statistics:"
@@ -47,7 +49,8 @@ meta_env <- new.env()
 calc_stats <- function(analysis_df,
                        subjid_var,
                        anl_var,
-                       stats,
+                       stats_functions,
+                       stats_element_names,
                        collapse_func_name,
                        denom = "N") {
 
@@ -58,56 +61,63 @@ calc_stats <- function(analysis_df,
   # Get Big N from analysis data
   meta_env$N <- analysis_df[[".N"]][1]
 
-  stat_names <- names(stats)
-
   # Initialise a results list at its final size with default values
-  results_list <- as.list(setNames(ifelse(stat_names == "n", 0, NA_real_), stat_names))
+  results_list <- as.list(setNames(ifelse(stats_element_names == "n", 0, NA_real_), stats_element_names))
 
+  # If grouping is empty then return with no subject identifiers
   if (nrow(analysis_df) == 0) {
-    # No subject identifiers
-    results_list[["subjid"]] <- character()
-  } else {
-    # Extract the package and the bare function name dynamically
-    if (grepl("::", collapse_func_name)) {
-      collapse_parts <- strsplit(collapse_func_name, "::")[[1]]
-      collapse_func <- get(collapse_parts[2], envir = asNamespace(collapse_parts[1]), mode = "function")
-    } else {
-      collapse_func <- get(collapse_func_name, mode = "function")
-    }
-
-    # Collapse multiple rows per subject into one
-    filter_df <- analysis_df |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, ".N")))) |>
-      dplyr::summarise(!!anl_var := collapse_func(.data[[anl_var]]), .groups = "drop")
-
-    x_vals <- filter_df[[anl_var]]
-    len_x <- length(x_vals)
-
-    for (stat_name in stat_names) {
-
-      f <- stats[[stat_name]]
-
-      if (stat_name == "pct") {
-        n_denom <- if (denom == "N") meta_env$N else meta_env$n
-        results_list[[stat_name]] <- f(x_vals, n = n_denom)
-      } else {
-        results_list[[stat_name]] <- f(x_vals)
-      }
-
-      # Save the total count for the grouping, so it can be used later in percent calculation.
-      # Note: the `n` in `group_df` refers to the total category, whereas the `n` in `results_list`
-      # refers to the statistic.
-      if (anl_var == ".dummy") {
-        group_df <- dplyr::cur_group()
-        if (group_df[[ncol(group_df)]] == "n") {
-          meta_env$n <- results_list[["n"]]
-        }
-      }
-    }
-
-    # Get subject identifiers
-    results_list[["subjid"]] <- filter_df[[subjid_var]]
+    results_list[["subjid"]] <- list()
+    return(list(results_list))
   }
+
+  # Extract the package and the bare function name dynamically
+  if (grepl("::", collapse_func_name)) {
+    collapse_parts <- strsplit(collapse_func_name, "::")[[1]]
+    collapse_func <- get(collapse_parts[2], envir = asNamespace(collapse_parts[1]), mode = "function")
+  } else {
+    collapse_func <- get(collapse_func_name, mode = "function")
+  }
+
+  # Collapse multiple rows per subject into one
+  filter_df <- analysis_df |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, ".N")))) |>
+    dplyr::summarise(!!anl_var := collapse_func(.data[[anl_var]]), .groups = "drop")
+
+  x_vals <- filter_df[[anl_var]]
+  len_x <- length(x_vals)
+
+  for (stat_name in names(stats_functions)) {
+
+    f <- stats_functions[[stat_name]]
+
+    if (stat_name == "pct") {
+      n_denom <- if (denom == "N") meta_env$N else meta_env$n
+      results_list[[stat_name]] <- f(x_vals, n = n_denom)
+    } else {
+      f_result <- f(x_vals)
+      if (length(f_result) == 1) {
+        results_list[[stat_name]] <- f_result
+      } else {
+        #browser()
+        results_list[[paste0(stat_name, ".", "1")]] <- f_result[1]
+        results_list[[paste0(stat_name, ".", "2")]] <- f_result[2]
+      }
+    }
+
+    # Save the total count for the grouping, so it can be used later in percent calculation.
+    category_n <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "n")
+    if (anl_var == ".dummy") {
+      group_df <- dplyr::cur_group()
+      if (group_df[[ncol(group_df)]] == category_n) {
+        meta_env$n <- results_list[["n"]]
+      }
+    }
+  }
+
+  #browser()
+
+  # Get subject identifiers
+  results_list[["subjid"]] <- as.list(as.character(filter_df[[subjid_var]]))
 
   return(list(results_list))
 }
@@ -117,12 +127,10 @@ calc_stats <- function(analysis_df,
 format_stats <- function(analysis_df,
                          stats_fmts,
                          replace,
-                         stat_names) {
+                         stats_element_names) {
 
   formatted_df <- analysis_df
   drop_stats <- character()
-
-  #browser()
 
   # TODO: CHECK THAT STATS WITHIN FORMATS EXIST!!!!!
 
@@ -148,7 +156,7 @@ format_stats <- function(analysis_df,
   }
 
   # Format statistics that were not already combined/formatted
-  unformatted_stats <- setdiff(stat_names, drop_stats)
+  unformatted_stats <- setdiff(stats_element_names, drop_stats)
   formatted_df[unformatted_stats] <- lapply(formatted_df[unformatted_stats], as.character)
 
   # Drop stats that have been combined/formatted to a new name
@@ -178,6 +186,7 @@ compute_summary_table <- function(tbl_df,
                                   total = NULL,
                                   total_group_val = "Total",
                                   drop_na = NULL,
+                                  show_category_n = NULL,
                                   denom = NULL,
                                   collapse_func_name = NULL) {
 
@@ -185,6 +194,8 @@ compute_summary_table <- function(tbl_df,
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
+
+  category_n <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "n")
 
   anl_vars_num <- intersect(anl_vars, names(tbl_df)[sapply(tbl_df, is.numeric)])
   anl_vars_cat <- setdiff(anl_vars, anl_vars_num)
@@ -256,8 +267,25 @@ compute_summary_table <- function(tbl_df,
 
     dplyr::mutate(.dummy = 1)
 
+  #browser()
+
+  # Extract statistics elements from formats
+  fmt_stats_elems <- stats_formats |>
+    lapply(\(sublist) sublist[-1]) |>
+    unlist(use.names = FALSE) |>
+    unique()
+
+  fmt_stats_names <- fmt_stats_elems |>
+    sub("\\.[0-9]+$", "", x = _) |>
+    unique()
+
+  stats_elems <- c(fmt_stats_elems, setdiff(names(stats_functions), fmt_stats_names))
+
   # Initialise list to hold results for each analysis variable
   results_list <- list()
+
+  # Initialise flag that indicates if collapsing will be applied
+  collapse_flag <- FALSE
 
   for (av in anl_vars) {
 
@@ -267,18 +295,31 @@ compute_summary_table <- function(tbl_df,
     av_df <- analysis_df
 
     if (is_anl_var_num) {
-      av_stats <- stats_functions
+      # Numeric analysis variable
+
+      av_stats_funcs <- stats_functions
       av_stats_fmts <- stats_formats
+      av_stats_elems <- stats_elems
+
+      # multi_stats_names <- fmt_stats_elems[grep("\\.[0-9]+$", fmt_stats_elems)] |>
+      #   sub("\\.[0-9]+$", x = _) |>
+      #   unique()
 
       group_by_vars <- c(group_vars, row_vars)
       av_mod <- av
 
       # Drop NA values
       av_df <- tidyr::drop_na(av_df, dplyr::all_of(av))
+
+      # Check if collapsing will be applied
+      if (nrow(dplyr::distinct(av_df[, c(subjid_var, group_by_vars)])) < nrow(av_df)) collapse_flag <- TRUE
     } else {
-      av_stats <- list(n = length,
-                       pct = \(x, n) 100 * length(x) / n) # calc_pct)
+      # Categorical analysis variable
+
+      av_stats_funcs <- list(n = length,
+                             pct = \(x, n) 100 * length(x) / n) # calc_pct)
       av_stats_fmts <- list(n_pct = list(fmt = "%d (%.1f %%)", "n", "pct"))
+      av_stats_elems <- c("n", "pct")
 
       group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
       av_mod <- ".dummy" # Counts done on dummy variable
@@ -288,12 +329,9 @@ compute_summary_table <- function(tbl_df,
 
       # Duplicate all rows so that small n can be calculated for categorical analysis vars
       av_df <- av_df |>
-        dplyr::bind_rows(dplyr::mutate(av_df, !!av := "n")) |>
-        dplyr::mutate(!!av := factor(.data[[av]], levels = c("n", levels(av_df[[av]]))))
+        dplyr::bind_rows(dplyr::mutate(av_df, !!av := category_n)) |>
+        dplyr::mutate(!!av := factor(.data[[av]], levels = c(category_n, levels(av_df[[av]]))))
     }
-
-    # # Drop NA values (unless requested otherwise for categorical variables)
-    # if (drop_na || is_anl_var_num) av_df <- tidyr::drop_na(av_df, dplyr::all_of(av))
 
     # Retrieve the label of the analysis variable if it exists, otherwise fall back to column name
     av_label <- attr(tbl_df[[av]], "label")
@@ -306,7 +344,8 @@ compute_summary_table <- function(tbl_df,
         dplyr::pick(dplyr::all_of(c(subjid_var, av_mod, ".N"))),
         subjid_var = subjid_var,
         anl_var = av_mod,
-        stats = av_stats,
+        stats_functions = av_stats_funcs,
+        stats_element_names = av_stats_elems,
         collapse_func_name = collapse_func_name,
         denom = denom
       ), .groups = "keep") |>
@@ -321,7 +360,8 @@ compute_summary_table <- function(tbl_df,
       av_df,
       stats_fmts = av_stats_fmts,
       replace = stats_replace,
-      stat_names = names(av_stats)
+      stats_element_names = av_stats_elems
+      #stat_names = names(av_stats)
     )
 
     # # Ensure any unformatted statistics are converted to character
@@ -340,9 +380,16 @@ compute_summary_table <- function(tbl_df,
 
     # If categorical analysis, then move category into statistic name
     if (!is_anl_var_num) {
-      av_df <- av_df |>
-        dplyr::mutate(!!stat_col := as.character(.data[[av]])) |>
-        dplyr::select(-dplyr::all_of(av))
+      av_df[[stat_col]] <- as.character(av_df[[av]])
+      av_df[[av]] <- NULL
+
+      if (show_category_n) {
+        # Rename small n category to "n"
+        av_df[[stat_col]] <- ifelse(av_df[[stat_col]] == category_n, "n", av_df[[stat_col]])
+      } else {
+        # Remove small n category
+        av_df <- av_df[av_df[[stat_col]] != category_n, ]
+      }
     }
 
     # Replace names of statistics with their corresponding labels (for numeric analysis variables)
@@ -355,7 +402,7 @@ compute_summary_table <- function(tbl_df,
       )
     }
 
-    results_list[[av]] <- av_df
+    if (nrow(av_df)) results_list[[av]] <- av_df
   }
 
   results_df <- results_list |>
@@ -372,8 +419,8 @@ compute_summary_table <- function(tbl_df,
     names_from = dplyr::all_of(group_vars),
     names_sep = SUMMTAB$VAL$SPECIAL_CHAR,
     names_expand = TRUE,
-    values_from = dplyr::all_of(".val"),
-    values_fill = list("????") # THIS DOES NOT SEEM NECESSARY!!!
+    values_from = dplyr::all_of(".val")
+    # values_fill = list("????") # THIS DOES NOT SEEM NECESSARY!!!
   )
 
   # Create a list of expanding groups
@@ -407,7 +454,9 @@ compute_summary_table <- function(tbl_df,
       flag_columns = flag_columns,
       data_columns = data_columns,
       total_group_val = total_group_val,
-      denom_df = denom_df
+      denom_df = denom_df,
+      collapse_flag = collapse_flag,
+      collapse_func_name = collapse_func_name
     )
   )
 
@@ -427,6 +476,8 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
   data_columns <- summtab_list[["meta"]][["data_columns"]]
   total_group_val <- summtab_list[["meta"]][["total_group_val"]]
   denom_df <- summtab_list[["meta"]][["denom_df"]]
+  collapse_flag <- summtab_list[["meta"]][["collapse_flag"]]
+  collapse_func_name <- summtab_list[["meta"]][["collapse_func_name"]]
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
@@ -506,6 +557,12 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
                    paste(anl_vars, collapse = ", "),
                    ifelse(length(row_vars) == 0, "", paste("; row by", paste(row_vars, collapse = ", "))),
                    paste(group_vars, collapse = ", "))
+
+  aggregate_note <- if (collapse_flag) {
+    shiny::p(paste("Note: Multiple results per subject per group, aggregated by", collapse_func_name))
+  } else {
+    NULL
+  }
 
   # df[[entry_name_col]] <- local({
   #   purrr::pmap_chr(
@@ -592,6 +649,7 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
 
   html_table <- shiny::div(
     shiny::p(title),
+    aggregate_note,
     table(
       class = "table event-count",
       summary_table_dep(),
@@ -632,6 +690,7 @@ summary_table_dep <- function() {
 summary_table_ui <- function(id,
                              default_total = TRUE,
                              default_drop_na = FALSE,
+                             default_show_category_n = TRUE,
                              default_denom = "N",
                              default_collapse_method = "mean",
                              default_stats = "n",
@@ -665,6 +724,7 @@ summary_table_ui <- function(id,
     ),
     shiny::checkboxInput(ns(SUMMTAB$ID$TOTAL_FLAG), label = SUMMTAB$LBL$TOTAL_FLAG, value = default_total),
     shiny::checkboxInput(ns(SUMMTAB$ID$DROP_NA_FLAG), label = SUMMTAB$LBL$DROP_NA_FLAG, value = default_drop_na),
+    shiny::checkboxInput(ns(SUMMTAB$ID$SHOW_CATEGORY_N), label = SUMMTAB$LBL$SHOW_CATEGORY_N, value = default_show_category_n),
     shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"), selected = default_denom),
     shiny::radioButtons(ns(SUMMTAB$ID$COLLAPSE_METHOD), label = SUMMTAB$LBL$COLLAPSE_METHOD, choices = collapse_method_choices, selected = default_collapse_method)
   )
@@ -762,6 +822,7 @@ summary_table_server <- function(id,
 
     inputs[[SUMMTAB$ID$TOTAL_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$TOTAL_FLAG]])
     inputs[[SUMMTAB$ID$DROP_NA_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_NA_FLAG]])
+    inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]] <- shiny::reactive(input[[SUMMTAB$ID$SHOW_CATEGORY_N]])
     inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive(input[[SUMMTAB$ID$DENOM]])
     inputs[[SUMMTAB$ID$COLLAPSE_METHOD]] <- shiny::reactive(input[[SUMMTAB$ID$COLLAPSE_METHOD]])
     inputs[[SUMMTAB$ID$STATS]] <- shiny::reactive(input[[SUMMTAB$ID$STATS]])
@@ -774,6 +835,7 @@ summary_table_server <- function(id,
 
       total <- inputs[[SUMMTAB$ID$TOTAL_FLAG]]()
       drop_na <- inputs[[SUMMTAB$ID$DROP_NA_FLAG]]()
+      show_category_n <- inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
       collapse_func_name <- inputs[[SUMMTAB$ID$COLLAPSE_METHOD]]()
 
@@ -820,11 +882,17 @@ summary_table_server <- function(id,
       # Subset stats formats on chosen stats
       stats_formats_subset <- stats_formats[intersect(choices_stats, names(stats_formats))]
 
-      fmt_stats <- lapply(stats_formats_subset, \(sublist) sublist[-1])
-      choices_fmt_stats <- unlist(fmt_stats[choices_stats], use.names = FALSE)
+      # Extract function names from formats
+      choices_fmt_stats <- stats_formats_subset |>
+        lapply(\(sublist) sublist[-1]) |>
+        unlist(use.names = FALSE) |>
+        sub("\\.[0-9]+$", "", x = _) |>
+        unique()
+
+      #browser()
+
       choices_unfmt_stats <- setdiff(choices_stats, names(stats_formats_subset))
       stats_functions_subset <- stats_functions[c(choices_fmt_stats, choices_unfmt_stats)]
-      #browser()
 
       # Show a progress bar for the remainder of the execution of this reactive
       # This bar does not really progress; it just disappears once we're through
@@ -847,6 +915,7 @@ summary_table_server <- function(id,
                                              total = total,
                                              total_group_val = "Total",
                                              drop_na = drop_na,
+                                             show_category_n = show_category_n,
                                              denom = denom,
                                              collapse_func_name = collapse_func_name)
 
@@ -952,53 +1021,86 @@ summary_table_server <- function(id,
 }
 
 
-mod_summary_table <- function(module_id,
-                              table_dataset_name,
-                              pop_dataset_name,
-                              subjid_var = "USUBJID",
-                              show_modal_on_click = TRUE,
+mod_summary_table <- function(
+    module_id,
+    table_dataset_name,
+    pop_dataset_name,
+    subjid_var = "USUBJID",
+    show_modal_on_click = TRUE,
 
-                              stats_functions = list(n = length,
-                                                     mean = mean,
-                                                     sd = stats::sd,
-                                                     min = min,
-                                                     max = max),
-                              stats_formats = list(n = list(fmt = "%d", "n"),
-                                                   #n2 = list(fmt = "%d", "n2"),
-                                                   meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
-                                                   minmax = list(fmt = "%.1f - %.1f", "min", "max")),
-                              stats_labels = c(n = "n",
-                                               meansd = "Mean (SD)",
-                                               minmax = "Min - Max"),
-                              stats_replace  = list(meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
-                                                               `\\(NA\\)` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
-                                                    minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
-                                                    n_pct = c(`^0 \\(NA \\%\\)$` = "0")),
+    stats_functions = list(
+      n = length,
+      mean = mean,
+      sd = stats::sd,
+      meanci = \(x) if (length(x) > 1) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2),
+      geomean = \(x) exp(mean(log(x))),
+      median = stats::median,
+      medianci = \(x) if (length(x) > 1) stats::wilcox.test(x,
+                                                            exact = FALSE,
+                                                            conf.int = TRUE,
+                                                            conf.level = 0.95)$conf.int else rep(NA_real_, 2),
+      q1 = \(x) stats::quantile(x, 0.25),
+      q3 = \(x) stats::quantile(x, 0.75),
+      min = min,
+      max = max
+    ),
+    stats_formats = list(n = list(fmt = "%d", "n"),
+                         meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
+                         meanci = list(fmt = "(%.2f, %.2f)", "meanci.1", "meanci.2"),
+                         geomean = list(fmt = "%.1f", "geomean"),
+                         median = list(fmt = "%.1f", "median"),
+                         medianci = list(fmt = "(%.2f, %.2f)", "medianci.1", "medianci.2"),
+                         q1q3 = list(fmt = "%.1f - %.1f", "q1", "q3"),
+                         minmax = list(fmt = "%.1f - %.1f", "min", "max")),
+    stats_labels = c(n = "n",
+                     meansd = "Mean (SD)",
+                     meanci = "Mean 95% CI",
+                     geomean = "Geometric Mean",
+                     median = "Median",
+                     medianci = "Median 95% CI",
+                     q1q3 = "25% and 75%-ile",
+                     minmax = "Min - Max"),
+    stats_replace = list(n = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+                         meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
+                                    `\\(NA\\)` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
+                         meanci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
+                         geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+                         median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+                         medianci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
+                         q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
+                         minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
+                         n_pct = c(`^0 \\(NA \\%\\)$` = "0")),
 
-                              default_summarize_on = NULL,
-                              default_group_by = NULL,
-                              default_row_by = NULL,
-                              default_total = TRUE,
-                              default_drop_na = FALSE,
-                              default_denom = "N",
-                              default_collapse_method = "mean",
+    default_summarize_on = NULL,
+    default_group_by = NULL,
+    default_row_by = NULL,
+    default_total = TRUE,
+    default_drop_na = FALSE,
+    default_show_category_n = TRUE,
+    default_denom = "N",
+    default_collapse_method = "mean",
 
-                              summarize_on_choices = NULL,
-                              group_by_choices = NULL,
-                              row_by_choices = NULL,
-                              collapse_method_choices = c(Mean = "mean",
-                                                          Minimum = "min",
-                                                          Maximum = "max",
-                                                          "First Row" = "dplyr::first",
-                                                          "Last Row" = "dplyr::last"),
+    summarize_on_choices = NULL,
+    group_by_choices = NULL,
+    row_by_choices = NULL,
+    collapse_method_choices = c(Mean = "mean",
+                                Minimum = "min",
+                                Maximum = "max",
+                                "First Row" = "dplyr::first",
+                                "Last Row" = "dplyr::last"),
 
-                              intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
-                              receiver_id = NULL) {
+    intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
+    receiver_id = NULL
+) {
 
-  all_stats <- names(stats_functions)
-  fmt_stats <- unlist(lapply(stats_formats, \(sublist) sublist[-1]), use.names = FALSE)
+  # Extract function names from formats
+  fmt_stats <- stats_formats |>
+    lapply(\(sublist) sublist[-1]) |>
+    unlist(use.names = FALSE) |>
+    sub("\\.[0-9]+$", "", x = _) |>
+    unique()
 
-  unfmt_stats <- setdiff(all_stats, fmt_stats)
+  unfmt_stats <- setdiff(names(stats_functions), fmt_stats)
 
   choices_stats <- c(names(stats_formats), unfmt_stats)
 
@@ -1010,13 +1112,12 @@ mod_summary_table <- function(module_id,
 
   names(choices_stats) <- stats_choices_labels
 
-  #browser()
-
   mod <- list(
     ui = function(module_id) {
       summary_table_ui(module_id,
                        default_total = default_total,
                        default_drop_na = default_drop_na,
+                       default_show_category_n = default_show_category_n,
                        default_denom = default_denom,
                        default_stats = choices_stats,
                        collapse_method_choices = collapse_method_choices,
@@ -1082,61 +1183,20 @@ mock_summary_table_mm <- function() {
       pharmaverseadam = list(adlb = adlb, adsl = adsl)
     ),
     module_list = list(
-      "foobar" = mod_summary_table(
-        module_id = "foobar",
-        table_dataset_name = "adsl",
-        pop_dataset_name = "adsl",
-        default_summarize_on = c("EOSSTT"),
-        default_group_by = c("TRT01P"),
-        default_row_by = NULL,
-        default_total = FALSE,
-        default_drop_na = TRUE
-      ),
-      "Disposition Summary" = mod_summary_table(
-        module_id = "ds_summtab",
-        table_dataset_name = "adsl",
-        pop_dataset_name = "adsl",
-        default_summarize_on = c("EOSSTT", "DTHCAUS", "SAFFL"),
-        default_group_by = c("TRT01P"),
-        default_row_by = NULL,
-        default_drop_na = TRUE,
-        receiver_id = "papo"
-      ),
+      # "Disposition Summary" = mod_summary_table(
+      #   module_id = "ds_summtab",
+      #   table_dataset_name = "adsl",
+      #   pop_dataset_name = "adsl",
+      #   default_summarize_on = c("EOSSTT", "DTHCAUS", "SAFFL"),
+      #   default_group_by = c("TRT01P"),
+      #   default_row_by = NULL,
+      #   default_drop_na = TRUE,
+      #   receiver_id = "papo"
+      # ),
       "Demography Summary" = mod_summary_table(
         module_id = "dm_summtab",
         table_dataset_name = "adsl",
         pop_dataset_name = "adsl",
-
-        stats_functions = list(n = length,
-                               mean = mean,
-                               sd = stats::sd,
-                               geomean = \(x) exp(mean(log(x))),
-                               median = stats::median,
-                               q1 = \(x) stats::quantile(x, 0.25),
-                               q3 = \(x) stats::quantile(x, 0.75),
-                               min = min,
-                               max = max),
-        stats_formats = list(n = list(fmt = "%d", "n"),
-                             meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
-                             geomean = list(fmt = "%.1f", "geomean"),
-                             median = list(fmt = "%.1f", "median"),
-                             q1q3 = list(fmt = "%.1f - %.1f", "q1", "q3"),
-                             minmax = list(fmt = "%.1f - %.1f", "min", "max")),
-        stats_labels = c(n = "n",
-                         meansd = "Mean (SD)",
-                         geomean = "Geometric Mean",
-                         median = "Median",
-                         q1q3 = "25% and 75%-ile",
-                         minmax = "Min - Max"),
-        stats_replace = list(n = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
-                             meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
-                                        `\\(NA\\)` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
-                             geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
-                             median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
-                             q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
-                             minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
-                             n_pct = c(`^0 \\(NA \\%\\)$` = "0")),
-
         default_summarize_on = c("AGE", "SEX", "RACE"),
         default_group_by = c("TRT01P"),
         default_row_by = NULL,
