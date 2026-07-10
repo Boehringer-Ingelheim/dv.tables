@@ -65,7 +65,7 @@ calc_stats <- function(analysis_df,
   results_list <- as.list(setNames(ifelse(stats_element_names == "n", 0, NA_real_), stats_element_names))
 
   # If grouping is empty then return with no subject identifiers
-  if (nrow(analysis_df) == 0) {
+  if (nrow(analysis_df) == 0L) {
     results_list[["subjid"]] <- list()
     return(list(results_list))
   }
@@ -95,12 +95,11 @@ calc_stats <- function(analysis_df,
       results_list[[stat_name]] <- f(x_vals, n = n_denom)
     } else {
       f_result <- f(x_vals)
-      if (length(f_result) == 1) {
+      if (length(f_result) == 1L) {
         results_list[[stat_name]] <- f_result
       } else {
-        #browser()
-        results_list[[paste0(stat_name, ".", "1")]] <- f_result[1]
-        results_list[[paste0(stat_name, ".", "2")]] <- f_result[2]
+        # For function with multiple results, assign the elements, <stat_name>.1, <stat_name>.2, etc.
+        results_list[paste0(stat_name, ".", seq_along(f_result))] <- f_result
       }
     }
 
@@ -137,7 +136,7 @@ format_stats <- function(analysis_df,
   stat_fmt_names <- names(stats_fmts)
   for (fmt_name in stat_fmt_names) {
     fmt <- stats_fmts[[fmt_name]]
-    for (i in 2:length(fmt)) {
+    for (i in 2L:length(fmt)) {
       statistic <- fmt[[i]]
       drop_stats <- c(drop_stats, statistic)
       fmt[[i]] <- analysis_df[[statistic]]
@@ -436,7 +435,7 @@ compute_summary_table <- function(tbl_df,
 
     flagged_df <- flagged_df |>
       dplyr::group_by(dplyr::across(dplyr::all_of(current_group))) |>
-      dplyr::mutate(!!first_col := dplyr::if_else(dplyr::row_number() == 1, TRUE, FALSE)) |>
+      dplyr::mutate(!!first_col := dplyr::if_else(dplyr::row_number() == 1L, TRUE, FALSE)) |>
       dplyr::ungroup()
   }
 
@@ -489,18 +488,10 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
 
   table <- shiny::tags[["table"]]
   th <- shiny::tags[["th"]]
-  # thc <- function(..., colspan = 1) {
-  #   if (colspan == 1) {
-  #     th(class = "text-center", style = "vertical-align: bottom; border-top: 1px solid white", ...)
-  #   } else {
-  #     th(class = "text-center", colspan = as.character(colspan),
-  #        style = "border-bottom: 1px solid black; border-right: 6px solid green", ...)
-  #   }
-  # }
-  thc <- function(..., colspan = 1, entry = FALSE) {
+  thc <- function(..., colspan = 1L, entry = FALSE) {
     if (entry) {
       th(class = "text-center", ...)
-    } else if (colspan == 1) {
+    } else if (colspan == 1L) {
       th(class = "text-center", style = "vertical-align: bottom;", ...)
     } else {
       th(class = "text-center short-border", colspan = as.character(colspan), ...)
@@ -555,7 +546,7 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
 
   title <- sprintf("Summary of %s%s; group by %s",
                    paste(anl_vars, collapse = ", "),
-                   ifelse(length(row_vars) == 0, "", paste("; row by", paste(row_vars, collapse = ", "))),
+                   ifelse(length(row_vars) == 0L, "", paste("; row by", paste(row_vars, collapse = ", "))),
                    paste(group_vars, collapse = ", "))
 
   aggregate_note <- if (collapse_flag) {
@@ -564,31 +555,16 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
     NULL
   }
 
-  # df[[entry_name_col]] <- local({
-  #   purrr::pmap_chr(
-  #     df[c(hierarchy, hier_lvl_col)], function(...) {
-  #       args <- list(...)
-  #       if (args[[hier_lvl_col]] == 0) {
-  #         return("Subjects with any event")
-  #       }
-  #       curr_lvl <- hierarchy[args[[hier_lvl_col]]]
-  #       curr_label <- as.character(args[[curr_lvl]])
-  #       curr_label
-  #     }
-  #   )
-  # })
-
   collapse_control <- shiny::icon("table", onclick = "ec_collapse(this)")
 
   empty_data_cells <- replicate(length(data_columns), td(), simplify = FALSE)
 
-  # body <- list()
   body <- vector(mode = "list", length = nrow(df))
   for (r in seq_len(nrow(df))) {
     curr_row <- df[r, , drop = FALSE]
 
     # Initialise indentation to zero
-    indent <- 0
+    indent <- 0L
 
     hier_rows <- vector(mode = "list", length = length(hierarchy))
     for (hier_i in seq_len(length(hierarchy))) {
@@ -605,7 +581,7 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
           title = curr_row[[hier_col]]
         ))
 
-        hier_classes <- if (indent == 0) indent_class else c(indent_class, "bg-gray")
+        hier_classes <- if (indent == 0L) indent_class else c(indent_class, "bg-gray")
 
         hier_rows[[hier_i]] <- tr(
           class = hier_classes,
@@ -617,7 +593,7 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
         hier_rows[[hier_i]] <- NULL
       }
 
-      indent <- indent + 1
+      indent <- indent + 1L
     }
 
     entry_cell <- td(shiny::span(
@@ -640,7 +616,6 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
       data_cells
     )
 
-    # body <- c(body, hier_rows, list(stat_row))
     body[[r]] <- shiny::tagList(
       !!!hier_rows,
       stat_row
@@ -667,13 +642,10 @@ summary_table_dep <- function() {
     name = "summary_table",
     version = "1.0",
     src = system.file("assets", package = "dv.tables", mustWork = TRUE),
-    # src = "assets",
     stylesheet = "css/summary_table.css",
     script = "js/hierarchical_count_table.js"
   )
 }
-
-
 
 
 #' UI for the summary table module
@@ -842,30 +814,29 @@ summary_table_server <- function(id,
       choices_stats <- inputs[[SUMMTAB$ID$STATS]]()
 
       pop_df <- pop_dataset()
-      tbl_df <- table_dataset() #|>
-        #dplyr::select(-dplyr::any_of(group_vars))
+      tbl_df <- table_dataset()
 
       selected_vars <- c(anl_vars, group_vars, row_vars)
 
       shiny::validate(
         shiny::need(
-          checkmate::test_data_frame(tbl_df, min.rows = 1),
+          checkmate::test_data_frame(tbl_df, min.rows = 1L),
           SUMMTAB$VALIDATE$NO_TABLE_ROWS
         ),
         shiny::need(
-          checkmate::test_data_frame(pop_df, min.rows = 1),
+          checkmate::test_data_frame(pop_df, min.rows = 1L),
           SUMMTAB$VALIDATE$NO_POP_ROWS
         ),
         shiny::need(
-          checkmate::test_character(anl_vars, min.chars = 1, min.len = 1, max.len = NULL),
+          checkmate::test_character(anl_vars, min.chars = 1L, min.len = 1L, max.len = NULL),
           SUMMTAB$VALIDATE$NO_ANL_VARS
         ),
         shiny::need(
-          checkmate::test_character(group_vars, min.chars = 1, min.len = 1, max.len = NULL),
+          checkmate::test_character(group_vars, min.chars = 1L, min.len = 1L, max.len = NULL),
           SUMMTAB$VALIDATE$NO_GROUP_VARS
         ),
         shiny::need(
-          checkmate::test_character(row_vars, min.chars = 1, min.len = 0, max.len = 8),
+          checkmate::test_character(row_vars, min.chars = 1L, min.len = 0L, max.len = 8L),
           SUMMTAB$VALIDATE$TOO_MANY_ROW_VARS
         ),
         shiny::need(
@@ -874,7 +845,7 @@ summary_table_server <- function(id,
         ),
         shiny::need(
           all(sapply(tbl_df[anl_vars], \(x) !is.numeric(x))) ||
-            checkmate::test_character(choices_stats, min.chars = 1, min.len = 1, max.len = NULL),
+            checkmate::test_character(choices_stats, min.chars = 1L, min.len = 1L, max.len = NULL),
           SUMMTAB$VALIDATE$NO_STATS
         )
       )
@@ -946,7 +917,7 @@ summary_table_server <- function(id,
 
       # Start a progress bar and leave its cleanup to the `input[[EC$ID$RENDER_COMPLETION_CALLBACK]]` observer
       p <- shiny::Progress$new(session = session)
-      table_progress_bars[[length(table_progress_bars) + 1]] <<- p
+      table_progress_bars[[length(table_progress_bars) + 1L]] <<- p
       on.exit(p$inc(amount = 0.3))
       p$set(message = "2) Generating & Rendering Table", value = 0.2)
 
@@ -970,15 +941,15 @@ summary_table_server <- function(id,
         # }
 
         # Only run when subjects defined in the cell
-        if (length(subj_ids) > 0) {
+        if (length(subj_ids) > 0L) {
 
           # Ensure that non-breaking spaces are converted back to ordinary spaces
           subj_ids <- gsub("\u00A0", " ", subj_ids)
 
-          id_elements <- vector(mode = "list", length = (length(subj_ids) * 2) - 1)
+          id_elements <- vector(mode = "list", length = (length(subj_ids) * 2L) - 1L)
           for (idx in seq_along(subj_ids)) {
-            link_idx <- (idx * 2) - 1
-            comma_idx <- link_idx + 1
+            link_idx <- (idx * 2L) - 1L
+            comma_idx <- link_idx + 1L
             id_elements[[link_idx]] <- shiny::a(subj_ids[[idx]], "data-id" = subj_ids[[idx]])
             if (idx < length(subj_ids)) id_elements[[comma_idx]] <- ","
           }
@@ -1000,14 +971,14 @@ summary_table_server <- function(id,
 
     # Jumping and communication
     shiny::observeEvent(input[["clicked_sbj"]], {
-      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1L, null.ok = FALSE))
       shiny::removeModal()
       on_sbj_click_fun()
     })
 
     res <- list(
       subj_id = shiny::reactive({
-        shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+        shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1L, null.ok = FALSE))
         input[["clicked_sbj"]]
       })
     )
@@ -1032,13 +1003,13 @@ mod_summary_table <- function(
       n = length,
       mean = mean,
       sd = stats::sd,
-      meanci = \(x) if (length(x) > 1) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2),
+      meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
       geomean = \(x) exp(mean(log(x))),
       median = stats::median,
-      medianci = \(x) if (length(x) > 1) stats::wilcox.test(x,
-                                                            exact = FALSE,
-                                                            conf.int = TRUE,
-                                                            conf.level = 0.95)$conf.int else rep(NA_real_, 2),
+      medianci = \(x) if (length(x) > 1L) stats::wilcox.test(x,
+                                                             exact = FALSE,
+                                                             conf.int = TRUE,
+                                                             conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
       q1 = \(x) stats::quantile(x, 0.25),
       q3 = \(x) stats::quantile(x, 0.75),
       min = min,
@@ -1162,37 +1133,29 @@ mod_summary_table <- function(
 
 mock_summary_table_mm <- function() {
 
+  adsl <- pharmaverseadam::adsl
   adlb <- pharmaverseadam::adlb |>
     dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
                   .data[["AVISITN"]] %in% c(0, 4, 5, 7))
-  adsl <- pharmaverseadam::adsl
 
-  attr(adlb, "meta") <- base::file.info("NEWS.md")
   attr(adsl, "meta") <- base::file.info("NEWS.md")
-
-  # adlb <- pharmaverseadam::adlb |>
-  #   dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP"),
-  #                 .data[["AVISITN"]] %in% c(0),
-  #                 .data[["RACE"]] == "WHITE",
-  #                 .data[["SEX"]] == "F")
-  # adsl <- pharmaverseadam::adsl |>
-  #   dplyr::filter(.data[["SEX"]] == "F")
+  attr(adlb, "meta") <- base::file.info("NEWS.md")
 
   dv.manager::run_app(
     data = list(
-      pharmaverseadam = list(adlb = adlb, adsl = adsl)
+      pharmaverseadam = list(adsl = adsl, adlb = adlb)
     ),
     module_list = list(
-      # "Disposition Summary" = mod_summary_table(
-      #   module_id = "ds_summtab",
-      #   table_dataset_name = "adsl",
-      #   pop_dataset_name = "adsl",
-      #   default_summarize_on = c("EOSSTT", "DTHCAUS", "SAFFL"),
-      #   default_group_by = c("TRT01P"),
-      #   default_row_by = NULL,
-      #   default_drop_na = TRUE,
-      #   receiver_id = "papo"
-      # ),
+      "Disposition Summary" = mod_summary_table(
+        module_id = "ds_summtab",
+        table_dataset_name = "adsl",
+        pop_dataset_name = "adsl",
+        default_summarize_on = c("EOSSTT", "DTHCAUS", "SAFFL"),
+        default_group_by = c("TRT01P"),
+        default_row_by = NULL,
+        default_drop_na = TRUE,
+        receiver_id = "papo"
+      ),
       "Demography Summary" = mod_summary_table(
         module_id = "dm_summtab",
         table_dataset_name = "adsl",
