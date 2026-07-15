@@ -477,7 +477,7 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
   split_data_columns <- strsplit(data_columns, split = SUMMTAB$VAL$SPECIAL_CHAR, fixed = TRUE)
 
   header_rows <- vector(mode = "list", length = length(group_vars))
-  for (head_i in seq_len(length(group_vars))) {
+  for (head_i in seq_along(group_vars)) {
 
     extracted_headers <- rle(purrr::map_chr(split_data_columns, ~ .x[head_i]))[["values"]]
 
@@ -520,7 +520,7 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
     indent <- 0L
 
     hier_rows <- vector(mode = "list", length = length(hierarchy))
-    for (hier_i in seq_len(length(hierarchy))) {
+    for (hier_i in seq_along(hierarchy)) {
       hier_col <- hierarchy[hier_i]
       flag_col <- flag_columns[hier_i]
 
