@@ -1154,7 +1154,7 @@ hierarchical_count_table_server <- function(
           EC$MSG$VALIDATE$NO_CENSOR_DATE
         ),
         shiny::need(
-          !checkmate::test_choice(event_group_var, hierarchy, null.ok = TRUE),
+          !checkmate::test_choice(event_group_var, hierarchy, null.ok = FALSE),
           EC$MSG$VALIDATE$EVENT_GRP_CLASH
         )
       )
