@@ -44,7 +44,6 @@ SUMMTAB <- poc(
 )
 
 meta_env <- new.env()
-# calc_pct <- function(x, n) 100 * length(x) / n
 
 calc_stats <- function(analysis_df,
                        subjid_var,
@@ -137,7 +136,7 @@ format_stats <- function(analysis_df,
 
     lookups <- replace[[fmt_name]]
     if (!is.null(lookups)) {
-      for (lui in seq_len(length(lookups))) {
+      for (lui in seq_along(lookups)) {
         lu_pat <- names(lookups)[lui]
         lu_rep <- lookups[[lui]]
         formatted_df[[fmt_name]] <- sub(lu_pat, lu_rep, formatted_df[[fmt_name]])
@@ -450,11 +449,6 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
 
-  # captured_lines <- capture.output(print(df, n = 500))
-  # collapsed_text <- paste(captured_lines, collapse = "\n")
-  #
-  # return(shiny::pre(collapsed_text))
-
   table <- shiny::tags[["table"]]
   th <- shiny::tags[["th"]]
   thc <- function(..., colspan = 1L, entry = FALSE) {
@@ -474,18 +468,11 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
   internal_columns <- df_names[startsWith(df_names, SUMMTAB$VAL$SPECIAL_CHAR)]
   data_columns <- df_names[!df_names %in% c(row_vars, internal_columns)]
 
-  # # Replace spaces with non-breaking spaces to avoid columns being squashed in display
-  # df[data_columns] <- rapply(df[data_columns],
-  #                            function(.x) gsub(" ", "\u00A0", .x),
-  #                            classes = "character",
-  #                            how = "replace")
-
   # Prepare denominator look-up
   n_denominator <- denom_df[[".N"]]
   names(n_denominator) <- denom_df[[".lookup"]]
 
   entry_header <- ""
-  #entry_header <- shiny::span("", shiny::br(), "")    # HEIGHT OF 2 LINES
 
   split_data_columns <- strsplit(data_columns, split = SUMMTAB$VAL$SPECIAL_CHAR, fixed = TRUE)
 
@@ -505,7 +492,6 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
     }
 
     header_rows[[head_i]] <- tr(
-      #class = "no-border",
       thc(entry_header, entry = TRUE),
       purrr::map(data_headers, thc, colspan = n_cols)
     )
@@ -897,7 +883,6 @@ summary_table_server <- function(module_id,
 
       rendered_content <- build_html_table(summtab, on_cell_click)
 
-      #rendered_content
       shiny::tagList(rendered_content, render_completion_callback)
     })
 
@@ -1124,10 +1109,7 @@ mod_summary_table <- function(
       meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
       geomean = \(x) if (all(x > 0)) exp(mean(log(x))) else NaN,
       median = stats::median,
-      medianci = \(x) if (length(x) > 1L) stats::wilcox.test(x,
-                                                             exact = FALSE,
-                                                             conf.int = TRUE,
-                                                             conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+      medianci = \(x) if (length(x) > 1L) stats::wilcox.test(x, exact = FALSE, conf.int = TRUE, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
       q1q3 = \(x) stats::quantile(x, c(0.25, 0.75)),
       min = min,
       max = max
