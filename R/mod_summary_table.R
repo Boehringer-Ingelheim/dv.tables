@@ -50,19 +50,14 @@ calc_stats <- function(analysis_df,
                        subjid_var,
                        anl_var,
                        stats_functions,
-                       stats_element_names,
                        collapse_func_name,
                        denom = "N") {
-
-  #return(list(list(n = 99, pct = 5.5, subjid = list("123")  )))
-
-  # ADD ARG CHECKS HERE!!!
 
   # Get Big N from analysis data
   meta_env$N <- analysis_df[[".N"]][1]
 
-  # Initialise a results list at its final size with default values
-  results_list <- as.list(setNames(ifelse(stats_element_names == "n", 0, NA_real_), stats_element_names))
+  # Initialise a results list
+  results_list <- list()
 
   # If grouping is empty then return with no subject identifiers
   if (nrow(analysis_df) == 0L) {
@@ -113,8 +108,6 @@ calc_stats <- function(analysis_df,
     }
   }
 
-  #browser()
-
   # Get subject identifiers
   results_list[["subjid"]] <- as.list(as.character(filter_df[[subjid_var]]))
 
@@ -130,8 +123,6 @@ format_stats <- function(analysis_df,
 
   formatted_df <- analysis_df
   drop_stats <- character()
-
-  # TODO: CHECK THAT STATS WITHIN FORMATS EXIST!!!!!
 
   stat_fmt_names <- names(stats_fmts)
   for (fmt_name in stat_fmt_names) {
@@ -266,20 +257,6 @@ compute_summary_table <- function(tbl_df,
 
     dplyr::mutate(.dummy = 1)
 
-  #browser()
-
-  # Extract statistics elements from formats
-  fmt_stats_elems <- stats_formats |>
-    lapply(\(sublist) sublist[-1]) |>
-    unlist(use.names = FALSE) |>
-    unique()
-
-  fmt_stats_names <- fmt_stats_elems |>
-    sub("\\.[0-9]+$", "", x = _) |>
-    unique()
-
-  stats_elems <- c(fmt_stats_elems, setdiff(names(stats_functions), fmt_stats_names))
-
   # Initialise list to hold results for each analysis variable
   results_list <- list()
 
@@ -298,11 +275,7 @@ compute_summary_table <- function(tbl_df,
 
       av_stats_funcs <- stats_functions
       av_stats_fmts <- stats_formats
-      av_stats_elems <- stats_elems
-
-      # multi_stats_names <- fmt_stats_elems[grep("\\.[0-9]+$", fmt_stats_elems)] |>
-      #   sub("\\.[0-9]+$", x = _) |>
-      #   unique()
+      av_stats_replace <- stats_replace
 
       group_by_vars <- c(group_vars, row_vars)
       av_mod <- av
@@ -318,7 +291,7 @@ compute_summary_table <- function(tbl_df,
       av_stats_funcs <- list(n = length,
                              pct = \(x, n) 100 * length(x) / n) # calc_pct)
       av_stats_fmts <- list(n_pct = list(fmt = "%d (%.1f %%)", "n", "pct"))
-      av_stats_elems <- c("n", "pct")
+      av_stats_replace <- list(n_pct = c(`^NA \\(NA \\%\\)$` = "0"))
 
       group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
       av_mod <- ".dummy" # Counts done on dummy variable
@@ -344,7 +317,6 @@ compute_summary_table <- function(tbl_df,
         subjid_var = subjid_var,
         anl_var = av_mod,
         stats_functions = av_stats_funcs,
-        stats_element_names = av_stats_elems,
         collapse_func_name = collapse_func_name,
         denom = denom
       ), .groups = "keep") |>
@@ -354,18 +326,16 @@ compute_summary_table <- function(tbl_df,
     # Extract statistics from their single column lists into their own columns
     av_df <- tidyr::unnest_wider(av_df, tidyr::all_of(".stats"))
 
+    # Capture all statistics columns calculated by `calc_stats()` including those prefixed with `.1`, `.2`, etc.
+    av_calc_stats_elems <- setdiff(names(av_df), c(group_by_vars, "subjid", anl_var))
+
     # Format statistics
     av_df <- format_stats(
       av_df,
       stats_fmts = av_stats_fmts,
-      replace = stats_replace,
-      stats_element_names = av_stats_elems
-      #stat_names = names(av_stats)
+      replace = av_stats_replace,
+      stats_element_names = av_calc_stats_elems
     )
-
-    # # Ensure any unformatted statistics are converted to character
-    # unformatted_stats <- intersect(names(av_df)[sapply(av_df, is.numeric)], names(stats_functions))
-    # av_df[unformatted_stats] <- lapply(av_df[unformatted_stats], as.character)
 
     stat_cols <- setdiff(names(av_df), c(group_by_vars, anl_var, "subjid"))
 
@@ -392,8 +362,8 @@ compute_summary_table <- function(tbl_df,
     }
 
     # Replace names of statistics with their corresponding labels (for numeric analysis variables)
-    if (is_anl_var_num) {
-      labelled_stats <- stats_labels[av_df[[stat_col]]]
+    if (is_anl_var_num && !is.null(stats_labels)) {
+      labelled_stats <- unname(stats_labels[av_df[[stat_col]]])
       av_df[[stat_col]] <- ifelse(
         is.na(labelled_stats),
         av_df[[stat_col]],
@@ -419,7 +389,6 @@ compute_summary_table <- function(tbl_df,
     names_sep = SUMMTAB$VAL$SPECIAL_CHAR,
     names_expand = TRUE,
     values_from = dplyr::all_of(".val")
-    # values_fill = list("????") # THIS DOES NOT SEEM NECESSARY!!!
   )
 
   # Create a list of expanding groups
@@ -519,8 +488,6 @@ build_html_table <- function(summtab_list, on_cell_click = NULL) {
   #entry_header <- shiny::span("", shiny::br(), "")    # HEIGHT OF 2 LINES
 
   split_data_columns <- strsplit(data_columns, split = SUMMTAB$VAL$SPECIAL_CHAR, fixed = TRUE)
-
-  #browser()
 
   header_rows <- vector(mode = "list", length = length(group_vars))
   for (head_i in seq_len(length(group_vars))) {
@@ -659,17 +626,17 @@ summary_table_dep <- function() {
 #' @keywords main
 #'
 #' @export
-summary_table_ui <- function(id,
+summary_table_ui <- function(module_id,
                              default_total = TRUE,
                              default_drop_na = FALSE,
                              default_show_category_n = TRUE,
                              default_denom = "N",
-                             default_collapse_method = "mean",
-                             default_stats = "n",
-                             collapse_method_choices = c(Mean = "mean", Minimum = "min", Maximum = "max"),
-                             choices_stats = c("n", "Mean (SD)", "Min - Max")) {
+                             default_stats = NULL,
+                             default_collapse_method = NULL,
+                             collapse_method_choices = NULL,
+                             choices_stats = NULL) {
 
-  ns <- shiny::NS(id)
+  ns <- shiny::NS(module_id)
 
   drop_menu_cols <- shinyWidgets::dropMenu(
     tag = shiny::actionButton(
@@ -716,16 +683,26 @@ summary_table_ui <- function(id,
 #'
 #' @inheritParams mod_summary_table
 #'
-#' @param id `[character(0)]`
+#' @param table_dataset `[data.frame]`
 #'
-#' The ID for the event count module instance.
+#' A reactive dataset containing the event data.
 #'
-#' @return ??? A reactive value containing the list of subjects in the clicked cell, if applicable.
+#' @param pop_dataset `[data.frame]`
+#'
+#' A reactive dataset containing the population data.
+#'
+#' @param on_sbj_click_fun `[function]`
+#'
+#' Function to invoke when a subject is clicked.
+#'
+#' @inheritParams mod_summary_table
+#'
+#' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
 #'
 #' @keywords main
 #'
 #' @export
-summary_table_server <- function(id,
+summary_table_server <- function(module_id,
                                  table_dataset,
                                  pop_dataset,
                                  subjid_var,
@@ -742,8 +719,7 @@ summary_table_server <- function(id,
                                  default_row_by = NULL,
                                  summarize_on_choices = NULL,
                                  group_by_choices = NULL,
-                                 row_by_choices = NULL,
-                                 intended_use_label = NULL) {
+                                 row_by_choices = NULL) {
 
   mod <- function(input, output, session) {
 
@@ -756,7 +732,7 @@ summary_table_server <- function(id,
       data = table_dataset,
       label = SUMMTAB$LBL$ANL_VARS,
       include_func = function(var, var_name) {
-        !inherits(var, "Date") && !inherits(var, "POSIXt") &&
+        !inherits(var, "Date") && !inherits(var, "POSIXt") && var_name != subjid_var &&
           (is.null(summarize_on_choices) || var_name %in% summarize_on_choices)
       },
       default = default_summarize_on,
@@ -860,8 +836,6 @@ summary_table_server <- function(id,
         sub("\\.[0-9]+$", "", x = _) |>
         unique()
 
-      #browser()
-
       choices_unfmt_stats <- setdiff(choices_stats, names(stats_formats_subset))
       stats_functions_subset <- stats_functions[c(choices_fmt_stats, choices_unfmt_stats)]
 
@@ -933,12 +907,6 @@ summary_table_server <- function(id,
         col <- input[["cell_click"]][["column"]]
 
         subj_ids <- summtab()[["df"]][[col]][[row]][["subjid"]]
-        # if (grepl(SUMMTAB$VAL$SPECIAL_CHAR, col, fixed = TRUE)) {
-        #   nested_cols <- strsplit(col, EC$VAL$SPECIAL_CHAR, fixed = TRUE)[[1]]
-        #   subj_ids <- et()[["df"]][[nested_cols[1]]][[row]][[nested_cols[2]]][["subjid"]]
-        # } else {
-        #   subj_ids <- et()[["df"]][[col]][[row]][["subjid"]]
-        # }
 
         # Only run when subjects defined in the cell
         if (length(subj_ids) > 0L) {
@@ -988,10 +956,160 @@ summary_table_server <- function(id,
     res
   }
 
-  shiny::moduleServer(id = id, module = mod)
+  shiny::moduleServer(id = module_id, module = mod)
 }
 
 
+#' Summary Table Module
+#'
+#' @param module_id `[character(1)]`
+#'
+#' A string that serves as a unique identifier for the module.
+#'
+#' @param table_dataset_name `[character(1)]`
+#'
+#' The name of the analysis dataset to be summarized. This can be the same as the population dataset.
+#'
+#' @param pop_dataset_name `[character(1)]`
+#'
+#' The name of the population dataset. Typically this will have one row per subject, but multiple rows per subject is
+#' also valid for summarizing data where a subject may appear in more than one grouping, e.g. for crossover trials
+#' where a subject can take different treatments in different phases, or for population flag summaries (pre-processing
+#' of CDISC subject-level data would be required to transpose the flags to a grouping column).
+#'
+#' @param subjid_var `[character(1)]`
+#'
+#' A string representing the subject identifier column in both datasets.
+#'
+#' @param show_modal_on_click `[logical(1)]`
+#'
+#' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
+#'
+#' @param stats_functions `[list(1+) | NULL]`
+#'
+#' A named list defining the functions used for summarizing numerical data. The functions must either return a single
+#' numeric value (e.g. `mean`, `stats::sd`, etc.) or a vector of numeric values (e.g. `\(x) stats::quantile(x, c(0.25, 0.75))`).
+#' Note that the functions will not be applied to empty groupings, but if a function requires more than one data point
+#' (e.g. `stats::t.test`) then the error cases must be dealt with using a wrapper function; see module documentation for
+#' further information.
+#'
+#' @param stats_formats `[list(1+) | NULL]`
+#'
+#' A named list of lists defining the combination and formatting of the function results from summarizing numerical data.
+#' Each element lists the argument values passed to `sprintf`, the result being assigned to the element name (internally
+#' corresponding to an interim results data frame column name). The names from the list elements of `stats_functions`
+#' correspond to column names that can be used in the `sprintf` arguments, but note that if a function returns more than
+#' one value, those values must be referred to using a dot followed by an integer suffix, e.g. if the function named
+#' `meanci` returns two values then use `"meanci.1"`, and `"meanci.2"`. The name of each element list should be a
+#' keyword conveying the meaning of the combined statistics, e.g. `minmax` for the minimum to maximum range. The name
+#' can also be the same as the name from `stats_functions`, e.g. `meanci` for the mean confidence interval.
+#'
+#' Any results from functions given in `stats_functions` that do not appear in the formatting will be automatically
+#' formatted as character.
+#'
+#' @param stats_labels `[list(1+) | NULL]`
+#'
+#' A named vector of statistics labels that should be used in the summary table. The names correspond to the names
+#' assigned in the `stats_formats` list, or otherwise the names in the `stats_functions` list.
+#'
+#' Labels apply to UI statistics checkbox labels and table statistics labels. Note that if a function defined in
+#' `stats_functions` returns more than one value, e.g. `stats::quantile`, and those values are not combined in
+#' `stats_formats`, then they appear separately in the table statistics, but the UI statistics checkbox will reflect the
+#' name given to the function definition. Labels can be applied to both cases; see module documentation for
+#' further information.
+#'
+#' @param stats_replace `[list(1+) | NULL]`
+#'
+#' A named list of named vectors defining replacements that should be applied to the formatted results from
+#' `stats_formats`. The names given to the vector elements are regular expressions to match the formatted results, and
+#' the elements themselves are the replacement strings. The names of the list elements should match the names of the
+#' list elements in `stats_formats`.
+#'
+#' @param default_summarize_on `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the analysis dataset, used as the default for selected variables to summarize on
+#' (optional).
+#'
+#' @param default_group_by `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the population dataset, used as the default for selected variables to group by
+#' (optional).
+#'
+#' @param default_row_by `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the dataset specified by `table_dataset_name`, used as the default for selected
+#' variables to categorize on (optional).
+#'
+#' @param default_total `[logical(1)]`
+#'
+#' A flag specifying the default value for the checkbox that determines whether to add a total group column.
+#'
+#' @param default_drop_na `[logical(1)]`
+#'
+#' A flag specifying the default value for the checkbox that determines whether to drop NA values from selected
+#' 'group by' and 'row by' variables.
+#'
+#' @param default_show_category_n `[logical(1)]`
+#'
+#' A flag specifying the default value for the checkbox that determines whether to show the 'n' category when
+#' summarizing categorical data.
+#'
+#' @param default_denom `["N" | "n"]`
+#'
+#' A string, either "N" or "n", indicating the default of whether the denominator for categorical data should be taken
+#' as the number of subjects from the population grouping ("N") or the number of subjects from the 'row by' grouping for
+#' each population grouping ("n"). If the user selects to drop `NA` values then those values will be excluded from
+#' determining the "n" denominator.
+#'
+#' @param default_stats `[character(1+) | NULL]`
+#'
+#' A vector of strings from the names of the list elements in `stats_formats` or `stats_functions`, used as the default
+#' selection of statistics for summarizing numerical data.
+#'
+#' @param default_collapse_method `[character(1)]`
+#'
+#' A string indicating the name of the function to use as the default for collapsing (aka aggregating) rows when more
+#' than one row per subject exists after population grouping and row categorization has been applied. The function is
+#' applied to the analysis variable. The double colon (`::`) namespace resolution operator can be used to specify
+#' a function from a specific package, e.g., `"dplyr::first"`.
+#'
+#' @param summarize_on_choices `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
+#' on (optional). If it is not specified then all variables from the analysis dataset, excluding `Date` and `POSIXt`
+#' class variables, will be used.
+#'
+#' @param group_by_choices `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
+#' (optional). If it is not specified then all factor and character variables from the population dataset will be used.
+#'
+#' @param row_by_choices `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
+#' on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.
+#'
+#' @param collapse_method_choices `[character(1+) | NULL]`
+#'
+#' A vector of strings indicating the names of functions that can be used for collapsing (aka aggregating) rows when
+#' more than one row per subject exists after population grouping and row categorization has been applied. The double
+#' colon (`::`) namespace resolution operator can be used to specify functions from specific packages, e.g.,
+#' `"dplyr::first"`.
+#'
+#' @param receiver_id `[character(1) | NULL]`
+#'
+#' Unique identifier for the module receiving the selected subject ID in the data listing. This ID must be present in
+#' the app or be NULL.
+#'
+#' @return A list containing the following elements to be used by the \pkg{dv.manager}:
+#' \itemize{
+#'   \item{`ui`}: Shiny module UI function.
+#'   \item{`server`}: Shiny module server function.
+#'   \item{`module_id`}: Shiny module unique identifier.
+#' }
+#'
+#' @keywords main
+#' @export
 mod_summary_table <- function(
     module_id,
     table_dataset_name,
@@ -1004,14 +1122,13 @@ mod_summary_table <- function(
       mean = mean,
       sd = stats::sd,
       meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
-      geomean = \(x) exp(mean(log(x))),
+      geomean = \(x) if (all(x > 0)) exp(mean(log(x))) else NaN,
       median = stats::median,
       medianci = \(x) if (length(x) > 1L) stats::wilcox.test(x,
                                                              exact = FALSE,
                                                              conf.int = TRUE,
                                                              conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
-      q1 = \(x) stats::quantile(x, 0.25),
-      q3 = \(x) stats::quantile(x, 0.75),
+      q1q3 = \(x) stats::quantile(x, c(0.25, 0.75)),
       min = min,
       max = max
     ),
@@ -1021,7 +1138,7 @@ mod_summary_table <- function(
                          geomean = list(fmt = "%.1f", "geomean"),
                          median = list(fmt = "%.1f", "median"),
                          medianci = list(fmt = "(%.2f, %.2f)", "medianci.1", "medianci.2"),
-                         q1q3 = list(fmt = "%.1f - %.1f", "q1", "q3"),
+                         q1q3 = list(fmt = "%.1f - %.1f", "q1q3.1", "q1q3.2"),
                          minmax = list(fmt = "%.1f - %.1f", "min", "max")),
     stats_labels = c(n = "n",
                      meansd = "Mean (SD)",
@@ -1031,16 +1148,17 @@ mod_summary_table <- function(
                      medianci = "Median 95% CI",
                      q1q3 = "25% and 75%-ile",
                      minmax = "Min - Max"),
-    stats_replace = list(n = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+    stats_replace = list(n = c(`^NA$` = "0"),
                          meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
-                                    `\\(NA\\)` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
+                                    `\\(NA\\)$` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
                          meanci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
-                         geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+                         geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH,
+                                     `^NaN$` = "NE"),
                          median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
                          medianci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
                          q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
                          minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
-                         n_pct = c(`^0 \\(NA \\%\\)$` = "0")),
+                         n_pct = c(`^NA \\(NA \\%\\)$` = "0")),
 
     default_summarize_on = NULL,
     default_group_by = NULL,
@@ -1049,6 +1167,7 @@ mod_summary_table <- function(
     default_drop_na = FALSE,
     default_show_category_n = TRUE,
     default_denom = "N",
+    default_stats = c("n", "meansd", "minmax"),
     default_collapse_method = "mean",
 
     summarize_on_choices = NULL,
@@ -1060,28 +1179,48 @@ mod_summary_table <- function(
                                 "First Row" = "dplyr::first",
                                 "Last Row" = "dplyr::last"),
 
-    intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
     receiver_id = NULL
 ) {
 
-  # Extract function names from formats
-  fmt_stats <- stats_formats |>
-    lapply(\(sublist) sublist[-1]) |>
-    unlist(use.names = FALSE) |>
-    sub("\\.[0-9]+$", "", x = _) |>
-    unique()
+  if (!is.null(stats_functions) && length(stats_functions) > 0) {
 
-  unfmt_stats <- setdiff(names(stats_functions), fmt_stats)
+    if (!is.null(stats_formats) && length(stats_formats) > 0) {
 
-  choices_stats <- c(names(stats_formats), unfmt_stats)
+      # Names of functions used by formats
+      fmt_func_names <- stats_formats |>
+        lapply(\(sublist) unlist(sublist[-1])) |>
+        lapply(\(x) sub("\\.[0-9]+$", "", x))
 
-  stats_choices_labels <- ifelse(
-    choices_stats %in% names(stats_labels),
-    stats_labels[choices_stats],
-    choices_stats
-  )
+      # Valid formats (all functions defined in `stats_functions`)
+      fmt_match <- fmt_func_names |>
+        sapply(\(x) all(x %in% names(stats_functions)))
 
-  names(choices_stats) <- stats_choices_labels
+      # Names of functions used by valid formats
+      fmt_func_names_subset <- unlist(fmt_func_names[fmt_match], use.names = FALSE)
+
+      # Names of functions that have not been formatted
+      unfmt_func_names <- setdiff(names(stats_functions), fmt_func_names_subset)
+
+      # Names of valid formats
+      valid_fmt_names <- names(stats_formats)[fmt_match]
+
+      # Final choices from valid format names and unformatted functions
+      choices_stats <- c(valid_fmt_names, unfmt_func_names)
+    } else {
+      # All statistics functions unformatted
+      choices_stats <- names(stats_functions)
+    }
+
+    stats_choices_labels <- ifelse(
+      choices_stats %in% names(stats_labels),
+      stats_labels[choices_stats],
+      choices_stats
+    )
+
+    names(choices_stats) <- stats_choices_labels
+  } else {
+    choices_stats <- NULL
+  }
 
   mod <- list(
     ui = function(module_id) {
@@ -1090,7 +1229,8 @@ mod_summary_table <- function(
                        default_drop_na = default_drop_na,
                        default_show_category_n = default_show_category_n,
                        default_denom = default_denom,
-                       default_stats = choices_stats,
+                       default_collapse_method = default_collapse_method,
+                       default_stats = default_stats,
                        collapse_method_choices = collapse_method_choices,
                        choices_stats = choices_stats)
     },
@@ -1121,8 +1261,7 @@ mod_summary_table <- function(
                            default_row_by = default_row_by,
                            summarize_on_choices = summarize_on_choices,
                            group_by_choices = group_by_choices,
-                           row_by_choices = row_by_choices,
-                           intended_use_label = intended_use_label)
+                           row_by_choices = row_by_choices)
     },
     module_id = module_id
   )
@@ -1146,6 +1285,15 @@ mock_summary_table_mm <- function() {
       pharmaverseadam = list(adsl = adsl, adlb = adlb)
     ),
     module_list = list(
+      "Demography Summary" = mod_summary_table(
+        module_id = "dm_summtab",
+        table_dataset_name = "adsl",
+        pop_dataset_name = "adsl",
+        default_summarize_on = c("AGE", "SEX", "RACE"),
+        default_group_by = c("TRT01P"),
+        default_row_by = NULL,
+        receiver_id = "papo"
+      ),
       "Disposition Summary" = mod_summary_table(
         module_id = "ds_summtab",
         table_dataset_name = "adsl",
@@ -1154,15 +1302,6 @@ mock_summary_table_mm <- function() {
         default_group_by = c("TRT01P"),
         default_row_by = NULL,
         default_drop_na = TRUE,
-        receiver_id = "papo"
-      ),
-      "Demography Summary" = mod_summary_table(
-        module_id = "dm_summtab",
-        table_dataset_name = "adsl",
-        pop_dataset_name = "adsl",
-        default_summarize_on = c("AGE", "SEX", "RACE"),
-        default_group_by = c("TRT01P"),
-        default_row_by = NULL,
         receiver_id = "papo"
       ),
       "Lab Summary" = mod_summary_table(
@@ -1179,7 +1318,7 @@ mock_summary_table_mm <- function() {
         module_id = "papo",
         subject_level_dataset_name = "adsl",
         subjid_var = "USUBJID",
-        sender_ids = c("ds_summtab", "dm_summtab", "lb_summtab"),
+        sender_ids = c("dm_summtab", "ds_summtab", "lb_summtab"),
         summary = list(vars = c("AGE", "SEX", "RACE", "ETHNIC", "ARM"),
                        column_count = 1)
       )
