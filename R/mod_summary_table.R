@@ -12,7 +12,8 @@ SUMMTAB <- poc(
     DENOM = "denom",
     COLLAPSE_METHOD = "collapse_method",
     STATS = "stats",
-    TBL_OUTPUT = "table_output"
+    TBL_OUTPUT = "table_output",
+    RENDER_COMPLETION_CALLBACK = "render_completion_callback"
   ),
   LBL = poc(
     TBL_OPTIONS = "Table Options",
@@ -43,17 +44,42 @@ SUMMTAB <- poc(
   )
 )
 
-meta_env <- new.env()
 
-calc_stats <- function(analysis_df,
-                       subjid_var,
-                       anl_var,
-                       stats_functions,
-                       collapse_func_name,
-                       denom = "N") {
+#' Metadata environment for summary table calculation
+#'
+#' This environment is used to temporarily store denominator values for percentage calculation across categories.
+#'
+#' @keywords internal
+summtab_meta_env <- new.env()
 
-  # Get Big N from analysis data
-  meta_env$N <- analysis_df[[".N"]][1]
+
+#' Calculate statistics for the "current" `dplyr::summarize` group
+#'
+#' Categorical data analysis (count and percentage of denominator) is signified by a dummy analysis variable, `.dummy`,
+#' where count is just the number of rows in the group. The denominator is stored in the environmental variable,
+#' `summtab_meta_env$n_denom`, during the processing of the first special total category group, and therefore is
+#' available to the subsequent processing of proper categories.
+#'
+#' @param analysis_df A data frame containing `dplyr::summarize` group rows from the analysis data frame.
+#' @param subjid_var A string representing the subject identifier column.
+#' @param anl_var A string representing the name of the analysis variable to calculate the statistics on. For
+#'   categorical analysis it should be `.dummy`.
+#' @param stats_functions A named list defining the functions used for summarizing the data.
+#' @param collapse_func_name A string representing the name of the function used to collapse multiple rows per subject into one.
+#' @param denom A string, either "N" or "n", indicating the denominator to use for percent (`pct`) calculation.
+#'
+#' @return A list containing:
+#' - `<stat>[.x]`, ...: One or more statistics calculated from `stats_functions`. The `<stat>` part matches the function
+#'   name. The optional `.x` (`.1`, `.2`, etc.) is used when the function returns multiple values.
+#' - `subjid`: A list of subject identifiers summarized in the group.
+#'
+#' @keywords internal
+summtab_calc_stats <- function(analysis_df,
+                               subjid_var,
+                               anl_var,
+                               stats_functions,
+                               collapse_func_name,
+                               denom = "N") {
 
   # Initialise a results list
   results_list <- list()
@@ -85,8 +111,7 @@ calc_stats <- function(analysis_df,
     f <- stats_functions[[stat_name]]
 
     if (stat_name == "pct") {
-      n_denom <- if (denom == "N") meta_env$N else meta_env$n
-      results_list[[stat_name]] <- f(x_vals, n = n_denom)
+      results_list[[stat_name]] <- f(x_vals, n = summtab_meta_env$n_denom)
     } else {
       f_result <- f(x_vals)
       if (length(f_result) == 1L) {
@@ -102,7 +127,7 @@ calc_stats <- function(analysis_df,
     if (anl_var == ".dummy") {
       group_df <- dplyr::cur_group()
       if (group_df[[ncol(group_df)]] == category_n) {
-        meta_env$n <- results_list[["n"]]
+        summtab_meta_env$n_denom <- if (denom == "N") analysis_df[[".N"]][1] else results_list[["n"]]
       }
     }
   }
@@ -114,11 +139,26 @@ calc_stats <- function(analysis_df,
 }
 
 
-# ========================================================================================================= format_stats
-format_stats <- function(analysis_df,
-                         stats_fmts,
-                         replace,
-                         stats_element_names) {
+#' Combine and format calculated statistics using provided templates
+#'
+#' @param analysis_df A data frame containing the analysis data with statistics elements in separate columns.
+#' @param stats_fmts A named list of lists defining the combination and formatting of the statistics elements from
+#'   `analysis_df`. Each element of `stats_fmts` lists the argument values passed to `sprintf`, the result being
+#'   assigned to the element name.
+#' @param replace A named list of named vectors defining replacements that should be applied to the formatted results
+#'   from `stats_fmts`. The names given to the vector elements are regular expressions to match the formatted results,
+#'   and the elements themselves are the replacement strings. The names of the list elements should match the names of
+#'   the list elements in `stats_fmts`.
+#' @param stats_element_names A vector of all statistics element names, used to determine elements that have not been
+#'   used in `stats_fmts` and therefore have basic formatting applied (conversion to character).
+#'
+#' @return A data frame of combined and formatted statistics.
+#'
+#' @keywords internal
+summtab_format_stats <- function(analysis_df,
+                                 stats_fmts,
+                                 replace,
+                                 stats_element_names) {
 
   formatted_df <- analysis_df
   drop_stats <- character()
@@ -159,25 +199,46 @@ format_stats <- function(analysis_df,
 }
 
 
-# ================================================================================================ compute_summary_table
-compute_summary_table <- function(tbl_df,
-                                  pop_df,
-                                  anl_vars = NULL,
-                                  group_vars = NULL,
-                                  row_vars = NULL,
-                                  subjid_var = NULL,
+#' summtab_compute
+#'
+#' @param tbl_df TDB
+#' @param pop_df TDB
+#' @param anl_vars TDB
+#' @param group_vars TDB
+#' @param row_vars TDB
+#' @param subjid_var TDB
+#' @param stats_functions TDB
+#' @param stats_formats TDB
+#' @param stats_labels TDB
+#' @param stats_replace TDB
+#' @param total TDB
+#' @param total_group_val TDB
+#' @param drop_na TDB
+#' @param show_category_n TDB
+#' @param denom TDB
+#' @param collapse_func_name TDB
+#'
+#' @return TBD
+#'
+#' @keywords internal
+summtab_compute <- function(tbl_df,
+                            pop_df,
+                            anl_vars = NULL,
+                            group_vars = NULL,
+                            row_vars = NULL,
+                            subjid_var = NULL,
 
-                                  stats_functions = NULL,
-                                  stats_formats = NULL,
-                                  stats_labels = NULL,
-                                  stats_replace = NULL,
+                            stats_functions = NULL,
+                            stats_formats = NULL,
+                            stats_labels = NULL,
+                            stats_replace = NULL,
 
-                                  total = NULL,
-                                  total_group_val = "Total",
-                                  drop_na = NULL,
-                                  show_category_n = NULL,
-                                  denom = NULL,
-                                  collapse_func_name = NULL) {
+                            total = NULL,
+                            total_group_val = "Total",
+                            drop_na = NULL,
+                            show_category_n = NULL,
+                            denom = NULL,
+                            collapse_func_name = NULL) {
 
   # NOTE: Early error feedback should check that pop_df is one row per subject per grouping
 
@@ -311,7 +372,7 @@ compute_summary_table <- function(tbl_df,
     av_df <- av_df |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_by_vars)), .drop = FALSE) |>
 
-      dplyr::summarise(.stats = calc_stats(
+      dplyr::summarise(.stats = summtab_calc_stats(
         dplyr::pick(dplyr::all_of(c(subjid_var, av_mod, ".N"))),
         subjid_var = subjid_var,
         anl_var = av_mod,
@@ -325,11 +386,11 @@ compute_summary_table <- function(tbl_df,
     # Extract statistics from their single column lists into their own columns
     av_df <- tidyr::unnest_wider(av_df, tidyr::all_of(".stats"))
 
-    # Capture all statistics columns calculated by `calc_stats()` including those prefixed with `.1`, `.2`, etc.
+    # Capture all statistics columns calculated by `summtab_calc_stats()` including those prefixed with `.1`, `.2`, etc.
     av_calc_stats_elems <- setdiff(names(av_df), c(group_by_vars, "subjid", anl_var))
 
     # Format statistics
-    av_df <- format_stats(
+    av_df <- summtab_format_stats(
       av_df,
       stats_fmts = av_stats_fmts,
       replace = av_stats_replace,
@@ -430,8 +491,16 @@ compute_summary_table <- function(tbl_df,
   return(summtab_list)
 }
 
-# ===================================================================================================== build_html_table
-build_html_table <- function(summtab_list, on_cell_click = NULL) {
+
+#' summtab_html_table
+#'
+#' @param summtab_list TDB
+#' @param on_cell_click TDB
+#'
+#' @return TBD
+#'
+#' @keywords internal
+summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
 
   df <- summtab_list[["df"]]
 
@@ -831,24 +900,24 @@ summary_table_server <- function(module_id,
       on.exit(p$close())
       p$set(message = "1) Processing data", value = 0.50)
 
-      summary_table <- compute_summary_table(tbl_df,
-                                             pop_df,
-                                             anl_vars = anl_vars,
-                                             group_vars = group_vars,
-                                             row_vars = row_vars,
-                                             subjid_var = subjid_var,
+      summary_table <- summtab_compute(tbl_df,
+                                       pop_df,
+                                       anl_vars = anl_vars,
+                                       group_vars = group_vars,
+                                       row_vars = row_vars,
+                                       subjid_var = subjid_var,
 
-                                             stats_functions = stats_functions_subset,
-                                             stats_formats = stats_formats_subset,
-                                             stats_labels = stats_labels,
-                                             stats_replace = stats_replace,
+                                       stats_functions = stats_functions_subset,
+                                       stats_formats = stats_formats_subset,
+                                       stats_labels = stats_labels,
+                                       stats_replace = stats_replace,
 
-                                             total = total,
-                                             total_group_val = "Total",
-                                             drop_na = drop_na,
-                                             show_category_n = show_category_n,
-                                             denom = denom,
-                                             collapse_func_name = collapse_func_name)
+                                       total = total,
+                                       total_group_val = "Total",
+                                       drop_na = drop_na,
+                                       show_category_n = show_category_n,
+                                       denom = denom,
+                                       collapse_func_name = collapse_func_name)
 
 
       summary_table
@@ -860,11 +929,11 @@ summary_table_server <- function(module_id,
         Shiny.setInputValue('%s', 'done', {priority: 'event'});
       });
     });
-    ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))))
+    ", ns(SUMMTAB$ID$RENDER_COMPLETION_CALLBACK))))
 
     table_progress_bars <- list() # keep a list of progress bars to cope with trigger-happy users
 
-    shiny::observeEvent(input[[EC$ID$RENDER_COMPLETION_CALLBACK]], {
+    shiny::observeEvent(input[[SUMMTAB$ID$RENDER_COMPLETION_CALLBACK]], {
       for (p in table_progress_bars) p$close()
       table_progress_bars <<- list()
     })
@@ -875,13 +944,13 @@ summary_table_server <- function(module_id,
 
       summtab <- summtab()
 
-      # Start a progress bar and leave its cleanup to the `input[[EC$ID$RENDER_COMPLETION_CALLBACK]]` observer
+      # Start a progress bar and leave its cleanup to the `input[[SUMMTAB$ID$RENDER_COMPLETION_CALLBACK]]` observer
       p <- shiny::Progress$new(session = session)
       table_progress_bars[[length(table_progress_bars) + 1L]] <<- p
       on.exit(p$inc(amount = 0.3))
       p$set(message = "2) Generating & Rendering Table", value = 0.2)
 
-      rendered_content <- build_html_table(summtab, on_cell_click)
+      rendered_content <- summtab_html_table(summtab, on_cell_click)
 
       shiny::tagList(rendered_content, render_completion_callback)
     })
