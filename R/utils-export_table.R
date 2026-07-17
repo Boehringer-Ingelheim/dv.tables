@@ -18,7 +18,7 @@
 #' @param count_table A reactive list containing dataset containing the event data
 #'   and other metadata.
 #' @param download_type A string specifying the download type as a file extension, either
-#'   `.xlsx` for Excel or `.rtf` for Word.
+#'   `.xlsx` for Excel, `.rtf` for Word, or `export`.
 #' @param split_columns A logical indicating if count and percent should be split into separate
 #'   columns.
 #'
@@ -41,7 +41,7 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
   checkmate::assert_data_frame(count_table[["df"]], min.rows = 1)
 
   checkmate::assert_string(download_type)
-  checkmate::assert_choice(download_type, c(".xlsx", ".rtf"))
+  checkmate::assert_choice(download_type, c(".xlsx", ".rtf", "export"))
 
   checkmate::assert_logical(split_columns)
 
@@ -128,6 +128,7 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
                                   paste0(event_vars, " [", event_var_labels, "]"),
                                   event_vars), dplyr::all_of(event_vars))
   }
+
 
   # Add new row with overall number of patients ----
 
@@ -229,4 +230,131 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
   }
 
   return(df_prep)
+}
+
+export_count_table <- function(count_table) {
+
+  df_prep <- count_table[["df"]]
+
+  df_prep["row_label"] <- local({
+    lvl <- df_prep[[count_table$meta$hier_lvl_col]]
+    hierarchy <- count_table$meta$hierarchy
+
+    label_row <- character(nrow(df_prep))
+    for (r_idx in seq_len(nrow(df_prep))) {
+      row_lvl <- lvl[[r_idx]]
+      if (row_lvl > 0) {
+        lb <- as.character(df_prep[[hierarchy[[row_lvl]]]][[r_idx]])
+      } else {
+        lb <- "Total"
+      }
+      label_row[[r_idx]] <- lb
+    }
+    label_row
+  })
+
+  for(v in count_table$meta$hierarchy) {
+    df_prep[[v]] <- NULL
+  }
+
+  event_group_vals <- count_table[["meta"]]$event_group_vals
+  group_cols <- names(count_table$meta$n_denominator)
+  
+  if(length(event_group_vals) > 0) {    
+    for (gc in group_cols) {
+      gc_col <- df_prep[[gc]]      
+        for (egv in event_group_vals) {
+          idx <- 0
+          dn <- paste0(gc,EC$VAL$SPECIAL_CHAR,egv)                    
+          df_prep[[dn]] <- as.character(lapply(gc_col, \(x) {
+            as.character((x[[egv]][["count"]]))
+          }))
+        }
+      df_prep[[gc]] <- NULL
+    }
+    
+  } else {
+    for(gc in group_cols) {
+      gc_col <- df_prep[[gc]]
+      gc_col <- as.character(lapply(gc_col, \(x) as.character((x$count))))
+      df_prep[[gc]] <- gc_col
+    }
+  }
+
+  hidden_cols <- c(    
+    count_table$meta$hier_lvl_col,
+    count_table$meta$rank_col
+  )
+
+  hier_labels <- attr(count_table$meta$hierarchy, "labels")  
+  lvl <- df_prep[[count_table$meta$hier_lvl_col]]
+
+  group_N_label <- paste(
+    names(count_table$meta$n_denominator),
+    paste("(N=", count_table$meta$n_denominator, ")")
+  )
+  names(group_N_label) <- names(count_table$meta$n_denominator)
+  group_N_label <- as.list(group_N_label)
+
+  tbl <- gt::gt(df_prep, rowname_col = "row_label") |>
+    gt::cols_hide(
+      columns = hidden_cols
+    ) |>
+    gt::tab_header(
+      title = paste("Adverse Events Frequency")
+    ) |>
+    gt::tab_stubhead(
+      label = paste(
+        paste(hier_labels, collapse = "/"),
+        "by",
+        paste(count_table$meta$group_var, count_table$meta$event_group_var, collapse = ", ")
+      )
+    )
+
+  if (length(event_group_vals) > 0) {
+    d_cols <- setdiff(names(df_prep), c(hidden_cols, "row_label"))
+    event_group_label <- rep(count_table$meta$event_group_vals, length(count_table$meta$n_denominator))
+    names(event_group_label) <- d_cols
+    tbl <- tbl |>
+      gt::cols_label(
+        .list = event_group_label
+      )
+    
+    for (idx in seq_along(group_N_label)) {
+      g <- group_N_label[[idx]]
+      ng <- names(group_N_label)[[idx]]
+      tbl <- tbl |>
+        gt::tab_spanner(
+          label = g,
+          columns = d_cols[startsWith(d_cols, paste0(ng, EC$VAL$SPECIAL_CHAR))]
+        )
+    }
+
+  } else {
+    tbl <- tbl |>
+      gt::cols_label(
+        .list = group_N_label
+      )
+  }
+
+  for (.lvl in unique(lvl)) {
+    tbl <- tbl |> gt::tab_style(      
+      style = gt::cell_text(indent = gt::px(20 * .lvl)),
+      locations = gt::cells_stub(
+        rows = lvl == .lvl
+      )
+    )
+  }
+
+  tbl <- tbl |>
+    gt::tab_options(
+      heading.align = "left",
+      latex.use_longtable = TRUE,
+      table.font.size = gt::px(9),
+      latex.header_repeat = TRUE,
+      data_row.padding = gt::px(3)
+    )
+  
+  tbl
+  
 }

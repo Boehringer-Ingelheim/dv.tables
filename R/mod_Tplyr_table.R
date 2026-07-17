@@ -144,14 +144,14 @@ Tplyr_table_server <- function(
   shiny::moduleServer(module_id, function(input, output, session) {
     ns <- session$ns
 
-    v_dataset_list <- shinymeta::metaReactive2({
+    v_dataset_list <- sm_mr2({
       checkmate::assert_list(
         dataset_list(),
         types = "data.frame",
         null.ok = TRUE,
         names = "named"
       )
-      shinymeta::metaExpr({
+      sm_me({
         ..(dataset_list())
       })      
     })
@@ -255,7 +255,7 @@ Tplyr_table_server <- function(
 
         ## table part start ---
 
-    selected_output <- shinymeta::metaReactive2({
+    selected_output <- sm_mr2({
       shiny::req(selected_output_id())
 
       sel_id <- selected_output_id()
@@ -267,7 +267,7 @@ Tplyr_table_server <- function(
       is_table <- "tplyr_tab_fun" %in% names(curr_selected_output)
 
       if (!is_table) {
-        res <- shinymeta::metaExpr({
+        res <- sm_me({
           list(
             tplyr_tab = NULL,
             needed_data = ..(v_dataset_list())[..(curr_selected_output[["dataset_names"]])],
@@ -282,7 +282,7 @@ Tplyr_table_server <- function(
               function(tbl) nrow(tbl) == 0
             ))
           ) {
-            res <- shinymeta::metaExpr({
+            res <- sm_me({
               list(
                 tplyr_tab = NULL,
                 needed_data = ..(v_dataset_list())[..(names(formals(
@@ -293,7 +293,7 @@ Tplyr_table_server <- function(
               )
             })            
           } else {
-            res <- shinymeta::metaExpr(
+            res <- sm_me(
               {
                 l_needed_data <- ..(v_dataset_list())[..(names(formals(tplyr_tab_fun)))]
                 
@@ -341,7 +341,7 @@ Tplyr_table_server <- function(
       res
     })
 
-    table_tplyr_df <- shinymeta::metaReactive2({
+    table_tplyr_df <- sm_mr2({
       is_table <- selected_output()[["is_table"]]      
       needed_data <- selected_output()[["needed_data"]]
 
@@ -353,7 +353,7 @@ Tplyr_table_server <- function(
       )
 
       if (is_table) {
-        shinymeta::metaExpr({
+        sm_me({
           dplyr::select(
             ..(selected_output())[["tplyr_tab_build"]],
             -dplyr::any_of(c("row_id")),
@@ -361,7 +361,7 @@ Tplyr_table_server <- function(
           )
         })        
       } else {
-        shinymeta::metaExpr({
+        sm_me({
           NULL
         })
       }
@@ -558,7 +558,9 @@ Tplyr_table_server <- function(
     ## listings part end ---
 
     res_listings[["to_report"]] <- list(
-      table = table_tplyr_df
+      table = list(
+        reactive = table_tplyr_df
+      )
     )
 
     return(res_listings)
@@ -765,7 +767,7 @@ mod_Tplyr_table <- function(
 
       Tplyr_table_server(
         module_id = module_id,
-        dataset_list = shinymeta::metaReactive({..(afmm$filtered_dataset_list())[..(needed_datasets)]}),
+        dataset_list = sm_mr({..(afmm$filtered_dataset_list())[..(needed_datasets)]}),
         output_list = output_list,
         dataset_metadata = afmm$dataset_metadata,
         subjid_var = subjid_var,
