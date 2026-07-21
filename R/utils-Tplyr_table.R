@@ -74,25 +74,33 @@ it_interactive_title <- function(...) {
   return(shiny::tagList(it_custom_styles, div))
 }
 
-resolve_table_pagination <- function(table_pagination, n_rows, threshold = 50L) {
-  if (is.null(table_pagination)) {
-    paging <- n_rows > threshold
+resolve_table_pagination <- function(table_pagination) {
+  if (is.logical(table_pagination) && length(table_pagination) == 1L && !is.na(table_pagination)) {
+    if (isTRUE(table_pagination)) {
+      return(list(
+        pagination = TRUE,
+        showPageSizeOptions = TRUE
+      ))
+    }
 
     return(list(
-      pagination = paging,
-      showPageSizeOptions = paging
+      pagination = FALSE,
+      showPagination = TRUE,
+      showPageInfo = TRUE,
+      showPageSizeOptions = FALSE
     ))
   }
 
-  if (is.logical(table_pagination) && length(table_pagination) == 1L && !is.na(table_pagination)) {
+  if (checkmate::test_count(table_pagination, positive = TRUE)) {
     return(list(
-      pagination = table_pagination,
-      showPageSizeOptions = table_pagination
+      pagination = TRUE,
+      defaultPageSize = as.integer(table_pagination),
+      showPageSizeOptions = TRUE
     ))
   }
 
   stop(
-    "`table_pagination` must be NULL, TRUE, or FALSE.",
+    "`table_pagination` must be TRUE, FALSE, or a positive whole number.",
     call. = FALSE
   )
 }
