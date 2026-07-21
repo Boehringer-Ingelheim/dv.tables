@@ -107,7 +107,7 @@ Tplyr_table_server <- function(
   intended_use_label,
   pagination = NULL,
   listing_pagination = pagination,
-  table_pagination = NULL,
+  table_pagination = TRUE,
   on_sbj_click = NULL,
   review = NULL,
   title_layout = c("dropdown", "tabs"),
@@ -148,6 +148,12 @@ Tplyr_table_server <- function(
       message("output_list entry has too many elements")
     }
   }
+
+  checkmate::assert(
+    checkmate::check_logical(table_pagination, len = 1, any.missing = FALSE),
+    checkmate::check_count(table_pagination, positive = TRUE),
+    combine = "or"
+  )
 
 
   shiny::moduleServer(module_id, function(input, output, session) {
