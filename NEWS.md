@@ -1,3 +1,7 @@
+# dv.tables 0.4.1-9007
+
+- [Tplyr_table module] Add new arguments from `dv.listings` module
+
 # dv.tables 0.4.1-9005
 
 - [NOT USER-FACING] CSS tweak to container of dv.listings Tplyr_table.

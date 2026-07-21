@@ -91,6 +91,10 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #'
 #' @param review An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
+#' @param footers An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
+#'
+#' @param exclude_var_names_from_column_headings An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
+#'
 #' @keywords main
 #' @export
 Tplyr_table_server <- function(
@@ -104,7 +108,9 @@ Tplyr_table_server <- function(
   pagination,
   on_sbj_click = NULL,
   review = NULL,
-  title_layout = c("dropdown", "tabs")
+  title_layout = c("dropdown", "tabs"),
+  footers,
+  exclude_var_names_from_column_headings
 ) {
   title_layout <- match.arg(title_layout)
 
@@ -498,7 +504,9 @@ Tplyr_table_server <- function(
       intended_use_label = intended_use_label,
       pagination = pagination,
       on_sbj_click = on_sbj_click,
-      review = review
+      review = review,
+      footers = footers,
+      exclude_var_names_from_column_headings = exclude_var_names_from_column_headings
     )
     ## listings part end ---
 
@@ -612,7 +620,9 @@ mod_Tplyr_table <- function(
   intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL,
   review = NULL,
-  title_layout = c("dropdown", "tabs")
+  title_layout = c("dropdown", "tabs"),
+  footers,
+  exclude_var_names_from_column_headings
 ) {
   title_layout <- match.arg(title_layout)
   checkmate::assert_list(output_list, types = "list")
@@ -763,10 +773,10 @@ check_mod_Tplyr_table <- function(
   )
   if ("afmm" %in% names(formals(dv.listings::check_review_parameter))) {
     check_review_parameter_args[["afmm"]] <- afmm
-  } 
-  
+  }
+
   do.call(dv.listings::check_review_parameter, check_review_parameter_args)
-  
+
   res <- list(errors = err[["messages"]])
   return(res)
 }
