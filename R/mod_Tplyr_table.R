@@ -127,6 +127,12 @@ Tplyr_table_server <- function(
     checkmate::assert_names(names(default_vars), type = "unique")
   }
 
+  checkmate::assert(
+    checkmate::check_logical(table_pagination, len = 1, any.missing = FALSE),
+    checkmate::check_count(table_pagination, positive = TRUE),
+    combine = "or"
+  )
+
   checkmate::assert_list(output_list, types = "list")
 
   for (output in output_list) {
@@ -148,13 +154,6 @@ Tplyr_table_server <- function(
       message("output_list entry has too many elements")
     }
   }
-
-  checkmate::assert(
-    checkmate::check_logical(table_pagination, len = 1, any.missing = FALSE),
-    checkmate::check_count(table_pagination, positive = TRUE),
-    combine = "or"
-  )
-
 
   shiny::moduleServer(module_id, function(input, output, session) {
     ns <- session$ns
@@ -277,7 +276,7 @@ Tplyr_table_server <- function(
           -dplyr::any_of(c("row_id")), -dplyr::starts_with("ord")
         )
 
-        paging <- nrow(selected_columns) > 50
+        paging_args <- resolve_table_pagination(table_pagination)
 
         cell_click_input_js <- paste0(
           "function(rowInfo, colInfo) {
@@ -288,16 +287,21 @@ Tplyr_table_server <- function(
         }"
         )
 
-        reactable::reactable(
-          selected_columns,
-          sortable = FALSE,
-          onClick = htmlwidgets::JS(cell_click_input_js),
-          pagination = paging,
-          showPageSizeOptions = paging,
-          columns = stats::setNames(lapply(colnames(selected_columns), function(col) {
-            reactable::colDef(name = rename_columns(col))
-          }), colnames(selected_columns))
+
+        reactable_args <- c(
+          list(
+            data = selected_columns,
+            sortable = FALSE,
+            onClick = htmlwidgets::JS(cell_click_input_js),
+            columns = stats::setNames(lapply(colnames(selected_columns), function(col) {
+              reactable::colDef(name = rename_columns(col))
+            }), colnames(selected_columns))
+          ),
+          paging_args
         )
+
+        do.call(reactable::reactable, reactable_args)
+
       }
     })
 
@@ -510,7 +514,7 @@ Tplyr_table_server <- function(
       dataset_metadata = dataset_metadata,
       default_vars = default_vars,
       intended_use_label = intended_use_label,
-      pagination = pagination,
+      pagination = listing_pagination,
       on_sbj_click = on_sbj_click,
       review = review,
       footers = footers,
@@ -625,6 +629,8 @@ mod_Tplyr_table <- function(
   subjid_var = "USUBJID",
   default_vars = NULL,
   pagination = NULL,
+  listing_pagination = NULL,
+  table_pagination = TRUE,
   intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL,
   review = NULL,
@@ -634,6 +640,27 @@ mod_Tplyr_table <- function(
 ) {
   title_layout <- match.arg(title_layout)
   checkmate::assert_list(output_list, types = "list")
+
+  # Pagination deprecation
+
+  if (!missing(pagination)) {
+    warn_deprecated_pagination()
+  }
+
+  if (!missing(pagination) && !missing(listing_pagination)) {
+    warning(
+      "Both `pagination` and `listing_pagination` were supplied. ",
+      "`listing_pagination` will be used for listings. ",
+      "`pagination` is deprecated and will be removed in a future version.",
+      call. = FALSE
+    )
+  }
+
+  if (missing(listing_pagination)) {
+    listing_pagination <- pagination
+  }
+
+  #---
 
   for (output in output_list) {
     if (length(output) == 1) {
@@ -730,7 +757,8 @@ mod_Tplyr_table <- function(
         subjid_var = subjid_var,
         default_vars = default_vars,
         intended_use_label = intended_use_label,
-        pagination = pagination,
+        listing_pagination = listing_pagination,
+        table_pagination = table_pagination,
         on_sbj_click = on_sbj_click_fun,
         review = review,
         title_layout = title_layout
