@@ -73,3 +73,26 @@ it_interactive_title <- function(...) {
 
   return(shiny::tagList(it_custom_styles, div))
 }
+
+resolve_table_pagination <- function(table_pagination, n_rows, threshold = 50L) {
+  if (is.null(table_pagination)) {
+    paging <- n_rows > threshold
+
+    return(list(
+      pagination = paging,
+      showPageSizeOptions = paging
+    ))
+  }
+
+  if (is.logical(table_pagination) && length(table_pagination) == 1L && !is.na(table_pagination)) {
+    return(list(
+      pagination = table_pagination,
+      showPageSizeOptions = table_pagination
+    ))
+  }
+
+  stop(
+    "`table_pagination` must be NULL, TRUE, or FALSE.",
+    call. = FALSE
+  )
+}
