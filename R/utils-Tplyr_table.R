@@ -104,3 +104,13 @@ resolve_table_pagination <- function(table_pagination) {
     call. = FALSE
   )
 }
+
+warn_deprecated_pagination <- function() {
+  warning(
+    "`pagination` is deprecated in `mod_Tplyr_table()` and will be removed ",
+    "in a future version of `dv.tables`. ",
+    "Please use `listing_pagination` instead. ",
+    "`pagination` currently controls pagination for drill-down and standalone listings.",
+    call. = FALSE
+  )
+}
