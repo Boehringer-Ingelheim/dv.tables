@@ -92,10 +92,14 @@ resolve_table_pagination <- function(table_pagination) {
   }
 
   if (checkmate::test_count(table_pagination, positive = TRUE)) {
+
+    default_page_size <- as.integer(table_pagination)
+
     return(list(
       pagination = TRUE,
-      defaultPageSize = as.integer(table_pagination),
-      showPageSizeOptions = TRUE
+      defaultPageSize = as.integer(default_page_size),
+      showPageSizeOptions = TRUE,
+      pageSizeOptions = sort(unique(c(10L, 25L, 50L, 100L, default_page_size)))
     ))
   }
 
