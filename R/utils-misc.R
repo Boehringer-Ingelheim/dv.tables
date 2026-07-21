@@ -50,6 +50,9 @@ add_na_factor_level <- function(f, level = "<NA>") {
   new_levels <- c(levels(f), level)
   new_factor <- factor(ch, levels = new_levels)
 
+  # Apply label
+  attr(new_factor, "label") <- attr(f, "label")
+
   return(new_factor)
 }
 
