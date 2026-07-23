@@ -9,54 +9,58 @@ vignette: >
 
 This guide provides a detailed overview of the `mod_Tplyr_table` module and its features. It is meant to provide guidance to App Creators on creating Apps in DaVinci using the `mod_Tplyr_table` module.
 
-Walk-throughs for sample app creation using the module are also included
-to demonstrate the various module specific features.
+Walk-throughs for sample app creation using the module are also included to demonstrate the various module specific features.
 
+`mod_Tplyr_table` serves as a wrapper for displaying interactive summary tables generated with [`{Tplyr}`](https://atorus-research.github.io/Tplyr/). The module leverages Tplyr’s metadata extraction functionality to offer traceability from the summary tables back to the source listing. By clicking on a result cell in the table, the source listing will be generated. For displaying the listing the listings module of `{dv.listings}` is used, which means all functionality of that module can be leveraged.
 
-`mod_Tplyr_table` serves as a wrapper for displaying interactive summary tables generated with [`{Tplyr}`](https://atorus-research.github.io/Tplyr/). The module leverages Tplyr’s metadata extraction functionality to offer traceability from the summary tables back to the source listing. By clicking on a result cell in the table, the source listing will be generated. For displaying the listing the listings module of  `{dv.listings}` is used, which means all functionality of that module can be leveraged. 
-
-The Tplyr table module allows multiple output tables created with `{Tplyr}` and standalone listings to be displayed under the same tab, using a drop-down selector.
+The Tplyr table module allows multiple output tables created with `{Tplyr}` and standalone listings to be displayed under the same tab. Outputs can be selected using either a drop-down selector or separate tabs.
 
 # Features
 
 `mod_Tplyr_table` features the following outputs:
 
-- table created using `Tplyr` package 
-- corresponding listing from the selected cell of the table.
-- standalone listing
+-   table created using `Tplyr` package
+-   corresponding listing from the selected cell of the table.
+-   standalone listing
 
-`dv.tables::mod_Tplyr_table()`
-module uses several arguments with the following being mandatory and
-the rest optional. As part of app creation, the app
-creator should specify the values for these arguments as applicable.
+`dv.tables::mod_Tplyr_table()` module uses several arguments with the following being mandatory and the rest optional. As part of app creation, the app creator should specify the values for these arguments as applicable.
 
 **Mandatory Arguments**
 
--   `module_id` : A unique identifier of type character for the module
+- `module_id` : A unique identifier of type character for the module
 
 - `output_list`: A named list defining the outputs to be generated. Each element of the list corresponds to a table or listing and must be a named list with one of the following structures:
 
-  For summary tables:
-    - `tplyr_tab_fun` A function that takes one or more datasets as input and returns a `tplyr_table` object.
-    - `build_fun` A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).  
-    *Note:  The metadata argument of `Tplyr::build()` needs to be set to `TRUE`, so that the corresponding listing can be shown.*  
-    
-  For standalone listings:
-    - `dataset_names` A character vector of dataset names required to generate the listing.
-  The names of the top-level list elements are used as identifiers for the outputs.
+    For summary tables:
 
--  `subjid_var` Column corresponding to subject ID. Default value is 'USUBJID'
+    - `tplyr_tab_fun` A function that takes one or more datasets as input and returns a `tplyr_table` object.
+    -   `build_fun` A function that takes the `tplyr_table` object and returns a built table (typically using `Tplyr::build()`).\
+        *Note: The metadata argument of `Tplyr::build()` needs to be set to `TRUE`, so that the corresponding listing can be shown.*
+
+    For standalone listings:
+
+    - `dataset_names` A character vector of dataset names required to generate the listing. The names of the top-level list elements are used as identifiers for the outputs.
+
+- `subjid_var` Column corresponding to subject ID. Default value is 'USUBJID'
 
 **(Optional) Arguments for listing customization**
 
 The module uses `{dv.listings}` for showing drill-down listing data. Therefore additional arguments can be provided for further customization.
 
-`default_vars`, `pagination`, `intended_use_label`, `receiver_id`, `review` are all arguments that are passed through to `{dv.listings}`. more information can be found [here](https://boehringer-ingelheim.github.io/dv.listings/)
+`default_vars`, `pagination`, `intended_use_label`, `receiver_id`, `review`, `footers` and `exclude_var_names_from_column_headings` are all arguments that are passed through to `{dv.listings}`. More information can be found [here](https://boehringer-ingelheim.github.io/dv.listings/)
+
+<span style="color: red;">Note: The legacy `pagination` argument is deprecated and has been replaced by `listing_pagination`.</span>
+
+The module also provides the following Tplyr-table specific options:
+
+- `title_layout` - display outputs using either a drop-down menu or tabs.
+
+- `table_pagination` - control pagination of the summary table. Can be set to 
+`TRUE`, `FALSE`, or a positive integer indicating the default page size.
 
 # Example
 
 To better understand the set up of the module you can follow the below example:
-
 
 First load dummy data:
 
@@ -91,6 +95,7 @@ build_func <- function(tab) {
 ```
 
 Create the output_list passed to `dv.tables::mod_Tplyr_table`
+
 ```{r, eval=FALSE}
 output_list <- list(
   "Demographic" = list(
@@ -101,6 +106,7 @@ output_list <- list(
 ```
 
 Put everything together and start the app within `{dv.manager}`
+
 ```{r, eval=FALSE}
 
 module_list <- list(
@@ -118,7 +124,6 @@ dv.manager::run_app(
 )
 
 ```
-
 
 It's also possible to add more than one table into the module.
 
@@ -192,6 +197,21 @@ dv.manager::run_app(
   
 ```
 
+# Tabs Layout
+
+When multiple outputs are available, they can be displayed as tabs instead of using the default drop-down selector.
+
+```{r, eval=FALSE}
+module_list <- list(
+  "Table" = dv.tables::mod_Tplyr_table(
+    module_id = "tplyr_table",
+    output_list = output_list,
+    title_layout = "tabs"
+  )
+)
+```
+
+
 As a last step you can also add a standalone listing to the module
 
 ```{r, eval=FALSE}
@@ -225,8 +245,23 @@ dv.manager::run_app(
 )
 ```
 
+# Table Pagination 
 
-\textcolor{red}{**(Important) Preserving All Levels in tplyr_table Outputs**}
+Pagination can be enabled for Tplyr summary tables using the `table_pagination` argument. 
+
+```{r, eval=FALSE} 
+
+module_list <- list(
+  "Table" = dv.tables::mod_Tplyr_table(
+    module_id = "tplyr_table",
+    output_list = output_list,
+    table_pagination = 25
+  )
+)
+
+```
+
+<span style="color: red;">**(Important) Preserving All Levels in tplyr_table Outputs** </span>
 
 In `mod_tplyr_table` function, grouping variable levels with no data may be omitted as unused factor levels are dropped by default. To ensure all levels appear in the output, even those with zero counts, explicitly define the levels of the grouping variable as factors.
 
@@ -257,5 +292,3 @@ build_func <- function(tab) {
 }
 
 ```
-
-
