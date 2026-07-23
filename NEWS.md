@@ -1,6 +1,7 @@
 # dv.tables 0.4.1-9007
 
 - [Tplyr_table module] Add new arguments from `dv.listings` module
+- [Tplyr_table module] Add table pagination and deprecate `pagination` in favor of `listing_pagination`
 
 # dv.tables 0.4.1-9006
 
