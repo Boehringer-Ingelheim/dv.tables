@@ -10,6 +10,8 @@ Authors@R: c(
         )
 Description: This package provides davinci table modules (Hierachical counts and Tplyr tables) for interactive table outputs.
 License: Apache License (>= 2)
+URL: https://boehringer-ingelheim.github.io/dv.tables,
+    https://github.com/boehringer-ingelheim/dv.tables
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

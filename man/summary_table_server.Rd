@@ -20,7 +20,8 @@ summary_table_server(
   default_row_by = NULL,
   summarize_on_choices = NULL,
   group_by_choices = NULL,
-  row_by_choices = NULL
+  row_by_choices = NULL,
+  total_group_val = "Total"
 )
 }
 \arguments{
@@ -30,7 +31,7 @@ A string that serves as a unique identifier for the module.}
 
 \item{table_dataset}{\verb{[data.frame]}
 
-A reactive dataset containing the event data.}
+A reactive dataset containing the data for analysis.}
 
 \item{pop_dataset}{\verb{[data.frame]}
 
@@ -118,6 +119,10 @@ A vector of variable names from the population dataset, specifying the possible 
 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
 on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
+
+\item{total_group_val}{\verb{[character(1)]}
+
+A string indicating the label for the total group column.}
 }
 \value{
 A reactive value containing the list of subjects in the clicked cell, if applicable.

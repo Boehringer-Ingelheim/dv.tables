@@ -1,8 +1,8 @@
 ---
-title: "Event Count module"
+title: "Hierarchical Event Count module"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Event Count module}
+  %\VignetteIndexEntry{Hierarchical Event Count module}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,12 +20,12 @@ knitr::opts_chunk$set(
 
 ![](images/hierarchical_count_table_time_at_risk.png)
 
-This guide provides a detailed overview of the `hierarchical_count_table` module and its features. It is meant to
-provide guidance to App Creators on creating Apps in DaVinci using the `hierarchical_count_table` module. Walk-throughs
-for sample app creation using the module are also included to demonstrate the various module specific features.
+This guide provides a detailed overview of the `dv.tables::mod_hierarchical_count_table()` module and its features. It
+is meant to provide guidance to App Creators on creating Apps in DaVinci using the module. Walk-throughs for sample app
+creation using the module are also included to demonstrate the various module specific features.
 
-The `hierarchical_count_table` module makes it possible to visualize a hierarchy table with event counts for each of the
-levels, with the option of showing time at risk and incidence rates.
+The module makes it possible to visualize a hierarchy table with event counts for each of the levels, with the option of
+showing time at risk and incidence rates.
 
 # Features
 
@@ -41,26 +41,23 @@ levels, with the option of showing time at risk and incidence rates.
 
 # Arguments for the module
 
-`dv.tables::mod_hierarchical_count_table()` module uses several arguments with the following being mandatory and
-the rest optional. As part of app creation, the app creator should specify the values for these arguments as applicable.
+The `dv.tables::mod_hierarchical_count_table()` module uses several mandatory arguments with the rest of the arguments
+defaulted or optional. As part of app creation, the app creator should specify the values for all mandatory arguments,
+and values for any other arguments as applicable.
 
 **Mandatory Arguments**
 
--   `module_id` : A unique identifier of type character for the module
-    in the app.
+- `module_id` : A unique identifier of type character for the module in the app.
+- `table_dataset_name`: The name of the dataset that contains the events per row, e.g., `"ADAE"`.
+- `pop_dataset_name`: The name of the dataset that contains one row per subject in the total population, e.g., `"ADSL"`.
+  It expects a one-record-per-subject dataset at least containing `subjid_var`, with a structure similar to
+  https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806
 
--   `subjid_var`: A common column across all datasets that uniquely identify subjects. By default: "SUBJID"
-
--   `table_dataset_name`: The dataset that contains the events per row. For example, `ADAE`
-
--   `pop_dataset_name`: The dataset that contains one row per subject in the total population. For example, `ADSL`
-    It expects a one-record-per-subject dataset at least containing `subjid_var`, with a structure similar to
-    https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806
-    
-Refer to `dv.tables::mod_hierarchical_count_table()` for the complete list of arguments and their description.
+Please refer to [`dv.tables::mod_hierarchical_count_table()`](../reference/mod_hierarchical_count_table.html) for the
+complete list of arguments and their description.
 
 # Input menus
-  
+
 A drop-down "Options" menu provides the following inputs:
 
 - **Event count by**: Selection of one or two levels of hierarchy variables from the table (events) dataset, to be

@@ -30,8 +30,7 @@ mod_summary_table(
     = c(`^\\\\(NA, NA\\\\)$` = SUMMTAB$VAL$EM_DASH), geomean = c(`^NA$` =
     SUMMTAB$VAL$EM_DASH, `^NaN$` = "NE"), median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
     medianci = c(`^\\\\(NA, NA\\\\)$` = SUMMTAB$VAL$EM_DASH), q1q3 = c(`^NA - NA$` =
-    SUMMTAB$VAL$EM_DASH), minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH), n_pct =
-    c(`^NA \\\\(NA \\\\\%\\\\)$` = "0")),
+    SUMMTAB$VAL$EM_DASH), minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH)),
   default_summarize_on = NULL,
   default_group_by = NULL,
   default_row_by = NULL,
@@ -46,6 +45,7 @@ mod_summary_table(
   row_by_choices = NULL,
   collapse_method_choices = c(Mean = "mean", Minimum = "min", Maximum = "max",
     `First Row` = "dplyr::first", `Last Row` = "dplyr::last"),
+  total_group_val = "Total",
   receiver_id = NULL
 )
 }
@@ -183,6 +183,10 @@ A vector of strings indicating the names of functions that can be used for colla
 more than one row per subject exists after population grouping and row categorization has been applied. The double
 colon (\code{::}) namespace resolution operator can be used to specify functions from specific packages, e.g.,
 \code{"dplyr::first"}.}
+
+\item{total_group_val}{\verb{[character(1)]}
+
+A string indicating the label for the total group column.}
 
 \item{receiver_id}{\verb{[character(1) | NULL]}
 

@@ -199,26 +199,44 @@ summtab_format_stats <- function(analysis_df,
 }
 
 
-#' summtab_compute
+#' Perform summary table computations
 #'
-#' @param tbl_df TDB
-#' @param pop_df TDB
-#' @param anl_vars TDB
-#' @param group_vars TDB
-#' @param row_vars TDB
-#' @param subjid_var TDB
-#' @param stats_functions TDB
-#' @param stats_formats TDB
-#' @param stats_labels TDB
-#' @param stats_replace TDB
-#' @param total TDB
-#' @param total_group_val TDB
-#' @param drop_na TDB
-#' @param show_category_n TDB
-#' @param denom TDB
-#' @param collapse_func_name TDB
+#' @param tbl_df A data frame containing the data for analysis.
+#' @param pop_df A data frame containing the population data.
+#' @param anl_vars A vector of names of analysis variables from `tbl_df`.
+#' @param group_vars A vector of names of population grouping variables from `pop_df`.
+#' @param row_vars A vector of names of row categorization variables from `tbl_df`.
+#' @param subjid_var A string representing the subject identifier column in both datasets.
+#' @param stats_functions A named list defining the functions used for summarizing numerical data.
+#' @param stats_formats A named list of lists defining the combination and formatting of the function results from
+#'   summarizing numerical data.
+#' @param stats_labels A named vector of statistics labels that should be used in the summary table.
+#' @param stats_replace A named list of named vectors defining replacements that should be applied to the formatted
+#'   results from `stats_formats`.
+#' @param total A flag that determines whether to add a total group column.
+#' @param total_group_val A string indicating the label for the total group column.
+#' @param drop_na A flag that determines whether to drop NA values from selected 'group by' and 'row by' variables.
+#' @param show_category_n A flag that determines whether to show the 'n' category when summarizing categorical data.
+#' @param denom A string, either "N" or "n", indicating whether the denominator for categorical data should be taken as
+#'   the number of subjects from the population grouping ("N") or the number of subjects from the 'row by' grouping for
+#'   each population grouping ("n"). If `drop_na == TRUE` then `NA` values will be excluded from determining the "n"
+#'   denominator.
+#' @param collapse_func_name A string representing the name of the function used to collapse multiple rows per subject
+#'   into one.
 #'
-#' @return TBD
+#' @return A list containing:
+#' - `df`: A data frame of the analysed data. Columns: row variables, analysis variable name, statistics for each
+#'   population group combination, ".first" flags for rendering.
+#' - `meta`: A list of metadata:
+#'   - `anl_var`: A vector of analysis variable names.
+#'   - `group_vars`: A vector of group variable names.
+#'   - `row_vars`: A vector of row variable names.
+#'   - `flag_columns`: A vector of names of columns holding the ".first" flags for rendering.
+#'   - `data_columns`: A vector of names of columns holding the statistics for each population group combination.
+#'   - `total_group_val`: A string indicating the label for the total group column.
+#'   - `denom_df`: A data frame of population group denominator data.
+#'   - `collapse_flag`: A flag indicating whether rows have been collapsed.
+#'   - `collapse_func_name`: A string indicating the name of the function used for collapsing.
 #'
 #' @keywords internal
 summtab_compute <- function(tbl_df,
@@ -240,7 +258,7 @@ summtab_compute <- function(tbl_df,
                             denom = NULL,
                             collapse_func_name = NULL) {
 
-  # NOTE: Early error feedback should check that pop_df is one row per subject per grouping
+  # TBD: Check that pop_df is one row per subject per grouping
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
@@ -249,6 +267,15 @@ summtab_compute <- function(tbl_df,
 
   anl_vars_num <- intersect(anl_vars, names(tbl_df)[sapply(tbl_df, is.numeric)])
   anl_vars_cat <- setdiff(anl_vars, anl_vars_num)
+
+  # Only keep distinct subject identifier and group variables from population dataset
+  pop_df <- pop_df |>
+    dplyr::select(dplyr::all_of(c(subjid_var, group_vars))) |>
+    dplyr::distinct()
+
+  # Only keep subject identifier, and analysis/group/row variables from analysis dataset
+  tbl_df <- tbl_df |>
+    dplyr::select(dplyr::any_of(c(subjid_var, anl_vars, group_vars, row_vars)))
 
   if (drop_na) {
     # Remove NA values (analysis variables handled individually later on)
@@ -478,7 +505,6 @@ summtab_compute <- function(tbl_df,
       anl_vars = anl_vars,
       group_vars = group_vars,
       row_vars = row_vars,
-      hierarchy = hierarchy,
       flag_columns = flag_columns,
       data_columns = data_columns,
       total_group_val = total_group_val,
@@ -494,10 +520,10 @@ summtab_compute <- function(tbl_df,
 
 #' summtab_html_table
 #'
-#' @param summtab_list TDB
-#' @param on_cell_click TDB
+#' @param summtab_list A list of the data frame of the analysed data and metadata from `summtab_compute()`.
+#' @param on_cell_click A string holding the JavaScript callback function to be executed when a table cell is clicked.
 #'
-#' @return TBD
+#' @return An HTML table generated using `shiny::tags` and formatted for interactive display.
 #'
 #' @keywords internal
 summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
@@ -507,7 +533,6 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
   anl_vars <- summtab_list[["meta"]][["anl_vars"]]
   group_vars <- summtab_list[["meta"]][["group_vars"]]
   row_vars <- summtab_list[["meta"]][["row_vars"]]
-  hierarchy <- summtab_list[["meta"]][["hierarchy"]]
   flag_columns <- summtab_list[["meta"]][["flag_columns"]]
   data_columns <- summtab_list[["meta"]][["data_columns"]]
   total_group_val <- summtab_list[["meta"]][["total_group_val"]]
@@ -517,6 +542,8 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
+
+  hierarchy <- c(anl_var, row_vars)
 
   table <- shiny::tags[["table"]]
   th <- shiny::tags[["th"]]
@@ -740,7 +767,7 @@ summary_table_ui <- function(module_id,
 #'
 #' @param table_dataset `[data.frame]`
 #'
-#' A reactive dataset containing the event data.
+#' A reactive dataset containing the data for analysis.
 #'
 #' @param pop_dataset `[data.frame]`
 #'
@@ -774,7 +801,8 @@ summary_table_server <- function(module_id,
                                  default_row_by = NULL,
                                  summarize_on_choices = NULL,
                                  group_by_choices = NULL,
-                                 row_by_choices = NULL) {
+                                 row_by_choices = NULL,
+                                 total_group_val = "Total") {
 
   mod <- function(input, output, session) {
 
@@ -913,7 +941,7 @@ summary_table_server <- function(module_id,
                                        stats_replace = stats_replace,
 
                                        total = total,
-                                       total_group_val = "Total",
+                                       total_group_val = total_group_val,
                                        drop_na = drop_na,
                                        show_category_n = show_category_n,
                                        denom = denom,
@@ -1150,6 +1178,10 @@ summary_table_server <- function(module_id,
 #' colon (`::`) namespace resolution operator can be used to specify functions from specific packages, e.g.,
 #' `"dplyr::first"`.
 #'
+#' @param total_group_val `[character(1)]`
+#'
+#' A string indicating the label for the total group column.
+#'
 #' @param receiver_id `[character(1) | NULL]`
 #'
 #' Unique identifier for the module receiving the selected subject ID in the data listing. This ID must be present in
@@ -1183,33 +1215,38 @@ mod_summary_table <- function(
       min = min,
       max = max
     ),
-    stats_formats = list(n = list(fmt = "%d", "n"),
-                         meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
-                         meanci = list(fmt = "(%.2f, %.2f)", "meanci.1", "meanci.2"),
-                         geomean = list(fmt = "%.1f", "geomean"),
-                         median = list(fmt = "%.1f", "median"),
-                         medianci = list(fmt = "(%.2f, %.2f)", "medianci.1", "medianci.2"),
-                         q1q3 = list(fmt = "%.1f - %.1f", "q1q3.1", "q1q3.2"),
-                         minmax = list(fmt = "%.1f - %.1f", "min", "max")),
-    stats_labels = c(n = "n",
-                     meansd = "Mean (SD)",
-                     meanci = "Mean 95% CI",
-                     geomean = "Geometric Mean",
-                     median = "Median",
-                     medianci = "Median 95% CI",
-                     q1q3 = "25% and 75%-ile",
-                     minmax = "Min - Max"),
-    stats_replace = list(n = c(`^NA$` = "0"),
-                         meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
-                                    `\\(NA\\)$` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
-                         meanci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
-                         geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH,
-                                     `^NaN$` = "NE"),
-                         median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
-                         medianci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
-                         q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
-                         minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
-                         n_pct = c(`^NA \\(NA \\%\\)$` = "0")),
+    stats_formats = list(
+      n = list(fmt = "%d", "n"),
+      meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
+      meanci = list(fmt = "(%.2f, %.2f)", "meanci.1", "meanci.2"),
+      geomean = list(fmt = "%.1f", "geomean"),
+      median = list(fmt = "%.1f", "median"),
+      medianci = list(fmt = "(%.2f, %.2f)", "medianci.1", "medianci.2"),
+      q1q3 = list(fmt = "%.1f - %.1f", "q1q3.1", "q1q3.2"),
+      minmax = list(fmt = "%.1f - %.1f", "min", "max")
+    ),
+    stats_labels = c(
+      n = "n",
+      meansd = "Mean (SD)",
+      meanci = "Mean 95% CI",
+      geomean = "Geometric Mean",
+      median = "Median",
+      medianci = "Median 95% CI",
+      q1q3 = "25% and 75%-ile",
+      minmax = "Min - Max"
+    ),
+    stats_replace = list(
+      n = c(`^NA$` = "0"),
+      meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
+                 `\\(NA\\)$` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
+      meanci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
+      geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH,
+                  `^NaN$` = "NE"),
+      median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+      medianci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
+      q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
+      minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH)
+    ),
 
     default_summarize_on = NULL,
     default_group_by = NULL,
@@ -1229,7 +1266,7 @@ mod_summary_table <- function(
                                 Maximum = "max",
                                 "First Row" = "dplyr::first",
                                 "Last Row" = "dplyr::last"),
-
+    total_group_val = "Total",
     receiver_id = NULL
 ) {
 
@@ -1312,7 +1349,8 @@ mod_summary_table <- function(
                            default_row_by = default_row_by,
                            summarize_on_choices = summarize_on_choices,
                            group_by_choices = group_by_choices,
-                           row_by_choices = row_by_choices)
+                           row_by_choices = row_by_choices,
+                           total_group_val = total_group_val)
     },
     module_id = module_id
   )
@@ -1321,7 +1359,63 @@ mod_summary_table <- function(
 }
 
 
-mock_summary_table_mm <- function() {
+#' Mock summary table app
+#'
+#' @param dry_run Return parameters used in the call
+#' @param update_query_string automatically update query string with app state
+#' @param ui_defaults,srv_defaults a list of values passed to the ui/server function
+#'
+#' @keywords mock
+#' @export
+mock_app_summary_table <- function(dry_run = FALSE,
+                                   update_query_string = TRUE,
+                                   srv_defaults = list(),
+                                   ui_defaults = list()) {
+
+  if (!requireNamespace("pharmaverseadam")) {
+    stop("Install pharmaverseadam")
+  }
+  table_dataset <- shiny::reactive({
+    pharmaverseadam::adae |> chr2factor()
+  })
+
+  pop_dataset <- shiny::reactive({
+    pharmaverseadam::adsl |> chr2factor()
+  })
+
+  ui_params <- c(
+    list(
+      id = "mod"
+    ),
+    ui_defaults
+  )
+
+  srv_params <- c(
+    list(
+      id = "mod",
+      table_dataset = table_dataset,
+      pop_dataset = pop_dataset,
+      subjid_var = "SUBJID"
+    ),
+    srv_defaults
+  )
+
+  if (dry_run) {
+    return(list(ui = ui_params, srv = srv_params))
+  }
+
+  mock_app_wrap(
+    update_query_string = update_query_string,
+    ui = function() do.call(summary_table_ui, ui_params),
+    server = function() do.call(summary_table_server, srv_params)
+  )
+}
+
+#' Mock summary table app integrated in the `{dv.manager}` module manager framework
+#'
+#' @keywords mock
+#' @export
+mock_app_summary_table_mm <- function() {
 
   adsl <- pharmaverseadam::adsl
   adlb <- pharmaverseadam::adlb |>
