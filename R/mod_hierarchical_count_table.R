@@ -1,3 +1,8 @@
+# TODO: Check for very long row names (Two pass) (Already mono font, now we need to calculate total width of the table)
+# TODO: Write latex, or via pandoc directly? ^
+# TODO: Check export for now current exports everything
+# TODO: Testing what do do here?
+
 EC <- poc( # nolint
   ID = poc(
     TABLE = "table",
@@ -1328,8 +1333,8 @@ hierarchical_count_table_server <- function(
       }),
       to_export = list(
         table = list(
-          label = "AE table",
-          info = "AE table",
+          label = "Table",
+          info = "table",
           reactive = list(
             html = sm_mr({export_count_table(..(et()))}),
             pdf = sm_mr({export_count_table(..(et()))})
