@@ -259,25 +259,53 @@ export_count_table <- function(count_table) {
 
   event_group_vals <- count_table[["meta"]]$event_group_vals
   group_cols <- names(count_table$meta$n_denominator)
+
+  data_fields <- c("count", "time_at_risk", "incidence_rate")
+  data_fields_labels <- c(
+    count = "n (%)",
+    time_at_risk = "Time at risk",
+    incidence_rate = "Rate/100"
+  )
+
+  if(length(event_group_vals) > 0) {
+    data_fields <- local({
+      first_group_col <- group_cols[[1]]
+      first_event_group_val <- event_group_vals[[1]]
+      possible_fields <- names(df_prep[[first_group_col]][[1]][[first_event_group_val]])
+      intersect(data_fields, possible_fields)
+    })    
+  } else {
+    data_fields <- local({
+      first_group_col <- group_cols[[1]]      
+      possible_fields <- names(df_prep[[first_group_col]][[1]])
+      intersect(data_fields, possible_fields)
+    })
+  }
+  data_fields_labels <- data_fields_labels[names(data_fields_labels) %in% data_fields]
   
   if(length(event_group_vals) > 0) {    
     for (gc in group_cols) {
       gc_col <- df_prep[[gc]]      
         for (egv in event_group_vals) {
-          idx <- 0
-          dn <- paste0(gc,EC$VAL$SPECIAL_CHAR,egv)                    
-          df_prep[[dn]] <- as.character(lapply(gc_col, \(x) {
-            as.character((x[[egv]][["count"]]))
-          }))
+          for (df in data_fields){
+            dn <- paste0(gc, EC$VAL$SPECIAL_CHAR, egv, EC$VAL$SPECIAL_CHAR, df)
+            df_prep[[dn]] <- as.character(lapply(gc_col, \(x) {
+              as.character((x[[egv]][[df]]))
+            }))
+          }
         }
       df_prep[[gc]] <- NULL
-    }
-    
+    }    
   } else {
     for(gc in group_cols) {
       gc_col <- df_prep[[gc]]
-      gc_col <- as.character(lapply(gc_col, \(x) as.character((x$count))))
-      df_prep[[gc]] <- gc_col
+      for (df in data_fields) {
+        dn <- paste0(gc, EC$VAL$SPECIAL_CHAR, df)
+        df_prep[[dn]] <- as.character(lapply(gc_col, \(x) {
+          as.character((x[[df]]))
+        }))
+      }      
+      df_prep[[gc]] <- NULL
     }
   }
 
@@ -300,9 +328,6 @@ export_count_table <- function(count_table) {
     gt::cols_hide(
       columns = hidden_cols
     ) |>
-    gt::tab_header(
-      title = paste("Adverse Events Frequency")
-    ) |>
     gt::tab_stubhead(
       label = paste(
         paste(hier_labels, collapse = "/"),
@@ -312,29 +337,68 @@ export_count_table <- function(count_table) {
     )
 
   if (length(event_group_vals) > 0) {
-    d_cols <- setdiff(names(df_prep), c(hidden_cols, "row_label"))
-    event_group_label <- rep(count_table$meta$event_group_vals, length(count_table$meta$n_denominator))
-    names(event_group_label) <- d_cols
+    d_cols <- setdiff(names(df_prep), c(hidden_cols, "row_label"))    
+    dfl <- rep(data_fields_labels,length(count_table$meta$n_denominator) *length(event_group_vals))
+    names(dfl) <- d_cols
     tbl <- tbl |>
       gt::cols_label(
-        .list = event_group_label
+        .list = dfl
       )
     
     for (idx in seq_along(group_N_label)) {
+      
       g <- group_N_label[[idx]]
       ng <- names(group_N_label)[[idx]]
+
+        for (jdx in seq_along(event_group_vals)) {
+          eg <- event_group_vals[[jdx]]
+          col_pattern <- paste0(
+            ng,
+            EC$VAL$SPECIAL_CHAR,
+            eg,
+            EC$VAL$SPECIAL_CHAR
+          )
+          tbl <- tbl |>
+            gt::tab_spanner(
+              label = eg,
+              columns = d_cols[startsWith(d_cols, col_pattern)],
+              id = col_pattern
+            )
+        }
+
       tbl <- tbl |>
         gt::tab_spanner(
           label = g,
           columns = d_cols[startsWith(d_cols, paste0(ng, EC$VAL$SPECIAL_CHAR))]
         )
+
     }
 
   } else {
-    tbl <- tbl |>
-      gt::cols_label(
-        .list = group_N_label
-      )
+        d_cols <- setdiff(names(df_prep), c(hidden_cols, "row_label"))
+        dfl <- rep(
+          data_fields_labels,
+          length(count_table$meta$n_denominator)
+        )
+        names(dfl) <- d_cols
+        tbl <- tbl |>
+          gt::cols_label(
+            .list = dfl
+          )
+
+        for (idx in seq_along(group_N_label)) {
+          g <- group_N_label[[idx]]
+          ng <- names(group_N_label)[[idx]]
+
+          tbl <- tbl |>
+            gt::tab_spanner(
+              label = g,
+              columns = d_cols[startsWith(
+                d_cols,
+                paste0(ng, EC$VAL$SPECIAL_CHAR)
+              )]
+            )
+        }
   }
 
   for (.lvl in unique(lvl)) {
