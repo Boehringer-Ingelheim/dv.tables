@@ -1,4 +1,6 @@
 # Event count tests
+
+# Function tests ----
 local({
   event_list <- list()
   event_list[["subj"]] <- factor(c("1", "1", "1", "1", "2", "2", "2", "3"))
@@ -57,7 +59,11 @@ local({
     expect_snapshot(w)
   })
 
-  # app ----
+})
+
+# app ----
+local({
+  skip_if_not_running_shiny_tests()
 
   tns <- tns_factory("mod")
 
@@ -75,13 +81,7 @@ local({
   root_app <- start_app_driver(rlang::quo(dv.tables::mock_app_hierarchical_count_table()))
   on.exit(if ("stop" %in% names(root_app)) root_app$stop())
 
-  fail_if_app_not_started <- function() {
-    if (is.null(root_app)) rlang::abort("App could not be started")
-  }
-
-  fail_if_app_not_started()
-  skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
-
+  fail_if_app_not_started(root_app)
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
