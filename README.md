@@ -1,10 +1,10 @@
 # dv.tables
 
-This package contains the following modules:
+This package contains the modules, see the Articles section for a detailed description of each of them:
 
-- [Hierarchical Event Count module](docs/articles/hierarchical_count_table.html)
-- [Summary table module](docs/articles/summary_table.html)
-- [Tplyr table module](docs/articles/Tplyr_tables.html)
+- Hierarchical Event Count module
+- Summary table module
+- Tplyr table module
 
 # Installation
 
