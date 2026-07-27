@@ -2,9 +2,9 @@
 
 This package contains the following modules:
 
-- [Hierarchical Event Count module](vignettes/hierarchical_count_table.Rmd)
-- [Summary table module](vignettes/summary_table.Rmd)
-- [Tplyr table module](vignettes/Tplyr_tables.Rmd)
+- [Hierarchical Event Count module](docs/articles/hierarchical_count_table.html)
+- [Summary table module](docs/articles/summary_table.html)
+- [Tplyr table module](docs/articles/Tplyr_tables.html)
 
 # Installation
 
