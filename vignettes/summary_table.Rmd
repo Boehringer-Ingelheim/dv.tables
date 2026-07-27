@@ -121,7 +121,7 @@ dv.manager::run_app(
                            adae = pharmaverseadam::adae)),
   module_list = list(
     "AE Hierarchy Table by Severity" = dv.tables::mod_summary_table(
-      module_id = "hierarchical_count_table",
+      module_id = "summary_table",
       table_dataset_name = "adae",
       pop_dataset_name = "adsl",
       show_event_group_by = TRUE,
@@ -147,8 +147,8 @@ dv.manager::run_app(
   data = list(dummy = list(adsl = pharmaverseadam::adsl,
                            adae = pharmaverseadam::adae)),
   module_list = list(
-    "AE Time at Risk Hierarchy Table" = dv.tables::mod_summary_table(
-      module_id = "hierarchical_count_table",
+    "Summary Table" = dv.tables::mod_summary_table(
+      module_id = "summary_table",
       table_dataset_name = "adae",
       pop_dataset_name = "adsl",
       show_time_at_risk_options = TRUE,
