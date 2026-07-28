@@ -651,8 +651,8 @@ mod_Tplyr_table <- function(
   receiver_id = NULL,
   review = NULL,
   title_layout = c("dropdown", "tabs"),
-  footers,
-  exclude_var_names_from_column_headings
+  footers = NULL,
+  exclude_var_names_from_column_headings = FALSE
 ) {
   title_layout <- match.arg(title_layout)
   checkmate::assert_list(output_list, types = "list")
