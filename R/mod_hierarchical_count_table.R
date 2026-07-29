@@ -1585,14 +1585,11 @@ mod_hierarchical_count_table <- CM$module(mod_hierarchical_count_table, check_mo
 #' @param update_query_string automatically update query string with app state
 #' @param ui_defaults,srv_defaults a list of values passed to the ui/server function
 #' @export
+mock_app_hierarchical_count_table <- function(dry_run = FALSE,
+                                              update_query_string = TRUE,
+                                              srv_defaults = list(),
+                                              ui_defaults = list()) {
 
-# nolint start
-mock_app_hierarchical_count_table <- function(
-    # nolint end
-  dry_run = FALSE,
-  update_query_string = TRUE,
-  srv_defaults = list(),
-  ui_defaults = list()) {
   if (!requireNamespace("pharmaverseadam")) {
     stop("Install pharmaverseadam")
   }
