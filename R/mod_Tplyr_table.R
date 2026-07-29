@@ -777,7 +777,9 @@ mod_Tplyr_table <- function(
         table_pagination = table_pagination,
         on_sbj_click = on_sbj_click_fun,
         review = review,
-        title_layout = title_layout
+        title_layout = title_layout,
+        footers = footers,
+        exclude_var_names_from_column_headings = exclude_var_names_from_column_headings
       )
     },
     module_id = module_id
