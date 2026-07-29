@@ -12,7 +12,7 @@ summary_table_ui(
   default_denom = "N",
   default_stats = NULL,
   default_collapse_method = NULL,
-  collapse_method_choices = NULL,
+  collapse_method_choices = "mean",
   choices_stats = NULL
 )
 }
@@ -60,6 +60,11 @@ A vector of strings indicating the names of functions that can be used for colla
 more than one row per subject exists after population grouping and row categorization has been applied. The double
 colon (\code{::}) namespace resolution operator can be used to specify functions from specific packages, e.g.,
 \code{"dplyr::first"}.}
+
+\item{choices_stats}{\verb{[character(1+) | NULL]}
+
+A vector of strings from the names of the list elements from \code{summary_table_server()} arguments, \code{stats_formats} and
+\code{stats_functions}, used as the choice of statistics for summarizing numerical data.}
 }
 \value{
 A \code{shiny::tagList} containing the user interface for selecting hierarchy, group,

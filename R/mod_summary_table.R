@@ -702,6 +702,11 @@ summary_table_dep <- function() {
 #' @inheritParams mod_summary_table
 #' @inheritParams summary_table_server
 #'
+#' @param choices_stats `[character(1+) | NULL]`
+#'
+#' A vector of strings from the names of the list elements from `summary_table_server()` arguments, `stats_formats` and
+#' `stats_functions`, used as the choice of statistics for summarizing numerical data.
+#'
 #' @return A `shiny::tagList` containing the user interface for selecting hierarchy, group,
 #' and minimum percentage for event counting.
 #'
@@ -715,7 +720,7 @@ summary_table_ui <- function(module_id,
                              default_denom = "N",
                              default_stats = NULL,
                              default_collapse_method = NULL,
-                             collapse_method_choices = NULL,
+                             collapse_method_choices = "mean",
                              choices_stats = NULL) {
 
   ns <- shiny::NS(module_id)
@@ -1376,7 +1381,10 @@ mock_app_summary_table <- function(dry_run = FALSE,
     stop("Install pharmaverseadam")
   }
   table_dataset <- shiny::reactive({
-    pharmaverseadam::adae |> chr2factor()
+    pharmaverseadam::adlb |>
+      dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
+                    .data[["AVISITN"]] %in% c(0, 4, 5, 7)) |>
+      chr2factor()
   })
 
   pop_dataset <- shiny::reactive({
@@ -1385,17 +1393,17 @@ mock_app_summary_table <- function(dry_run = FALSE,
 
   ui_params <- c(
     list(
-      id = "mod"
+      module_id = "mod"
     ),
     ui_defaults
   )
 
   srv_params <- c(
     list(
-      id = "mod",
+      module_id = "mod",
       table_dataset = table_dataset,
       pop_dataset = pop_dataset,
-      subjid_var = "SUBJID"
+      subjid_var = "USUBJID"
     ),
     srv_defaults
   )
