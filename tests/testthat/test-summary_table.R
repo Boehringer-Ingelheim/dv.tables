@@ -26,7 +26,7 @@ labels_vector <- c(
   minmax = "Min - Max"
 )
 
-rep_list = list(
+rep_list <- list(
   n = c(`^NA$` = "0"),
   meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
              `\\(NA\\)$` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
@@ -292,8 +292,6 @@ local({
     expect_setequal(app$get_values(input = TRUE)[["input"]][[ID$INPUT$ANL_VARS]], anl_var_select)
     expect_setequal(app$get_values(input = TRUE)[["input"]][[ID$INPUT$GROUP_VARS]], grp_var_select)
     expect_setequal(app$get_values(input = TRUE)[["input"]][[ID$INPUT$ROW_VARS]], row_var_select)
-
-    #app$get_values(output = TRUE)[["output"]][["mod-table_output"]]$html
   })
 
   test_that(vdoc[["add_spec"]](
