@@ -260,16 +260,16 @@ compute_events_table <- function(event_df,
   checkmate::assert_data_frame(pop_df, min.rows = 1)
   checkmate::assert_character(hierarchy, min.chars = 1, min.len = 1)
   checkmate::assert_string(group_var, min.chars = 1)
+  checkmate::assert_string(subjid_var, min.chars = 1)
+
+  checkmate::assert_names(names(event_df), must.include = c(hierarchy, event_group_var, subjid_var))
+  checkmate::assert_names(names(pop_df), must.include = c(group_var, subjid_var))
+
   checkmate::assert_factor(pop_df[[group_var]])
   lapply(hierarchy, function(h) checkmate::assert_factor(event_df[[h]]))
   checkmate::assert_factor(event_df[[subjid_var]])
   checkmate::assert_factor(pop_df[[subjid_var]])
   checkmate::assert_character(event_group_var, min.chars = 1, max.len = 1, null.ok = TRUE)
-
-  checkmate::assert_subset(hierarchy, names(event_df))
-  checkmate::assert_subset(group_var, names(pop_df))
-  checkmate::assert_string(subjid_var, min.chars = 1)
-  checkmate::assert_subset(event_group_var, names(event_df))
 
   # Time at risk dates, if specified, must be on population and event data frames
   checkmate::assert_names(names(pop_df), must.include = c(origin_date_var, censor_date_var))
@@ -1635,15 +1635,23 @@ mock_app_hierarchical_count_table <- function(dry_run = FALSE,
 #' @keywords mock
 #' @export
 mock_app_hierarchical_count_table_mm <- function() {
+
   if (!requireNamespace("dv.manager")) {
     stop("Install dv.manager")
   }
   if (!requireNamespace("pharmaverseadam")) {
     stop("Install pharmaverseadam")
   }
+
+  adsl <- pharmaverseadam::adsl
+  adae <- pharmaverseadam::adae
+
+  attr(adsl, "meta") <- base::file.info("NEWS.md")
+  attr(adae, "meta") <- base::file.info("NEWS.md")
+
   dv.manager::run_app(
     data = list(
-      dummy = list(adae = pharmaverseadam::adae, adsl = pharmaverseadam::adsl)
+      pharmaverseadam = list(adae = adae, adsl = adsl)
     ),
     module_list = list(
       "ADAE by term" = mod_hierarchical_count_table(
