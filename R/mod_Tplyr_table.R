@@ -523,6 +523,8 @@ Tplyr_table_server <- function(
       "listings_data" = listings_data()
     )
 
+    listing_pagination <- validate_listing_pagination(listing_pagination)
+
     res_listings <- dv.listings::listings_server(
       module_id = TPLYR_TBL$LISTINGS_ID,
       dataset_list = listings_data,
@@ -759,11 +761,15 @@ mod_Tplyr_table <- function(
         ))
       }
 
+
+
       if (is.list(review)) {
-        # These afmm fields are only required for the review functionality, so we bundle them in the `review` list
+
         review[["data"]] <- afmm[["data"]]
+
         review[["selected_dataset"]] <- afmm[["dataset_metadata"]][["name"]]
-      }
+
+
 
       Tplyr_table_server(
         module_id = module_id,

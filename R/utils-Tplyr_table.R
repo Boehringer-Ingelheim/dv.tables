@@ -114,3 +114,24 @@ warn_deprecated_pagination <- function() {
     call. = FALSE
   )
 }
+
+validate_listing_pagination <- function(listing_pagination) {
+  # NULL or a single logical is what dv.listings accepts
+  if (is.null(listing_pagination)) {
+    return(NULL)
+  }
+
+  if (is.logical(listing_pagination) && length(listing_pagination) == 1L && !is.na(listing_pagination)) {
+    return(listing_pagination)
+  }
+
+  warning(
+    "`listing_pagination` must be TRUE, FALSE, or NULL. ",
+    "It is passed through to `dv.listings::listings_server()`, which does not support ",
+    "other values (e.g. a page size integer, unlike `table_pagination`). ",
+    "Falling back to the default (NULL).",
+    call. = FALSE
+  )
+
+  return(NULL)
+}
