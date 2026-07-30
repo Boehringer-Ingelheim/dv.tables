@@ -767,7 +767,14 @@ mod_Tplyr_table <- function(
 
         review[["data"]] <- afmm[["data"]]
 
-        review[["selected_dataset"]] <- afmm[["dataset_metadata"]][["name"]]
+        review[["selected_dataset"]] <- shiny::reactive({
+          attr(
+            afmm[["unfiltered_dataset_list_with_filter_info"]]()[[
+              "unfiltered_dataset_list"
+            ]],
+            "dataset_list_name"
+          )
+        })
 
 
 
@@ -787,7 +794,7 @@ mod_Tplyr_table <- function(
         footers = footers,
         exclude_var_names_from_column_headings = exclude_var_names_from_column_headings
       )
-    },
+    }},
     module_id = module_id
   )
   return(mod)
