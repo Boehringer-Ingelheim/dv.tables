@@ -557,11 +557,14 @@ Tplyr_table_server <- function(
     )
     ## listings part end ---
 
-    res_listings[["to_report"]] <- list(
+    res_listings[["to_export"]] <- list(
       table = list(
-        reactive = table_tplyr_df
+        reactive = list(
+          html = table_tplyr_df,
+          pdf = table_tplyr_df
       )
     )
+  )
 
     return(res_listings)
   })
