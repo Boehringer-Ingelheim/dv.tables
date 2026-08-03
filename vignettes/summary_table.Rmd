@@ -240,15 +240,11 @@ dv.manager::run_app(
 )
 ```
 
-```{r, echo=FALSE}
-# lintr: disable: assignment_linter
-```
-
 ## User-defined statistics for numerical analysis
 
 A named list of statistical functions is passed to the `stats_functions` argument. The default is as follows:
 
-```{r, eval=FALSE}
+```
 stats_functions = list(
   n = length,
   mean = mean,
@@ -268,7 +264,7 @@ The functions must either return a single numeric value (e.g. `mean`, `stats::sd
 a function requires more than one data point (e.g. `stats::t.test`) then the error cases must be dealt with using a
 wrapper function:
 
-```{r, eval=FALSE}
+```
 meanci = function(x) {
   if (length(x) > 1L) { # At least 2 values needed for t.test
     stats::t.test(x, conf.level = 0.95)$conf.int
@@ -286,7 +282,7 @@ two values, those values can be referred to as `meanci.1` and `meanci.2` respect
 
 A named list of formats can be passed to the `stats_formats` argument. The default is as follows:
 
-```{r, eval=FALSE}
+```
 stats_formats = list(
   n = list(fmt = "%d", "n"),
   meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
@@ -315,7 +311,7 @@ formatted as character.
 
 A named vector of statistics labels can be passed to the `stats_labels` argument. The default is as follows:
 
-```{r, eval=FALSE}
+```
 stats_labels = c(
   n = "n",
   meansd = "Mean (SD)",
@@ -336,25 +332,25 @@ Labels apply to UI statistics checkbox labels and table statistics labels. Note 
 `stats_formats`, then they appear separately in the table statistics, but the UI statistics checkbox will reflect the
 name given to the function definition. Labels can be applied to both cases, for example:
 
-```{r, eval=FALSE}
+```
 stats_functions = list(
-  ...
+  ...,
   meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
   ...  
 ),
 stats_formats = list(
-  ...
+  ...,
   meanci.1 = list(fmt = "%.2f", "meanci.1"),
   meanci.2 = list(fmt = "%.2f", "meanci.2"),
   ...
 ),
 stats_labels = c(
-  ...
+  ...,
   meanci = "Mean 95% CI",            # Appears as text in UI checkbox
   meanci.1 = "Mean 95% CI (lower)",  # Appears as table statistic text
   meanci.2 = "Mean 95% CI (upper)",  # Appears as table statistic text
   ...
-),
+)
 ```
 
 ## User-defined formatted value replacements for numerical analysis
@@ -363,7 +359,7 @@ A named list of formatted value replacements can be passed to the `stats_replace
 presentation formatting, such as replacing values like `NA` and `NaN` with zeros, dashes or `NE`. The default is as
 follows:
 
-```{r, eval=FALSE}
+```
 stats_replace = list(
   n = c(`^NA$` = "0"),
   meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
@@ -387,9 +383,6 @@ elements themselves are the replacement strings.
 In the default, the em dash (long dash) has been specified by the package constant `SUMMTAB$VAL$EM_DASH`, but the
 unicode value, `"\u2014"`, can also be directly used.
 
-```{r, echo=FALSE}
-# lintr: enable: assignment_linter
-```
 
 # Download
 
