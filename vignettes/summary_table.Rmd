@@ -240,6 +240,151 @@ dv.manager::run_app(
 )
 ```
 
+## User-defined statistics for numerical analysis
+
+A named list of statistical functions is passed to the `stats_functions` argument. The default is as follows:
+
+```{r, eval=FALSE}
+stats_functions = list(
+  n = length,
+  mean = mean,
+  sd = stats::sd,
+  meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+  geomean = \(x) if (all(x > 0)) exp(mean(log(x))) else NaN,
+  median = stats::median,
+  medianci = \(x) if (length(x) > 1L) stats::wilcox.test(x, exact = FALSE, conf.int = TRUE, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+  q1q3 = \(x) stats::quantile(x, c(0.25, 0.75)),
+  min = min,
+  max = max
+)
+```
+
+The functions must either return a single numeric value (e.g. `mean`, `stats::sd`, etc.) or a vector of numeric values
+(e.g. `\(x) stats::quantile(x, c(0.25, 0.75))`). Note that the functions will not be applied to empty groupings, but if
+a function requires more than one data point (e.g. `stats::t.test`) then the error cases must be dealt with using a
+wrapper function:
+
+```{r, eval=FALSE}
+meanci = function(x) {
+  if (length(x) > 1L) { # At least 2 values needed for t.test
+    stats::t.test(x, conf.level = 0.95)$conf.int
+  } else { # Return tuple of NA values
+    rep(NA_real_, 2L)
+  }
+}
+```
+
+When such functions return multiple values, those values can be referred to in `stats_formats`, `stats_labels`, and
+`stats_replace` by appending a dot followed by an incremented integer. So for the example of `meanci` which returns
+two values, those values can be referred to as `meanci.1` and `meanci.2` respectively.
+
+## User-defined combination and formatting of statistics for numerical analysis
+
+A named list of formats can be passed to the `stats_formats` argument. The default is as follows:
+
+```{r, eval=FALSE}
+stats_formats = list(
+  n = list(fmt = "%d", "n"),
+  meansd = list(fmt = "%.1f (%.1f)", "mean", "sd"),
+  meanci = list(fmt = "(%.2f, %.2f)", "meanci.1", "meanci.2"),
+  geomean = list(fmt = "%.1f", "geomean"),
+  median = list(fmt = "%.1f", "median"),
+  medianci = list(fmt = "(%.2f, %.2f)", "medianci.1", "medianci.2"),
+  q1q3 = list(fmt = "%.1f - %.1f", "q1q3.1", "q1q3.2"),
+  minmax = list(fmt = "%.1f - %.1f", "min", "max")
+)
+```
+
+Each format is a list of arguments passed to `sprintf(fmt, ...)`, typically the `fmt` argument first, followed by all
+the insertion values.
+
+Values from single return value statistical functions defined in `stats_functions` are referred to by the name of the
+`stats_functions` list element (like `"n"`, `"mean"` and `"sd"` in the default). Values from multi-value return
+statistical functions must be referred to using their integer suffix (like `"meanci.1"` and `"meanci.2"` in the
+default).
+
+The formatted result is assigned to the element name (internally corresponding to an interim results data frame column
+name). Any results from functions given in `stats_functions` that do not appear in the formatting will be automatically
+formatted as character.
+
+## User-defined labelling of statistics for numerical analysis
+
+A named vector of statistics labels can be passed to the `stats_labels` argument. The default is as follows:
+
+```{r, eval=FALSE}
+stats_labels = c(
+  n = "n",
+  meansd = "Mean (SD)",
+  meanci = "Mean 95% CI",
+  geomean = "Geometric Mean",
+  median = "Median",
+  medianci = "Median 95% CI",
+  q1q3 = "25% and 75%-ile",
+  minmax = "Min - Max"
+)
+```
+    
+The names correspond either to the names assigned in the `stats_formats` list, or otherwise the names in the
+`stats_functions` list.
+
+Labels apply to UI statistics checkbox labels and table statistics labels. Note that if a function defined in
+`stats_functions` returns more than one value, e.g. `stats::quantile`, and those values are not combined in
+`stats_formats`, then they appear separately in the table statistics, but the UI statistics checkbox will reflect the
+name given to the function definition. Labels can be applied to both cases, for example:
+
+```{r, eval=FALSE}
+stats_functions = list(
+  ...
+  meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+  ...  
+)
+
+stats_formats = list(
+  ...
+  meanci.1 = list(fmt = "%.2f", "meanci.1"),
+  meanci.2 = list(fmt = "%.2f", "meanci.2"),
+  ...
+)
+
+stats_labels = c(
+  ...
+  meanci = "Mean 95% CI",            # Appears as text in UI checkbox
+  meanci.1 = "Mean 95% CI (lower)",  # Appears as table statistic text
+  meanci.2 = "Mean 95% CI (upper)",  # Appears as table statistic text
+  ...
+)
+```
+
+## User-defined formatted value replacements for numerical analysis
+
+A named list of formatted value replacements can be passed to the `stats_replace` argument. Primarily this is used for
+presentation formatting, such as replacing values like `NA` and `NaN` with zeros, dashes or `NE`. The default is as
+follows:
+
+```{r, eval=FALSE}
+stats_replace = list(
+  n = c(`^NA$` = "0"),
+  meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
+             `\\(NA\\)$` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
+  meanci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
+  geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH,
+              `^NaN$` = "NE"),
+  median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
+  medianci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
+  q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
+  minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH)
+)
+```
+
+The name of each element of the list directly corresponds to a name from the `stats_formats` list.
+
+Each of those elements is a named vector defining regular expression substitutions to be applied for that formatted
+statistic. The names given to the vector elements are regular expressions to match the formatted results, and the
+elements themselves are the replacement strings.
+
+In the default, the em dash (long dash) has been specified by the package constant `SUMMTAB$VAL$EM_DASH`, but the
+unicode value, `"\u2014"`, can also be directly used.
+
 # Download
 
 This module currently does not allow downloading the table as Excel (.xlsx) or Word (.rtf).
