@@ -97,7 +97,6 @@ resolve_table_pagination <- function(table_pagination) {
 
     return(list(
       pagination = TRUE,
-      showPageSizeOptions = TRUE,
       defaultPageSize = as.integer(default_page_size),
       showPageSizeOptions = TRUE,
       pageSizeOptions = sort(unique(c(10L, 25L, 50L, 100L, default_page_size)))
