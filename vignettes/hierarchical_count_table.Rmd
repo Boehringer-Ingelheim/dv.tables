@@ -14,12 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-![](images/hierarchical_count_table.png)
-
-![](images/hierarchical_count_table_event_group_by.png)
-
-![](images/hierarchical_count_table_time_at_risk.png)
-
 This guide provides a detailed overview of the `dv.tables::mod_hierarchical_count_table()` module and its features. It
 is meant to provide guidance to App Creators on creating Apps in DaVinci using the module. Walk-throughs for sample app
 creation using the module are also included to demonstrate the various module specific features.
@@ -53,8 +47,7 @@ and values for any other arguments as applicable.
   It expects a one-record-per-subject dataset at least containing `subjid_var`, with a structure similar to
   https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806
 
-Please refer to [`dv.tables::mod_hierarchical_count_table()`](../reference/mod_hierarchical_count_table.html) for the
-complete list of arguments and their description.
+Please refer to `dv.tables::mod_hierarchical_count_table()` for the complete list of arguments and their description.
 
 # Input menus
 
@@ -93,11 +86,27 @@ options are not available.
 
 # Visualizations
 
-## Hierarchy Event Count table
+## Hierarchical Event Count table
 
-A collapsible hierarchy table that can optionally display time at risk and incidence rate.
+A collapsible hierarchy table.
+
+![](images/hierarchical_count_table.png)
+
+## Sub-grouped Hierarchical Event Count table
+
+A collapsible hierarchy table sub-grouped by a variable from the table events dataset.
+
+![](images/hierarchical_count_table_event_group_by.png)
+
+## Time at Risk Hierarchical Event Count table
+
+A collapsible hierarchy table displaying time at risk and incidence rate.
+
+![](images/hierarchical_count_table_time_at_risk.png)
 
 # Creating a hierarchical count table application
+
+## Example 1
 
 The following code specifies the bare minimum module arguments with no default hierarchy or group specified:
 
@@ -118,6 +127,8 @@ dv.manager::run_app(
   filter_key = "USUBJID"
 )
 ```
+
+## Example 2
 
 The following code specifies module arguments for the display of a body system and preferred term hierarchy grouped
 by planned treatment group, and event severity:
@@ -145,6 +156,8 @@ dv.manager::run_app(
   filter_key = "USUBJID"
 )
 ```
+
+## Example 3
 
 The following code specifies module arguments for the display of a body system and preferred term hierarchy and planned
 treatment group, with date variables specified for time at risk and incidence rate analysis:
