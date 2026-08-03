@@ -782,7 +782,18 @@ mod_Tplyr_table <- function(
         module_id = module_id,
         dataset_list = shiny::reactive(afmm$filtered_dataset_list()[needed_datasets]),
         output_list = output_list,
-        dataset_metadata = afmm$dataset_metadata,
+        dataset_metadata = list(
+          name = shiny::reactive(
+            attr(
+              afmm[["unfiltered_dataset_list_with_filter_info"]]()[["unfiltered_dataset_list"]], "dataset_list_name"
+            )
+          ),
+          date_range = shiny::reactive(
+            attr(
+              afmm[["unfiltered_dataset_list_with_filter_info"]]()[["unfiltered_dataset_list"]], "date_range"
+            )
+          )
+        ),
         subjid_var = subjid_var,
         default_vars = default_vars,
         intended_use_label = intended_use_label,
