@@ -36,7 +36,8 @@ SUMMTAB <- poc(
     NO_GROUP_VARS = "No variables selected to group by",
     TOO_MANY_ROW_VARS = "Maximum of 8 row variables allowed",
     VAR_OVERLAP = "Variable has been selected in more than one selection",
-    NO_STATS = "No statistics selected"
+    NO_STATS = "No statistics selected",
+    POP_GROUP_DUP= "Population dataset has more than one row per subject per grouping"
   ),
   VAL = poc(
     SPECIAL_CHAR = "\u001D", # For naming and processing row levels
@@ -258,7 +259,24 @@ summtab_compute <- function(tbl_df,
                             denom = NULL,
                             collapse_func_name = NULL) {
 
-  # TBD: Check that pop_df is one row per subject per grouping
+  checkmate::assert_data_frame(tbl_df, min.rows = 1)
+  checkmate::assert_data_frame(pop_df, min.rows = 1)
+  checkmate::assert_character(anl_vars, min.chars = 1, min.len = 1)
+  checkmate::assert_character(group_vars, min.chars = 1, min.len = 1)
+  checkmate::assert_character(row_vars, null.ok = TRUE)
+  checkmate::assert_string(subjid_var, min.chars = 1)
+
+  checkmate::assert_names(names(pop_df), must.include = c(group_vars, subjid_var))
+  checkmate::assert_names(names(tbl_df), must.include = c(anl_vars, row_vars, subjid_var))
+
+  lapply(anl_vars, function(x) checkmate::assert_multi_class(tbl_df[[x]], c("numeric", "integer", "factor")))
+  lapply(group_vars, function(x) checkmate::assert_factor(pop_df[[x]]))
+  lapply(row_vars, function(x) checkmate::assert_factor(tbl_df[[x]]))
+  checkmate::assert_factor(tbl_df[[subjid_var]])
+  checkmate::assert_factor(pop_df[[subjid_var]])
+
+  # If total group column requested then check that `total_group_val` is a string
+  if (total) checkmate::assert_string(total_group_val)
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
@@ -291,18 +309,6 @@ summtab_compute <- function(tbl_df,
   # Identify population group vars that occur in table data frame
   common_group_vars <- intersect(group_vars, names(tbl_df))
 
-  store_col_labels <- function(df) {
-    lapply(df, function(col) attr(col, "label"))
-  }
-
-  restore_col_labels <- function(df, orig_labels) {
-    for (col_name in names(orig_labels)) {
-      attr(df[[col_name]], "label") <- orig_labels[[col_name]]
-    }
-
-    return(df)
-  }
-
   # Duplicate all rows so that total can be calculated for first group var
   if (total) {
     group_var_1 <- group_vars[[1]]
@@ -312,19 +318,19 @@ summtab_compute <- function(tbl_df,
     total_grp_fct <- factor(total_group_val, levels = c(levels(pop_df[[group_var_1]])))
     total_rows <- dplyr::mutate(pop_df, !!group_var_1 := total_grp_fct)
 
-    pop_col_labels <- store_col_labels(pop_df)
+    pop_col_labels <- get_lbls_robust(pop_df)
     pop_df <- pop_df |>
       rbind(total_rows) |>
-      restore_col_labels(pop_col_labels)
+      set_lbls(pop_col_labels)
 
     if (group_var_1 %in% names(tbl_df)) {
       tbl_df[[group_var_1]] <- factor(tbl_df[[group_var_1]], levels = gv1_fct_levels)
       total_rows <- dplyr::mutate(tbl_df, !!group_var_1 := total_grp_fct)
 
-      tbl_col_labels <- store_col_labels(tbl_df)
+      tbl_col_labels <- get_lbls_robust(tbl_df)
       tbl_df <- tbl_df |>
         rbind(total_rows) |>
-        restore_col_labels(tbl_col_labels)
+        set_lbls(tbl_col_labels)
     }
   }
 
@@ -911,6 +917,10 @@ summary_table_server <- function(module_id,
           all(sapply(tbl_df[anl_vars], \(x) !is.numeric(x))) ||
             checkmate::test_character(choices_stats, min.chars = 1L, min.len = 1L, max.len = NULL),
           SUMMTAB$VALIDATE$NO_STATS
+        ),
+        shiny::need(
+          !anyDuplicated(pop_df[c(subjid_var, group_vars)]),
+          SUMMTAB$VALIDATE$POP_GROUP_DUP
         )
       )
 
@@ -951,7 +961,6 @@ summary_table_server <- function(module_id,
                                        show_category_n = show_category_n,
                                        denom = denom,
                                        collapse_func_name = collapse_func_name)
-
 
       summary_table
     })
@@ -1178,10 +1187,10 @@ summary_table_server <- function(module_id,
 #'
 #' @param collapse_method_choices `[character(1+) | NULL]`
 #'
-#' A vector of strings indicating the names of functions that can be used for collapsing (aka aggregating) rows when
-#' more than one row per subject exists after population grouping and row categorization has been applied. The double
-#' colon (`::`) namespace resolution operator can be used to specify functions from specific packages, e.g.,
-#' `"dplyr::first"`.
+#' A vector of named strings indicating the names of functions that can be used for collapsing (aka aggregating) rows
+#' when more than one row per subject exists after population grouping and row categorization has been applied. The
+#' double colon (`::`) namespace resolution operator can be used to specify functions from specific packages, e.g.,
+#' `"dplyr::first"`. The names are displayed in the UI radio button selections.
 #'
 #' @param total_group_val `[character(1)]`
 #'

@@ -179,10 +179,10 @@ on (optional). If it is not specified then all factor and character variables fr
 
 \item{collapse_method_choices}{\verb{[character(1+) | NULL]}
 
-A vector of strings indicating the names of functions that can be used for collapsing (aka aggregating) rows when
-more than one row per subject exists after population grouping and row categorization has been applied. The double
-colon (\code{::}) namespace resolution operator can be used to specify functions from specific packages, e.g.,
-\code{"dplyr::first"}.}
+A vector of named strings indicating the names of functions that can be used for collapsing (aka aggregating) rows
+when more than one row per subject exists after population grouping and row categorization has been applied. The
+double colon (\code{::}) namespace resolution operator can be used to specify functions from specific packages, e.g.,
+\code{"dplyr::first"}. The names are displayed in the UI radio button selections.}
 
 \item{total_group_val}{\verb{[character(1)]}
 
