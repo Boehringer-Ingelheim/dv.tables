@@ -37,7 +37,7 @@ SUMMTAB <- poc(
     TOO_MANY_ROW_VARS = "Maximum of 8 row variables allowed",
     VAR_OVERLAP = "Variable has been selected in more than one selection",
     NO_STATS = "No statistics selected",
-    POP_GROUP_DUP= "Population dataset has more than one row per subject per grouping"
+    POP_GROUP_DUP = "Population dataset has more than one row per subject per grouping"
   ),
   VAL = poc(
     SPECIAL_CHAR = "\u001D", # For naming and processing row levels
