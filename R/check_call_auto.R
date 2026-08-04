@@ -97,5 +97,99 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     return(OK)
 }
 
+# dv.tables::mod_summary_table
+check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_dataset_name, pop_dataset_name,
+    subjid_var, show_modal_on_click, stats_functions, stats_formats, stats_labels, stats_replace, default_summarize_on,
+    default_group_by, default_row_by, default_total, default_drop_na, default_show_category_n, default_denom,
+    default_stats, default_collapse_method, summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices,
+    total_group_val, receiver_id, err) {
+    OK <- logical(0)
+    used_dataset_names <- new.env(parent = emptyenv())
+    OK[["module_id"]] <- CM$check_module_id("module_id", module_id, err)
+    flags <- structure(list(), names = character(0))
+    OK[["table_dataset_name"]] <- CM$check_dataset_name("table_dataset_name", table_dataset_name, flags,
+        datasets, used_dataset_names, err)
+    flags <- structure(list(), names = character(0))
+    OK[["pop_dataset_name"]] <- CM$check_dataset_name("pop_dataset_name", pop_dataset_name, flags, datasets,
+        used_dataset_names, err)
+    subkind <- list(kind = "factor")
+    flags <- list(subjid_var = TRUE)
+    OK[["subjid_var"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("subjid_var", subjid_var,
+        subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], err)
+    "NOTE: show_modal_on_click (logical) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: stats_functions (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: stats_formats (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: stats_labels (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: stats_replace (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    subkind <- list(kind = "or", options = list(list(kind = "numeric", min = NA, max = NA), list(kind = "integer",
+        min = NA, max = NA), list(kind = "character"), list(kind = "factor")))
+    flags <- list(one_or_more = TRUE, optional = TRUE)
+    OK[["default_summarize_on"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("default_summarize_on",
+        default_summarize_on, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], err)
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(one_or_more = TRUE, optional = TRUE)
+    OK[["default_group_by"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("default_group_by",
+        default_group_by, subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], err)
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(one_or_more = TRUE, optional = TRUE)
+    OK[["default_row_by"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("default_row_by",
+        default_row_by, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], err)
+    "NOTE: default_total (logical) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: default_drop_na (logical) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: default_show_category_n (logical) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: default_denom (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: default_stats (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: default_collapse_method (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    subkind <- list(kind = "or", options = list(list(kind = "numeric", min = NA, max = NA), list(kind = "integer",
+        min = NA, max = NA), list(kind = "character"), list(kind = "factor")))
+    flags <- list(one_or_more = TRUE, optional = TRUE)
+    OK[["summarize_on_choices"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("summarize_on_choices",
+        summarize_on_choices, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], err)
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(one_or_more = TRUE, optional = TRUE)
+    OK[["group_by_choices"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("group_by_choices",
+        group_by_choices, subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], err)
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(one_or_more = TRUE, optional = TRUE)
+    OK[["row_by_choices"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("row_by_choices",
+        row_by_choices, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], err)
+    "NOTE: collapse_method_choices (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: total_group_val (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: receiver_id (character) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    for (ds_name in names(used_dataset_names)) {
+        OK[["subjid_var"]] <- OK[["subjid_var"]] && CM$check_subjid_col(datasets, ds_name, get(ds_name),
+            "subjid_var", subjid_var, err)
+    }
+    return(OK)
+}
+
 })
 # styler: on

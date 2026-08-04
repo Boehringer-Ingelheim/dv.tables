@@ -1373,6 +1373,114 @@ mod_summary_table <- function(
 }
 
 
+# Summary table module interface ----
+
+# TODO: Fill in
+mod_summary_table_API_docs <- list(
+  "Summary table",
+  module_id = "",
+  table_dataset_name = "",
+  pop_dataset_name = "",
+  subjid_var = "",
+  show_modal_on_click = "",
+  stats_functions = "",
+  stats_formats = "",
+  stats_labels = "",
+  stats_replace = "",
+  default_summarize_on = "",
+  default_group_by = "",
+  default_row_by = "",
+  default_total = "",
+  default_drop_na = "",
+  default_show_category_n = "",
+  default_denom = "",
+  default_stats = "",
+  default_collapse_method = "",
+  summarize_on_choices = "",
+  group_by_choices = "",
+  row_by_choices = "",
+  collapse_method_choices = "",
+  total_group_val = "",
+  receiver_id = ""
+)
+
+mod_summary_table_API_spec <- TC$group(
+  module_id = TC$mod_ID(),
+  table_dataset_name = TC$dataset_name(),
+  pop_dataset_name = TC$dataset_name(),
+  subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
+  show_modal_on_click = TC$logical(),
+  stats_functions = TC$character() |> TC$flag("ignore"),
+  stats_formats = TC$character() |> TC$flag("ignore"),
+  stats_labels = TC$character(),
+  stats_replace = TC$character() |> TC$flag("ignore"),
+  default_summarize_on = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
+  default_group_by = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
+  default_row_by = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
+  default_total = TC$logical(),
+  default_drop_na = TC$logical(),
+  default_show_category_n = TC$logical(),
+  default_denom = TC$character(),
+  default_stats = TC$character(),
+  default_collapse_method = TC$character(),
+  summarize_on_choices = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
+  group_by_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
+  row_by_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
+  collapse_method_choices = TC$character(),
+  total_group_val = TC$character(),
+  receiver_id = TC$character() |> TC$flag("optional")
+) |> TC$attach_docs(mod_summary_table_API_docs)
+
+check_mod_summary_table <- function(
+    afmm, datasets,
+    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
+    stats_functions, stats_formats, stats_labels, stats_replace,
+    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na,
+    default_show_category_n, default_denom, default_stats, default_collapse_method,
+    summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices,
+    total_group_val, receiver_id
+) {
+  err <- CM$container()
+
+  # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
+  # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), err)
+
+  OK <- check_mod_summary_table_auto( # nolint unused
+    afmm, datasets,
+    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
+    stats_functions, stats_formats, stats_labels, stats_replace,
+    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na,
+    default_show_category_n, default_denom, default_stats, default_collapse_method,
+    summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices,
+    total_group_val, receiver_id,
+    err
+  )
+
+  res <- list(errors = err[["messages"]])
+  return(res)
+}
+
+dataset_info_summary_table <- function(table_dataset_name, pop_dataset_name, ...) {
+  # TODO: Replace this function with a generic one that builds the list based on mod_boxplot_API_spec.
+  # Something along the lines of CM$dataset_info(mod_hierarchical_count_table_API_spec, args = match.call())
+  all <- unique(c(table_dataset_name, pop_dataset_name))
+  subject_level <- pop_dataset_name
+  if (length(subject_level) == 0) subject_level <- character(0)
+
+  return(list(all = all, subject_level = subject_level))
+}
+
+mod_summary_table <- CM$module(mod_summary_table, check_mod_summary_table, dataset_info_summary_table)
+
+
+# Summary table mock apps ----
+
 #' Mock summary table app
 #'
 #' @param dry_run Return parameters used in the call
