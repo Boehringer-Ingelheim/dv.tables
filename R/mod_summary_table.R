@@ -259,25 +259,6 @@ summtab_compute <- function(tbl_df,
                             denom = NULL,
                             collapse_func_name = NULL) {
 
-  checkmate::assert_data_frame(tbl_df, min.rows = 1)
-  checkmate::assert_data_frame(pop_df, min.rows = 1)
-  checkmate::assert_character(anl_vars, min.chars = 1, min.len = 1)
-  checkmate::assert_character(group_vars, min.chars = 1, min.len = 1)
-  checkmate::assert_character(row_vars, null.ok = TRUE)
-  checkmate::assert_string(subjid_var, min.chars = 1)
-
-  checkmate::assert_names(names(pop_df), must.include = c(group_vars, subjid_var))
-  checkmate::assert_names(names(tbl_df), must.include = c(anl_vars, row_vars, subjid_var))
-
-  lapply(anl_vars, function(x) checkmate::assert_multi_class(tbl_df[[x]], c("numeric", "integer", "factor")))
-  lapply(group_vars, function(x) checkmate::assert_factor(pop_df[[x]]))
-  lapply(row_vars, function(x) checkmate::assert_factor(tbl_df[[x]]))
-  checkmate::assert_factor(tbl_df[[subjid_var]])
-  checkmate::assert_factor(pop_df[[subjid_var]])
-
-  # If total group column requested then check that `total_group_val` is a string
-  if (total) checkmate::assert_string(total_group_val)
-
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
 
@@ -1283,6 +1264,25 @@ mod_summary_table <- function(
     total_group_val = "Total",
     receiver_id = NULL
 ) {
+
+  # Check validity of arguments that were not checked by Early Error Feedback
+  ac <- checkmate::makeAssertCollection()
+  checkmate::assert_logical(show_modal_on_click, add = ac)
+  checkmate::assert_list(stats_functions, types = "function", any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
+  checkmate::assert_list(stats_formats, types = "list", names = "unique", null.ok = TRUE, add = ac)
+  checkmate::assert_character(stats_labels, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
+  checkmate::assert_list(stats_replace, types = "character", names = "unique", null.ok = TRUE, add = ac)
+  checkmate::assert_logical(default_total, add = ac)
+  checkmate::assert_logical(default_drop_na, add = ac)
+  checkmate::assert_logical(default_show_category_n, add = ac)
+  checkmate::assert_string(default_denom, add = ac)
+  checkmate::assert_subset(default_denom, c("N", "n"), add = ac)
+  checkmate::assert_character(default_stats, min.chars = 1L, null.ok = TRUE, add = ac)
+  checkmate::assert_string(default_collapse_method, min.chars = 1L, add = ac)
+  checkmate::assert_character(collapse_method_choices, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
+  checkmate::assert_string(total_group_val, add = ac)
+  checkmate::assert_string(receiver_id, min.chars = 1L, null.ok = TRUE, add = ac)
+  checkmate::reportAssertions(ac)
 
   if (!is.null(stats_functions) && length(stats_functions) > 0) {
 
