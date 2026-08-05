@@ -923,7 +923,7 @@ summary_table_server <- function(module_id,
 
           pop_df <- pop_df |>
             tidyr::pivot_longer(
-              pop_flag_vars,
+              tidyr::all_of(pop_flag_vars),
               names_to = ".pop_group",
               values_to = ".pop_flag"
             ) |>

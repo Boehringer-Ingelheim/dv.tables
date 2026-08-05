@@ -32,6 +32,9 @@
       $meta$row_vars
       [1] "param" "visit"
       
+      $meta$pop_flag_vars
+      NULL
+      
       $meta$flag_columns
       [1] "\035first.\035anl_var" "\035first.param"       "\035first.visit"      
       
@@ -1365,6 +1368,9 @@
       $meta$row_vars
       [1] "param"
       
+      $meta$pop_flag_vars
+      NULL
+      
       $meta$flag_columns
       [1] "\035first.\035anl_var" "\035first.param"      
       
@@ -1618,6 +1624,9 @@
       [1] "saf_group"
       
       $meta$row_vars
+      NULL
+      
+      $meta$pop_flag_vars
       NULL
       
       $meta$flag_columns
