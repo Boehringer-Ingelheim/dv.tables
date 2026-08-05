@@ -99,9 +99,10 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
 
 # dv.tables::mod_summary_table
 check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_dataset_name, pop_dataset_name,
-    subjid_var, show_modal_on_click, stats_functions, stats_formats, stats_labels, stats_replace, default_summarize_on,
-    default_group_by, default_row_by, default_total, default_drop_na, default_show_category_n, default_denom,
-    default_stats, default_collapse_method, summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices,
+    subjid_var, show_pop_flag_selection, show_modal_on_click, stats_functions, stats_formats, stats_labels,
+    stats_replace, default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na,
+    default_show_category_n, default_denom, default_stats, default_collapse_method, default_pop_flags,
+    summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices, pop_flag_choices,
     total_group_val, receiver_id, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
@@ -116,6 +117,9 @@ check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_datase
     flags <- list(subjid_var = TRUE)
     OK[["subjid_var"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("subjid_var", subjid_var,
         subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], err)
+    "NOTE: show_pop_flag_selection (logical) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
     "NOTE: show_modal_on_click (logical) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."
@@ -162,6 +166,10 @@ check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_datase
     "NOTE: default_collapse_method (character) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(one_or_more = TRUE, optional = TRUE)
+    OK[["default_pop_flags"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("default_pop_flags",
+        default_pop_flags, subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], err)
     subkind <- list(kind = "or", options = list(list(kind = "numeric", min = NA, max = NA), list(kind = "integer",
         min = NA, max = NA), list(kind = "character"), list(kind = "factor")))
     flags <- list(one_or_more = TRUE, optional = TRUE)
@@ -178,6 +186,10 @@ check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_datase
     "NOTE: collapse_method_choices (character) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(one_or_more = TRUE, optional = TRUE)
+    OK[["pop_flag_choices"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("pop_flag_choices",
+        pop_flag_choices, subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], err)
     "NOTE: total_group_val (character) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."

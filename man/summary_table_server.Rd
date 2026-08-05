@@ -9,6 +9,7 @@ summary_table_server(
   table_dataset,
   pop_dataset,
   subjid_var,
+  show_pop_flag_selection = FALSE,
   show_modal_on_click = TRUE,
   on_sbj_click_fun = function() NULL,
   stats_functions = NULL,
@@ -18,9 +19,11 @@ summary_table_server(
   default_summarize_on = NULL,
   default_group_by = NULL,
   default_row_by = NULL,
+  default_pop_flags = NULL,
   summarize_on_choices = NULL,
   group_by_choices = NULL,
   row_by_choices = NULL,
+  pop_flag_choices = NULL,
   total_group_val = "Total"
 )
 }
@@ -40,6 +43,11 @@ A reactive dataset containing the population data.}
 \item{subjid_var}{\verb{[character(1)]}
 
 A string representing the subject identifier column in both datasets.}
+
+\item{show_pop_flag_selection}{\verb{[logical(1)]}
+
+A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
+and \code{pop_flag_choices}.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
@@ -104,6 +112,11 @@ A vector of variable names from the population dataset, used as the default for 
 A vector of variable names from the dataset specified by \code{table_dataset_name}, used as the default for selected
 variables to categorize on (optional).}
 
+\item{default_pop_flags}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, used as the default for selected population flag variables
+(optional).}
+
 \item{summarize_on_choices}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
@@ -119,6 +132,12 @@ A vector of variable names from the population dataset, specifying the possible 
 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
 on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
+
+\item{pop_flag_choices}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, specifying the possible choices for the population flag
+variables (optional). If it is not specified then all factor and character variables from the population dataset will
+be used.}
 
 \item{total_group_val}{\verb{[character(1)]}
 

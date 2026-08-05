@@ -10,6 +10,7 @@ summtab_compute(
   anl_vars = NULL,
   group_vars = NULL,
   row_vars = NULL,
+  pop_flag_vars = NULL,
   subjid_var = NULL,
   stats_functions = NULL,
   stats_formats = NULL,
@@ -33,6 +34,8 @@ summtab_compute(
 \item{group_vars}{A vector of names of population grouping variables from \code{pop_df}.}
 
 \item{row_vars}{A vector of names of row categorization variables from \code{tbl_df}.}
+
+\item{pop_flag_vars}{A vector of names of population flag variables from \code{pop_df}.}
 
 \item{subjid_var}{A string representing the subject identifier column in both datasets.}
 

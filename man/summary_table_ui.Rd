@@ -6,6 +6,7 @@
 \usage{
 summary_table_ui(
   module_id,
+  show_pop_flag_selection = FALSE,
   default_total = TRUE,
   default_drop_na = FALSE,
   default_show_category_n = TRUE,
@@ -20,6 +21,11 @@ summary_table_ui(
 \item{module_id}{\verb{[character(1)]}
 
 A string that serves as a unique identifier for the module.}
+
+\item{show_pop_flag_selection}{\verb{[logical(1)]}
+
+A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
+and \code{pop_flag_choices}.}
 
 \item{default_total}{\verb{[logical(1)]}
 

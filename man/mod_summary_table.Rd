@@ -9,6 +9,7 @@ mod_summary_table(
   table_dataset_name,
   pop_dataset_name,
   subjid_var = "USUBJID",
+  show_pop_flag_selection = FALSE,
   show_modal_on_click = TRUE,
   stats_functions = list(n = length, mean = mean, sd = stats::sd, meanci = function(x) if
     (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
@@ -40,11 +41,13 @@ mod_summary_table(
   default_denom = "N",
   default_stats = c("n", "meansd", "minmax"),
   default_collapse_method = "mean",
+  default_pop_flags = NULL,
   summarize_on_choices = NULL,
   group_by_choices = NULL,
   row_by_choices = NULL,
   collapse_method_choices = c(Mean = "mean", Minimum = "min", Maximum = "max",
     `First Row` = "dplyr::first", `Last Row` = "dplyr::last"),
+  pop_flag_choices = NULL,
   total_group_val = "Total",
   receiver_id = NULL
 )
@@ -68,6 +71,11 @@ of CDISC subject-level data would be required to transpose the flags to a groupi
 \item{subjid_var}{\verb{[character(1)]}
 
 A string representing the subject identifier column in both datasets.}
+
+\item{show_pop_flag_selection}{\verb{[logical(1)]}
+
+A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
+and \code{pop_flag_choices}.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
@@ -161,6 +169,11 @@ than one row per subject exists after population grouping and row categorization
 applied to the analysis variable. The double colon (\code{::}) namespace resolution operator can be used to specify
 a function from a specific package, e.g., \code{"dplyr::first"}.}
 
+\item{default_pop_flags}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, used as the default for selected population flag variables
+(optional).}
+
 \item{summarize_on_choices}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
@@ -183,6 +196,12 @@ A vector of named strings indicating the names of functions that can be used for
 when more than one row per subject exists after population grouping and row categorization has been applied. The
 double colon (\code{::}) namespace resolution operator can be used to specify functions from specific packages, e.g.,
 \code{"dplyr::first"}. The names are displayed in the UI radio button selections.}
+
+\item{pop_flag_choices}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, specifying the possible choices for the population flag
+variables (optional). If it is not specified then all factor and character variables from the population dataset will
+be used.}
 
 \item{total_group_val}{\verb{[character(1)]}
 

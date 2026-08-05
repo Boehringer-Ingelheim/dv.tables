@@ -6,6 +6,7 @@ SUMMTAB <- poc(
     ANL_VARS = "anl_vars",
     GROUP_VARS = "group_vars",
     ROW_VARS = "row_vars",
+    POP_FLAG_VARS = "pop_flag_vars",
     TOTAL_FLAG = "total",
     DROP_NA_FLAG = "drop_na",
     SHOW_CATEGORY_N = "show_category_n",
@@ -22,6 +23,7 @@ SUMMTAB <- poc(
     ANL_VARS = "Summarize on:",
     GROUP_VARS = "Group by:",
     ROW_VARS = "Row by:",
+    POP_FLAG_VARS = "Population flags:",
     TOTAL_FLAG = "Total column",
     DROP_NA_FLAG = "Drop NA values",
     SHOW_CATEGORY_N = "Show categorical n",
@@ -207,6 +209,7 @@ summtab_format_stats <- function(analysis_df,
 #' @param anl_vars A vector of names of analysis variables from `tbl_df`.
 #' @param group_vars A vector of names of population grouping variables from `pop_df`.
 #' @param row_vars A vector of names of row categorization variables from `tbl_df`.
+#' @param pop_flag_vars A vector of names of population flag variables from `pop_df`.
 #' @param subjid_var A string representing the subject identifier column in both datasets.
 #' @param stats_functions A named list defining the functions used for summarizing numerical data.
 #' @param stats_formats A named list of lists defining the combination and formatting of the function results from
@@ -245,6 +248,7 @@ summtab_compute <- function(tbl_df,
                             anl_vars = NULL,
                             group_vars = NULL,
                             row_vars = NULL,
+                            pop_flag_vars = NULL,
                             subjid_var = NULL,
 
                             stats_functions = NULL,
@@ -297,7 +301,8 @@ summtab_compute <- function(tbl_df,
 
     pop_df[[group_var_1]] <- factor(pop_df[[group_var_1]], levels = gv1_fct_levels)
     total_grp_fct <- factor(total_group_val, levels = c(levels(pop_df[[group_var_1]])))
-    total_rows <- dplyr::mutate(pop_df, !!group_var_1 := total_grp_fct)
+    total_rows <- dplyr::mutate(pop_df, !!group_var_1 := total_grp_fct) |>
+      dplyr::distinct() # Necessary when population dataset has more than one row per subject
 
     pop_col_labels <- get_lbls_robust(pop_df)
     pop_df <- pop_df |>
@@ -492,6 +497,7 @@ summtab_compute <- function(tbl_df,
       anl_vars = anl_vars,
       group_vars = group_vars,
       row_vars = row_vars,
+      pop_flag_vars = pop_flag_vars,
       flag_columns = flag_columns,
       data_columns = data_columns,
       total_group_val = total_group_val,
@@ -520,6 +526,7 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
   anl_vars <- summtab_list[["meta"]][["anl_vars"]]
   group_vars <- summtab_list[["meta"]][["group_vars"]]
   row_vars <- summtab_list[["meta"]][["row_vars"]]
+  pop_flag_vars <- summtab_list[["meta"]][["pop_flag_vars"]]
   flag_columns <- summtab_list[["meta"]][["flag_columns"]]
   data_columns <- summtab_list[["meta"]][["data_columns"]]
   total_group_val <- summtab_list[["meta"]][["total_group_val"]]
@@ -580,10 +587,14 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
     )
   }
 
-  title <- sprintf("Summary of %s%s; group by %s",
-                   paste(anl_vars, collapse = ", "),
-                   ifelse(length(row_vars) == 0L, "", paste("; row by", paste(row_vars, collapse = ", "))),
-                   paste(group_vars, collapse = ", "))
+  mod_group_vars <- setdiff(group_vars, ".pop_group")
+  title <- sprintf(
+    "Summary of %s%s%s%s",
+    paste(anl_vars, collapse = ", "),
+    ifelse(length(row_vars) == 0L, "", paste("; row by", paste(row_vars, collapse = ", "))),
+    ifelse(length(mod_group_vars) == 0L, "", paste("; group by", paste(mod_group_vars, collapse = ", "))),
+    ifelse(length(pop_flag_vars) == 0L, "", paste("; flag by", paste(pop_flag_vars, collapse = ", ")))
+  )
 
   aggregate_note <- if (collapse_flag) {
     shiny::p(paste("Note: Multiple results per subject per group, aggregated by", collapse_func_name))
@@ -701,6 +712,7 @@ summary_table_dep <- function() {
 #'
 #' @export
 summary_table_ui <- function(module_id,
+                             show_pop_flag_selection = FALSE,
                              default_total = TRUE,
                              default_drop_na = FALSE,
                              default_show_category_n = TRUE,
@@ -712,6 +724,16 @@ summary_table_ui <- function(module_id,
 
   ns <- shiny::NS(module_id)
 
+  # Initialize optional selections
+  pop_flags <- NULL
+
+  if (show_pop_flag_selection) {
+    pop_flags <- shiny::div(
+      shiny::tags$hr(),
+      col_menu_UI(id = ns(SUMMTAB$ID$POP_FLAG_VARS))
+    )
+  }
+
   drop_menu_cols <- shinyWidgets::dropMenu(
     tag = shiny::actionButton(
       inputId = ns(SUMMTAB$ID$COL_SELECTIONS),
@@ -719,7 +741,8 @@ summary_table_ui <- function(module_id,
     ),
     col_menu_UI(id = ns(SUMMTAB$ID$ANL_VARS)),
     col_menu_UI(id = ns(SUMMTAB$ID$GROUP_VARS)),
-    col_menu_UI(id = ns(SUMMTAB$ID$ROW_VARS))
+    col_menu_UI(id = ns(SUMMTAB$ID$ROW_VARS)),
+    pop_flags
   )
 
   drop_menu_stats <- shinyWidgets::dropMenu(
@@ -780,6 +803,7 @@ summary_table_server <- function(module_id,
                                  table_dataset,
                                  pop_dataset,
                                  subjid_var,
+                                 show_pop_flag_selection = FALSE,
                                  show_modal_on_click = TRUE,
                                  on_sbj_click_fun = function() NULL,
 
@@ -791,9 +815,11 @@ summary_table_server <- function(module_id,
                                  default_summarize_on = NULL,
                                  default_group_by = NULL,
                                  default_row_by = NULL,
+                                 default_pop_flags = NULL,
                                  summarize_on_choices = NULL,
                                  group_by_choices = NULL,
                                  row_by_choices = NULL,
+                                 pop_flag_choices = NULL,
                                  total_group_val = "Total") {
 
   mod <- function(input, output, session) {
@@ -843,6 +869,22 @@ summary_table_server <- function(module_id,
       include_none = FALSE
     )
 
+    if (show_pop_flag_selection) {
+      inputs[[SUMMTAB$ID$POP_FLAG_VARS]] <- col_menu_server(
+        id = SUMMTAB$ID$POP_FLAG_VARS,
+        data = pop_dataset,
+        label = SUMMTAB$LBL$POP_FLAG_VARS,
+        include_func = function(var, var_name) {
+          (is.factor(var) || is.character(var)) &&
+            var_name != subjid_var &&
+            (is.null(pop_flag_choices) || var_name %in% pop_flag_choices)
+        },
+        default = default_pop_flags,
+        multiple = TRUE,
+        include_none = FALSE
+      )
+    }
+
     inputs[[SUMMTAB$ID$TOTAL_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$TOTAL_FLAG]])
     inputs[[SUMMTAB$ID$DROP_NA_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_NA_FLAG]])
     inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]] <- shiny::reactive(input[[SUMMTAB$ID$SHOW_CATEGORY_N]])
@@ -867,7 +909,37 @@ summary_table_server <- function(module_id,
       pop_df <- pop_dataset()
       tbl_df <- table_dataset()
 
+      # Avoid an index error when a group var has been used as a population flag var
+      pop_df_orig <- pop_df
+      group_vars_orig <- group_vars
+
       selected_vars <- c(anl_vars, group_vars, row_vars)
+      pop_flag_vars <- NULL
+
+      if (show_pop_flag_selection) {
+        pop_flag_vars <- inputs[[SUMMTAB$ID$POP_FLAG_VARS]]()
+
+        if (!is.null(pop_flag_vars) && length(pop_flag_vars) > 0) {
+
+          pop_df <- pop_df |>
+            tidyr::pivot_longer(
+              pop_flag_vars,
+              names_to = ".pop_group",
+              values_to = ".pop_flag"
+            ) |>
+            dplyr::mutate(.pop_group = factor(.data[[".pop_group"]],
+                                              levels = pop_flag_vars,
+                                              labels = get_lbls_robust(pop_df)[pop_flag_vars])) |>
+            dplyr::filter(.data[[".pop_flag"]] == "Y") |>
+            dplyr::relocate(dplyr::starts_with(".pop"))
+
+          attr(pop_df[[".pop_group"]], "label") <- "Population Flag Group"
+          attr(pop_df[[".pop_flag"]], "label") <- "Population Flag"
+
+          group_vars <- c(".pop_group", group_vars)
+          selected_vars <- c(selected_vars, pop_flag_vars)
+        }
+      }
 
       shiny::validate(
         shiny::need(
@@ -900,7 +972,7 @@ summary_table_server <- function(module_id,
           SUMMTAB$VALIDATE$NO_STATS
         ),
         shiny::need(
-          !anyDuplicated(pop_df[c(subjid_var, group_vars)]),
+          !anyDuplicated(pop_df_orig[c(subjid_var, group_vars_orig)]),
           SUMMTAB$VALIDATE$POP_GROUP_DUP
         )
       )
@@ -929,6 +1001,7 @@ summary_table_server <- function(module_id,
                                        anl_vars = anl_vars,
                                        group_vars = group_vars,
                                        row_vars = row_vars,
+                                       pop_flag_vars = pop_flag_vars,
                                        subjid_var = subjid_var,
 
                                        stats_functions = stats_functions_subset,
@@ -1058,6 +1131,11 @@ summary_table_server <- function(module_id,
 #'
 #' A string representing the subject identifier column in both datasets.
 #'
+#' @param show_pop_flag_selection `[logical(1)]`
+#'
+#' A flag to indicate whether to show the population flag selection. Other associated arguments are `default_pop_flags`
+#' and `pop_flag_choices`.
+#'
 #' @param show_modal_on_click `[logical(1)]`
 #'
 #' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
@@ -1150,6 +1228,11 @@ summary_table_server <- function(module_id,
 #' applied to the analysis variable. The double colon (`::`) namespace resolution operator can be used to specify
 #' a function from a specific package, e.g., `"dplyr::first"`.
 #'
+#' @param default_pop_flags `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the population dataset, used as the default for selected population flag variables
+#' (optional).
+#'
 #' @param summarize_on_choices `[character(1+) | NULL]`
 #'
 #' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
@@ -1172,6 +1255,12 @@ summary_table_server <- function(module_id,
 #' when more than one row per subject exists after population grouping and row categorization has been applied. The
 #' double colon (`::`) namespace resolution operator can be used to specify functions from specific packages, e.g.,
 #' `"dplyr::first"`. The names are displayed in the UI radio button selections.
+#'
+#' @param pop_flag_choices `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the population dataset, specifying the possible choices for the population flag
+#' variables (optional). If it is not specified then all factor and character variables from the population dataset will
+#' be used.
 #'
 #' @param total_group_val `[character(1)]`
 #'
@@ -1196,6 +1285,7 @@ mod_summary_table <- function(
     table_dataset_name,
     pop_dataset_name,
     subjid_var = "USUBJID",
+    show_pop_flag_selection = FALSE,
     show_modal_on_click = TRUE,
 
     stats_functions = list(
@@ -1252,6 +1342,7 @@ mod_summary_table <- function(
     default_denom = "N",
     default_stats = c("n", "meansd", "minmax"),
     default_collapse_method = "mean",
+    default_pop_flags = NULL,
 
     summarize_on_choices = NULL,
     group_by_choices = NULL,
@@ -1261,12 +1352,14 @@ mod_summary_table <- function(
                                 Maximum = "max",
                                 "First Row" = "dplyr::first",
                                 "Last Row" = "dplyr::last"),
+    pop_flag_choices = NULL,
     total_group_val = "Total",
     receiver_id = NULL
 ) {
 
   # Check validity of arguments that were not checked by Early Error Feedback
   ac <- checkmate::makeAssertCollection()
+  checkmate::assert_logical(show_pop_flag_selection, add = ac)
   checkmate::assert_logical(show_modal_on_click, add = ac)
   checkmate::assert_list(stats_functions, types = "function", any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_list(stats_formats, types = "list", names = "unique", null.ok = TRUE, add = ac)
@@ -1327,6 +1420,7 @@ mod_summary_table <- function(
   mod <- list(
     ui = function(module_id) {
       summary_table_ui(module_id,
+                       show_pop_flag_selection = show_pop_flag_selection,
                        default_total = default_total,
                        default_drop_na = default_drop_na,
                        default_show_category_n = default_show_category_n,
@@ -1350,6 +1444,7 @@ mod_summary_table <- function(
                            table_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[table_dataset_name]]),
                            pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
                            subjid_var = subjid_var,
+                           show_pop_flag_selection = show_pop_flag_selection,
                            show_modal_on_click = show_modal_on_click,
                            on_sbj_click_fun = on_sbj_click_fun,
 
@@ -1361,9 +1456,11 @@ mod_summary_table <- function(
                            default_summarize_on = default_summarize_on,
                            default_group_by = default_group_by,
                            default_row_by = default_row_by,
+                           default_pop_flags = default_pop_flags,
                            summarize_on_choices = summarize_on_choices,
                            group_by_choices = group_by_choices,
                            row_by_choices = row_by_choices,
+                           pop_flag_choices = pop_flag_choices,
                            total_group_val = total_group_val)
     },
     module_id = module_id
@@ -1382,6 +1479,7 @@ mod_summary_table_API_docs <- list(
   table_dataset_name = "",
   pop_dataset_name = "",
   subjid_var = "",
+  show_pop_flag_selection = "",
   show_modal_on_click = "",
   stats_functions = "",
   stats_formats = "",
@@ -1396,10 +1494,12 @@ mod_summary_table_API_docs <- list(
   default_denom = "",
   default_stats = "",
   default_collapse_method = "",
+  default_pop_flags = "",
   summarize_on_choices = "",
   group_by_choices = "",
   row_by_choices = "",
   collapse_method_choices = "",
+  pop_flag_choices = "",
   total_group_val = "",
   receiver_id = ""
 )
@@ -1409,6 +1509,7 @@ mod_summary_table_API_spec <- TC$group(
   table_dataset_name = TC$dataset_name(),
   pop_dataset_name = TC$dataset_name(),
   subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
+  show_pop_flag_selection = TC$logical(),
   show_modal_on_click = TC$logical(),
   stats_functions = TC$character() |> TC$flag("ignore"),
   stats_formats = TC$character() |> TC$flag("ignore"),
@@ -1426,6 +1527,8 @@ mod_summary_table_API_spec <- TC$group(
   default_denom = TC$character(),
   default_stats = TC$character(),
   default_collapse_method = TC$character(),
+  default_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
   summarize_on_choices = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   group_by_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
@@ -1433,17 +1536,19 @@ mod_summary_table_API_spec <- TC$group(
   row_by_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   collapse_method_choices = TC$character(),
+  pop_flag_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
   total_group_val = TC$character(),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_summary_table_API_docs)
 
 check_mod_summary_table <- function(
     afmm, datasets,
-    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
+    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na,
-    default_show_category_n, default_denom, default_stats, default_collapse_method,
-    summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices,
+    default_show_category_n, default_denom, default_stats, default_collapse_method, default_pop_flags,
+    summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices, pop_flag_choices,
     total_group_val, receiver_id
 ) {
   err <- CM$container()
@@ -1453,11 +1558,11 @@ check_mod_summary_table <- function(
 
   OK <- check_mod_summary_table_auto( # nolint unused
     afmm, datasets,
-    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_modal_on_click,
+    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na,
-    default_show_category_n, default_denom, default_stats, default_collapse_method,
-    summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices,
+    default_show_category_n, default_denom, default_stats, default_collapse_method, default_pop_flags,
+    summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices, pop_flag_choices,
     total_group_val, receiver_id,
     err
   )
@@ -1542,12 +1647,22 @@ mock_app_summary_table <- function(dry_run = FALSE,
 #' @export
 mock_app_summary_table_mm <- function() {
 
-  adsl <- pharmaverseadam::adsl
+  adsl <- pharmaverseadam::adsl |>
+    dplyr::mutate(ENRLFL = "Y",
+                  TRTFL = ifelse(is.na(TRTSDT), "N", "Y"),
+                  RANDFL = ifelse(is.na(RANDDT), "N", "Y"),
+                  DISCFL = ifelse(EOSSTT == "DISCONTINUED", "Y", "N"))
+
+  attr(adsl, "meta") <- base::file.info("NEWS.md")
+  attr(adsl[["ENRLFL"]], "label") <- "Enrolled Flag"
+  attr(adsl[["RANDFL"]], "label") <- "Randomized Flag"
+  attr(adsl[["TRTFL"]], "label") <- "Treated Flag"
+  attr(adsl[["DISCFL"]], "label") <- "Discontinued Flag"
+
   adlb <- pharmaverseadam::adlb |>
     dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
                   .data[["AVISITN"]] %in% c(0, 4, 5, 7))
 
-  attr(adsl, "meta") <- base::file.info("NEWS.md")
   attr(adlb, "meta") <- base::file.info("NEWS.md")
 
   dv.manager::run_app(
@@ -1584,11 +1699,25 @@ mock_app_summary_table_mm <- function() {
         default_denom = "n",
         receiver_id = "papo"
       ),
+      "Population Summary" = mod_summary_table(
+        module_id = "pop_summtab",
+        show_pop_flag_selection = TRUE,
+        table_dataset_name = "adsl",
+        pop_dataset_name = "adsl",
+        default_summarize_on = c("SITEID"),
+        default_group_by = NULL,
+        default_row_by = c("COUNTRY"),
+        default_total = FALSE,
+        default_drop_na = TRUE,
+        default_show_category_n = FALSE,
+        default_pop_flags = c("ENRLFL", "RANDFL", "TRTFL", "DISCFL"),
+        receiver_id = "papo"
+      ),
       "Patient Profile" = dv.papo::mod_patient_profile(
         module_id = "papo",
         subject_level_dataset_name = "adsl",
         subjid_var = "USUBJID",
-        sender_ids = c("dm_summtab", "ds_summtab", "lb_summtab"),
+        sender_ids = c("dm_summtab", "ds_summtab", "lb_summtab", "pop_summtab"),
         summary = list(vars = c("AGE", "SEX", "RACE", "ETHNIC", "ARM"),
                        column_count = 1)
       )
