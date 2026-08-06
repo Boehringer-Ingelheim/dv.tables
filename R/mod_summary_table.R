@@ -10,6 +10,7 @@ SUMMTAB <- poc(
     POP_FLAGS_AFTER_GROUPS = "pop_flags_after_groups",
     TOTAL_FLAG = "total",
     DROP_NA_FLAG = "drop_na",
+    DROP_EMPTY_ROWS = "drop_empty_rows",
     SHOW_CATEGORY_N = "show_category_n",
     DENOM = "denom",
     COLLAPSE_METHOD = "collapse_method",
@@ -28,6 +29,7 @@ SUMMTAB <- poc(
     POP_FLAGS_AFTER_GROUPS = "Move after group variables",
     TOTAL_FLAG = "Total column",
     DROP_NA_FLAG = "Drop NA values",
+    DROP_EMPTY_ROWS = "Remove rows with no data",
     SHOW_CATEGORY_N = "Show categorical n",
     DENOM = "Denominator:",
     COLLAPSE_METHOD = "Row Collapse Method:",
@@ -222,6 +224,7 @@ summtab_format_stats <- function(analysis_df,
 #' @param total A flag that determines whether to add a total group column.
 #' @param total_group_val A string indicating the label for the total group column.
 #' @param drop_na A flag that determines whether to drop NA values from selected 'group by' and 'row by' variables.
+#' @param drop_empty_rows A flag that determines whether to remove rows with no data from the analysis results.
 #' @param show_category_n A flag that determines whether to show the 'n' category when summarizing categorical data.
 #' @param denom A string, either "N" or "n", indicating whether the denominator for categorical data should be taken as
 #'   the number of subjects from the population grouping ("N") or the number of subjects from the 'row by' grouping for
@@ -261,6 +264,7 @@ summtab_compute <- function(tbl_df,
                             total = NULL,
                             total_group_val = "Total",
                             drop_na = NULL,
+                            drop_empty_rows = NULL,
                             show_category_n = NULL,
                             denom = NULL,
                             collapse_func_name = NULL) {
@@ -400,9 +404,8 @@ summtab_compute <- function(tbl_df,
         stats_functions = av_stats_funcs,
         collapse_func_name = collapse_func_name,
         denom = denom
-      ), .groups = "keep") |>
-      dplyr::mutate(!!anl_var := av_label) |>
-      dplyr::ungroup()
+      ), .groups = "drop") |>
+      dplyr::mutate(!!anl_var := av_label)
 
     # Extract statistics from their single column lists into their own columns
     av_df <- tidyr::unnest_wider(av_df, tidyr::all_of(".stats"))
@@ -472,6 +475,21 @@ summtab_compute <- function(tbl_df,
     values_from = dplyr::all_of(".val")
   )
 
+  df_names <- names(wide_df)
+  internal_columns <- df_names[startsWith(df_names, SUMMTAB$VAL$SPECIAL_CHAR)]
+  data_columns <- df_names[!df_names %in% c(row_vars, internal_columns)]
+
+  # If requested, remove rows with no data
+  if (drop_empty_rows) {
+    wide_df <- wide_df |>
+      dplyr::filter(
+        !purrr::pmap_lgl(
+          dplyr::pick(dplyr::all_of(data_columns)),
+          \(...) all(purrr::map_lgl(list(...), ~ is.null(.x[["subjid"]])))
+        )
+      )
+  }
+
   # Create a list of expanding groups
   hierarchy <- c(anl_var, row_vars)
   flag_columns <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "first.", hierarchy)
@@ -489,9 +507,9 @@ summtab_compute <- function(tbl_df,
       dplyr::ungroup()
   }
 
-  df_names <- names(flagged_df)
-  internal_columns <- df_names[startsWith(df_names, SUMMTAB$VAL$SPECIAL_CHAR)]
-  data_columns <- df_names[!df_names %in% c(row_vars, internal_columns)]
+  #df_names <- names(flagged_df)
+  #internal_columns <- df_names[startsWith(df_names, SUMMTAB$VAL$SPECIAL_CHAR)]
+  #data_columns <- df_names[!df_names %in% c(row_vars, internal_columns)]
 
   summtab_list <- list(
     df = flagged_df,
@@ -546,7 +564,7 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
   thc <- function(..., colspan = 1L, entry = FALSE) {
     if (entry) {
       th(class = "text-center", ...)
-    } else if (colspan == 1L) {
+    } else if (is.null(colspan)) {
       th(class = "text-center", style = "vertical-align: bottom;", ...)
     } else {
       th(class = "text-center short-border", colspan = as.character(colspan), ...)
@@ -580,7 +598,7 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
       data_headers <- purrr::map2(extracted_headers,
                                   paste0("(N", "\u00A0", "=", "\u00A0", n_denominator[data_columns], ")"),
                                   ~ shiny::span(.x, shiny::br(), .y))
-      n_cols <- 1
+      n_cols <- NULL
     }
 
     header_rows[[head_i]] <- tr(
@@ -718,6 +736,7 @@ summary_table_ui <- function(module_id,
                              default_pop_flags_after_groups = FALSE,
                              default_total = TRUE,
                              default_drop_na = FALSE,
+                             default_drop_empty_rows = FALSE,
                              default_show_category_n = TRUE,
                              default_denom = "N",
                              default_stats = NULL,
@@ -766,6 +785,7 @@ summary_table_ui <- function(module_id,
     ),
     shiny::checkboxInput(ns(SUMMTAB$ID$TOTAL_FLAG), label = SUMMTAB$LBL$TOTAL_FLAG, value = default_total),
     shiny::checkboxInput(ns(SUMMTAB$ID$DROP_NA_FLAG), label = SUMMTAB$LBL$DROP_NA_FLAG, value = default_drop_na),
+    shiny::checkboxInput(ns(SUMMTAB$ID$DROP_EMPTY_ROWS), label = SUMMTAB$LBL$DROP_EMPTY_ROWS, value = default_drop_empty_rows),
     shiny::checkboxInput(ns(SUMMTAB$ID$SHOW_CATEGORY_N), label = SUMMTAB$LBL$SHOW_CATEGORY_N, value = default_show_category_n),
     shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"), selected = default_denom),
     shiny::radioButtons(ns(SUMMTAB$ID$COLLAPSE_METHOD), label = SUMMTAB$LBL$COLLAPSE_METHOD, choices = collapse_method_choices, selected = default_collapse_method)
@@ -895,6 +915,7 @@ summary_table_server <- function(module_id,
 
     inputs[[SUMMTAB$ID$TOTAL_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$TOTAL_FLAG]])
     inputs[[SUMMTAB$ID$DROP_NA_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_NA_FLAG]])
+    inputs[[SUMMTAB$ID$DROP_EMPTY_ROWS]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_EMPTY_ROWS]])
     inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]] <- shiny::reactive(input[[SUMMTAB$ID$SHOW_CATEGORY_N]])
     inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive(input[[SUMMTAB$ID$DENOM]])
     inputs[[SUMMTAB$ID$COLLAPSE_METHOD]] <- shiny::reactive(input[[SUMMTAB$ID$COLLAPSE_METHOD]])
@@ -908,6 +929,7 @@ summary_table_server <- function(module_id,
 
       total <- inputs[[SUMMTAB$ID$TOTAL_FLAG]]()
       drop_na <- inputs[[SUMMTAB$ID$DROP_NA_FLAG]]()
+      drop_empty_rows <- inputs[[SUMMTAB$ID$DROP_EMPTY_ROWS]]()
       show_category_n <- inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
       collapse_func_name <- inputs[[SUMMTAB$ID$COLLAPSE_METHOD]]()
@@ -1021,6 +1043,7 @@ summary_table_server <- function(module_id,
                                        total = total,
                                        total_group_val = total_group_val,
                                        drop_na = drop_na,
+                                       drop_empty_rows = drop_empty_rows,
                                        show_category_n = show_category_n,
                                        denom = denom,
                                        collapse_func_name = collapse_func_name)
@@ -1213,6 +1236,11 @@ summary_table_server <- function(module_id,
 #' A flag specifying the default value for the checkbox that determines whether to drop NA values from selected
 #' 'group by' and 'row by' variables.
 #'
+#' @param default_drop_empty_rows `[logical(1)]`
+#'
+#' A flag specifying the default value for the checkbox that determines whether to remove rows with no data from the
+#' analysis results.
+#'
 #' @param default_show_category_n `[logical(1)]`
 #'
 #' A flag specifying the default value for the checkbox that determines whether to show the 'n' category when
@@ -1352,6 +1380,7 @@ mod_summary_table <- function(
     default_row_by = NULL,
     default_total = TRUE,
     default_drop_na = FALSE,
+    default_drop_empty_rows = FALSE,
     default_show_category_n = TRUE,
     default_denom = "N",
     default_stats = c("n", "meansd", "minmax"),
@@ -1440,6 +1469,7 @@ mod_summary_table <- function(
                        default_pop_flags_after_groups = default_pop_flags_after_groups,
                        default_total = default_total,
                        default_drop_na = default_drop_na,
+                       default_drop_empty_rows = default_drop_empty_rows,
                        default_show_category_n = default_show_category_n,
                        default_denom = default_denom,
                        default_collapse_method = default_collapse_method,
@@ -1507,6 +1537,7 @@ mod_summary_table_API_docs <- list(
   default_row_by = "",
   default_total = "",
   default_drop_na = "",
+  default_drop_empty_rows = "",
   default_show_category_n = "",
   default_denom = "",
   default_stats = "",
@@ -1541,6 +1572,7 @@ mod_summary_table_API_spec <- TC$group(
     TC$flag("one_or_more", "optional"),
   default_total = TC$logical(),
   default_drop_na = TC$logical(),
+  default_drop_empty_rows = TC$logical(),
   default_show_category_n = TC$logical(),
   default_denom = TC$character(),
   default_stats = TC$character(),
@@ -1565,7 +1597,7 @@ check_mod_summary_table <- function(
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
-    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na,
+    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
     default_show_category_n, default_denom, default_stats, default_collapse_method, default_pop_flags, default_pop_flags_after_groups,
     summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices, pop_flag_choices,
     total_group_val, receiver_id
@@ -1579,7 +1611,7 @@ check_mod_summary_table <- function(
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
-    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na,
+    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
     default_show_category_n, default_denom, default_stats, default_collapse_method, default_pop_flags, default_pop_flags_after_groups,
     summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices, pop_flag_choices,
     total_group_val, receiver_id,
@@ -1672,6 +1704,8 @@ mock_app_summary_table_mm <- function() {
                   RANDFL = ifelse(is.na(RANDDT), "N", "Y"),
                   DISCFL = ifelse(EOSSTT == "DISCONTINUED", "Y", "N"))
 
+  adsl[["COUNTRY"]] <- ifelse(as.numeric(adsl[["SITEID"]]) < 715, adsl[["COUNTRY"]], "Canada")
+
   attr(adsl, "meta") <- base::file.info("NEWS.md")
   attr(adsl[["ENRLFL"]], "label") <- "Enrolled Flag"
   attr(adsl[["RANDFL"]], "label") <- "Randomized Flag"
@@ -1728,6 +1762,7 @@ mock_app_summary_table_mm <- function() {
         default_row_by = c("COUNTRY"),
         default_total = FALSE,
         default_drop_na = TRUE,
+        default_drop_empty_rows = TRUE,
         default_show_category_n = FALSE,
         default_pop_flags = c("ENRLFL", "RANDFL", "TRTFL", "DISCFL"),
         default_pop_flags_after_groups = FALSE,

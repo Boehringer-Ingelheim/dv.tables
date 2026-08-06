@@ -101,9 +101,9 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
 check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_dataset_name, pop_dataset_name,
     subjid_var, show_pop_flag_selection, show_modal_on_click, stats_functions, stats_formats, stats_labels,
     stats_replace, default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na,
-    default_show_category_n, default_denom, default_stats, default_collapse_method, default_pop_flags,
-    default_pop_flags_after_groups, summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices,
-    pop_flag_choices, total_group_val, receiver_id, err) {
+    default_drop_empty_rows, default_show_category_n, default_denom, default_stats, default_collapse_method,
+    default_pop_flags, default_pop_flags_after_groups, summarize_on_choices, group_by_choices, row_by_choices,
+    collapse_method_choices, pop_flag_choices, total_group_val, receiver_id, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
     OK[["module_id"]] <- CM$check_module_id("module_id", module_id, err)
@@ -152,6 +152,9 @@ check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_datase
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."
     "NOTE: default_drop_na (logical) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: default_drop_empty_rows (logical) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."
     "NOTE: default_show_category_n (logical) has no associated automated checks"
