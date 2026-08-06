@@ -42,6 +42,7 @@ mod_summary_table(
   default_stats = c("n", "meansd", "minmax"),
   default_collapse_method = "mean",
   default_pop_flags = NULL,
+  default_pop_flags_after_groups = FALSE,
   summarize_on_choices = NULL,
   group_by_choices = NULL,
   row_by_choices = NULL,
@@ -173,6 +174,11 @@ a function from a specific package, e.g., \code{"dplyr::first"}.}
 
 A vector of variable names from the population dataset, used as the default for selected population flag variables
 (optional).}
+
+\item{default_pop_flags_after_groups}{\verb{[logical(1)]}
+
+A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+group variables.}
 
 \item{summarize_on_choices}{\verb{[character(1+) | NULL]}
 

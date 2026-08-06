@@ -7,6 +7,7 @@
 summary_table_ui(
   module_id,
   show_pop_flag_selection = FALSE,
+  default_pop_flags_after_groups = FALSE,
   default_total = TRUE,
   default_drop_na = FALSE,
   default_show_category_n = TRUE,
@@ -26,6 +27,11 @@ A string that serves as a unique identifier for the module.}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
 and \code{pop_flag_choices}.}
+
+\item{default_pop_flags_after_groups}{\verb{[logical(1)]}
+
+A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+group variables.}
 
 \item{default_total}{\verb{[logical(1)]}
 
