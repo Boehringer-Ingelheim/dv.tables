@@ -94,6 +94,7 @@ local({
     total = TRUE,
     total_group_val = "All",
     drop_na = FALSE,
+    drop_empty_rows = FALSE,
     show_category_n = TRUE,
     denom = "N",
     collapse_func_name = "dplyr::first"
@@ -137,6 +138,7 @@ local({
     stats_replace = rep_list,
     total = FALSE,
     drop_na = TRUE,
+    drop_empty_rows = FALSE,
     show_category_n = FALSE,
     denom = "n",
     collapse_func_name = "dplyr::first"
@@ -200,6 +202,7 @@ local({
     stats_replace = rep_list,
     total = FALSE,
     drop_na = TRUE,
+    drop_empty_rows = FALSE,
     show_category_n = FALSE,
     denom = "N",
     collapse_func_name = "mean"
