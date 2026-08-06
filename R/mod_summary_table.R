@@ -507,10 +507,6 @@ summtab_compute <- function(tbl_df,
       dplyr::ungroup()
   }
 
-  #df_names <- names(flagged_df)
-  #internal_columns <- df_names[startsWith(df_names, SUMMTAB$VAL$SPECIAL_CHAR)]
-  #data_columns <- df_names[!df_names %in% c(row_vars, internal_columns)]
-
   summtab_list <- list(
     df = flagged_df,
     meta = list(
