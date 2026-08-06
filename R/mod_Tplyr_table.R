@@ -123,13 +123,13 @@ Tplyr_table_server <- function(
   default_vars,
   intended_use_label,
   pagination = NULL,
-  listing_pagination = pagination,
+  listing_pagination = NULL,
   table_pagination = TRUE,
   on_sbj_click = NULL,
   review = NULL,
   title_layout = c("dropdown", "tabs"),
-  footers,
-  exclude_var_names_from_column_headings
+  footers = NULL,
+  exclude_var_names_from_column_headings = FALSE
 ) {
   title_layout <- match.arg(title_layout)
 
@@ -534,9 +534,9 @@ Tplyr_table_server <- function(
       intended_use_label = intended_use_label,
       pagination = listing_pagination,
       on_sbj_click = on_sbj_click,
-      review = review,
       footers = footers,
-      exclude_var_names_from_column_headings = exclude_var_names_from_column_headings
+      exclude_var_names_from_column_headings = exclude_var_names_from_column_headings,
+      review = review
     )
     ## listings part end ---
 
@@ -775,6 +775,7 @@ mod_Tplyr_table <- function(
             "dataset_list_name"
           )
         })
+      }
 
 
 
@@ -805,7 +806,7 @@ mod_Tplyr_table <- function(
         footers = footers,
         exclude_var_names_from_column_headings = exclude_var_names_from_column_headings
       )
-    }},
+    },
     module_id = module_id
   )
   return(mod)
