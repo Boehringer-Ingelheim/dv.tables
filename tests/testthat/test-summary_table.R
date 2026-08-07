@@ -263,9 +263,9 @@ local({
                         default_summarize_on = !!anl_var_select,
                         default_group_by = !!grp_var_select,
                         default_row_by = !!row_var_select,
-                        summarize_on_choices = !!anl_var_choices,
-                        group_by_choices = !!grp_var_choices,
-                        row_by_choices = !!row_var_choices),
+                        choices_summarize_on = !!anl_var_choices,
+                        choices_group_by = !!grp_var_choices,
+                        choices_row_by = !!row_var_choices),
     ui_defaults = list(default_stats = c("n", "meansd"),
                        choices_stats = !!names(fmts_list))
   )))
