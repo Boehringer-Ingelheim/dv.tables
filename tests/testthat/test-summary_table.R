@@ -97,7 +97,7 @@ local({
     drop_empty_rows = FALSE,
     show_category_n = TRUE,
     denom = "N",
-    collapse_func_name = "dplyr::first"
+    aggregate_func_name = "dplyr::first"
   )
 
   st1_html <- summtab_html_table(st1_compute)
@@ -123,7 +123,7 @@ local({
   })
 
   # Single group and row variables; numerical and categorical analysis variable;
-  # collapsing done over visits; categorical NA values dropped;
+  # aggregation done over visits; categorical NA values dropped;
   # no total group; no categorical counts; small n denominator
   st2_compute <- summtab_compute(
     tbl_df,
@@ -141,13 +141,13 @@ local({
     drop_empty_rows = FALSE,
     show_category_n = FALSE,
     denom = "n",
-    collapse_func_name = "dplyr::first"
+    aggregate_func_name = "dplyr::first"
   )
 
   st2_html <- summtab_html_table(st2_compute)
 
   test_that(vdoc[["add_spec"]](
-    "generate collapsed summary table (compare with snapshot)",
+    "generate aggregated summary table (compare with snapshot)",
     c(specs$summary_table$numerical_summary,
       specs$summary_table$categorical_summary,
       specs$summary_table$pop_groups,
@@ -161,7 +161,7 @@ local({
       specs$summary_table$drop_categorical_na,
       specs$summary_table$drop_numerical_na,
       specs$summary_table$denominator,
-      specs$summary_table$row_collapse)
+      specs$summary_table$row_aggregate)
   ), {
     expect_snapshot(st2_compute)
     expect_snapshot(st2_html)
@@ -205,7 +205,7 @@ local({
     drop_empty_rows = FALSE,
     show_category_n = FALSE,
     denom = "N",
-    collapse_func_name = "mean"
+    aggregate_func_name = "mean"
   )
 
   st3_html <- summtab_html_table(st3_compute)
@@ -217,7 +217,7 @@ local({
       specs$summary_table$categorical_summary,
       specs$summary_table$total_pop_group,
       specs$summary_table$denominator,
-      specs$summary_table$row_collapse)
+      specs$summary_table$row_aggregate)
   ), {
     expect_snapshot(st3_compute)
     expect_snapshot(st3_html)

@@ -25,7 +25,7 @@ specs[["summary_table"]] <- list(
   cell_click = "Clicking a cell reveals the underlying subject identifiers that contribute to the cell result.",
   categorical_n = "A subject count across all categories of a categorical analysis variable can optionally be displayed.",
   denominator = "Either total population size, N, or categorical subject count, n, can be used as denominator for categorical analysis variable percent calculations.",
-  row_collapse = "After grouping, collapse multiple rows per subject into one using a chosen aggregation function.",
+  row_aggregate = "After grouping, aggregate multiple rows per subject into one using a chosen aggregation function.",
   jumping_feature = "The module can communicate subject values to other modules."
 )
 

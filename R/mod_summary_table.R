@@ -13,7 +13,7 @@ SUMMTAB <- poc(
     DROP_EMPTY_ROWS = "drop_empty_rows",
     SHOW_CATEGORY_N = "show_category_n",
     DENOM = "denom",
-    COLLAPSE_METHOD = "collapse_method",
+    AGGREGATE_METHOD = "aggregate_method",
     STATS = "stats",
     TBL_OUTPUT = "table_output",
     RENDER_COMPLETION_CALLBACK = "render_completion_callback"
@@ -27,13 +27,13 @@ SUMMTAB <- poc(
     ROW_VARS = "Row by:",
     POP_FLAG_VARS = "Population flags:",
     POP_FLAGS_AFTER_GROUPS = "Move after group variables",
-    TOTAL_FLAG = "Total column",
-    DROP_NA_FLAG = "Drop NA values",
+    TOTAL_FLAG = "Show a total column",
+    DROP_NA_FLAG = "Drop NA values from numerical analyses",
     DROP_EMPTY_ROWS = "Remove rows with no data",
     SHOW_CATEGORY_N = "Show categorical n",
-    DENOM = "Denominator:",
-    COLLAPSE_METHOD = "Row Collapse Method:",
-    STATS = "Statistics:"
+    DENOM = "Denominator used for categorical percentage:",
+    AGGREGATE_METHOD = "Multi-value per subject aggregation method:",
+    STATS = "Statistics for numerical analysis:"
   ),
   VALIDATE = poc(
     NO_TABLE_ROWS = "Table dataset has 0 rows",
@@ -72,7 +72,8 @@ summtab_meta_env <- new.env()
 #' @param anl_var A string representing the name of the analysis variable to calculate the statistics on. For
 #'   categorical analysis it should be `.dummy`.
 #' @param stats_functions A named list defining the functions used for summarizing the data.
-#' @param collapse_func_name A string representing the name of the function used to collapse multiple rows per subject into one.
+#' @param aggregate_func_name A string representing the name of the function used to aggregate multiple rows per subject
+#'   into one.
 #' @param denom A string, either "N" or "n", indicating the denominator to use for percent (`pct`) calculation.
 #'
 #' @return A list containing:
@@ -85,7 +86,7 @@ summtab_calc_stats <- function(analysis_df,
                                subjid_var,
                                anl_var,
                                stats_functions,
-                               collapse_func_name,
+                               aggregate_func_name,
                                denom = "N") {
 
   # Initialise a results list
@@ -98,17 +99,17 @@ summtab_calc_stats <- function(analysis_df,
   }
 
   # Extract the package and the bare function name dynamically
-  if (grepl("::", collapse_func_name)) {
-    collapse_parts <- strsplit(collapse_func_name, "::")[[1]]
-    collapse_func <- get(collapse_parts[2], envir = asNamespace(collapse_parts[1]), mode = "function")
+  if (grepl("::", aggregate_func_name)) {
+    agg_func_parts <- strsplit(aggregate_func_name, "::")[[1]]
+    aggregate_func <- get(agg_func_parts[2], envir = asNamespace(agg_func_parts[1]), mode = "function")
   } else {
-    collapse_func <- get(collapse_func_name, mode = "function")
+    aggregate_func <- get(aggregate_func_name, mode = "function")
   }
 
   # Collapse multiple rows per subject into one
   filter_df <- analysis_df |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, ".N")))) |>
-    dplyr::summarise(!!anl_var := collapse_func(.data[[anl_var]]), .groups = "drop")
+    dplyr::summarise(!!anl_var := aggregate_func(.data[[anl_var]]), .groups = "drop")
 
   x_vals <- filter_df[[anl_var]]
   len_x <- length(x_vals)
@@ -230,8 +231,8 @@ summtab_format_stats <- function(analysis_df,
 #'   the number of subjects from the population grouping ("N") or the number of subjects from the 'row by' grouping for
 #'   each population grouping ("n"). If `drop_na == TRUE` then `NA` values will be excluded from determining the "n"
 #'   denominator.
-#' @param collapse_func_name A string representing the name of the function used to collapse multiple rows per subject
-#'   into one.
+#' @param aggregate_func_name A string representing the name of the function used to aggregate multiple rows per
+#'   subject into one.
 #'
 #' @return A list containing:
 #' - `df`: A data frame of the analysed data. Columns: row variables, analysis variable name, statistics for each
@@ -244,8 +245,8 @@ summtab_format_stats <- function(analysis_df,
 #'   - `data_columns`: A vector of names of columns holding the statistics for each population group combination.
 #'   - `total_group_val`: A string indicating the label for the total group column.
 #'   - `denom_df`: A data frame of population group denominator data.
-#'   - `collapse_flag`: A flag indicating whether rows have been collapsed.
-#'   - `collapse_func_name`: A string indicating the name of the function used for collapsing.
+#'   - `aggregate_flag`: A flag indicating whether rows have been aggregated.
+#'   - `aggregate_func_name`: A string indicating the name of the function used for aggregating.
 #'
 #' @keywords internal
 summtab_compute <- function(tbl_df,
@@ -267,7 +268,7 @@ summtab_compute <- function(tbl_df,
                             drop_empty_rows = NULL,
                             show_category_n = NULL,
                             denom = NULL,
-                            collapse_func_name = NULL) {
+                            aggregate_func_name = NULL) {
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
@@ -345,8 +346,8 @@ summtab_compute <- function(tbl_df,
   # Initialise list to hold results for each analysis variable
   results_list <- list()
 
-  # Initialise flag that indicates if collapsing will be applied
-  collapse_flag <- FALSE
+  # Initialise flag that indicates if aggregation will be applied
+  aggregate_flag <- FALSE
 
   for (av in anl_vars) {
 
@@ -368,8 +369,8 @@ summtab_compute <- function(tbl_df,
       # Drop NA values
       av_df <- tidyr::drop_na(av_df, dplyr::all_of(av))
 
-      # Check if collapsing will be applied
-      if (nrow(dplyr::distinct(av_df[, c(subjid_var, group_by_vars)])) < nrow(av_df)) collapse_flag <- TRUE
+      # Check if aggregation will be applied
+      if (nrow(dplyr::distinct(av_df[, c(subjid_var, group_by_vars)])) < nrow(av_df)) aggregate_flag <- TRUE
     } else {
       # Categorical analysis variable
 
@@ -402,7 +403,7 @@ summtab_compute <- function(tbl_df,
         subjid_var = subjid_var,
         anl_var = av_mod,
         stats_functions = av_stats_funcs,
-        collapse_func_name = collapse_func_name,
+        aggregate_func_name = aggregate_func_name,
         denom = denom
       ), .groups = "drop") |>
       dplyr::mutate(!!anl_var := av_label)
@@ -518,8 +519,8 @@ summtab_compute <- function(tbl_df,
       data_columns = data_columns,
       total_group_val = total_group_val,
       denom_df = denom_df,
-      collapse_flag = collapse_flag,
-      collapse_func_name = collapse_func_name
+      aggregate_flag = aggregate_flag,
+      aggregate_func_name = aggregate_func_name
     )
   )
 
@@ -547,8 +548,8 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
   data_columns <- summtab_list[["meta"]][["data_columns"]]
   total_group_val <- summtab_list[["meta"]][["total_group_val"]]
   denom_df <- summtab_list[["meta"]][["denom_df"]]
-  collapse_flag <- summtab_list[["meta"]][["collapse_flag"]]
-  collapse_func_name <- summtab_list[["meta"]][["collapse_func_name"]]
+  aggregate_flag <- summtab_list[["meta"]][["aggregate_flag"]]
+  aggregate_func_name <- summtab_list[["meta"]][["aggregate_func_name"]]
 
   anl_var <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "anl_var")
   stat_col <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "stat")
@@ -612,8 +613,8 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
     ifelse(length(pop_flag_vars) == 0L, "", paste("; flag by", paste(pop_flag_vars, collapse = ", ")))
   )
 
-  aggregate_note <- if (collapse_flag) {
-    shiny::p(paste("Note: Multiple results per subject per group, aggregated by", collapse_func_name))
+  aggregate_note <- if (aggregate_flag) {
+    shiny::p(paste("Note: Multiple results per subject per group, aggregated by", aggregate_func_name))
   } else {
     NULL
   }
@@ -736,8 +737,8 @@ summary_table_ui <- function(module_id,
                              default_show_category_n = TRUE,
                              default_denom = "N",
                              default_stats = NULL,
-                             default_collapse_method = NULL,
-                             collapse_method_choices = "mean",
+                             default_aggregate_method = NULL,
+                             aggregate_method_choices = "mean",
                              choices_stats = NULL) {
 
   ns <- shiny::NS(module_id)
@@ -784,7 +785,7 @@ summary_table_ui <- function(module_id,
     shiny::checkboxInput(ns(SUMMTAB$ID$DROP_EMPTY_ROWS), label = SUMMTAB$LBL$DROP_EMPTY_ROWS, value = default_drop_empty_rows),
     shiny::checkboxInput(ns(SUMMTAB$ID$SHOW_CATEGORY_N), label = SUMMTAB$LBL$SHOW_CATEGORY_N, value = default_show_category_n),
     shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"), selected = default_denom),
-    shiny::radioButtons(ns(SUMMTAB$ID$COLLAPSE_METHOD), label = SUMMTAB$LBL$COLLAPSE_METHOD, choices = collapse_method_choices, selected = default_collapse_method)
+    shiny::radioButtons(ns(SUMMTAB$ID$AGGREGATE_METHOD), label = SUMMTAB$LBL$AGGREGATE_METHOD, choices = aggregate_method_choices, selected = default_aggregate_method)
   )
 
   ui <- shiny::tagList(
@@ -914,7 +915,7 @@ summary_table_server <- function(module_id,
     inputs[[SUMMTAB$ID$DROP_EMPTY_ROWS]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_EMPTY_ROWS]])
     inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]] <- shiny::reactive(input[[SUMMTAB$ID$SHOW_CATEGORY_N]])
     inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive(input[[SUMMTAB$ID$DENOM]])
-    inputs[[SUMMTAB$ID$COLLAPSE_METHOD]] <- shiny::reactive(input[[SUMMTAB$ID$COLLAPSE_METHOD]])
+    inputs[[SUMMTAB$ID$AGGREGATE_METHOD]] <- shiny::reactive(input[[SUMMTAB$ID$AGGREGATE_METHOD]])
     inputs[[SUMMTAB$ID$STATS]] <- shiny::reactive(input[[SUMMTAB$ID$STATS]])
 
     summtab <- shiny::reactive({
@@ -928,7 +929,7 @@ summary_table_server <- function(module_id,
       drop_empty_rows <- inputs[[SUMMTAB$ID$DROP_EMPTY_ROWS]]()
       show_category_n <- inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
-      collapse_func_name <- inputs[[SUMMTAB$ID$COLLAPSE_METHOD]]()
+      aggregate_func_name <- inputs[[SUMMTAB$ID$AGGREGATE_METHOD]]()
 
       choices_stats <- inputs[[SUMMTAB$ID$STATS]]()
 
@@ -1042,7 +1043,7 @@ summary_table_server <- function(module_id,
                                        drop_empty_rows = drop_empty_rows,
                                        show_category_n = show_category_n,
                                        denom = denom,
-                                       collapse_func_name = collapse_func_name)
+                                       aggregate_func_name = aggregate_func_name)
 
       summary_table
     })
@@ -1254,12 +1255,12 @@ summary_table_server <- function(module_id,
 #' A vector of strings from the names of the list elements in `stats_formats` or `stats_functions`, used as the default
 #' selection of statistics for summarizing numerical data.
 #'
-#' @param default_collapse_method `[character(1)]`
+#' @param default_aggregate_method `[character(1)]`
 #'
-#' A string indicating the name of the function to use as the default for collapsing (aka aggregating) rows when more
-#' than one row per subject exists after population grouping and row categorization has been applied. The function is
-#' applied to the analysis variable. The double colon (`::`) namespace resolution operator can be used to specify
-#' a function from a specific package, e.g., `"dplyr::first"`.
+#' A string indicating the name of the function to use as the default for aggregating rows when more than one row per
+#' subject exists after population grouping and row categorization has been applied. The function is applied to the
+#' analysis variable. The double colon (`::`) namespace resolution operator can be used to specify a function from a
+#' specific package, e.g., `"dplyr::first"`.
 #'
 #' @param default_pop_flags `[character(1+) | NULL]`
 #'
@@ -1287,12 +1288,12 @@ summary_table_server <- function(module_id,
 #' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
 #' on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.
 #'
-#' @param collapse_method_choices `[character(1+) | NULL]`
+#' @param aggregate_method_choices `[character(1+) | NULL]`
 #'
-#' A vector of named strings indicating the names of functions that can be used for collapsing (aka aggregating) rows
-#' when more than one row per subject exists after population grouping and row categorization has been applied. The
-#' double colon (`::`) namespace resolution operator can be used to specify functions from specific packages, e.g.,
-#' `"dplyr::first"`. The names are displayed in the UI radio button selections.
+#' A vector of named strings indicating the names of functions that can be used for aggregating rows when more than one
+#' row per subject exists after population grouping and row categorization has been applied. The double colon (`::`)
+#' namespace resolution operator can be used to specify functions from specific packages, e.g., `"dplyr::first"`. The
+#' names are displayed in the UI radio button selections.
 #'
 #' @param pop_flag_choices `[character(1+) | NULL]`
 #'
@@ -1380,18 +1381,18 @@ mod_summary_table <- function(
     default_show_category_n = TRUE,
     default_denom = "N",
     default_stats = c("n", "meansd", "minmax"),
-    default_collapse_method = "mean",
+    default_aggregate_method = "mean",
     default_pop_flags = NULL,
     default_pop_flags_after_groups = FALSE,
 
     summarize_on_choices = NULL,
     group_by_choices = NULL,
     row_by_choices = NULL,
-    collapse_method_choices = c(Mean = "mean",
-                                Minimum = "min",
-                                Maximum = "max",
-                                "First Row" = "dplyr::first",
-                                "Last Row" = "dplyr::last"),
+    aggregate_method_choices = c(Mean = "mean",
+                                 Minimum = "min",
+                                 Maximum = "max",
+                                 "First Row" = "dplyr::first",
+                                 "Last Row" = "dplyr::last"),
     pop_flag_choices = NULL,
     total_group_val = "Total",
     receiver_id = NULL
@@ -1411,9 +1412,9 @@ mod_summary_table <- function(
   checkmate::assert_string(default_denom, add = ac)
   checkmate::assert_subset(default_denom, c("N", "n"), add = ac)
   checkmate::assert_character(default_stats, min.chars = 1L, null.ok = TRUE, add = ac)
-  checkmate::assert_string(default_collapse_method, min.chars = 1L, add = ac)
+  checkmate::assert_string(default_aggregate_method, min.chars = 1L, add = ac)
   checkmate::assert_logical(default_pop_flags_after_groups, add = ac)
-  checkmate::assert_character(collapse_method_choices, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
+  checkmate::assert_character(aggregate_method_choices, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_string(total_group_val, add = ac)
   checkmate::assert_string(receiver_id, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::reportAssertions(ac)
@@ -1468,9 +1469,9 @@ mod_summary_table <- function(
                        default_drop_empty_rows = default_drop_empty_rows,
                        default_show_category_n = default_show_category_n,
                        default_denom = default_denom,
-                       default_collapse_method = default_collapse_method,
+                       default_aggregate_method = default_aggregate_method,
                        default_stats = default_stats,
-                       collapse_method_choices = collapse_method_choices,
+                       aggregate_method_choices = aggregate_method_choices,
                        choices_stats = choices_stats)
     },
     server = function(afmm) {
@@ -1537,13 +1538,13 @@ mod_summary_table_API_docs <- list(
   default_show_category_n = "",
   default_denom = "",
   default_stats = "",
-  default_collapse_method = "",
+  default_aggregate_method = "",
   default_pop_flags = "",
   default_pop_flags_after_groups = "",
   summarize_on_choices = "",
   group_by_choices = "",
   row_by_choices = "",
-  collapse_method_choices = "",
+  aggregate_method_choices = "",
   pop_flag_choices = "",
   total_group_val = "",
   receiver_id = ""
@@ -1572,7 +1573,7 @@ mod_summary_table_API_spec <- TC$group(
   default_show_category_n = TC$logical(),
   default_denom = TC$character(),
   default_stats = TC$character(),
-  default_collapse_method = TC$character(),
+  default_aggregate_method = TC$character(),
   default_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   default_pop_flags_after_groups = TC$logical(),
@@ -1582,7 +1583,7 @@ mod_summary_table_API_spec <- TC$group(
     TC$flag("one_or_more", "optional"),
   row_by_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
-  collapse_method_choices = TC$character(),
+  aggregate_method_choices = TC$character(),
   pop_flag_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   total_group_val = TC$character(),
@@ -1594,8 +1595,8 @@ check_mod_summary_table <- function(
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
-    default_show_category_n, default_denom, default_stats, default_collapse_method, default_pop_flags, default_pop_flags_after_groups,
-    summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices, pop_flag_choices,
+    default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
+    summarize_on_choices, group_by_choices, row_by_choices, aggregate_method_choices, pop_flag_choices,
     total_group_val, receiver_id
 ) {
   err <- CM$container()
@@ -1608,8 +1609,8 @@ check_mod_summary_table <- function(
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
-    default_show_category_n, default_denom, default_stats, default_collapse_method, default_pop_flags, default_pop_flags_after_groups,
-    summarize_on_choices, group_by_choices, row_by_choices, collapse_method_choices, pop_flag_choices,
+    default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
+    summarize_on_choices, group_by_choices, row_by_choices, aggregate_method_choices, pop_flag_choices,
     total_group_val, receiver_id,
     err
   )
