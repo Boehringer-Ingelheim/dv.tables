@@ -41,13 +41,13 @@ mod_summary_table(
   default_show_category_n = TRUE,
   default_denom = "N",
   default_stats = c("n", "meansd", "minmax"),
-  default_collapse_method = "mean",
+  default_aggregate_method = NULL,
   default_pop_flags = NULL,
   default_pop_flags_after_groups = FALSE,
   summarize_on_choices = NULL,
   group_by_choices = NULL,
   row_by_choices = NULL,
-  collapse_method_choices = c(Mean = "mean", Minimum = "min", Maximum = "max",
+  aggregate_method_choices = c(Mean = "mean", Minimum = "min", Maximum = "max",
     `First Row` = "dplyr::first", `Last Row` = "dplyr::last"),
   pop_flag_choices = NULL,
   total_group_val = "Total",
@@ -169,12 +169,12 @@ determining the "n" denominator.}
 A vector of strings from the names of the list elements in \code{stats_formats} or \code{stats_functions}, used as the default
 selection of statistics for summarizing numerical data.}
 
-\item{default_collapse_method}{\verb{[character(1)]}
+\item{default_aggregate_method}{\verb{[character(1)]}
 
-A string indicating the name of the function to use as the default for collapsing (aka aggregating) rows when more
-than one row per subject exists after population grouping and row categorization has been applied. The function is
-applied to the analysis variable. The double colon (\code{::}) namespace resolution operator can be used to specify
-a function from a specific package, e.g., \code{"dplyr::first"}.}
+A string indicating the name of the function to use as the default for aggregating rows when more than one row per
+subject exists after population grouping and row categorization has been applied. The function is applied to the
+analysis variable. The double colon (\code{::}) namespace resolution operator can be used to specify a function from a
+specific package, e.g., \code{"dplyr::first"}.}
 
 \item{default_pop_flags}{\verb{[character(1+) | NULL]}
 
@@ -202,12 +202,12 @@ A vector of variable names from the population dataset, specifying the possible 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
 on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
 
-\item{collapse_method_choices}{\verb{[character(1+) | NULL]}
+\item{aggregate_method_choices}{\verb{[character(1+) | NULL]}
 
-A vector of named strings indicating the names of functions that can be used for collapsing (aka aggregating) rows
-when more than one row per subject exists after population grouping and row categorization has been applied. The
-double colon (\code{::}) namespace resolution operator can be used to specify functions from specific packages, e.g.,
-\code{"dplyr::first"}. The names are displayed in the UI radio button selections.}
+A vector of named strings indicating the names of functions that can be used for aggregating rows when more than one
+row per subject exists after population grouping and row categorization has been applied. The double colon (\code{::})
+namespace resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The
+names are displayed in the UI radio button selections.}
 
 \item{pop_flag_choices}{\verb{[character(1+) | NULL]}
 

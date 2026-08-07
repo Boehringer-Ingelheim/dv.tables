@@ -89,19 +89,23 @@ A drop-down "Table Options" menu provides the following inputs:
 
 ## Demographic Summary table
 
-A collapsible demographic analysis summary table.
+A collapsible demographic analysis summary table. The subject-level population dataset name is passed to both the
+`table_dataset_name` and `pop_dataset_name` arguments.
+
 ![](images/summary_table.png){style="border: 2px solid gray;"}
 
 ## Laboratory Summary table
 
-A collapsible laboratory analysis summary table with rows grouped by parameter and visit.
+A collapsible laboratory analysis summary table with rows grouped by parameter and visit. The subject-level population
+dataset name is passed to the `pop_dataset_name` argument and the laboratory results dataset name is passed to the
+`table_dataset_name` argument.
 
 ![](images/summary_table_row_by.png){style="border: 2px solid gray;"}
 
 ## Population Summary table
 
-With some dataset pre-processing to create a population grouping variable, a population summary table can be produced,
-with populations displayed across the top of the table.
+A collapsible population summary table with populations displayed across the top of the table. The subject-level
+population dataset name is passed to both the `table_dataset_name` and `pop_dataset_name` arguments.
 
 ![](images/summary_table_pop.png){style="border: 2px solid gray;"}
 
@@ -171,13 +175,20 @@ dv.manager::run_app(
       default_summarize_on = c("AVAL", "CHG", "ATOXGR"),
       default_group_by = c("TRT01P", "SEX"),
       default_row_by = c("PARAM", "VISIT"),
-      default_denom = "n"
+      default_denom = "n",
+      default_aggregate_method = "max"
     )
   ),
   filter_data = "adsl",
   filter_key = "USUBJID"
 )
 ```
+
+The `max` function has been specified here for the aggregation method, so if a subject has more than one lab result for
+a specific parameter and visit, then the maximum value will be taken before it gets processed in the main statistical
+analysis. The app creator needs to decide on the most appropriate aggregation function, but it is not possible to
+handle cases where the appropriate aggregation method varies between parameters - in this case the data would need to be
+pre-processed before being passed to the app.
 
 Note: Summarizing large datasets with more than one grouping can take a long time to process so pre-subsetting on the
 values of interest is recommended. If subsetting was not applied to the above example, then it would take around 15

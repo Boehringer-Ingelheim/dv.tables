@@ -9,7 +9,7 @@ summtab_calc_stats(
   subjid_var,
   anl_var,
   stats_functions,
-  collapse_func_name,
+  aggregate_func_name,
   denom = "N"
 )
 }
@@ -23,7 +23,8 @@ categorical analysis it should be \code{.dummy}.}
 
 \item{stats_functions}{A named list defining the functions used for summarizing the data.}
 
-\item{collapse_func_name}{A string representing the name of the function used to collapse multiple rows per subject into one.}
+\item{aggregate_func_name}{A string representing the name of the function used to aggregate multiple rows per subject
+into one.}
 
 \item{denom}{A string, either "N" or "n", indicating the denominator to use for percent (\code{pct}) calculation.}
 }

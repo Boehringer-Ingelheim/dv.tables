@@ -738,7 +738,7 @@ summary_table_ui <- function(module_id,
                              default_denom = "N",
                              default_stats = NULL,
                              default_aggregate_method = NULL,
-                             aggregate_method_choices = "mean",
+                             aggregate_method_choices = NULL,
                              choices_stats = NULL) {
 
   ns <- shiny::NS(module_id)
@@ -1381,7 +1381,7 @@ mod_summary_table <- function(
     default_show_category_n = TRUE,
     default_denom = "N",
     default_stats = c("n", "meansd", "minmax"),
-    default_aggregate_method = "mean",
+    default_aggregate_method = NULL,
     default_pop_flags = NULL,
     default_pop_flags_after_groups = FALSE,
 
@@ -1412,7 +1412,7 @@ mod_summary_table <- function(
   checkmate::assert_string(default_denom, add = ac)
   checkmate::assert_subset(default_denom, c("N", "n"), add = ac)
   checkmate::assert_character(default_stats, min.chars = 1L, null.ok = TRUE, add = ac)
-  checkmate::assert_string(default_aggregate_method, min.chars = 1L, add = ac)
+  checkmate::assert_string(default_aggregate_method, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::assert_logical(default_pop_flags_after_groups, add = ac)
   checkmate::assert_character(aggregate_method_choices, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_string(total_group_val, add = ac)
@@ -1663,7 +1663,10 @@ mock_app_summary_table <- function(dry_run = FALSE,
 
   ui_params <- c(
     list(
-      module_id = "mod"
+      module_id = "mod",
+      default_stats = "n",
+      aggregate_method_choices = c(Mean = "mean", Maximum = "max"),
+      choices_stats = c("n", "mean", "sd")
     ),
     ui_defaults
   )
@@ -1673,7 +1676,10 @@ mock_app_summary_table <- function(dry_run = FALSE,
       module_id = "mod",
       table_dataset = table_dataset,
       pop_dataset = pop_dataset,
-      subjid_var = "USUBJID"
+      subjid_var = "USUBJID",
+      stats_functions = list(n = length, mean = mean, sd = stats::sd),
+      default_summarize_on = "AVAL",
+      default_group_by = "TRT01P"
     ),
     srv_defaults
   )

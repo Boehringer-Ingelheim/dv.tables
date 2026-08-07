@@ -22,7 +22,7 @@ summtab_compute(
   drop_empty_rows = NULL,
   show_category_n = NULL,
   denom = NULL,
-  collapse_func_name = NULL
+  aggregate_func_name = NULL
 )
 }
 \arguments{
@@ -65,8 +65,8 @@ the number of subjects from the population grouping ("N") or the number of subje
 each population grouping ("n"). If \code{drop_na == TRUE} then \code{NA} values will be excluded from determining the "n"
 denominator.}
 
-\item{collapse_func_name}{A string representing the name of the function used to collapse multiple rows per subject
-into one.}
+\item{aggregate_func_name}{A string representing the name of the function used to aggregate multiple rows per
+subject into one.}
 }
 \value{
 A list containing:
@@ -82,8 +82,8 @@ population group combination, ".first" flags for rendering.
 \item \code{data_columns}: A vector of names of columns holding the statistics for each population group combination.
 \item \code{total_group_val}: A string indicating the label for the total group column.
 \item \code{denom_df}: A data frame of population group denominator data.
-\item \code{collapse_flag}: A flag indicating whether rows have been collapsed.
-\item \code{collapse_func_name}: A string indicating the name of the function used for collapsing.
+\item \code{aggregate_flag}: A flag indicating whether rows have been aggregated.
+\item \code{aggregate_func_name}: A string indicating the name of the function used for aggregating.
 }
 }
 }

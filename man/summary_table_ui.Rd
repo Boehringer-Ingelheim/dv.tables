@@ -14,8 +14,8 @@ summary_table_ui(
   default_show_category_n = TRUE,
   default_denom = "N",
   default_stats = NULL,
-  default_collapse_method = NULL,
-  collapse_method_choices = "mean",
+  default_aggregate_method = NULL,
+  aggregate_method_choices = NULL,
   choices_stats = NULL
 )
 }
@@ -65,19 +65,19 @@ determining the "n" denominator.}
 A vector of strings from the names of the list elements in \code{stats_formats} or \code{stats_functions}, used as the default
 selection of statistics for summarizing numerical data.}
 
-\item{default_collapse_method}{\verb{[character(1)]}
+\item{default_aggregate_method}{\verb{[character(1)]}
 
-A string indicating the name of the function to use as the default for collapsing (aka aggregating) rows when more
-than one row per subject exists after population grouping and row categorization has been applied. The function is
-applied to the analysis variable. The double colon (\code{::}) namespace resolution operator can be used to specify
-a function from a specific package, e.g., \code{"dplyr::first"}.}
+A string indicating the name of the function to use as the default for aggregating rows when more than one row per
+subject exists after population grouping and row categorization has been applied. The function is applied to the
+analysis variable. The double colon (\code{::}) namespace resolution operator can be used to specify a function from a
+specific package, e.g., \code{"dplyr::first"}.}
 
-\item{collapse_method_choices}{\verb{[character(1+) | NULL]}
+\item{aggregate_method_choices}{\verb{[character(1+) | NULL]}
 
-A vector of named strings indicating the names of functions that can be used for collapsing (aka aggregating) rows
-when more than one row per subject exists after population grouping and row categorization has been applied. The
-double colon (\code{::}) namespace resolution operator can be used to specify functions from specific packages, e.g.,
-\code{"dplyr::first"}. The names are displayed in the UI radio button selections.}
+A vector of named strings indicating the names of functions that can be used for aggregating rows when more than one
+row per subject exists after population grouping and row categorization has been applied. The double colon (\code{::})
+namespace resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The
+names are displayed in the UI radio button selections.}
 
 \item{choices_stats}{\verb{[character(1+) | NULL]}
 
