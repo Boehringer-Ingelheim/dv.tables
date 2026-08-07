@@ -49,7 +49,7 @@ mod_summary_table(
   choices_row_by = NULL,
   choices_aggregate_method = c(Mean = "mean", Minimum = "min", Maximum = "max",
     `First Row` = "dplyr::first", `Last Row` = "dplyr::last"),
-  choices_pop_flag = NULL,
+  choices_pop_flags = NULL,
   total_group_val = "Total",
   receiver_id = NULL
 )
@@ -77,7 +77,7 @@ A string representing the subject identifier column in both datasets.}
 \item{show_pop_flag_selection}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
-and \code{choices_pop_flag}.}
+and \code{choices_pop_flags}.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
@@ -209,7 +209,7 @@ row per subject exists after population grouping and row categorization has been
 namespace resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The
 names are displayed in the UI radio button selections.}
 
-\item{choices_pop_flag}{\verb{[character(1+) | NULL]}
+\item{choices_pop_flags}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, specifying the possible choices for the population flag
 variables (optional). If it is not specified then all factor and character variables from the population dataset will

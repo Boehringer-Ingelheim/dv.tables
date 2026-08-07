@@ -23,7 +23,7 @@ summary_table_server(
   choices_summarize_on = NULL,
   choices_group_by = NULL,
   choices_row_by = NULL,
-  choices_pop_flag = NULL,
+  choices_pop_flags = NULL,
   total_group_val = "Total"
 )
 }
@@ -47,7 +47,7 @@ A string representing the subject identifier column in both datasets.}
 \item{show_pop_flag_selection}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
-and \code{choices_pop_flag}.}
+and \code{choices_pop_flags}.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
@@ -133,7 +133,7 @@ A vector of variable names from the population dataset, specifying the possible 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
 on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
 
-\item{choices_pop_flag}{\verb{[character(1+) | NULL]}
+\item{choices_pop_flags}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, specifying the possible choices for the population flag
 variables (optional). If it is not specified then all factor and character variables from the population dataset will

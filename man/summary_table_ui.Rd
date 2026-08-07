@@ -27,7 +27,7 @@ A string that serves as a unique identifier for the module.}
 \item{show_pop_flag_selection}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
-and \code{choices_pop_flag}.}
+and \code{choices_pop_flags}.}
 
 \item{default_pop_flags_after_groups}{\verb{[logical(1)]}
 
