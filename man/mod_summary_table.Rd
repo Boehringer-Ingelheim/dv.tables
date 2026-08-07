@@ -179,7 +179,9 @@ specific package, e.g., \code{"dplyr::first"}.}
 \item{default_pop_flags}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, used as the default for selected population flag variables
-(optional).}
+(optional).
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
 
 \item{default_pop_flags_after_groups}{\verb{[logical(1)]}
 
@@ -212,8 +214,10 @@ names are displayed in the UI radio button selections.}
 \item{choices_pop_flags}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, specifying the possible choices for the population flag
-variables (optional). If it is not specified then all factor and character variables from the population dataset will
-be used.}
+variables (optional). If it is not specified then all \code{FL} suffixed factor and character variables from the
+population dataset will be used.
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
 
 \item{total_group_val}{\verb{[character(1)]}
 

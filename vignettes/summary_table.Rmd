@@ -202,42 +202,34 @@ displayed across the top of the table, and linking to patient profiles enabled:
 ```{r, eval=FALSE}
 adsl <- pharmaverseadam::adsl
 
-pop_df <- adsl |>
-  dplyr::mutate(
-    ENRLFL = "Y",
-    TRTFL = ifelse(is.na(TRTSDT), "N", "Y"),
-    RANDFL = ifelse(is.na(RANDDT), "N", "Y"),
-    DISCFL = ifelse(EOSSTT == "DISCONTINUED", "Y", "N")
-  ) |>
-  tidyr::pivot_longer(
-    c("ENRLFL", "RANDFL", "TRTFL", "DISCFL"),
-    names_to = "pop_group",
-    values_to = "pop_flag"
-  ) |>
-  dplyr::mutate(pop_group = factor(.data[["pop_group"]],
-                                   levels = c("ENRLFL", "RANDFL", "TRTFL", "DISCFL"),
-                                   labels = c("Enrolled", "Randomized", "Treated", "Discontinued"))) |>
-  dplyr::filter(.data[["pop_flag"]] == "Y") |>
-  dplyr::relocate(dplyr::starts_with("pop"))
+adsl <- pharmaverseadam::adsl |>
+  dplyr::mutate(ENRLFL = "Y",
+                TRTFL = ifelse(is.na(TRTSDT), "N", "Y"),
+                RANDFL = ifelse(is.na(RANDDT), "N", "Y"),
+                DISCFL = ifelse(EOSSTT == "DISCONTINUED", "Y", "N"))
 
-attr(pop_df, "label") <- "Safety Population"
-attr(pop_df[["pop_group"]], "label") <- "Population Flag Group"
-attr(pop_df[["pop_flag"]], "label") <- "Population Flag"
+attr(adsl[["ENRLFL"]], "label") <- "Enrolled Flag"
+attr(adsl[["RANDFL"]], "label") <- "Randomized Flag"
+attr(adsl[["TRTFL"]], "label") <- "Treated Flag"
+attr(adsl[["DISCFL"]], "label") <- "Discontinued Flag"
 
 dv.manager::run_app(
-  data = list(pharmaverseadam = list(adsl = adsl, pop_df = pop_df)),
+  data = list(pharmaverseadam = list(adsl = adsl)),
   module_list = list(
-    "ADLB Summary Table" = dv.tables::mod_summary_table(
+    "Population Summary" = mod_summary_table(
       module_id = "pop_summtab",
-      table_dataset_name = "pop_df",
-      pop_dataset_name = "pop_df",
+      show_pop_flag_selection = TRUE,
+      table_dataset_name = "adsl",
+      pop_dataset_name = "adsl",
       default_summarize_on = c("SITEID"),
-      default_group_by = c("pop_group"),
+      default_group_by = NULL,
       default_row_by = c("COUNTRY"),
       default_total = FALSE,
       default_drop_na = TRUE,
+      default_drop_empty_rows = TRUE,
       default_show_category_n = FALSE,
-      group_by_choices = c("pop_group"),
+      default_pop_flags = c("ENRLFL", "RANDFL", "TRTFL", "DISCFL"),
+      default_pop_flags_after_groups = FALSE,
       receiver_id = "papo"
     ),
     "Patient Profile" = dv.papo::mod_patient_profile(
