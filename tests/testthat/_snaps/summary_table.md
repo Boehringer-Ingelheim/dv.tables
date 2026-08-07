@@ -58,10 +58,10 @@
       7 All   F         3 "All\u001dF"
       8 All   M         3 "All\u001dM"
       
-      $meta$collapse_flag
+      $meta$aggregate_flag
       [1] FALSE
       
-      $meta$collapse_func_name
+      $meta$aggregate_func_name
       [1] "dplyr::first"
       
       
@@ -1335,7 +1335,7 @@
         </table>
       </div>
 
-# generate collapsed summary table (compare with snapshot)__spec_ids{summary_table$numerical_summary;summary_table$categorical_summary;summary_table$pop_groups;summary_table$row_groups;summary_table$stats_functions;summary_table$stats_format;summary_table$stats_labels;summary_table$stats_replace;summary_table$total_pop_group;summary_table$total_pop_group_label;summary_table$drop_categorical_na;summary_table$drop_numerical_na;summary_table$denominator;summary_table$row_collapse}
+# generate aggregated summary table (compare with snapshot)__spec_ids{summary_table$numerical_summary;summary_table$categorical_summary;summary_table$pop_groups;summary_table$row_groups;summary_table$stats_functions;summary_table$stats_format;summary_table$stats_labels;summary_table$stats_replace;summary_table$total_pop_group;summary_table$total_pop_group_label;summary_table$drop_categorical_na;summary_table$drop_numerical_na;summary_table$denominator;summary_table$row_aggregate}
 
     Code
       st2_compute
@@ -1388,10 +1388,10 @@
       2 B         2 B      
       3 C         1 C      
       
-      $meta$collapse_flag
+      $meta$aggregate_flag
       [1] TRUE
       
-      $meta$collapse_func_name
+      $meta$aggregate_func_name
       [1] "dplyr::first"
       
       
@@ -1594,7 +1594,7 @@
         </table>
       </div>
 
-# expanded population groups, multiple rows per subject - population summary table__spec_ids{summary_table$expanded_pop_groups;summary_table$numerical_summary;summary_table$categorical_summary;summary_table$total_pop_group;summary_table$denominator;summary_table$row_collapse}
+# expanded population groups, multiple rows per subject - population summary table__spec_ids{summary_table$expanded_pop_groups;summary_table$numerical_summary;summary_table$categorical_summary;summary_table$total_pop_group;summary_table$denominator;summary_table$row_aggregate}
 
     Code
       st3_compute
@@ -1646,10 +1646,10 @@
       2 SAFFL2       13 SAFFL2 
       3 SAFFL3       16 SAFFL3 
       
-      $meta$collapse_flag
+      $meta$aggregate_flag
       [1] FALSE
       
-      $meta$collapse_func_name
+      $meta$aggregate_func_name
       [1] "mean"
       
       
