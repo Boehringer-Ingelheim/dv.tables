@@ -842,7 +842,7 @@ summary_table_server <- function(module_id,
                                  choices_summarize_on = NULL,
                                  choices_group_by = NULL,
                                  choices_row_by = NULL,
-                                 choices_pop_flag = NULL,
+                                 choices_pop_flags = NULL,
                                  total_group_val = "Total") {
 
   mod <- function(input, output, session) {
@@ -900,7 +900,7 @@ summary_table_server <- function(module_id,
         include_func = function(var, var_name) {
           (is.factor(var) || is.character(var)) &&
             var_name != subjid_var &&
-            ((is.null(choices_pop_flag) && grepl("FL([0-9]*)?$", var_name)) || var_name %in% choices_pop_flag)
+            ((is.null(choices_pop_flags) && grepl("FL([0-9]*)?$", var_name)) || var_name %in% choices_pop_flags)
         },
         default = default_pop_flags,
         multiple = TRUE,
@@ -1163,7 +1163,7 @@ summary_table_server <- function(module_id,
 #' @param show_pop_flag_selection `[logical(1)]`
 #'
 #' A flag to indicate whether to show the population flag selection. Other associated arguments are `default_pop_flags`
-#' and `choices_pop_flag`.
+#' and `choices_pop_flags`.
 #'
 #' @param show_modal_on_click `[logical(1)]`
 #'
@@ -1295,7 +1295,7 @@ summary_table_server <- function(module_id,
 #' namespace resolution operator can be used to specify functions from specific packages, e.g., `"dplyr::first"`. The
 #' names are displayed in the UI radio button selections.
 #'
-#' @param choices_pop_flag `[character(1+) | NULL]`
+#' @param choices_pop_flags `[character(1+) | NULL]`
 #'
 #' A vector of variable names from the population dataset, specifying the possible choices for the population flag
 #' variables (optional). If it is not specified then all factor and character variables from the population dataset will
@@ -1393,7 +1393,7 @@ mod_summary_table <- function(
                                  Maximum = "max",
                                  "First Row" = "dplyr::first",
                                  "Last Row" = "dplyr::last"),
-    choices_pop_flag = NULL,
+    choices_pop_flags = NULL,
     total_group_val = "Total",
     receiver_id = NULL
 ) {
@@ -1504,7 +1504,7 @@ mod_summary_table <- function(
                            choices_summarize_on = choices_summarize_on,
                            choices_group_by = choices_group_by,
                            choices_row_by = choices_row_by,
-                           choices_pop_flag = choices_pop_flag,
+                           choices_pop_flags = choices_pop_flags,
                            total_group_val = total_group_val)
     },
     module_id = module_id
@@ -1545,7 +1545,7 @@ mod_summary_table_API_docs <- list(
   choices_group_by = "",
   choices_row_by = "",
   choices_aggregate_method = "",
-  choices_pop_flag = "",
+  choices_pop_flags = "",
   total_group_val = "",
   receiver_id = ""
 )
@@ -1584,7 +1584,7 @@ mod_summary_table_API_spec <- TC$group(
   choices_row_by = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   choices_aggregate_method = TC$character(),
-  choices_pop_flag = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+  choices_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   total_group_val = TC$character(),
   receiver_id = TC$character() |> TC$flag("optional")
@@ -1596,7 +1596,7 @@ check_mod_summary_table <- function(
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
-    choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flag,
+    choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flags,
     total_group_val, receiver_id
 ) {
   err <- CM$container()
@@ -1610,7 +1610,7 @@ check_mod_summary_table <- function(
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
-    choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flag,
+    choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flags,
     total_group_val, receiver_id,
     err
   )
