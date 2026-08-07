@@ -15,7 +15,7 @@ summary_table_ui(
   default_denom = "N",
   default_stats = NULL,
   default_aggregate_method = NULL,
-  aggregate_method_choices = NULL,
+  aggregate_method_choices = c(Mean = "mean"),
   choices_stats = NULL
 )
 }

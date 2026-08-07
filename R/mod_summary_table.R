@@ -738,7 +738,7 @@ summary_table_ui <- function(module_id,
                              default_denom = "N",
                              default_stats = NULL,
                              default_aggregate_method = NULL,
-                             aggregate_method_choices = NULL,
+                             aggregate_method_choices = c(Mean = "mean"),
                              choices_stats = NULL) {
 
   ns <- shiny::NS(module_id)
@@ -1663,10 +1663,7 @@ mock_app_summary_table <- function(dry_run = FALSE,
 
   ui_params <- c(
     list(
-      module_id = "mod",
-      default_stats = "n",
-      aggregate_method_choices = c(Mean = "mean", Maximum = "max"),
-      choices_stats = c("n", "mean", "sd")
+      module_id = "mod"
     ),
     ui_defaults
   )
@@ -1676,10 +1673,7 @@ mock_app_summary_table <- function(dry_run = FALSE,
       module_id = "mod",
       table_dataset = table_dataset,
       pop_dataset = pop_dataset,
-      subjid_var = "USUBJID",
-      stats_functions = list(n = length, mean = mean, sd = stats::sd),
-      default_summarize_on = "AVAL",
-      default_group_by = "TRT01P"
+      subjid_var = "USUBJID"
     ),
     srv_defaults
   )
