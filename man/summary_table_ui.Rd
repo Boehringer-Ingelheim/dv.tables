@@ -15,7 +15,7 @@ summary_table_ui(
   default_denom = "N",
   default_stats = NULL,
   default_aggregate_method = NULL,
-  aggregate_method_choices = c(Mean = "mean"),
+  choices_aggregate_method = c(Mean = "mean"),
   choices_stats = NULL
 )
 }
@@ -27,7 +27,7 @@ A string that serves as a unique identifier for the module.}
 \item{show_pop_flag_selection}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
-and \code{pop_flag_choices}.}
+and \code{choices_pop_flag}.}
 
 \item{default_pop_flags_after_groups}{\verb{[logical(1)]}
 
@@ -72,7 +72,7 @@ subject exists after population grouping and row categorization has been applied
 analysis variable. The double colon (\code{::}) namespace resolution operator can be used to specify a function from a
 specific package, e.g., \code{"dplyr::first"}.}
 
-\item{aggregate_method_choices}{\verb{[character(1+) | NULL]}
+\item{choices_aggregate_method}{\verb{[character(1+) | NULL]}
 
 A vector of named strings indicating the names of functions that can be used for aggregating rows when more than one
 row per subject exists after population grouping and row categorization has been applied. The double colon (\code{::})

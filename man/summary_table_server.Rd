@@ -20,10 +20,10 @@ summary_table_server(
   default_group_by = NULL,
   default_row_by = NULL,
   default_pop_flags = NULL,
-  summarize_on_choices = NULL,
-  group_by_choices = NULL,
-  row_by_choices = NULL,
-  pop_flag_choices = NULL,
+  choices_summarize_on = NULL,
+  choices_group_by = NULL,
+  choices_row_by = NULL,
+  choices_pop_flag = NULL,
   total_group_val = "Total"
 )
 }
@@ -47,7 +47,7 @@ A string representing the subject identifier column in both datasets.}
 \item{show_pop_flag_selection}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
-and \code{pop_flag_choices}.}
+and \code{choices_pop_flag}.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
@@ -117,23 +117,23 @@ variables to categorize on (optional).}
 A vector of variable names from the population dataset, used as the default for selected population flag variables
 (optional).}
 
-\item{summarize_on_choices}{\verb{[character(1+) | NULL]}
+\item{choices_summarize_on}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
 on (optional). If it is not specified then all variables from the analysis dataset, excluding \code{Date} and \code{POSIXt}
 class variables, will be used.}
 
-\item{group_by_choices}{\verb{[character(1+) | NULL]}
+\item{choices_group_by}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
 (optional). If it is not specified then all factor and character variables from the population dataset will be used.}
 
-\item{row_by_choices}{\verb{[character(1+) | NULL]}
+\item{choices_row_by}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
 on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
 
-\item{pop_flag_choices}{\verb{[character(1+) | NULL]}
+\item{choices_pop_flag}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, specifying the possible choices for the population flag
 variables (optional). If it is not specified then all factor and character variables from the population dataset will

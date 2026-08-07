@@ -44,12 +44,12 @@ mod_summary_table(
   default_aggregate_method = NULL,
   default_pop_flags = NULL,
   default_pop_flags_after_groups = FALSE,
-  summarize_on_choices = NULL,
-  group_by_choices = NULL,
-  row_by_choices = NULL,
-  aggregate_method_choices = c(Mean = "mean", Minimum = "min", Maximum = "max",
+  choices_summarize_on = NULL,
+  choices_group_by = NULL,
+  choices_row_by = NULL,
+  choices_aggregate_method = c(Mean = "mean", Minimum = "min", Maximum = "max",
     `First Row` = "dplyr::first", `Last Row` = "dplyr::last"),
-  pop_flag_choices = NULL,
+  choices_pop_flag = NULL,
   total_group_val = "Total",
   receiver_id = NULL
 )
@@ -77,7 +77,7 @@ A string representing the subject identifier column in both datasets.}
 \item{show_pop_flag_selection}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
-and \code{pop_flag_choices}.}
+and \code{choices_pop_flag}.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
@@ -186,30 +186,30 @@ A vector of variable names from the population dataset, used as the default for 
 A flag specifying the default value for the checkbox that determines whether to show the population flags after the
 group variables.}
 
-\item{summarize_on_choices}{\verb{[character(1+) | NULL]}
+\item{choices_summarize_on}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
 on (optional). If it is not specified then all variables from the analysis dataset, excluding \code{Date} and \code{POSIXt}
 class variables, will be used.}
 
-\item{group_by_choices}{\verb{[character(1+) | NULL]}
+\item{choices_group_by}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
 (optional). If it is not specified then all factor and character variables from the population dataset will be used.}
 
-\item{row_by_choices}{\verb{[character(1+) | NULL]}
+\item{choices_row_by}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
 on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
 
-\item{aggregate_method_choices}{\verb{[character(1+) | NULL]}
+\item{choices_aggregate_method}{\verb{[character(1+) | NULL]}
 
 A vector of named strings indicating the names of functions that can be used for aggregating rows when more than one
 row per subject exists after population grouping and row categorization has been applied. The double colon (\code{::})
 namespace resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The
 names are displayed in the UI radio button selections.}
 
-\item{pop_flag_choices}{\verb{[character(1+) | NULL]}
+\item{choices_pop_flag}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, specifying the possible choices for the population flag
 variables (optional). If it is not specified then all factor and character variables from the population dataset will

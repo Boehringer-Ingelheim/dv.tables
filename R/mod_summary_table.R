@@ -738,7 +738,7 @@ summary_table_ui <- function(module_id,
                              default_denom = "N",
                              default_stats = NULL,
                              default_aggregate_method = NULL,
-                             aggregate_method_choices = c(Mean = "mean"),
+                             choices_aggregate_method = c(Mean = "mean"),
                              choices_stats = NULL) {
 
   ns <- shiny::NS(module_id)
@@ -785,7 +785,7 @@ summary_table_ui <- function(module_id,
     shiny::checkboxInput(ns(SUMMTAB$ID$DROP_EMPTY_ROWS), label = SUMMTAB$LBL$DROP_EMPTY_ROWS, value = default_drop_empty_rows),
     shiny::checkboxInput(ns(SUMMTAB$ID$SHOW_CATEGORY_N), label = SUMMTAB$LBL$SHOW_CATEGORY_N, value = default_show_category_n),
     shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"), selected = default_denom),
-    shiny::radioButtons(ns(SUMMTAB$ID$AGGREGATE_METHOD), label = SUMMTAB$LBL$AGGREGATE_METHOD, choices = aggregate_method_choices, selected = default_aggregate_method)
+    shiny::radioButtons(ns(SUMMTAB$ID$AGGREGATE_METHOD), label = SUMMTAB$LBL$AGGREGATE_METHOD, choices = choices_aggregate_method, selected = default_aggregate_method)
   )
 
   ui <- shiny::tagList(
@@ -839,10 +839,10 @@ summary_table_server <- function(module_id,
                                  default_group_by = NULL,
                                  default_row_by = NULL,
                                  default_pop_flags = NULL,
-                                 summarize_on_choices = NULL,
-                                 group_by_choices = NULL,
-                                 row_by_choices = NULL,
-                                 pop_flag_choices = NULL,
+                                 choices_summarize_on = NULL,
+                                 choices_group_by = NULL,
+                                 choices_row_by = NULL,
+                                 choices_pop_flag = NULL,
                                  total_group_val = "Total") {
 
   mod <- function(input, output, session) {
@@ -857,7 +857,7 @@ summary_table_server <- function(module_id,
       label = SUMMTAB$LBL$ANL_VARS,
       include_func = function(var, var_name) {
         !inherits(var, "Date") && !inherits(var, "POSIXt") && var_name != subjid_var &&
-          (is.null(summarize_on_choices) || var_name %in% summarize_on_choices)
+          (is.null(choices_summarize_on) || var_name %in% choices_summarize_on)
       },
       default = default_summarize_on,
       multiple = TRUE,
@@ -871,7 +871,7 @@ summary_table_server <- function(module_id,
       include_func = function(var, var_name) {
         (is.factor(var) || is.character(var)) &&
           var_name != subjid_var &&
-          (is.null(group_by_choices) || var_name %in% group_by_choices)
+          (is.null(choices_group_by) || var_name %in% choices_group_by)
       },
       default = default_group_by,
       multiple = TRUE,
@@ -885,7 +885,7 @@ summary_table_server <- function(module_id,
       include_func = function(var, var_name) {
         (is.factor(var) || is.character(var)) &&
           var_name != subjid_var &&
-          (is.null(row_by_choices) || var_name %in% row_by_choices)
+          (is.null(choices_row_by) || var_name %in% choices_row_by)
       },
       default = default_row_by,
       multiple = TRUE,
@@ -900,7 +900,7 @@ summary_table_server <- function(module_id,
         include_func = function(var, var_name) {
           (is.factor(var) || is.character(var)) &&
             var_name != subjid_var &&
-            ((is.null(pop_flag_choices) && grepl("FL([0-9]*)?$", var_name)) || var_name %in% pop_flag_choices)
+            ((is.null(choices_pop_flag) && grepl("FL([0-9]*)?$", var_name)) || var_name %in% choices_pop_flag)
         },
         default = default_pop_flags,
         multiple = TRUE,
@@ -1163,7 +1163,7 @@ summary_table_server <- function(module_id,
 #' @param show_pop_flag_selection `[logical(1)]`
 #'
 #' A flag to indicate whether to show the population flag selection. Other associated arguments are `default_pop_flags`
-#' and `pop_flag_choices`.
+#' and `choices_pop_flag`.
 #'
 #' @param show_modal_on_click `[logical(1)]`
 #'
@@ -1272,30 +1272,30 @@ summary_table_server <- function(module_id,
 #' A flag specifying the default value for the checkbox that determines whether to show the population flags after the
 #' group variables.
 #'
-#' @param summarize_on_choices `[character(1+) | NULL]`
+#' @param choices_summarize_on `[character(1+) | NULL]`
 #'
 #' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
 #' on (optional). If it is not specified then all variables from the analysis dataset, excluding `Date` and `POSIXt`
 #' class variables, will be used.
 #'
-#' @param group_by_choices `[character(1+) | NULL]`
+#' @param choices_group_by `[character(1+) | NULL]`
 #'
 #' A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
 #' (optional). If it is not specified then all factor and character variables from the population dataset will be used.
 #'
-#' @param row_by_choices `[character(1+) | NULL]`
+#' @param choices_row_by `[character(1+) | NULL]`
 #'
 #' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
 #' on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.
 #'
-#' @param aggregate_method_choices `[character(1+) | NULL]`
+#' @param choices_aggregate_method `[character(1+) | NULL]`
 #'
 #' A vector of named strings indicating the names of functions that can be used for aggregating rows when more than one
 #' row per subject exists after population grouping and row categorization has been applied. The double colon (`::`)
 #' namespace resolution operator can be used to specify functions from specific packages, e.g., `"dplyr::first"`. The
 #' names are displayed in the UI radio button selections.
 #'
-#' @param pop_flag_choices `[character(1+) | NULL]`
+#' @param choices_pop_flag `[character(1+) | NULL]`
 #'
 #' A vector of variable names from the population dataset, specifying the possible choices for the population flag
 #' variables (optional). If it is not specified then all factor and character variables from the population dataset will
@@ -1385,15 +1385,15 @@ mod_summary_table <- function(
     default_pop_flags = NULL,
     default_pop_flags_after_groups = FALSE,
 
-    summarize_on_choices = NULL,
-    group_by_choices = NULL,
-    row_by_choices = NULL,
-    aggregate_method_choices = c(Mean = "mean",
+    choices_summarize_on = NULL,
+    choices_group_by = NULL,
+    choices_row_by = NULL,
+    choices_aggregate_method = c(Mean = "mean",
                                  Minimum = "min",
                                  Maximum = "max",
                                  "First Row" = "dplyr::first",
                                  "Last Row" = "dplyr::last"),
-    pop_flag_choices = NULL,
+    choices_pop_flag = NULL,
     total_group_val = "Total",
     receiver_id = NULL
 ) {
@@ -1414,7 +1414,7 @@ mod_summary_table <- function(
   checkmate::assert_character(default_stats, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::assert_string(default_aggregate_method, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::assert_logical(default_pop_flags_after_groups, add = ac)
-  checkmate::assert_character(aggregate_method_choices, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
+  checkmate::assert_character(choices_aggregate_method, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_string(total_group_val, add = ac)
   checkmate::assert_string(receiver_id, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::reportAssertions(ac)
@@ -1471,7 +1471,7 @@ mod_summary_table <- function(
                        default_denom = default_denom,
                        default_aggregate_method = default_aggregate_method,
                        default_stats = default_stats,
-                       aggregate_method_choices = aggregate_method_choices,
+                       choices_aggregate_method = choices_aggregate_method,
                        choices_stats = choices_stats)
     },
     server = function(afmm) {
@@ -1501,10 +1501,10 @@ mod_summary_table <- function(
                            default_group_by = default_group_by,
                            default_row_by = default_row_by,
                            default_pop_flags = default_pop_flags,
-                           summarize_on_choices = summarize_on_choices,
-                           group_by_choices = group_by_choices,
-                           row_by_choices = row_by_choices,
-                           pop_flag_choices = pop_flag_choices,
+                           choices_summarize_on = choices_summarize_on,
+                           choices_group_by = choices_group_by,
+                           choices_row_by = choices_row_by,
+                           choices_pop_flag = choices_pop_flag,
                            total_group_val = total_group_val)
     },
     module_id = module_id
@@ -1541,11 +1541,11 @@ mod_summary_table_API_docs <- list(
   default_aggregate_method = "",
   default_pop_flags = "",
   default_pop_flags_after_groups = "",
-  summarize_on_choices = "",
-  group_by_choices = "",
-  row_by_choices = "",
-  aggregate_method_choices = "",
-  pop_flag_choices = "",
+  choices_summarize_on = "",
+  choices_group_by = "",
+  choices_row_by = "",
+  choices_aggregate_method = "",
+  choices_pop_flag = "",
   total_group_val = "",
   receiver_id = ""
 )
@@ -1577,14 +1577,14 @@ mod_summary_table_API_spec <- TC$group(
   default_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   default_pop_flags_after_groups = TC$logical(),
-  summarize_on_choices = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
+  choices_summarize_on = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
-  group_by_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+  choices_group_by = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
-  row_by_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
+  choices_row_by = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
-  aggregate_method_choices = TC$character(),
-  pop_flag_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+  choices_aggregate_method = TC$character(),
+  choices_pop_flag = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   total_group_val = TC$character(),
   receiver_id = TC$character() |> TC$flag("optional")
@@ -1596,7 +1596,7 @@ check_mod_summary_table <- function(
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
-    summarize_on_choices, group_by_choices, row_by_choices, aggregate_method_choices, pop_flag_choices,
+    choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flag,
     total_group_val, receiver_id
 ) {
   err <- CM$container()
@@ -1610,7 +1610,7 @@ check_mod_summary_table <- function(
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
-    summarize_on_choices, group_by_choices, row_by_choices, aggregate_method_choices, pop_flag_choices,
+    choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flag,
     total_group_val, receiver_id,
     err
   )
