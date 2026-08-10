@@ -31,8 +31,8 @@ grouped by variables from the population and analysis datasets.
 - An optional "Total" group can be derived and displayed for the first population grouping level.
 - In addition to the top-level analysis variable sections, further levels of grouping by analysis dataset variables
   define the row hierarchy of the summary table.
-- Aggregation of multiple subject results corresponding to a grouping (e.g. multiple lab results for a subject at a
-  single visit) can be specified using an aggregation function.
+- Optional aggregation of multiple subject results corresponding to a grouping (e.g. multiple lab results for a subject
+  at a single visit) can be specified using an aggregation function.
 - Analysis variable sections and row groups can be individually collapsed/hidden.
 - It supports bookmarking.
 
@@ -62,6 +62,11 @@ A drop-down "Column Selection" menu provides the following inputs:
   top of the table, e.g. `ARM`, `TRT01P`, `SEX`, `RACE`, etc.
 - **Row by**: Selection of one or more grouping variables from the analysis dataset, to group each analysis variable,
   e.g. `PARAM`, `AVISIT`, etc.
+- **Population flags**: Selection of one or more flagging variables from the population dataset, to be displayed across
+  the top of the table. The flags are subsetting on `"Y"` values. This selection and the associated checkbox) are shown
+  only if the app creator has specifically enabled population flags.
+- **Move after grouping variables**: Checkbox that controls whether the flags should be moved to after (below) the
+  grouping variables. Otherwise, they will appear before (above) the grouping variables.
 
 A drop-down "Statistics" menu provides the following inputs:
 
@@ -83,7 +88,7 @@ A drop-down "Table Options" menu provides the following inputs:
   denominator.
 - **Row Aggregation Method**: Radio buttons that determine the method to use for aggregating rows when more than one row
   per subject exists after population grouping and row categorization has been applied. The method is applied to the
-  analysis variable.
+  analysis variable. These buttons are shown only if the app creator has specifically enabled aggregation. 
 
 # Visualizations
 
@@ -172,6 +177,7 @@ dv.manager::run_app(
       module_id = "summary_table",
       table_dataset_name = "adlb",
       pop_dataset_name = "adsl",
+      show_aggregate_method = TRUE,
       default_summarize_on = c("AVAL", "CHG", "ATOXGR"),
       default_group_by = c("TRT01P", "SEX"),
       default_row_by = c("PARAM", "VISIT"),

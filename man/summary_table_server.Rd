@@ -10,6 +10,7 @@ summary_table_server(
   pop_dataset,
   subjid_var,
   show_pop_flag_selection = FALSE,
+  show_aggregate_method = FALSE,
   show_modal_on_click = TRUE,
   on_sbj_click_fun = function() NULL,
   stats_functions = NULL,
@@ -24,7 +25,8 @@ summary_table_server(
   choices_group_by = NULL,
   choices_row_by = NULL,
   choices_pop_flags = NULL,
-  total_group_val = "Total"
+  total_group_val = "Total",
+  allow_aggregation = FALSE
 )
 }
 \arguments{
@@ -48,6 +50,12 @@ A string representing the subject identifier column in both datasets.}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
 and \code{choices_pop_flags}.}
+
+\item{show_aggregate_method}{\verb{[logical(1)]}
+
+A flag to indicate whether to show (and apply) aggregate methods. If more than one row per subject exists after
+population grouping and row categorization has been applied then aggreation of those rows can be applied using a
+selected method. Other associated arguments are \code{default_aggregate_method} and \code{choices_aggregate_method}.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 

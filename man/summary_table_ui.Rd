@@ -7,6 +7,7 @@
 summary_table_ui(
   module_id,
   show_pop_flag_selection = FALSE,
+  show_aggregate_method = FALSE,
   default_pop_flags_after_groups = FALSE,
   default_total = TRUE,
   default_drop_na = FALSE,
@@ -15,7 +16,7 @@ summary_table_ui(
   default_denom = "N",
   default_stats = NULL,
   default_aggregate_method = NULL,
-  choices_aggregate_method = c(Mean = "mean"),
+  choices_aggregate_method = NULL,
   choices_stats = NULL
 )
 }
@@ -28,6 +29,12 @@ A string that serves as a unique identifier for the module.}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
 and \code{choices_pop_flags}.}
+
+\item{show_aggregate_method}{\verb{[logical(1)]}
+
+A flag to indicate whether to show (and apply) aggregate methods. If more than one row per subject exists after
+population grouping and row categorization has been applied then aggreation of those rows can be applied using a
+selected method. Other associated arguments are \code{default_aggregate_method} and \code{choices_aggregate_method}.}
 
 \item{default_pop_flags_after_groups}{\verb{[logical(1)]}
 
@@ -65,19 +72,20 @@ determining the "n" denominator.}
 A vector of strings from the names of the list elements in \code{stats_formats} or \code{stats_functions}, used as the default
 selection of statistics for summarizing numerical data.}
 
-\item{default_aggregate_method}{\verb{[character(1)]}
+\item{default_aggregate_method}{\verb{[character(1) | NULL]}
 
-A string indicating the name of the function to use as the default for aggregating rows when more than one row per
-subject exists after population grouping and row categorization has been applied. The function is applied to the
-analysis variable. The double colon (\code{::}) namespace resolution operator can be used to specify a function from a
-specific package, e.g., \code{"dplyr::first"}.}
+A string indicating the function name defined in \code{choices_aggregate_method} to use as the default for aggregating
+rows when \code{show_aggregate_method = TRUE}. The function is applied to the analysis variable when more than one row per
+subject exists after population grouping and row categorization has been applied. The double colon (\code{::}) namespace
+resolution operator can be used to specify a function from a specific package, e.g., \code{"dplyr::first"}.}
 
 \item{choices_aggregate_method}{\verb{[character(1+) | NULL]}
 
-A vector of named strings indicating the names of functions that can be used for aggregating rows when more than one
-row per subject exists after population grouping and row categorization has been applied. The double colon (\code{::})
-namespace resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The
-names are displayed in the UI radio button selections.}
+A vector of named strings indicating the functions that can be used for aggregating rows when
+\code{show_aggregate_method = TRUE}. The functions apply to the analysis variable when more than one row per subject
+exists after population grouping and row categorization has been applied. The double colon (\code{::}) namespace
+resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The names
+associated to the vector elements are displayed in the UI radio button selections.}
 
 \item{choices_stats}{\verb{[character(1+) | NULL]}
 

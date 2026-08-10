@@ -98,18 +98,22 @@ summtab_calc_stats <- function(analysis_df,
     return(list(results_list))
   }
 
-  # Extract the package and the bare function name dynamically
-  if (grepl("::", aggregate_func_name)) {
-    agg_func_parts <- strsplit(aggregate_func_name, "::")[[1]]
-    aggregate_func <- get(agg_func_parts[2], envir = asNamespace(agg_func_parts[1]), mode = "function")
-  } else {
-    aggregate_func <- get(aggregate_func_name, mode = "function")
-  }
+  filter_df <- analysis_df
 
-  # Collapse multiple rows per subject into one
-  filter_df <- analysis_df |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, ".N")))) |>
-    dplyr::summarise(!!anl_var := aggregate_func(.data[[anl_var]]), .groups = "drop")
+  if (!is.null(aggregate_func_name)) {
+    # Extract the package and the bare function name dynamically
+    if (grepl("::", aggregate_func_name)) {
+      agg_func_parts <- strsplit(aggregate_func_name, "::")[[1]]
+      aggregate_func <- get(agg_func_parts[2], envir = asNamespace(agg_func_parts[1]), mode = "function")
+    } else {
+      aggregate_func <- get(aggregate_func_name, mode = "function")
+    }
+
+    # Collapse multiple rows per subject into one
+    filter_df <- filter_df |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, ".N")))) |>
+      dplyr::summarise(!!anl_var := aggregate_func(.data[[anl_var]]), .groups = "drop")
+  }
 
   x_vals <- filter_df[[anl_var]]
   len_x <- length(x_vals)
@@ -730,6 +734,7 @@ summary_table_dep <- function() {
 #' @export
 summary_table_ui <- function(module_id,
                              show_pop_flag_selection = FALSE,
+                             show_aggregate_method = FALSE,
                              default_pop_flags_after_groups = FALSE,
                              default_total = TRUE,
                              default_drop_na = FALSE,
@@ -738,13 +743,14 @@ summary_table_ui <- function(module_id,
                              default_denom = "N",
                              default_stats = NULL,
                              default_aggregate_method = NULL,
-                             choices_aggregate_method = c(Mean = "mean"),
+                             choices_aggregate_method = NULL,
                              choices_stats = NULL) {
 
   ns <- shiny::NS(module_id)
 
   # Initialize optional selections
   pop_flags <- NULL
+  aggregate_radio_buttons <- NULL
 
   if (show_pop_flag_selection) {
     pop_flags <- shiny::div(
@@ -754,6 +760,13 @@ summary_table_ui <- function(module_id,
                            label = SUMMTAB$LBL$POP_FLAGS_AFTER_GROUPS,
                            value = default_pop_flags_after_groups)
     )
+  }
+
+  if (show_aggregate_method) {
+    aggregate_radio_buttons <- shiny::radioButtons(ns(SUMMTAB$ID$AGGREGATE_METHOD),
+                                                   label = SUMMTAB$LBL$AGGREGATE_METHOD,
+                                                   choices = choices_aggregate_method,
+                                                   selected = default_aggregate_method)
   }
 
   drop_menu_cols <- shinyWidgets::dropMenu(
@@ -785,7 +798,7 @@ summary_table_ui <- function(module_id,
     shiny::checkboxInput(ns(SUMMTAB$ID$DROP_EMPTY_ROWS), label = SUMMTAB$LBL$DROP_EMPTY_ROWS, value = default_drop_empty_rows),
     shiny::checkboxInput(ns(SUMMTAB$ID$SHOW_CATEGORY_N), label = SUMMTAB$LBL$SHOW_CATEGORY_N, value = default_show_category_n),
     shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"), selected = default_denom),
-    shiny::radioButtons(ns(SUMMTAB$ID$AGGREGATE_METHOD), label = SUMMTAB$LBL$AGGREGATE_METHOD, choices = choices_aggregate_method, selected = default_aggregate_method)
+    aggregate_radio_buttons
   )
 
   ui <- shiny::tagList(
@@ -827,6 +840,7 @@ summary_table_server <- function(module_id,
                                  pop_dataset,
                                  subjid_var,
                                  show_pop_flag_selection = FALSE,
+                                 show_aggregate_method = FALSE,
                                  show_modal_on_click = TRUE,
                                  on_sbj_click_fun = function() NULL,
 
@@ -843,7 +857,8 @@ summary_table_server <- function(module_id,
                                  choices_group_by = NULL,
                                  choices_row_by = NULL,
                                  choices_pop_flags = NULL,
-                                 total_group_val = "Total") {
+                                 total_group_val = "Total",
+                                 allow_aggregation = FALSE) {
 
   mod <- function(input, output, session) {
 
@@ -915,8 +930,9 @@ summary_table_server <- function(module_id,
     inputs[[SUMMTAB$ID$DROP_EMPTY_ROWS]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_EMPTY_ROWS]])
     inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]] <- shiny::reactive(input[[SUMMTAB$ID$SHOW_CATEGORY_N]])
     inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive(input[[SUMMTAB$ID$DENOM]])
-    inputs[[SUMMTAB$ID$AGGREGATE_METHOD]] <- shiny::reactive(input[[SUMMTAB$ID$AGGREGATE_METHOD]])
     inputs[[SUMMTAB$ID$STATS]] <- shiny::reactive(input[[SUMMTAB$ID$STATS]])
+
+    if (show_aggregate_method) inputs[[SUMMTAB$ID$AGGREGATE_METHOD]] <- shiny::reactive(input[[SUMMTAB$ID$AGGREGATE_METHOD]])
 
     summtab <- shiny::reactive({
 
@@ -929,7 +945,9 @@ summary_table_server <- function(module_id,
       drop_empty_rows <- inputs[[SUMMTAB$ID$DROP_EMPTY_ROWS]]()
       show_category_n <- inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
-      aggregate_func_name <- inputs[[SUMMTAB$ID$AGGREGATE_METHOD]]()
+
+
+      aggregate_func_name <- if (show_aggregate_method) inputs[[SUMMTAB$ID$AGGREGATE_METHOD]]() else NULL
 
       choices_stats <- inputs[[SUMMTAB$ID$STATS]]()
 
@@ -1044,6 +1062,11 @@ summary_table_server <- function(module_id,
                                        show_category_n = show_category_n,
                                        denom = denom,
                                        aggregate_func_name = aggregate_func_name)
+
+      shiny::validate(shiny::need(
+        !summary_table[["meta"]][["aggregate_flag"]] || !is.null(aggregate_func_name),
+        "Multiple results per subject per group! Please refine column selections."
+      ))
 
       summary_table
     })
@@ -1165,6 +1188,12 @@ summary_table_server <- function(module_id,
 #' A flag to indicate whether to show the population flag selection. Other associated arguments are `default_pop_flags`
 #' and `choices_pop_flags`.
 #'
+#' @param show_aggregate_method `[logical(1)]`
+#'
+#' A flag to indicate whether to show (and apply) aggregate methods. If more than one row per subject exists after
+#' population grouping and row categorization has been applied then aggreation of those rows can be applied using a
+#' selected method. Other associated arguments are `default_aggregate_method` and `choices_aggregate_method`.
+#'
 #' @param show_modal_on_click `[logical(1)]`
 #'
 #' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
@@ -1255,12 +1284,12 @@ summary_table_server <- function(module_id,
 #' A vector of strings from the names of the list elements in `stats_formats` or `stats_functions`, used as the default
 #' selection of statistics for summarizing numerical data.
 #'
-#' @param default_aggregate_method `[character(1)]`
+#' @param default_aggregate_method `[character(1) | NULL]`
 #'
-#' A string indicating the name of the function to use as the default for aggregating rows when more than one row per
-#' subject exists after population grouping and row categorization has been applied. The function is applied to the
-#' analysis variable. The double colon (`::`) namespace resolution operator can be used to specify a function from a
-#' specific package, e.g., `"dplyr::first"`.
+#' A string indicating the function name defined in `choices_aggregate_method` to use as the default for aggregating
+#' rows when `show_aggregate_method = TRUE`. The function is applied to the analysis variable when more than one row per
+#' subject exists after population grouping and row categorization has been applied. The double colon (`::`) namespace
+#' resolution operator can be used to specify a function from a specific package, e.g., `"dplyr::first"`.
 #'
 #' @param default_pop_flags `[character(1+) | NULL]`
 #'
@@ -1292,10 +1321,11 @@ summary_table_server <- function(module_id,
 #'
 #' @param choices_aggregate_method `[character(1+) | NULL]`
 #'
-#' A vector of named strings indicating the names of functions that can be used for aggregating rows when more than one
-#' row per subject exists after population grouping and row categorization has been applied. The double colon (`::`)
-#' namespace resolution operator can be used to specify functions from specific packages, e.g., `"dplyr::first"`. The
-#' names are displayed in the UI radio button selections.
+#' A vector of named strings indicating the functions that can be used for aggregating rows when
+#' `show_aggregate_method = TRUE`. The functions apply to the analysis variable when more than one row per subject
+#' exists after population grouping and row categorization has been applied. The double colon (`::`) namespace
+#' resolution operator can be used to specify functions from specific packages, e.g., `"dplyr::first"`. The names
+#' associated to the vector elements are displayed in the UI radio button selections.
 #'
 #' @param choices_pop_flags `[character(1+) | NULL]`
 #'
@@ -1329,6 +1359,7 @@ mod_summary_table <- function(
     pop_dataset_name,
     subjid_var = "USUBJID",
     show_pop_flag_selection = FALSE,
+    show_aggregate_method = FALSE,
     show_modal_on_click = TRUE,
 
     stats_functions = list(
@@ -1405,6 +1436,7 @@ mod_summary_table <- function(
   # Check validity of arguments that were not checked by Early Error Feedback
   ac <- checkmate::makeAssertCollection()
   checkmate::assert_logical(show_pop_flag_selection, add = ac)
+  checkmate::assert_logical(show_aggregate_method, add = ac)
   checkmate::assert_logical(show_modal_on_click, add = ac)
   checkmate::assert_list(stats_functions, types = "function", any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_list(stats_formats, types = "list", names = "unique", null.ok = TRUE, add = ac)
@@ -1419,6 +1451,7 @@ mod_summary_table <- function(
   checkmate::assert_string(default_aggregate_method, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::assert_logical(default_pop_flags_after_groups, add = ac)
   checkmate::assert_character(choices_aggregate_method, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
+  checkmate::assert_subset(default_aggregate_method, choices_aggregate_method, add = ac)
   checkmate::assert_string(total_group_val, add = ac)
   checkmate::assert_string(receiver_id, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::reportAssertions(ac)
@@ -1467,6 +1500,7 @@ mod_summary_table <- function(
     ui = function(module_id) {
       summary_table_ui(module_id,
                        show_pop_flag_selection = show_pop_flag_selection,
+                       show_aggregate_method = show_aggregate_method,
                        default_pop_flags_after_groups = default_pop_flags_after_groups,
                        default_total = default_total,
                        default_drop_na = default_drop_na,
@@ -1493,6 +1527,7 @@ mod_summary_table <- function(
                            pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
                            subjid_var = subjid_var,
                            show_pop_flag_selection = show_pop_flag_selection,
+                           show_aggregate_method = show_aggregate_method,
                            show_modal_on_click = show_modal_on_click,
                            on_sbj_click_fun = on_sbj_click_fun,
 
@@ -1528,6 +1563,7 @@ mod_summary_table_API_docs <- list(
   pop_dataset_name = "",
   subjid_var = "",
   show_pop_flag_selection = "",
+  show_aggregate_method = "",
   show_modal_on_click = "",
   stats_functions = "",
   stats_formats = "",
@@ -1560,6 +1596,7 @@ mod_summary_table_API_spec <- TC$group(
   pop_dataset_name = TC$dataset_name(),
   subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
   show_pop_flag_selection = TC$logical(),
+  show_aggregate_method = TC$logical(),
   show_modal_on_click = TC$logical(),
   stats_functions = TC$character() |> TC$flag("ignore"),
   stats_formats = TC$character() |> TC$flag("ignore"),
@@ -1596,7 +1633,7 @@ mod_summary_table_API_spec <- TC$group(
 
 check_mod_summary_table <- function(
     afmm, datasets,
-    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_modal_on_click,
+    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_aggregate_method, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
@@ -1610,7 +1647,7 @@ check_mod_summary_table <- function(
 
   OK <- check_mod_summary_table_auto( # nolint unused
     afmm, datasets,
-    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_modal_on_click,
+    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_aggregate_method, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
     default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
@@ -1731,6 +1768,7 @@ mock_app_summary_table_mm <- function() {
         default_summarize_on = c("AGE", "SEX", "RACE"),
         default_group_by = c("TRT01P"),
         default_row_by = NULL,
+        choices_aggregate_method = NULL,
         receiver_id = "papo"
       ),
       "Disposition Summary" = mod_summary_table(
@@ -1747,6 +1785,7 @@ mock_app_summary_table_mm <- function() {
         module_id = "lb_summtab",
         table_dataset_name = "adlb",
         pop_dataset_name = "adsl",
+        show_aggregate_method = TRUE,
         default_summarize_on = c("AVAL", "CHG", "ATOXGR"),
         default_group_by = c("TRT01P", "SEX"),
         default_row_by = c("PARAM", "AVISIT"),

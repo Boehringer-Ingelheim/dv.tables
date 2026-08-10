@@ -10,6 +10,7 @@ mod_summary_table(
   pop_dataset_name,
   subjid_var = "USUBJID",
   show_pop_flag_selection = FALSE,
+  show_aggregate_method = FALSE,
   show_modal_on_click = TRUE,
   stats_functions = list(n = length, mean = mean, sd = stats::sd, meanci = function(x) if
     (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
@@ -78,6 +79,12 @@ A string representing the subject identifier column in both datasets.}
 
 A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
 and \code{choices_pop_flags}.}
+
+\item{show_aggregate_method}{\verb{[logical(1)]}
+
+A flag to indicate whether to show (and apply) aggregate methods. If more than one row per subject exists after
+population grouping and row categorization has been applied then aggreation of those rows can be applied using a
+selected method. Other associated arguments are \code{default_aggregate_method} and \code{choices_aggregate_method}.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
@@ -169,12 +176,12 @@ determining the "n" denominator.}
 A vector of strings from the names of the list elements in \code{stats_formats} or \code{stats_functions}, used as the default
 selection of statistics for summarizing numerical data.}
 
-\item{default_aggregate_method}{\verb{[character(1)]}
+\item{default_aggregate_method}{\verb{[character(1) | NULL]}
 
-A string indicating the name of the function to use as the default for aggregating rows when more than one row per
-subject exists after population grouping and row categorization has been applied. The function is applied to the
-analysis variable. The double colon (\code{::}) namespace resolution operator can be used to specify a function from a
-specific package, e.g., \code{"dplyr::first"}.}
+A string indicating the function name defined in \code{choices_aggregate_method} to use as the default for aggregating
+rows when \code{show_aggregate_method = TRUE}. The function is applied to the analysis variable when more than one row per
+subject exists after population grouping and row categorization has been applied. The double colon (\code{::}) namespace
+resolution operator can be used to specify a function from a specific package, e.g., \code{"dplyr::first"}.}
 
 \item{default_pop_flags}{\verb{[character(1+) | NULL]}
 
@@ -206,10 +213,11 @@ on (optional). If it is not specified then all factor and character variables fr
 
 \item{choices_aggregate_method}{\verb{[character(1+) | NULL]}
 
-A vector of named strings indicating the names of functions that can be used for aggregating rows when more than one
-row per subject exists after population grouping and row categorization has been applied. The double colon (\code{::})
-namespace resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The
-names are displayed in the UI radio button selections.}
+A vector of named strings indicating the functions that can be used for aggregating rows when
+\code{show_aggregate_method = TRUE}. The functions apply to the analysis variable when more than one row per subject
+exists after population grouping and row categorization has been applied. The double colon (\code{::}) namespace
+resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The names
+associated to the vector elements are displayed in the UI radio button selections.}
 
 \item{choices_pop_flags}{\verb{[character(1+) | NULL]}
 
