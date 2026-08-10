@@ -63,7 +63,7 @@ A drop-down "Column Selection" menu provides the following inputs:
 - **Row by**: Selection of one or more grouping variables from the analysis dataset, to group each analysis variable,
   e.g. `PARAM`, `AVISIT`, etc.
 - **Population flags**: Selection of one or more flagging variables from the population dataset, to be displayed across
-  the top of the table. The flags are subsetting on `"Y"` values. This selection and the associated checkbox) are shown
+  the top of the table. The flags are subsetting on `"Y"` values. This selection and the associated checkbox are shown
   only if the app creator has specifically enabled population flags.
 - **Move after grouping variables**: Checkbox that controls whether the flags should be moved to after (below) the
   grouping variables. Otherwise, they will appear before (above) the grouping variables.
@@ -190,11 +190,13 @@ dv.manager::run_app(
 )
 ```
 
-The `max` function has been specified here for the aggregation method, so if a subject has more than one lab result for
-a specific parameter and visit, then the maximum value will be taken before it gets processed in the main statistical
-analysis. The app creator needs to decide on the most appropriate aggregation function, but it is not possible to
-handle cases where the appropriate aggregation method varies between parameters - in this case the data would need to be
-pre-processed before being passed to the app.
+The aggregation functionality has been turned on (`show_aggregate_method = TRUE`) and the `max` function has been
+specified for the default aggregation method, so if a subject has more than one lab result for a specific parameter and
+visit, then the maximum value will be taken before it gets processed in the main statistical analysis. The app creator
+needs to decide on the most appropriate aggregation functions (which can be specified by `choices_aggregate_method`),
+but only a single aggregation function can be applied atv a time; it is not possible to handle cases where the
+aggregation method varies between parameters - in this case the data would need to be pre-processed/aggregated before
+being passed to the app.
 
 Note: Summarizing large datasets with more than one grouping can take a long time to process so pre-subsetting on the
 values of interest is recommended. If subsetting was not applied to the above example, then it would take around 15
