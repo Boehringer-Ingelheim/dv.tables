@@ -1559,8 +1559,8 @@ mod_summary_table <- function(
       }
 
       summary_table_server(module_id,
-                           table_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[table_dataset_name]]),
-                           pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
+                           table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[table_dataset_name]]),
+                           pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[pop_dataset_name]]),
                            subjid_var = subjid_var,
                            show_pop_flag_selection = show_pop_flag_selection,
                            show_aggregate_method = show_aggregate_method,

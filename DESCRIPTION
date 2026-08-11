@@ -17,7 +17,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Suggests: 
-    dv.manager (>= 3.0.0),
+    dv.manager (>= 3.1.0),
     jsonlite,
     rmarkdown,
     testthat (>= 3.0.0),
