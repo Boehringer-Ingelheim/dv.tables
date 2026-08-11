@@ -28,12 +28,28 @@ SUMMTAB <- poc(
     POP_FLAG_VARS = "Population flags:",
     POP_FLAGS_AFTER_GROUPS = "Move after group variables",
     TOTAL_FLAG = "Show a total column",
-    DROP_NA_FLAG = "Drop NA values from numerical analyses",
+    DROP_NA_FLAG = "Drop NA values from groupings/categories",
     DROP_EMPTY_ROWS = "Remove rows with no data",
     SHOW_CATEGORY_N = "Show categorical n",
-    DENOM = "Denominator used for categorical percentage:",
-    AGGREGATE_METHOD = "Multi-value per subject aggregation method:",
+    DENOM = "Denominator used for categorical %:",
+    AGGREGATE_METHOD = "Multi-value aggregation method:",
     STATS = "Statistics for numerical analysis:"
+  ),
+  INFO = poc(
+    DROP_NA_FLAG = paste("Exclude rows from population and analysis datasets when any 'Group by'",
+                         "or 'Row by' variable value is missing (NA), and exclude rows from the",
+                         "analysis dataset when a categorical analysis variable value is missing.",
+                         "Note: rows are always excluded from the analysis dataset when a numerical",
+                         "analysis variable value is missing.", sep = "\n"),
+    DROP_EMPTY_ROWS = "Hide rows that have no analysis data, e.g. those resulting from invalid row grouping combinations.",
+    SHOW_CATEGORY_N = "Show the 'n' category when summarizing categorical data.",
+    DENOM = paste("Either the number of subjects from the population grouping ('N') or",
+                  "the number of subjects from the 'row by' grouping for each population",
+                  "grouping ('n'). If the user selects to drop NA values then those",
+                  "values will be excluded from determining the 'n' denominator.", sep = "\n"),
+    AGGREGATE_METHOD = paste("Method to use for aggregating rows when more than",
+                             "one row per subject exists after population grouping",
+                             "and row categorization has been applied.", sep = "\n")
   ),
   VALIDATE = poc(
     NO_TABLE_ROWS = "Table dataset has 0 rows",
@@ -763,10 +779,13 @@ summary_table_ui <- function(module_id,
   }
 
   if (show_aggregate_method) {
-    aggregate_radio_buttons <- shiny::radioButtons(ns(SUMMTAB$ID$AGGREGATE_METHOD),
-                                                   label = SUMMTAB$LBL$AGGREGATE_METHOD,
-                                                   choices = choices_aggregate_method,
-                                                   selected = default_aggregate_method)
+    aggregate_radio_buttons <- shiny::radioButtons(
+      ns(SUMMTAB$ID$AGGREGATE_METHOD),
+      label = shiny::span(SUMMTAB$LBL$AGGREGATE_METHOD,
+                          shiny::icon("circle-info", title = SUMMTAB$INFO$AGGREGATE_METHOD)),
+      choices = choices_aggregate_method,
+      selected = default_aggregate_method
+    )
   }
 
   drop_menu_cols <- shinyWidgets::dropMenu(
@@ -794,10 +813,27 @@ summary_table_ui <- function(module_id,
       label = SUMMTAB$LBL$TBL_OPTIONS
     ),
     shiny::checkboxInput(ns(SUMMTAB$ID$TOTAL_FLAG), label = SUMMTAB$LBL$TOTAL_FLAG, value = default_total),
-    shiny::checkboxInput(ns(SUMMTAB$ID$DROP_NA_FLAG), label = SUMMTAB$LBL$DROP_NA_FLAG, value = default_drop_na),
-    shiny::checkboxInput(ns(SUMMTAB$ID$DROP_EMPTY_ROWS), label = SUMMTAB$LBL$DROP_EMPTY_ROWS, value = default_drop_empty_rows),
-    shiny::checkboxInput(ns(SUMMTAB$ID$SHOW_CATEGORY_N), label = SUMMTAB$LBL$SHOW_CATEGORY_N, value = default_show_category_n),
-    shiny::radioButtons(ns(SUMMTAB$ID$DENOM), label = SUMMTAB$LBL$DENOM, choices = c("N", "n"), selected = default_denom),
+    shiny::checkboxInput(
+      ns(SUMMTAB$ID$DROP_NA_FLAG),
+      label = shiny::span(SUMMTAB$LBL$DROP_NA_FLAG, shiny::icon("circle-info", title = SUMMTAB$INFO$DROP_NA_FLAG)),
+      value = default_drop_na
+    ),
+    shiny::checkboxInput(
+      ns(SUMMTAB$ID$DROP_EMPTY_ROWS),
+      label = shiny::span(SUMMTAB$LBL$DROP_EMPTY_ROWS, shiny::icon("circle-info", title = SUMMTAB$INFO$DROP_EMPTY_ROWS)),
+      value = default_drop_empty_rows
+    ),
+    shiny::checkboxInput(
+      ns(SUMMTAB$ID$SHOW_CATEGORY_N),
+      label = shiny::span(SUMMTAB$LBL$SHOW_CATEGORY_N, shiny::icon("circle-info", title = SUMMTAB$INFO$SHOW_CATEGORY_N)),
+      value = default_show_category_n
+    ),
+    shiny::radioButtons(
+      ns(SUMMTAB$ID$DENOM),
+      label = shiny::span(SUMMTAB$LBL$DENOM, shiny::icon("circle-info", title = SUMMTAB$INFO$DENOM)),
+      choices = c("N", "n"),
+      selected = default_denom
+    ),
     aggregate_radio_buttons
   )
 

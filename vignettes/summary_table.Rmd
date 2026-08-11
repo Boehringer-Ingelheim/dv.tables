@@ -70,25 +70,29 @@ A drop-down "Column Selection" menu provides the following inputs:
 
 A drop-down "Statistics" menu provides the following inputs:
 
-- **Statistics**: A list of checkboxes controlling which summary statistics are displayed for the numerical analysis
-  variables.
+- **Statistics for numerical analysis**: A list of checkboxes controlling which summary statistics are displayed for the
+  numerical analysis variables.
 
 A drop-down "Table Options" menu provides the following inputs:
 
-- **Total column**: Checkbox that controls whether or not to display a "Total" column totalling data from all group
+- **Show a total column**: Checkbox that controls whether or not to display a "Total" column totalling data from all group
   categories for the first population grouping level.
-- **Drop NA values**: Checkbox that controls whether or not to exclude rows from population and analysis datasets when
-  any "Group by" or "Row by" variable value is missing (`NA`), and exclude rows from the analysis dataset when a
-  categorical analysis variable value is missing. Note that rows are always excluded from the analysis dataset when a
-  numerical analysis variable value is missing.
+- **Drop NA values from groupings/categories**: Checkbox that controls whether or not to exclude rows from population
+  and analysis datasets when any 'Group by' or 'Row by' variable value is missing (`NA`), and exclude rows from the
+  analysis dataset when a categorical analysis variable value is missing. Note that rows are always excluded from the
+  analysis dataset when a numerical analysis variable value is missing.
+- **Remove rows with no data**: Checkbox that controls whether to hide rows that have no analysis data. Row groupings
+  can result in many unwanted combinations, e.g. when grouped by country and site it is inappropriate to show all sites
+  under all countries since a site only applies to one country.
 - **Show categorical n**: Checkbox that determines whether to show the 'n' category when summarizing categorical data.
-- **Denominator**: Radio buttons that determine the denominator choice for categorical data, either the number of
-  subjects from the population grouping ("N") or the number of subjects from the 'row by' grouping for each population
-  grouping ("n"). If the user selects to drop `NA` values then those values will be excluded from determining the "n"
-  denominator.
-- **Row Aggregation Method**: Radio buttons that determine the method to use for aggregating rows when more than one row
-  per subject exists after population grouping and row categorization has been applied. The method is applied to the
-  analysis variable. These buttons are shown only if the app creator has specifically enabled aggregation. 
+- **Denominator used for categorical %**: Radio buttons that determine the denominator choice for categorical
+  data, either the number of subjects from the population grouping ("N") or the number of subjects from the 'Row by'
+  grouping for each population grouping ("n"). If the user selects to drop `NA` values then those values will be
+  excluded from determining the "n" denominator.
+- **Multi-value aggregation method**: Radio buttons that determine the method to use for aggregating rows
+  when more than one row per subject exists after population grouping and row categorization has been applied. The
+  method is applied to the analysis variable. These buttons are shown only if the app creator has specifically enabled
+  aggregation. 
 
 # Visualizations
 
