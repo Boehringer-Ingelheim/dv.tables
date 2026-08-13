@@ -62,7 +62,8 @@ SUMMTAB <- poc(
     TOO_MANY_ROW_VARS = "Maximum of 8 row variables allowed",
     VAR_OVERLAP = "Variable has been selected in more than one selection",
     NO_STATS = "No statistics selected",
-    POP_GROUP_DUP = "Population dataset has more than one row per subject per grouping"
+    POP_GROUP_DUP = "Population dataset has more than one row per subject per grouping",
+    EMPTY_GROUP_VAL = 'Empty strings ("") found in group variables'
   ),
   VAL = poc(
     SPECIAL_CHAR = "\u001D", # For naming and processing row levels
@@ -936,7 +937,8 @@ summary_table_server <- function(module_id,
       },
       default = default_summarize_on,
       multiple = TRUE,
-      include_none = FALSE
+      include_none = FALSE,
+      options = list(plugins = list("drag_drop"))
     )
 
     inputs[[SUMMTAB$ID$GROUP_VARS]] <- col_menu_server(
@@ -950,7 +952,8 @@ summary_table_server <- function(module_id,
       },
       default = default_group_by,
       multiple = TRUE,
-      include_none = FALSE
+      include_none = FALSE,
+      options = list(plugins = list("drag_drop"))
     )
 
     inputs[[SUMMTAB$ID$ROW_VARS]] <- col_menu_server(
@@ -964,7 +967,8 @@ summary_table_server <- function(module_id,
       },
       default = default_row_by,
       multiple = TRUE,
-      include_none = FALSE
+      include_none = FALSE,
+      options = list(plugins = list("drag_drop"))
     )
 
     if (show_pop_flag_selection) {
@@ -979,7 +983,8 @@ summary_table_server <- function(module_id,
         },
         default = default_pop_flags,
         multiple = TRUE,
-        include_none = FALSE
+        include_none = FALSE,
+        options = list(plugins = list("drag_drop"))
       )
 
       inputs[[SUMMTAB$ID$POP_FLAGS_AFTER_GROUPS]] <- shiny::reactive(input[[SUMMTAB$ID$POP_FLAGS_AFTER_GROUPS]])
@@ -1082,6 +1087,10 @@ summary_table_server <- function(module_id,
         shiny::need(
           !anyDuplicated(pop_df_orig[c(subjid_var, group_vars_orig)]),
           SUMMTAB$VALIDATE$POP_GROUP_DUP
+        ),
+        shiny::need(
+          all(sapply(pop_df[group_vars], \(x) !any(x == "", na.rm = TRUE))),
+          SUMMTAB$VALIDATE$EMPTY_GROUP_VAL
         )
       )
 
@@ -1889,7 +1898,7 @@ mock_app_summary_table_mm <- function() {
                        column_count = 1)
       )
     ),
-    filter_data = "adsl",
+    filter_dataset_name = "adsl",
     filter_key = "USUBJID",
     enableBookmarking = "url"
   )

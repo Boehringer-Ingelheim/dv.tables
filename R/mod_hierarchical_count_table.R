@@ -1669,7 +1669,7 @@ mock_app_hierarchical_count_table_mm <- function() {
         default_risk = FALSE
       )
     ),
-    filter_data = "adsl",
+    filter_dataset_name = "adsl",
     filter_key = "SUBJID",
     enableBookmarking = "url"
   )
