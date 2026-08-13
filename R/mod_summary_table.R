@@ -63,6 +63,10 @@ SUMMTAB <- poc(
     VAR_OVERLAP = "Variable has been selected in more than one selection",
     NO_STATS = "No statistics selected",
     POP_GROUP_DUP = "Population dataset has more than one row per subject per grouping",
+    MULTI_RESULTS = paste("Multiple results per subject per group!",
+                          "Please refine column selections to get one row per subject per group.",
+                          "Alternatively, app creator can enable aggregation via 'show_aggregate_method' parameter.",
+                          sep = "\n"),
     EMPTY_GROUP_VAL = 'Empty strings ("") found in group variables'
   ),
   VAL = poc(
@@ -1137,7 +1141,7 @@ summary_table_server <- function(module_id,
 
       shiny::validate(shiny::need(
         !summary_table[["meta"]][["aggregate_flag"]] || !is.null(aggregate_func_name),
-        "Multiple results per subject per group! Please refine column selections."
+        SUMMTAB$VALIDATE$MULTI_RESULTS
       ))
 
       summary_table
