@@ -95,6 +95,7 @@ local({
     total_group_val = "All",
     drop_na = FALSE,
     drop_empty_rows = FALSE,
+    drop_empty_cols = FALSE,
     show_category_n = TRUE,
     denom = "N",
     aggregate_func_name = "dplyr::first"
@@ -139,6 +140,7 @@ local({
     total = FALSE,
     drop_na = TRUE,
     drop_empty_rows = FALSE,
+    drop_empty_cols = FALSE,
     show_category_n = FALSE,
     denom = "n",
     aggregate_func_name = "dplyr::first"
@@ -203,6 +205,7 @@ local({
     total = FALSE,
     drop_na = TRUE,
     drop_empty_rows = FALSE,
+    drop_empty_cols = FALSE,
     show_category_n = FALSE,
     denom = "N",
     aggregate_func_name = "mean"

@@ -518,7 +518,6 @@ summtab_compute <- function(tbl_df,
 
   # If requested, remove columns with no data
   if (drop_empty_cols) {
-    #browser()
     drop_cols <- denom_df[denom_df[[".N"]] == 0L, ][[".lookup"]]
     denom_df <- denom_df[!denom_df[[".lookup"]] %in% drop_cols, ]
     wide_df <- wide_df[, !names(wide_df) %in% drop_cols, drop = FALSE]
