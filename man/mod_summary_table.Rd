@@ -39,6 +39,7 @@ mod_summary_table(
   default_total = TRUE,
   default_drop_na = FALSE,
   default_drop_empty_rows = FALSE,
+  default_drop_empty_cols = FALSE,
   default_show_category_n = TRUE,
   default_denom = "N",
   default_stats = c("n", "meansd", "minmax"),
@@ -157,6 +158,11 @@ A flag specifying the default value for the checkbox that determines whether to 
 \item{default_drop_empty_rows}{\verb{[logical(1)]}
 
 A flag specifying the default value for the checkbox that determines whether to remove rows with no data from the
+analysis results.}
+
+\item{default_drop_empty_cols}{\verb{[logical(1)]}
+
+A flag specifying the default value for the checkbox that determines whether to remove cols with no subject data.
 analysis results.}
 
 \item{default_show_category_n}{\verb{[logical(1)]}

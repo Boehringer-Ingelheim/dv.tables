@@ -82,8 +82,13 @@ A drop-down "Table Options" menu provides the following inputs:
   analysis dataset when a categorical analysis variable value is missing. Note that rows are always excluded from the
   analysis dataset when a numerical analysis variable value is missing.
 - **Remove rows with no data**: Checkbox that controls whether to hide rows that have no analysis data. Row groupings
-  can result in many unwanted combinations, e.g. when grouped by country and site it is inappropriate to show all sites
-  under all countries since a site only applies to one country.
+  can result in many unwanted combinations, e.g. when grouped by parameter and visit, by default all combinations of
+  parameters and visits are shown, but if a parameter is not assessed at certain visit then it does not make sense to
+  display a row for that visit.
+- **Remove columns with no data**: Checkbox that controls whether to hide columns that have no subject population data.
+  Population groupings can result in many unwanted combinations, e.g. when grouped by population flags and treatment
+  groups, by default all combinations of population flags and treatment groups are shown, but if a treatment group
+  does not occur for a certain population flag then it does not make sense to display a column for that treatment group.
 - **Show categorical n**: Checkbox that determines whether to show the 'n' category when summarizing categorical data.
 - **Denominator used for categorical %**: Radio buttons that determine the denominator choice for categorical
   data, either the number of subjects from the population grouping ("N") or the number of subjects from the 'Row by'
@@ -92,7 +97,7 @@ A drop-down "Table Options" menu provides the following inputs:
 - **Multi-value aggregation method**: Radio buttons that determine the method to use for aggregating rows
   when more than one row per subject exists after population grouping and row categorization has been applied. The
   method is applied to the analysis variable. These buttons are shown only if the app creator has specifically enabled
-  aggregation. 
+  aggregation.
 
 # Visualizations
 
@@ -341,7 +346,7 @@ stats_labels = c(
   minmax = "Min - Max"
 )
 ```
-    
+
 The names correspond either to the names assigned in the `stats_formats` list, or otherwise the names in the
 `stats_functions` list.
 
@@ -354,7 +359,7 @@ name given to the function definition. Labels can be applied to both cases, for 
 stats_functions = list(
   ...
   meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
-  ...  
+  ...
 ),
 stats_formats = list(
   ...

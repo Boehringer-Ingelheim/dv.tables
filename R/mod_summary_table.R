@@ -11,6 +11,7 @@ SUMMTAB <- poc(
     TOTAL_FLAG = "total",
     DROP_NA_FLAG = "drop_na",
     DROP_EMPTY_ROWS = "drop_empty_rows",
+    DROP_EMPTY_COLS = "drop_empty_cols",
     SHOW_CATEGORY_N = "show_category_n",
     DENOM = "denom",
     AGGREGATE_METHOD = "aggregate_method",
@@ -30,6 +31,7 @@ SUMMTAB <- poc(
     TOTAL_FLAG = "Show a total column",
     DROP_NA_FLAG = "Drop NA values from groupings/categories",
     DROP_EMPTY_ROWS = "Remove rows with no data",
+    DROP_EMPTY_COLS = "Remove columns with no data",
     SHOW_CATEGORY_N = "Show categorical n",
     DENOM = "Denominator used for categorical %:",
     AGGREGATE_METHOD = "Multi-value aggregation method:",
@@ -42,6 +44,7 @@ SUMMTAB <- poc(
                          "Note: rows are always excluded from the analysis dataset when a numerical",
                          "analysis variable value is missing.", sep = "\n"),
     DROP_EMPTY_ROWS = "Hide rows that have no analysis data, e.g. those resulting from invalid row grouping combinations.",
+    DROP_EMPTY_COLS = "Hide columns that have no subject data, i.e. N = 0.",
     SHOW_CATEGORY_N = "Show the 'n' category when summarizing categorical data.",
     DENOM = paste("Either the number of subjects from the population grouping ('N') or",
                   "the number of subjects from the 'row by' grouping for each population",
@@ -246,6 +249,7 @@ summtab_format_stats <- function(analysis_df,
 #' @param total_group_val A string indicating the label for the total group column.
 #' @param drop_na A flag that determines whether to drop NA values from selected 'group by' and 'row by' variables.
 #' @param drop_empty_rows A flag that determines whether to remove rows with no data from the analysis results.
+#' @param drop_empty_cols A flag that determines whether to remove columns with no data from the analysis results.
 #' @param show_category_n A flag that determines whether to show the 'n' category when summarizing categorical data.
 #' @param denom A string, either "N" or "n", indicating whether the denominator for categorical data should be taken as
 #'   the number of subjects from the population grouping ("N") or the number of subjects from the 'row by' grouping for
@@ -286,6 +290,7 @@ summtab_compute <- function(tbl_df,
                             total_group_val = "Total",
                             drop_na = NULL,
                             drop_empty_rows = NULL,
+                            drop_empty_cols = NULL,
                             show_category_n = NULL,
                             denom = NULL,
                             aggregate_func_name = NULL) {
@@ -511,6 +516,14 @@ summtab_compute <- function(tbl_df,
       )
   }
 
+  # If requested, remove columns with no data
+  if (drop_empty_cols) {
+    #browser()
+    drop_cols <- denom_df[denom_df[[".N"]] == 0L, ][[".lookup"]]
+    denom_df <- denom_df[!denom_df[[".lookup"]] %in% drop_cols, ]
+    wide_df <- wide_df[, !names(wide_df) %in% drop_cols, drop = FALSE]
+  }
+
   # Create a list of expanding groups
   hierarchy <- c(anl_var, row_vars)
   flag_columns <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "first.", hierarchy)
@@ -606,21 +619,27 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
   header_rows <- vector(mode = "list", length = length(group_vars))
   for (head_i in seq_along(group_vars)) {
 
-    extracted_headers <- rle(purrr::map_chr(split_data_columns, ~ .x[head_i]))[["values"]]
-
     if (head_i != length(group_vars)) {
+      level_path <- vapply(split_data_columns,
+                           \(parts) paste(parts[1:head_i], collapse = SUMMTAB$VAL$SPECIAL_CHAR),
+                           FUN.VALUE = character(1L),
+                           USE.NAMES = FALSE)
+      rle_level_path <- rle(level_path)
+      rle_values <- rle_level_path[["values"]]
+      extracted_headers <- sub(paste0(".*", SUMMTAB$VAL$SPECIAL_CHAR), "", rle_level_path[["values"]])
       data_headers <- purrr::map(extracted_headers, ~ shiny::span(.x))
-      n_cols <- length(data_columns) / length(extracted_headers)
+      thc_data_columns <- purrr::map2(data_headers, rle_level_path[["lengths"]], ~ thc(.x, colspan = .y))
     } else {
+      extracted_headers <- sub(paste0(".*", SUMMTAB$VAL$SPECIAL_CHAR), "", data_columns)
       data_headers <- purrr::map2(extracted_headers,
                                   paste0("(N", "\u00A0", "=", "\u00A0", n_denominator[data_columns], ")"),
                                   ~ shiny::span(.x, shiny::br(), .y))
-      n_cols <- NULL
+      thc_data_columns <- purrr::map(data_headers, thc, colspan = NULL)
     }
 
     header_rows[[head_i]] <- tr(
       thc(entry_header, entry = TRUE),
-      purrr::map(data_headers, thc, colspan = n_cols)
+      thc_data_columns
     )
   }
 
@@ -755,6 +774,7 @@ summary_table_ui <- function(module_id,
                              default_total = TRUE,
                              default_drop_na = FALSE,
                              default_drop_empty_rows = FALSE,
+                             default_drop_empty_cols = FALSE,
                              default_show_category_n = TRUE,
                              default_denom = "N",
                              default_stats = NULL,
@@ -822,6 +842,11 @@ summary_table_ui <- function(module_id,
       ns(SUMMTAB$ID$DROP_EMPTY_ROWS),
       label = shiny::span(SUMMTAB$LBL$DROP_EMPTY_ROWS, shiny::icon("circle-info", title = SUMMTAB$INFO$DROP_EMPTY_ROWS)),
       value = default_drop_empty_rows
+    ),
+    shiny::checkboxInput(
+      ns(SUMMTAB$ID$DROP_EMPTY_COLS),
+      label = shiny::span(SUMMTAB$LBL$DROP_EMPTY_COLS, shiny::icon("circle-info", title = SUMMTAB$INFO$DROP_EMPTY_COLS)),
+      value = default_drop_empty_cols
     ),
     shiny::checkboxInput(
       ns(SUMMTAB$ID$SHOW_CATEGORY_N),
@@ -964,6 +989,7 @@ summary_table_server <- function(module_id,
     inputs[[SUMMTAB$ID$TOTAL_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$TOTAL_FLAG]])
     inputs[[SUMMTAB$ID$DROP_NA_FLAG]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_NA_FLAG]])
     inputs[[SUMMTAB$ID$DROP_EMPTY_ROWS]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_EMPTY_ROWS]])
+    inputs[[SUMMTAB$ID$DROP_EMPTY_COLS]] <- shiny::reactive(input[[SUMMTAB$ID$DROP_EMPTY_COLS]])
     inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]] <- shiny::reactive(input[[SUMMTAB$ID$SHOW_CATEGORY_N]])
     inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive(input[[SUMMTAB$ID$DENOM]])
     inputs[[SUMMTAB$ID$STATS]] <- shiny::reactive(input[[SUMMTAB$ID$STATS]])
@@ -979,6 +1005,7 @@ summary_table_server <- function(module_id,
       total <- inputs[[SUMMTAB$ID$TOTAL_FLAG]]()
       drop_na <- inputs[[SUMMTAB$ID$DROP_NA_FLAG]]()
       drop_empty_rows <- inputs[[SUMMTAB$ID$DROP_EMPTY_ROWS]]()
+      drop_empty_cols <- inputs[[SUMMTAB$ID$DROP_EMPTY_COLS]]()
       show_category_n <- inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
 
@@ -1095,6 +1122,7 @@ summary_table_server <- function(module_id,
                                        total_group_val = total_group_val,
                                        drop_na = drop_na,
                                        drop_empty_rows = drop_empty_rows,
+                                       drop_empty_cols = drop_empty_cols,
                                        show_category_n = show_category_n,
                                        denom = denom,
                                        aggregate_func_name = aggregate_func_name)
@@ -1303,6 +1331,11 @@ summary_table_server <- function(module_id,
 #' A flag specifying the default value for the checkbox that determines whether to remove rows with no data from the
 #' analysis results.
 #'
+#' @param default_drop_empty_cols `[logical(1)]`
+#'
+#' A flag specifying the default value for the checkbox that determines whether to remove cols with no subject data.
+#' analysis results.
+#'
 #' @param default_show_category_n `[logical(1)]`
 #'
 #' A flag specifying the default value for the checkbox that determines whether to show the 'n' category when
@@ -1449,6 +1482,7 @@ mod_summary_table <- function(
     default_total = TRUE,
     default_drop_na = FALSE,
     default_drop_empty_rows = FALSE,
+    default_drop_empty_cols = FALSE,
     default_show_category_n = TRUE,
     default_denom = "N",
     default_stats = c("n", "meansd", "minmax"),
@@ -1541,6 +1575,7 @@ mod_summary_table <- function(
                        default_total = default_total,
                        default_drop_na = default_drop_na,
                        default_drop_empty_rows = default_drop_empty_rows,
+                       default_drop_empty_cols = default_drop_empty_cols,
                        default_show_category_n = default_show_category_n,
                        default_denom = default_denom,
                        default_aggregate_method = default_aggregate_method,
@@ -1611,6 +1646,7 @@ mod_summary_table_API_docs <- list(
   default_total = "",
   default_drop_na = "",
   default_drop_empty_rows = "",
+  default_drop_empty_cols = "",
   default_show_category_n = "",
   default_denom = "",
   default_stats = "",
@@ -1647,6 +1683,7 @@ mod_summary_table_API_spec <- TC$group(
   default_total = TC$logical(),
   default_drop_na = TC$logical(),
   default_drop_empty_rows = TC$logical(),
+  default_drop_empty_cols = TC$logical(),
   default_show_category_n = TC$logical(),
   default_denom = TC$character(),
   default_stats = TC$character(),
@@ -1671,7 +1708,7 @@ check_mod_summary_table <- function(
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_aggregate_method, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
-    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
+    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
     choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flags,
     total_group_val, receiver_id
@@ -1685,7 +1722,7 @@ check_mod_summary_table <- function(
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_aggregate_method, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
-    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows,
+    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
     choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flags,
     total_group_val, receiver_id,

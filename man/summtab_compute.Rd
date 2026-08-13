@@ -20,6 +20,7 @@ summtab_compute(
   total_group_val = "Total",
   drop_na = NULL,
   drop_empty_rows = NULL,
+  drop_empty_cols = NULL,
   show_category_n = NULL,
   denom = NULL,
   aggregate_func_name = NULL
@@ -57,6 +58,8 @@ results from \code{stats_formats}.}
 \item{drop_na}{A flag that determines whether to drop NA values from selected 'group by' and 'row by' variables.}
 
 \item{drop_empty_rows}{A flag that determines whether to remove rows with no data from the analysis results.}
+
+\item{drop_empty_cols}{A flag that determines whether to remove columns with no data from the analysis results.}
 
 \item{show_category_n}{A flag that determines whether to show the 'n' category when summarizing categorical data.}
 
