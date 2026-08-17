@@ -78,6 +78,10 @@ local({
   attr(tbl_df$aval, "label") <- "Analysis Value"
   attr(tbl_df$flag, "label") <- "Flag"
 
+  # Get variable labels for information display in final HTML
+  combined_labels <- c(get_lbls_robust(pop_df), get_lbls_robust(tbl_df))
+  var_labels <- combined_labels[!duplicated(names(combined_labels))]
+
   # Multiple group and row variables; numerical and categorical analysis variable;
   # total group; categorical counts; big N denominator
   st1_compute <- summtab_compute(
@@ -86,6 +90,7 @@ local({
     anl_vars = c("aval", "flag"),
     group_vars = c("arm", "sex"),
     row_vars = c("param", "visit"),
+    pop_flag_vars = NULL,
     subjid_var = "subj",
     stats_functions = funcs_list,
     stats_formats = fmts_list,
@@ -100,10 +105,6 @@ local({
     denom = "N",
     aggregate_func_name = "dplyr::first"
   )
-
-  # Get variable labels for information display in final HTML
-  combined_labels <- c(get_lbls_robust(pop_df), get_lbls_robust(tbl_df))
-  var_labels <- combined_labels[!duplicated(names(combined_labels))]
 
   st1_html <- summtab_html_table(st1_compute, var_labels)
 
@@ -136,6 +137,7 @@ local({
     anl_vars = c("aval", "flag"),
     group_vars = "arm",
     row_vars = "param",
+    pop_flag_vars = NULL,
     subjid_var = "subj",
     stats_functions = funcs_list,
     stats_formats = fmts_list,
@@ -150,7 +152,7 @@ local({
     aggregate_func_name = "dplyr::first"
   )
 
-  st2_html <- summtab_html_table(st2_compute)
+  st2_html <- summtab_html_table(st2_compute, var_labels)
 
   test_that(vdoc[["add_spec"]](
     "generate aggregated summary table (compare with snapshot)",
@@ -176,31 +178,95 @@ local({
 })
 
 local({
-  # Population summary table example
+  # Cross-over population example
 
-  adsl <- pharmaverseadam::adsl
+  tbl_df <- data.frame(
+    subj = c(rep("1", 3), rep("2", 3), rep("3", 3),
+             rep("4", 2), rep("5", 2), rep("6", 2)),
+    arm = c(c("A", "B", "C"), c("B", "C", "A"), c("C", "A", "B"),
+            c("A", "B"), c("B", "C"), c("C", "A")),
+    visit = c(rep(c("V1", "V2", "V3"), 3),
+              rep(c("V1", "V2"), 3)),
+    param = rep("XYZ", 15),
+    aval = c(c(1, 2, 3), c(5, 6, 7), c(9, 10, 11),
+             c(20, 21), c(24, 25), c(28, 29))
+  )
 
-  saf_pop_df <- adsl |>
+  pop_df <- data.frame(
+    subj = c(rep("1", 3), rep("2", 3), rep("3", 3),
+             rep("4", 2), rep("5", 2), rep("6", 2)),
+    arm = c(c("A", "B", "C"), c("B", "C", "A"), c("C", "A", "B"),
+            c("A", "B"), c("B", "C"), c("C", "A")),
+    sex = c(rep("M", 9), rep("F", 6))
+  )
+
+  tbl_df <- tbl_df |> chr2factor()
+  pop_df <- pop_df |> chr2factor()
+
+  attr(tbl_df$aval, "label") <- "Analysis Value"
+
+  # Get variable labels for information display in final HTML
+  combined_labels <- c(get_lbls_robust(pop_df), get_lbls_robust(tbl_df))
+  var_labels <- combined_labels[!duplicated(names(combined_labels))]
+
+  st3_compute <- summtab_compute(
+    tbl_df,
+    pop_df,
+    anl_vars = c("aval", "visit"),
+    group_vars = c("arm"),
+    row_vars = c("param"),
+    pop_flag_vars = NULL,
+    subjid_var = "subj",
+    stats_functions = funcs_list,
+    stats_formats = fmts_list,
+    stats_labels = labels_vector,
+    stats_replace = rep_list,
+    total = TRUE,
+    total_group_val = "All",
+    drop_na = FALSE,
+    drop_empty_rows = FALSE,
+    drop_empty_cols = FALSE,
+    show_category_n = TRUE,
+    denom = "N",
+    aggregate_func_name = NULL
+  )
+
+  st3_html <- summtab_html_table(st3_compute, var_labels)
+
+  test_that(vdoc[["add_spec"]](
+    "expanded population groups, multiple rows per subject - cross-over summary table",
+    c(specs$summary_table$expanded_pop_groups,
+      specs$summary_table$numerical_summary,
+      specs$summary_table$categorical_summary,
+      specs$summary_table$total_pop_group,
+      specs$summary_table$denominator)
+  ), {
+    expect_snapshot(st3_compute)
+    expect_snapshot(st3_html)
+  })
+
+})
+
+local({
+  # Population flag summary table example
+
+  adsl <- pharmaverseadam::adsl |>
     dplyr::filter(.data[["SITEID"]] == "703") |>
-    dplyr::mutate(SAFFL2 = ifelse(as.numeric(.data[["SUBJID"]]) %% 3, "Y", "N"),
-                  SAFFL3 = ifelse(as.numeric(.data[["SUBJID"]]) %% 7, "Y", "N")) |>
-    tidyr::pivot_longer(
-      c("SAFFL", "SAFFL2", "SAFFL3"),
-      names_to = "saf_group",
-      values_to = "saf_flag"
-    ) |>
-    dplyr::filter(.data[["saf_flag"]] == "Y") |>
-    dplyr::relocate(dplyr::starts_with("saf")) |>
+    dplyr::mutate(ENRLFL = "Y",
+                  TRTFL = ifelse(is.na(TRTSDT), "N", "Y"),
+                  RANDFL = ifelse(is.na(RANDDT), "N", "Y"),
+                  DISCFL = ifelse(EOSSTT == "DISCONTINUED", "Y", "N")) |>
     chr2factor()
 
-  # Multiple group and row variables; numerical and categorical analysis variable;
-  # total group; categorical counts; big N denominator
-  st3_compute <- summtab_compute(
-    saf_pop_df,
-    saf_pop_df,
-    anl_vars = c("saf_flag", "SEX", "AGE", "SUBJID"),
-    group_vars = c("saf_group"),
+  pop_df <- process_pop_flag_vars(adsl, c("ENRLFL", "RANDFL", "TRTFL", "DISCFL"))
+
+  st4_compute <- summtab_compute(
+    pop_df,
+    pop_df,
+    anl_vars = c("SAFFL", "SEX", "AGE", "SUBJID"),
+    group_vars = ".pop_group",
     row_vars = NULL,
+    pop_flag_vars = c("ENRLFL", "RANDFL", "TRTFL", "DISCFL"),
     subjid_var = "USUBJID",
     stats_functions = funcs_list,
     stats_formats = fmts_list,
@@ -212,22 +278,20 @@ local({
     drop_empty_cols = FALSE,
     show_category_n = FALSE,
     denom = "N",
-    aggregate_func_name = "mean"
+    aggregate_func_name = NULL
   )
 
-  st3_html <- summtab_html_table(st3_compute)
+  st4_html <- summtab_html_table(st4_compute, var_labels)
 
   test_that(vdoc[["add_spec"]](
-    "expanded population groups, multiple rows per subject - population summary table",
-    c(specs$summary_table$expanded_pop_groups,
+    "population flag summary table",
+    c(specs$summary_table$population_flag_vars,
       specs$summary_table$numerical_summary,
       specs$summary_table$categorical_summary,
-      specs$summary_table$total_pop_group,
-      specs$summary_table$denominator,
-      specs$summary_table$row_aggregate)
+      specs$summary_table$denominator)
   ), {
-    expect_snapshot(st3_compute)
-    expect_snapshot(st3_html)
+    expect_snapshot(st4_compute)
+    expect_snapshot(st4_html)
   })
 
 })

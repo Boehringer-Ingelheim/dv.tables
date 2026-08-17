@@ -567,7 +567,7 @@ summtab_compute <- function(tbl_df,
 }
 
 
-#' summtab_html_table
+#' Create HTML summary table
 #'
 #' @param summtab_list A list of the data frame of the analysed data and metadata from `summtab_compute()`.
 #' @param var_labels A list of variable labels indexed by variable names.
@@ -760,6 +760,34 @@ summary_table_dep <- function() {
     stylesheet = "css/summary_table.css",
     script = "js/hierarchical_count_table.js"
   )
+}
+
+#' Transpose population flag variables into single group variable subsetting on "Y" values
+#'
+#' @param pop_df A data frame containing the population data.
+#' @param pop_flag_vars A vector of population flag variable names.
+#'
+#' @return Population data frame with `.pop_group` and `.pop_flag` added.
+#'
+#' @keywords internal
+process_pop_flag_vars <- function(pop_df, pop_flag_vars) {
+
+  pop_df <- pop_df |>
+    tidyr::pivot_longer(
+      tidyr::all_of(pop_flag_vars),
+      names_to = ".pop_group",
+      values_to = ".pop_flag"
+    ) |>
+    dplyr::mutate(.pop_group = factor(.data[[".pop_group"]],
+                                      levels = pop_flag_vars,
+                                      labels = get_lbls_robust(pop_df)[pop_flag_vars])) |>
+    dplyr::filter(.data[[".pop_flag"]] == "Y") |>
+    dplyr::relocate(dplyr::starts_with(".pop"))
+
+  attr(pop_df[[".pop_group"]], "label") <- "Population Flag Group"
+  attr(pop_df[[".pop_flag"]], "label") <- "Population Flag"
+
+  return(pop_df)
 }
 
 
@@ -1051,21 +1079,7 @@ summary_table_server <- function(module_id,
         pop_flags_after_groups <- inputs[[SUMMTAB$ID$POP_FLAGS_AFTER_GROUPS]]()
 
         if (!is.null(pop_flag_vars) && length(pop_flag_vars) > 0) {
-
-          pop_df <- pop_df |>
-            tidyr::pivot_longer(
-              tidyr::all_of(pop_flag_vars),
-              names_to = ".pop_group",
-              values_to = ".pop_flag"
-            ) |>
-            dplyr::mutate(.pop_group = factor(.data[[".pop_group"]],
-                                              levels = pop_flag_vars,
-                                              labels = get_lbls_robust(pop_df)[pop_flag_vars])) |>
-            dplyr::filter(.data[[".pop_flag"]] == "Y") |>
-            dplyr::relocate(dplyr::starts_with(".pop"))
-
-          attr(pop_df[[".pop_group"]], "label") <- "Population Flag Group"
-          attr(pop_df[[".pop_flag"]], "label") <- "Population Flag"
+          pop_df <- process_pop_flag_vars(pop_df, pop_flag_vars)
 
           group_vars <- if (pop_flags_after_groups) c(group_vars, ".pop_group") else c(".pop_group", group_vars)
           selected_vars <- c(selected_vars, pop_flag_vars)
@@ -1788,9 +1802,8 @@ mock_app_summary_table <- function(dry_run = FALSE,
                                    srv_defaults = list(),
                                    ui_defaults = list()) {
 
-  if (!requireNamespace("pharmaverseadam")) {
-    stop("Install pharmaverseadam")
-  }
+  if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
+
   table_dataset <- shiny::reactive({
     pharmaverseadam::adlb |>
       dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
@@ -1835,6 +1848,10 @@ mock_app_summary_table <- function(dry_run = FALSE,
 #' @keywords mock
 #' @export
 mock_app_summary_table_mm <- function() {
+
+  if (!requireNamespace("dv.manager")) stop("Install dv.manager")
+  if (!requireNamespace("dv.papo")) stop("Install dv.papo")
+  if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
 
   adsl <- pharmaverseadam::adsl |>
     dplyr::mutate(ENRLFL = "Y",
