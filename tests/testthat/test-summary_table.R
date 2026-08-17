@@ -101,7 +101,11 @@ local({
     aggregate_func_name = "dplyr::first"
   )
 
-  st1_html <- summtab_html_table(st1_compute)
+  # Get variable labels for information display in final HTML
+  combined_labels <- c(get_lbls_robust(pop_df), get_lbls_robust(tbl_df))
+  var_labels <- combined_labels[!duplicated(names(combined_labels))]
+
+  st1_html <- summtab_html_table(st1_compute, var_labels)
 
   test_that(vdoc[["add_spec"]](
     "generate summary table (compare with snapshot)",
