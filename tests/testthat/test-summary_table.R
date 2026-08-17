@@ -261,8 +261,7 @@ local({
   pop_df <- process_pop_flag_vars(adsl, c("ENRLFL", "RANDFL", "TRTFL", "DISCFL"))
 
   # Get variable labels for information display in final HTML
-  combined_labels <- c(get_lbls_robust(pop_df), get_lbls_robust(tbl_df))
-  var_labels <- combined_labels[!duplicated(names(combined_labels))]
+  var_labels <- get_lbls_robust(pop_df)
 
   st4_compute <- summtab_compute(
     pop_df,
