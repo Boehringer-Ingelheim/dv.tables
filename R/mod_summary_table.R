@@ -274,6 +274,7 @@ summtab_format_stats <- function(analysis_df,
 #'   - `data_columns`: A vector of names of columns holding the statistics for each population group combination.
 #'   - `total_group_val`: A string indicating the label for the total group column.
 #'   - `denom_df`: A data frame of population group denominator data.
+#'   - `denom`: A string, either "N" or "n", indicating the denominator used.
 #'   - `aggregate_flag`: A flag indicating whether rows have been aggregated.
 #'   - `aggregate_func_name`: A string indicating the name of the function used for aggregating.
 #'
@@ -556,6 +557,7 @@ summtab_compute <- function(tbl_df,
       data_columns = data_columns,
       total_group_val = total_group_val,
       denom_df = denom_df,
+      denom = if (length(anl_vars_cat) > 0) denom else NULL,
       aggregate_flag = aggregate_flag,
       aggregate_func_name = aggregate_func_name
     )
@@ -585,6 +587,7 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
   data_columns <- summtab_list[["meta"]][["data_columns"]]
   total_group_val <- summtab_list[["meta"]][["total_group_val"]]
   denom_df <- summtab_list[["meta"]][["denom_df"]]
+  denom <- summtab_list[["meta"]][["denom"]]
   aggregate_flag <- summtab_list[["meta"]][["aggregate_flag"]]
   aggregate_func_name <- summtab_list[["meta"]][["aggregate_func_name"]]
 
@@ -649,11 +652,12 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
 
   mod_group_vars <- setdiff(group_vars, ".pop_group")
   title <- sprintf(
-    "Summary of %s%s%s%s",
+    "Summary of %s%s%s%s%s",
     paste(anl_vars, collapse = ", "),
     ifelse(length(row_vars) == 0L, "", paste("; row by", paste(row_vars, collapse = ", "))),
     ifelse(length(mod_group_vars) == 0L, "", paste("; group by", paste(mod_group_vars, collapse = ", "))),
-    ifelse(length(pop_flag_vars) == 0L, "", paste("; flag by", paste(pop_flag_vars, collapse = ", ")))
+    ifelse(length(pop_flag_vars) == 0L, "", paste("; flag by", paste(pop_flag_vars, collapse = ", "))),
+    ifelse(is.null(denom), "", paste("; % denominator:", denom))
   )
 
   aggregate_note <- if (aggregate_flag) {
