@@ -75,7 +75,7 @@
       st1_html
     Output
       <div>
-        <p>Summary of aval, flag; row by param, visit; group by arm, sex; % denominator: N</p>
+        <p>Summary of Analysis Value, Flag; row by param, visit; group by arm, sex; % denominator: N</p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>
@@ -1408,7 +1408,7 @@
       st2_html
     Output
       <div>
-        <p>Summary of aval, flag; row by param; group by arm; % denominator: n</p>
+        <p>Summary of Analysis Value, Flag; row by param; group by arm; % denominator: n</p>
         <p>Note: Multiple results per subject per group, aggregated by dplyr::first</p>
         <table class="table event-count">
           <tr>
@@ -1600,66 +1600,66 @@
         </table>
       </div>
 
-# expanded population groups, multiple rows per subject - population summary table__spec_ids{summary_table$expanded_pop_groups;summary_table$numerical_summary;summary_table$categorical_summary;summary_table$total_pop_group;summary_table$denominator;summary_table$row_aggregate}
+# expanded population groups, multiple rows per subject - cross-over summary table__spec_ids{summary_table$expanded_pop_groups;summary_table$numerical_summary;summary_table$categorical_summary;summary_table$total_pop_group;summary_table$denominator}
 
     Code
       st3_compute
     Output
       $df
-      # A tibble: 27 x 6
-         `\035anl_var`               `\035stat` SAFFL        SAFFL2       SAFFL3      
-         <chr>                       <chr>      <list>       <list>       <list>      
-       1 saf_flag                    Y          <named list> <named list> <named list>
-       2 Sex                         F          <named list> <named list> <named list>
-       3 Sex                         M          <named list> <named list> <named list>
-       4 Age                         n          <named list> <named list> <named list>
-       5 Age                         Mean (SD)  <named list> <named list> <named list>
-       6 Age                         Mean 95% ~ <named list> <named list> <named list>
-       7 Age                         Geometric~ <named list> <named list> <named list>
-       8 Age                         Min - Max  <named list> <named list> <named list>
-       9 Subject Identifier for the~ 1042       <named list> <named list> <named list>
-      10 Subject Identifier for the~ 1076       <named list> <named list> <named list>
-      # i 17 more rows
-      # i 1 more variable: `\035first.\035anl_var` <lgl>
+      # A tibble: 9 x 9
+        param `\035anl_var`  `\035stat`     A                B            C           
+        <fct> <chr>          <chr>          <list>           <list>       <list>      
+      1 XYZ   Analysis Value n              <named list [2]> <named list> <named list>
+      2 XYZ   Analysis Value Mean (SD)      <named list [2]> <named list> <named list>
+      3 XYZ   Analysis Value Mean 95% CI    <named list [2]> <named list> <named list>
+      4 XYZ   Analysis Value Geometric Mean <named list [2]> <named list> <named list>
+      5 XYZ   Analysis Value Min - Max      <named list [2]> <named list> <named list>
+      6 XYZ   visit          n              <named list [2]> <named list> <named list>
+      7 XYZ   visit          V1             <named list [2]> <named list> <named list>
+      8 XYZ   visit          V2             <named list [2]> <named list> <named list>
+      9 XYZ   visit          V3             <named list [2]> <named list> <named list>
+      # i 3 more variables: All <list>, `\035first.\035anl_var` <lgl>,
+      #   `\035first.param` <lgl>
       
       $meta
       $meta$anl_vars
-      [1] "saf_flag" "SEX"      "AGE"      "SUBJID"  
+      [1] "aval"  "visit"
       
       $meta$group_vars
-      [1] "saf_group"
+      [1] "arm"
       
       $meta$row_vars
-      NULL
+      [1] "param"
       
       $meta$pop_flag_vars
       NULL
       
       $meta$flag_columns
-      [1] "\035first.\035anl_var"
+      [1] "\035first.\035anl_var" "\035first.param"      
       
       $meta$data_columns
-      [1] "SAFFL"  "SAFFL2" "SAFFL3"
+      [1] "A"   "B"   "C"   "All"
       
       $meta$total_group_val
-      [1] "Total"
+      [1] "All"
       
       $meta$denom_df
-      # A tibble: 3 x 3
-        saf_group    .N .lookup
-        <fct>     <int> <chr>  
-      1 SAFFL        18 SAFFL  
-      2 SAFFL2       13 SAFFL2 
-      3 SAFFL3       16 SAFFL3 
+      # A tibble: 4 x 3
+        arm      .N .lookup
+        <fct> <int> <chr>  
+      1 A         5 A      
+      2 B         5 B      
+      3 C         5 C      
+      4 All       6 All    
       
       $meta$denom
       [1] "N"
       
       $meta$aggregate_flag
-      [1] FALSE
+      [1] TRUE
       
       $meta$aggregate_func_name
-      [1] "mean"
+      NULL
       
       
 
@@ -1669,50 +1669,304 @@
       st3_html
     Output
       <div>
-        <p>Summary of saf_flag, SEX, AGE, SUBJID; group by saf_group; % denominator: N</p>
+        <p>Summary of Analysis Value, visit; row by param; group by arm; % denominator: N</p>
+        <p>Note: Multiple results per subject per group, aggregated by </p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>
             <th class="text-center" style="vertical-align: bottom;">
               <span>
-                SAFFL
+                A
+                <br/>
+                (N = 5)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom;">
+              <span>
+                B
+                <br/>
+                (N = 5)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom;">
+              <span>
+                C
+                <br/>
+                (N = 5)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom;">
+              <span>
+                All
+                <br/>
+                (N = 6)
+              </span>
+            </th>
+          </tr>
+          <tr class="indent-0" indent="0">
+            <td>
+              <span class="truncate" title="Analysis Value">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                Analysis Value
+              </span>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr class="indent-1 bg-gray" indent="1">
+            <td>
+              <span class="truncate" title="XYZ">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                XYZ
+              </span>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr row-id="1" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="n">n</span>
+            </td>
+            <td class="text-center" column="A" style="white-space: nowrap;">5</td>
+            <td class="text-center" column="B" style="white-space: nowrap;">5</td>
+            <td class="text-center" column="C" style="white-space: nowrap;">5</td>
+            <td class="text-center" column="All" style="white-space: nowrap;">15</td>
+          </tr>
+          <tr row-id="2" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="Mean (SD)">Mean (SD)</span>
+            </td>
+            <td class="text-center" column="A" style="white-space: nowrap;">13.4 (11.1)</td>
+            <td class="text-center" column="B" style="white-space: nowrap;">12.6 (9.7)</td>
+            <td class="text-center" column="C" style="white-space: nowrap;">14.2 (11.5)</td>
+            <td class="text-center" column="All" style="white-space: nowrap;">13.4 (10.0)</td>
+          </tr>
+          <tr row-id="3" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="Mean 95% CI">Mean 95% CI</span>
+            </td>
+            <td class="text-center" column="A" style="white-space: nowrap;">(-0.39, 27.19)</td>
+            <td class="text-center" column="B" style="white-space: nowrap;">(0.61, 24.59)</td>
+            <td class="text-center" column="C" style="white-space: nowrap;">(-0.05, 28.45)</td>
+            <td class="text-center" column="All" style="white-space: nowrap;">(7.86, 18.94)</td>
+          </tr>
+          <tr row-id="4" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="Geometric Mean">Geometric Mean</span>
+            </td>
+            <td class="text-center" column="A" style="white-space: nowrap;">8.4</td>
+            <td class="text-center" column="B" style="white-space: nowrap;">8.9</td>
+            <td class="text-center" column="C" style="white-space: nowrap;">10.3</td>
+            <td class="text-center" column="All" style="white-space: nowrap;">9.1</td>
+          </tr>
+          <tr row-id="5" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="Min - Max">Min - Max</span>
+            </td>
+            <td class="text-center" column="A" style="white-space: nowrap;">1.0 - 29.0</td>
+            <td class="text-center" column="B" style="white-space: nowrap;">2.0 - 24.0</td>
+            <td class="text-center" column="C" style="white-space: nowrap;">3.0 - 28.0</td>
+            <td class="text-center" column="All" style="white-space: nowrap;">1.0 - 29.0</td>
+          </tr>
+          <tr class="indent-0" indent="0">
+            <td>
+              <span class="truncate" title="visit">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                visit
+              </span>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr class="indent-1 bg-gray" indent="1">
+            <td>
+              <span class="truncate" title="XYZ">
+                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
+                XYZ
+              </span>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr row-id="6" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="n">n</span>
+            </td>
+            <td class="text-center" column="A" style="white-space: nowrap;">5 (100.0 %)</td>
+            <td class="text-center" column="B" style="white-space: nowrap;">5 (100.0 %)</td>
+            <td class="text-center" column="C" style="white-space: nowrap;">5 (100.0 %)</td>
+            <td class="text-center" column="All" style="white-space: nowrap;">15 (250.0 %)</td>
+          </tr>
+          <tr row-id="7" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="V1">V1</span>
+            </td>
+            <td class="text-center" column="A" style="white-space: nowrap;">2 (40.0 %)</td>
+            <td class="text-center" column="B" style="white-space: nowrap;">2 (40.0 %)</td>
+            <td class="text-center" column="C" style="white-space: nowrap;">2 (40.0 %)</td>
+            <td class="text-center" column="All" style="white-space: nowrap;">6 (100.0 %)</td>
+          </tr>
+          <tr row-id="8" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="V2">V2</span>
+            </td>
+            <td class="text-center" column="A" style="white-space: nowrap;">2 (40.0 %)</td>
+            <td class="text-center" column="B" style="white-space: nowrap;">2 (40.0 %)</td>
+            <td class="text-center" column="C" style="white-space: nowrap;">2 (40.0 %)</td>
+            <td class="text-center" column="All" style="white-space: nowrap;">6 (100.0 %)</td>
+          </tr>
+          <tr row-id="9" class="indent-2" indent="2">
+            <td>
+              <span class="truncate" title="V3">V3</span>
+            </td>
+            <td class="text-center" column="A" style="white-space: nowrap;">1 (20.0 %)</td>
+            <td class="text-center" column="B" style="white-space: nowrap;">1 (20.0 %)</td>
+            <td class="text-center" column="C" style="white-space: nowrap;">1 (20.0 %)</td>
+            <td class="text-center" column="All" style="white-space: nowrap;">3 (50.0 %)</td>
+          </tr>
+        </table>
+      </div>
+
+# population flag summary table__spec_ids{summary_table$population_flag_vars;summary_table$numerical_summary;summary_table$categorical_summary;summary_table$denominator}
+
+    Code
+      st4_compute
+    Output
+      $df
+      # A tibble: 28 x 7
+         `\035anl_var`  `\035stat` ENRLFL       RANDFL       TRTFL        DISCFL      
+         <chr>          <chr>      <list>       <list>       <list>       <list>      
+       1 Safety Popula~ N          <named list> <named list> <named list> <named list>
+       2 Safety Popula~ Y          <named list> <named list> <named list> <named list>
+       3 Sex            F          <named list> <named list> <named list> <named list>
+       4 Sex            M          <named list> <named list> <named list> <named list>
+       5 Age            n          <named list> <named list> <named list> <named list>
+       6 Age            Mean (SD)  <named list> <named list> <named list> <named list>
+       7 Age            Mean 95% ~ <named list> <named list> <named list> <named list>
+       8 Age            Geometric~ <named list> <named list> <named list> <named list>
+       9 Age            Min - Max  <named list> <named list> <named list> <named list>
+      10 Subject Ident~ 1042       <named list> <named list> <named list> <named list>
+      # i 18 more rows
+      # i 1 more variable: `\035first.\035anl_var` <lgl>
+      
+      $meta
+      $meta$anl_vars
+      [1] "SAFFL"  "SEX"    "AGE"    "SUBJID"
+      
+      $meta$group_vars
+      [1] ".pop_group"
+      
+      $meta$row_vars
+      NULL
+      
+      $meta$pop_flag_vars
+      [1] "ENRLFL" "RANDFL" "TRTFL"  "DISCFL"
+      
+      $meta$flag_columns
+      [1] "\035first.\035anl_var"
+      
+      $meta$data_columns
+      [1] "ENRLFL" "RANDFL" "TRTFL"  "DISCFL"
+      
+      $meta$total_group_val
+      [1] "Total"
+      
+      $meta$denom_df
+      # A tibble: 4 x 3
+        .pop_group    .N .lookup
+        <fct>      <int> <chr>  
+      1 ENRLFL        19 ENRLFL 
+      2 RANDFL        18 RANDFL 
+      3 TRTFL         18 TRTFL  
+      4 DISCFL        12 DISCFL 
+      
+      $meta$denom
+      [1] "N"
+      
+      $meta$aggregate_flag
+      [1] FALSE
+      
+      $meta$aggregate_func_name
+      NULL
+      
+      
+
+---
+
+    Code
+      st4_html
+    Output
+      <div>
+        <p>Summary of Safety Population Flag, Sex, Age, Subject Identifier for the Study; flag by ; % denominator: N</p>
+        <table class="table event-count">
+          <tr>
+            <th class="text-center"></th>
+            <th class="text-center" style="vertical-align: bottom;">
+              <span>
+                ENRLFL
+                <br/>
+                (N = 19)
+              </span>
+            </th>
+            <th class="text-center" style="vertical-align: bottom;">
+              <span>
+                RANDFL
                 <br/>
                 (N = 18)
               </span>
             </th>
             <th class="text-center" style="vertical-align: bottom;">
               <span>
-                SAFFL2
+                TRTFL
                 <br/>
-                (N = 13)
+                (N = 18)
               </span>
             </th>
             <th class="text-center" style="vertical-align: bottom;">
               <span>
-                SAFFL3
+                DISCFL
                 <br/>
-                (N = 16)
+                (N = 12)
               </span>
             </th>
           </tr>
           <tr class="indent-0" indent="0">
             <td>
-              <span class="truncate" title="saf_flag">
+              <span class="truncate" title="Safety Population Flag">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                saf_flag
+                Safety Population Flag
               </span>
             </td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
           </tr>
           <tr row-id="1" class="indent-1" indent="1">
             <td>
+              <span class="truncate" title="N">N</span>
+            </td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">0</td>
+          </tr>
+          <tr row-id="2" class="indent-1" indent="1">
+            <td>
               <span class="truncate" title="Y">Y</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">18 (100.0 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">13 (100.0 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">16 (100.0 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">18 (94.7 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">18 (100.0 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">18 (100.0 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">12 (100.0 %)</td>
           </tr>
           <tr class="indent-0" indent="0">
             <td>
@@ -1724,22 +1978,25 @@
             <td></td>
             <td></td>
             <td></td>
-          </tr>
-          <tr row-id="2" class="indent-1" indent="1">
-            <td>
-              <span class="truncate" title="F">F</span>
-            </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">12 (66.7 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">8 (61.5 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">9 (56.2 %)</td>
+            <td></td>
           </tr>
           <tr row-id="3" class="indent-1" indent="1">
             <td>
+              <span class="truncate" title="F">F</span>
+            </td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">12 (63.2 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">12 (66.7 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">12 (66.7 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">7 (58.3 %)</td>
+          </tr>
+          <tr row-id="4" class="indent-1" indent="1">
+            <td>
               <span class="truncate" title="M">M</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">6 (33.3 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">5 (38.5 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">7 (43.8 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">7 (36.8 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">6 (33.3 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">6 (33.3 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">5 (41.7 %)</td>
           </tr>
           <tr class="indent-0" indent="0">
             <td>
@@ -1751,46 +2008,52 @@
             <td></td>
             <td></td>
             <td></td>
-          </tr>
-          <tr row-id="4" class="indent-1" indent="1">
-            <td>
-              <span class="truncate" title="n">n</span>
-            </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">18</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">13</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">16</td>
+            <td></td>
           </tr>
           <tr row-id="5" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="Mean (SD)">Mean (SD)</span>
+              <span class="truncate" title="n">n</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">75.9 (6.8)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">76.2 (7.3)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">75.4 (6.7)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">19</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">18</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">18</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">12</td>
           </tr>
           <tr row-id="6" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="Mean 95% CI">Mean 95% CI</span>
+              <span class="truncate" title="Mean (SD)">Mean (SD)</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">(72.56, 79.33)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">(71.84, 80.62)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">(71.79, 78.96)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">76.4 (6.9)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">75.9 (6.8)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">75.9 (6.8)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">75.8 (6.8)</td>
           </tr>
           <tr row-id="7" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="Geometric Mean">Geometric Mean</span>
+              <span class="truncate" title="Mean 95% CI">Mean 95% CI</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">75.7</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">75.9</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">75.1</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">(73.06, 79.68)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">(72.56, 79.33)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">(72.56, 79.33)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">(71.41, 80.09)</td>
           </tr>
           <tr row-id="8" class="indent-1" indent="1">
             <td>
+              <span class="truncate" title="Geometric Mean">Geometric Mean</span>
+            </td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">76.1</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">75.7</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">75.7</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">75.5</td>
+          </tr>
+          <tr row-id="9" class="indent-1" indent="1">
+            <td>
               <span class="truncate" title="Min - Max">Min - Max</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">64.0 - 88.0</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">64.0 - 88.0</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">64.0 - 84.0</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">64.0 - 88.0</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">64.0 - 88.0</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">64.0 - 88.0</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">67.0 - 88.0</td>
           </tr>
           <tr class="indent-0" indent="0">
             <td>
@@ -1802,158 +2065,178 @@
             <td></td>
             <td></td>
             <td></td>
-          </tr>
-          <tr row-id="9" class="indent-1" indent="1">
-            <td>
-              <span class="truncate" title="1042">1042</span>
-            </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td></td>
           </tr>
           <tr row-id="10" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1076">1076</span>
+              <span class="truncate" title="1042">1042</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">0</td>
           </tr>
           <tr row-id="11" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1086">1086</span>
+              <span class="truncate" title="1076">1076</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="12" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1096">1096</span>
+              <span class="truncate" title="1086">1086</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="13" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1100">1100</span>
+              <span class="truncate" title="1096">1096</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="14" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1119">1119</span>
+              <span class="truncate" title="1100">1100</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">0</td>
           </tr>
           <tr row-id="15" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1175">1175</span>
+              <span class="truncate" title="1119">1119</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="16" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1182">1182</span>
+              <span class="truncate" title="1175">1175</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="17" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1197">1197</span>
+              <span class="truncate" title="1182">1182</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="18" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1210">1210</span>
+              <span class="truncate" title="1197">1197</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="19" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1258">1258</span>
+              <span class="truncate" title="1210">1210</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">0</td>
           </tr>
           <tr row-id="20" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1279">1279</span>
+              <span class="truncate" title="1258">1258</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="21" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1295">1295</span>
+              <span class="truncate" title="1279">1279</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="22" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1299">1299</span>
+              <span class="truncate" title="1295">1295</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="23" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1335">1335</span>
+              <span class="truncate" title="1299">1299</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">0</td>
           </tr>
           <tr row-id="24" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1379">1379</span>
+              <span class="truncate" title="1335">1335</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
           </tr>
           <tr row-id="25" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1396">1396</span>
+              <span class="truncate" title="1379">1379</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">0</td>
           </tr>
           <tr row-id="26" class="indent-1" indent="1">
             <td>
-              <span class="truncate" title="1403">1403</span>
+              <span class="truncate" title="1396">1396</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">0</td>
           </tr>
           <tr row-id="27" class="indent-1" indent="1">
             <td>
+              <span class="truncate" title="1403">1403</span>
+            </td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">1 (8.3 %)</td>
+          </tr>
+          <tr row-id="28" class="indent-1" indent="1">
+            <td>
               <span class="truncate" title="1439">1439</span>
             </td>
-            <td class="text-center" column="SAFFL" style="white-space: nowrap;">1 (5.6 %)</td>
-            <td class="text-center" column="SAFFL2" style="white-space: nowrap;">1 (7.7 %)</td>
-            <td class="text-center" column="SAFFL3" style="white-space: nowrap;">1 (6.2 %)</td>
+            <td class="text-center" column="ENRLFL" style="white-space: nowrap;">1 (5.3 %)</td>
+            <td class="text-center" column="RANDFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="TRTFL" style="white-space: nowrap;">1 (5.6 %)</td>
+            <td class="text-center" column="DISCFL" style="white-space: nowrap;">0</td>
           </tr>
         </table>
       </div>
@@ -1964,7 +2247,7 @@
       st_output_html
     Output
       <div>
-        <p>Summary of AVAL, ATOXGR; row by PARAM, VISIT; group by ARM, SEX; % denominator: N</p>
+        <p>Summary of Analysis Value, Analysis Toxicity Grade; row by Parameter, Visit Name; group by Description of Planned Arm, Sex; % denominator: N</p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>
