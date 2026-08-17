@@ -58,6 +58,9 @@
       7 All   F         3 "All\u001dF"
       8 All   M         3 "All\u001dM"
       
+      $meta$denom
+      [1] "N"
+      
       $meta$aggregate_flag
       [1] FALSE
       
@@ -72,7 +75,7 @@
       st1_html
     Output
       <div>
-        <p>Summary of aval, flag; row by param, visit; group by arm, sex</p>
+        <p>Summary of aval, flag; row by param, visit; group by arm, sex; % denominator: N</p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>
@@ -1388,6 +1391,9 @@
       2 B         2 B      
       3 C         1 C      
       
+      $meta$denom
+      [1] "n"
+      
       $meta$aggregate_flag
       [1] TRUE
       
@@ -1402,7 +1408,7 @@
       st2_html
     Output
       <div>
-        <p>Summary of aval, flag; row by param; group by arm</p>
+        <p>Summary of aval, flag; row by param; group by arm; % denominator: n</p>
         <p>Note: Multiple results per subject per group, aggregated by dplyr::first</p>
         <table class="table event-count">
           <tr>
@@ -1646,6 +1652,9 @@
       2 SAFFL2       13 SAFFL2 
       3 SAFFL3       16 SAFFL3 
       
+      $meta$denom
+      [1] "N"
+      
       $meta$aggregate_flag
       [1] FALSE
       
@@ -1660,7 +1669,7 @@
       st3_html
     Output
       <div>
-        <p>Summary of saf_flag, SEX, AGE, SUBJID; group by saf_group</p>
+        <p>Summary of saf_flag, SEX, AGE, SUBJID; group by saf_group; % denominator: N</p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>
@@ -1955,7 +1964,7 @@
       st_output_html
     Output
       <div>
-        <p>Summary of AVAL, ATOXGR; row by PARAM, VISIT; group by ARM, SEX</p>
+        <p>Summary of AVAL, ATOXGR; row by PARAM, VISIT; group by ARM, SEX; % denominator: N</p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>
