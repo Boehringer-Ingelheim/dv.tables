@@ -570,12 +570,13 @@ summtab_compute <- function(tbl_df,
 #' summtab_html_table
 #'
 #' @param summtab_list A list of the data frame of the analysed data and metadata from `summtab_compute()`.
+#' @param var_labels A list of variable labels indexed by variable names.
 #' @param on_cell_click A string holding the JavaScript callback function to be executed when a table cell is clicked.
 #'
 #' @return An HTML table generated using `shiny::tags` and formatted for interactive display.
 #'
 #' @keywords internal
-summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
+summtab_html_table <- function(summtab_list, var_labels, on_cell_click = NULL) {
 
   df <- summtab_list[["df"]]
 
@@ -653,10 +654,13 @@ summtab_html_table <- function(summtab_list, on_cell_click = NULL) {
   mod_group_vars <- setdiff(group_vars, ".pop_group")
   title <- sprintf(
     "Summary of %s%s%s%s%s",
-    paste(anl_vars, collapse = ", "),
-    ifelse(length(row_vars) == 0L, "", paste("; row by", paste(row_vars, collapse = ", "))),
-    ifelse(length(mod_group_vars) == 0L, "", paste("; group by", paste(mod_group_vars, collapse = ", "))),
-    ifelse(length(pop_flag_vars) == 0L, "", paste("; flag by", paste(pop_flag_vars, collapse = ", "))),
+    paste(unlist(var_labels[anl_vars], use.names = FALSE), collapse = ", "),
+    ifelse(length(row_vars) == 0L, "",
+           paste("; row by", paste(unlist(var_labels[row_vars], use.names = FALSE), collapse = ", "))),
+    ifelse(length(mod_group_vars) == 0L, "",
+           paste("; group by", paste(unlist(var_labels[mod_group_vars], use.names = FALSE), collapse = ", "))),
+    ifelse(length(pop_flag_vars) == 0L, "",
+           paste("; flag by", paste(unlist(var_labels[pop_flag_vars], use.names = FALSE), collapse = ", "))),
     ifelse(is.null(denom), "", paste("; % denominator:", denom))
   )
 
@@ -1008,6 +1012,9 @@ summary_table_server <- function(module_id,
 
     if (show_aggregate_method) inputs[[SUMMTAB$ID$AGGREGATE_METHOD]] <- shiny::reactive(input[[SUMMTAB$ID$AGGREGATE_METHOD]])
 
+    # Initialize variable labels reactive value
+    var_labels <- shiny::reactiveVal(list())
+
     summtab <- shiny::reactive({
 
       anl_vars <- inputs[[SUMMTAB$ID$ANL_VARS]]()
@@ -1021,13 +1028,16 @@ summary_table_server <- function(module_id,
       show_category_n <- inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
 
-
       aggregate_func_name <- if (show_aggregate_method) inputs[[SUMMTAB$ID$AGGREGATE_METHOD]]() else NULL
 
       choices_stats <- inputs[[SUMMTAB$ID$STATS]]()
 
       pop_df <- pop_dataset()
       tbl_df <- table_dataset()
+
+      # Store variable labels for information display in final HTML
+      combined_labels <- c(get_lbls_robust(pop_df), get_lbls_robust(tbl_df))
+      var_labels(combined_labels[!duplicated(names(combined_labels))])
 
       # Avoid an index error when a group var has been used as a population flag var
       pop_df_orig <- pop_df
@@ -1171,6 +1181,7 @@ summary_table_server <- function(module_id,
       on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column: this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
 
       summtab <- summtab()
+      var_labels <- var_labels()
 
       # Start a progress bar and leave its cleanup to the `input[[SUMMTAB$ID$RENDER_COMPLETION_CALLBACK]]` observer
       p <- shiny::Progress$new(session = session)
@@ -1178,7 +1189,7 @@ summary_table_server <- function(module_id,
       on.exit(p$inc(amount = 0.3))
       p$set(message = "2) Generating & Rendering Table", value = 0.2)
 
-      rendered_content <- summtab_html_table(summtab, on_cell_click)
+      rendered_content <- summtab_html_table(summtab, var_labels, on_cell_click)
 
       shiny::tagList(rendered_content, render_completion_callback)
     })

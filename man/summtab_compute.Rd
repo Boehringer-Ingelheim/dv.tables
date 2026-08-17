@@ -85,6 +85,7 @@ population group combination, ".first" flags for rendering.
 \item \code{data_columns}: A vector of names of columns holding the statistics for each population group combination.
 \item \code{total_group_val}: A string indicating the label for the total group column.
 \item \code{denom_df}: A data frame of population group denominator data.
+\item \code{denom}: A string, either "N" or "n", indicating the denominator used.
 \item \code{aggregate_flag}: A flag indicating whether rows have been aggregated.
 \item \code{aggregate_func_name}: A string indicating the name of the function used for aggregating.
 }
