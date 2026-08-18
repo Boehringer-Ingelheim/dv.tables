@@ -144,16 +144,16 @@ Tplyr_table_server <- function(
   shiny::moduleServer(module_id, function(input, output, session) {
     ns <- session$ns
 
-    v_dataset_list <- sm_mr2({
+    v_dataset_list <- AEE[["A"]][["sm_mr2"]]({
       checkmate::assert_list(
         dataset_list(),
         types = "data.frame",
         null.ok = TRUE,
         names = "named"
       )
-      sm_me({
+      AEE[["A"]][["sm_me"]]({
         ..(dataset_list())
-      })      
+      })
     })
 
     ### Table title start --
@@ -253,9 +253,9 @@ Tplyr_table_server <- function(
 
     ### Table title end ---
 
-        ## table part start ---
+    ## table part start ---
 
-    selected_output <- sm_mr2({
+    selected_output <- AEE[["A"]][["sm_mr2"]]({
       shiny::req(selected_output_id())
 
       sel_id <- selected_output_id()
@@ -267,82 +267,84 @@ Tplyr_table_server <- function(
       is_table <- "tplyr_tab_fun" %in% names(curr_selected_output)
 
       if (!is_table) {
-        res <- sm_me({
+        res <- AEE[["A"]][["sm_me"]]({
           list(
             tplyr_tab = NULL,
-            needed_data = ..(v_dataset_list())[..(curr_selected_output[["dataset_names"]])],
+            needed_data = ..(v_dataset_list())[..(curr_selected_output[[
+              "dataset_names"
+            ]])],
             tplyr_tab_build = NULL,
             is_table = ..(is_table)
           )
         })
-      } else {        
-          if (
-            all(sapply(
-              v_dataset_list()[names(formals(tplyr_tab_fun))],
-              function(tbl) nrow(tbl) == 0
-            ))
-          ) {
-            res <- sm_me({
-              list(
-                tplyr_tab = NULL,
-                needed_data = ..(v_dataset_list())[..(names(formals(
-                  tplyr_tab_fun
-                )))],
-                tplyr_tab_build = NULL,
-                is_table = ..(is_table)
-              )
-            })            
-          } else {
-            res <- sm_me(
-              {
-                l_needed_data <- ..(v_dataset_list())[..(names(formals(tplyr_tab_fun)))]
-                
-                l_tplyr_tab <- do.call(..(tplyr_tab_fun), l_needed_data)
+      } else {
+        if (
+          all(sapply(
+            v_dataset_list()[names(formals(tplyr_tab_fun))],
+            function(tbl) nrow(tbl) == 0
+          ))
+        ) {
+          res <- AEE[["A"]][["sm_me"]]({
+            list(
+              tplyr_tab = NULL,
+              needed_data = ..(v_dataset_list())[..(names(formals(
+                tplyr_tab_fun
+              )))],
+              tplyr_tab_build = NULL,
+              is_table = ..(is_table)
+            )
+          })
+        } else {
+          res <- AEE[["A"]][["sm_me"]](
+            {
+              l_needed_data <- ..(v_dataset_list())[..(names(formals(
+                tplyr_tab_fun
+              )))]
 
+              l_tplyr_tab <- do.call(..(tplyr_tab_fun), l_needed_data)
+
+              checkmate::assert_class(
+                l_tplyr_tab,
+                classes = c("tplyr_table", "environment")
+              ) # What does this checkmate do?
+
+              l_tplyr_tab_build <- local({
+                build_fun <- ..(curr_selected_output[["build_fun"]])
+                res <- build_fun(l_tplyr_tab)
                 checkmate::assert_class(
-                  l_tplyr_tab,
-                  classes = c("tplyr_table", "environment")
-                ) # What does this checkmate do?
-
-                l_tplyr_tab_build <- local({
-                  build_fun <- ..(curr_selected_output[["build_fun"]])
-                  res <- build_fun(l_tplyr_tab)
-                  checkmate::assert_class(
-                    res,
-                    classes = c("tbl_df", "tbl", "data.frame")
-                  )
-
-                  if (!("row_id" %in% names(res))) {
-                    warning(
-                      paste(
-                        "For output",
-                        sel_id,
-                        "the metadata is not set to TRUE in the build function. Drill down will not be working"
-                      )
-                    )
-                  }
-                  res
-                })
-
-                res <- list(
-                  tplyr_tab = l_tplyr_tab,
-                  needed_data = l_needed_data,
-                  tplyr_tab_build = l_tplyr_tab_build,
-                  is_table = ..(is_table)
+                  res,
+                  classes = c("tbl_df", "tbl", "data.frame")
                 )
 
-              },
-              localize = TRUE
-            )
-            
-          } 
+                if (!("row_id" %in% names(res))) {
+                  warning(
+                    paste(
+                      "For output",
+                      sel_id,
+                      "the metadata is not set to TRUE in the build function. Drill down will not be working"
+                    )
+                  )
+                }
+                res
+              })
+
+              res <- list(
+                tplyr_tab = l_tplyr_tab,
+                needed_data = l_needed_data,
+                tplyr_tab_build = l_tplyr_tab_build,
+                is_table = ..(is_table)
+              )
+            },
+            localize = TRUE
+          )
+        }
       }
 
       res
     })
 
-    table_tplyr_df <- sm_mr2({
-      is_table <- selected_output()[["is_table"]]      
+    table_tplyr_df <- AEE[["A"]][["sm_mr2"]]({
+      is_table <- selected_output()[["is_table"]]
       needed_data <- selected_output()[["needed_data"]]
 
       shiny::validate(
@@ -353,15 +355,15 @@ Tplyr_table_server <- function(
       )
 
       if (is_table) {
-        sm_me({
+        AEE[["A"]][["sm_me"]]({
           dplyr::select(
             ..(selected_output())[["tplyr_tab_build"]],
             -dplyr::any_of(c("row_id")),
             -dplyr::starts_with("ord")
           )
-        })        
+        })
       } else {
-        sm_me({
+        AEE[["A"]][["sm_me"]]({
           NULL
         })
       }
@@ -770,7 +772,7 @@ mod_Tplyr_table <- function(
 
       Tplyr_table_server(
         module_id = module_id,
-        dataset_list = sm_mr({..(afmm$filtered_dataset_list())[..(needed_datasets)]}),
+        dataset_list = AEE[["A"]][["sm_mr"]](..(afmm$filtered_dataset_list())[..(needed_datasets)]),
         output_list = output_list,
         dataset_metadata = afmm$dataset_metadata,
         subjid_var = subjid_var,

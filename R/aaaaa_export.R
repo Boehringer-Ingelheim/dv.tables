@@ -1,15 +1,29 @@
-# This file contains all export related code. Remove it if required.
+..activate_export <- function() {
+  if (requireNamespace("shinymeta")) {
+    log_warn("Export functionality is under development")
 
-if (isTRUE(getOption("dv.export_enabled"))) {
-  # log_warn("Export has been enabled. This is an experimental feature.")
-  # Code for exporting versions
+    # These set of functions is declared inside to avoid calling shinymeta out of a function.
+    # Doing that would require some extra if statements that would worsen code readability.
 
-  # shinymeta::metaReactive2
-  sm_mr2 <- shinymeta::metaReactive2
+    EA <- list()
 
-  # shinymeta::metaReactive
-  sm_mr <- shinymeta::metaReactive
+    # shinymeta::metaReactive2
+    EA[["sm_mr2"]] <- shinymeta::metaReactive2
 
-  # shinymeta::metaExpr
-  sm_me <- shinymeta::metaExpr
+    # shinymeta::metaReactive
+    EA[["sm_mr"]] <- shinymeta::metaReactive
+
+    # shinymeta::metaExpr
+    EA[["sm_me"]] <- shinymeta::metaExpr
+
+    AEE[["A"]] <- EA
+  } else {
+    log_warn("`shinymeta` package is required to activate export functionality")
+    AEE[["A"]] <- NEA
+  }
+  invisible(NULL)
+}
+
+..deactivate_export <- function() {
+  AEE[["A"]] <- NEA
 }
