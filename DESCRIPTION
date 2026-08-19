@@ -25,7 +25,8 @@ Suggests:
     tibble,
     utils,
     pharmaverseadam,
-    dv.papo
+    dv.papo,
+    gt
 Config/testthat/edition: 3
 Config/testthat/parallel: false
 Imports: shiny (>= 1.7.1), dplyr (>= 1.0.7), purrr (>= 0.3.4),
