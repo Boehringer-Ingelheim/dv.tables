@@ -1,6 +1,11 @@
 # dv.tables 0.4.1-9007
 
 - [Tplyr_table module] Add new arguments from `dv.listings` module
+- [Tplyr_table module] Enable pagination for Tplyr tables
+
+# dv.tables 0.4.1-9006
+
+- New module `mod_summary_table` that provides numerical and categorical analysis.
 
 # dv.tables 0.4.1-9005
 

@@ -56,7 +56,8 @@ EC <- poc( # nolint
       ORIG_CENSOR_CLASH = "Origin date must not be the same as censor date",
       NO_EVENT_DATE = "No event date selected",
       NO_ORIGIN_DATE = "No origin date selected",
-      NO_CENSOR_DATE = "No censor date selected"
+      NO_CENSOR_DATE = "No censor date selected",
+      EVENT_GRP_CLASH = "Event group selection cannot be used in hierarchy"
     )
   ),
   VAL = poc(
@@ -259,16 +260,16 @@ compute_events_table <- function(event_df,
   checkmate::assert_data_frame(pop_df, min.rows = 1)
   checkmate::assert_character(hierarchy, min.chars = 1, min.len = 1)
   checkmate::assert_string(group_var, min.chars = 1)
+  checkmate::assert_string(subjid_var, min.chars = 1)
+
+  checkmate::assert_names(names(event_df), must.include = c(hierarchy, event_group_var, subjid_var))
+  checkmate::assert_names(names(pop_df), must.include = c(group_var, subjid_var))
+
   checkmate::assert_factor(pop_df[[group_var]])
   lapply(hierarchy, function(h) checkmate::assert_factor(event_df[[h]]))
   checkmate::assert_factor(event_df[[subjid_var]])
   checkmate::assert_factor(pop_df[[subjid_var]])
   checkmate::assert_character(event_group_var, min.chars = 1, max.len = 1, null.ok = TRUE)
-
-  checkmate::assert_subset(hierarchy, names(event_df))
-  checkmate::assert_subset(group_var, names(pop_df))
-  checkmate::assert_string(subjid_var, min.chars = 1)
-  checkmate::assert_subset(event_group_var, names(event_df))
 
   # Time at risk dates, if specified, must be on population and event data frames
   checkmate::assert_names(names(pop_df), must.include = c(origin_date_var, censor_date_var))
@@ -1151,6 +1152,10 @@ hierarchical_count_table_server <- function(
         shiny::need(
           !compute_risk || is_provided(censor_date_var),
           EC$MSG$VALIDATE$NO_CENSOR_DATE
+        ),
+        shiny::need(
+          !checkmate::test_choice(event_group_var, hierarchy, null.ok = FALSE),
+          EC$MSG$VALIDATE$EVENT_GRP_CLASH
         )
       )
 
@@ -1452,8 +1457,8 @@ mod_hierarchical_count_table <- function(module_id,
 
       hierarchical_count_table_server(
         id = module_id,
-        table_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[table_dataset_name]]),
-        pop_dataset = shiny::reactive(afmm[["filtered_dataset"]]()[[pop_dataset_name]]),
+        table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[table_dataset_name]]),
+        pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[pop_dataset_name]]),
         subjid_var = subjid_var,
         show_event_group_by = show_event_group_by,
         show_time_at_risk_options = show_time_at_risk_options,
@@ -1580,17 +1585,13 @@ mod_hierarchical_count_table <- CM$module(mod_hierarchical_count_table, check_mo
 #' @param update_query_string automatically update query string with app state
 #' @param ui_defaults,srv_defaults a list of values passed to the ui/server function
 #' @export
+mock_app_hierarchical_count_table <- function(dry_run = FALSE,
+                                              update_query_string = TRUE,
+                                              srv_defaults = list(),
+                                              ui_defaults = list()) {
 
-# nolint start
-mock_app_hierarchical_count_table <- function(
-    # nolint end
-  dry_run = FALSE,
-  update_query_string = TRUE,
-  srv_defaults = list(),
-  ui_defaults = list()) {
-  if (!requireNamespace("pharmaverseadam")) {
-    stop("Install pharmaverseadam")
-  }
+  if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
+
   table_dataset <- shiny::reactive({
     pharmaverseadam::adae |> chr2factor()
   })
@@ -1633,15 +1634,19 @@ mock_app_hierarchical_count_table <- function(
 #' @keywords mock
 #' @export
 mock_app_hierarchical_count_table_mm <- function() {
-  if (!requireNamespace("dv.manager")) {
-    stop("Install dv.manager")
-  }
-  if (!requireNamespace("pharmaverseadam")) {
-    stop("Install pharmaverseadam")
-  }
+
+  if (!requireNamespace("dv.manager")) stop("Install dv.manager")
+  if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
+
+  adsl <- pharmaverseadam::adsl
+  adae <- pharmaverseadam::adae
+
+  attr(adsl, "meta") <- base::file.info("NEWS.md")
+  attr(adae, "meta") <- base::file.info("NEWS.md")
+
   dv.manager::run_app(
     data = list(
-      dummy = list(adae = pharmaverseadam::adae, adsl = pharmaverseadam::adsl)
+      pharmaverseadam = list(adae = adae, adsl = adsl)
     ),
     module_list = list(
       "ADAE by term" = mod_hierarchical_count_table(
@@ -1659,7 +1664,7 @@ mock_app_hierarchical_count_table_mm <- function() {
         default_risk = FALSE
       )
     ),
-    filter_data = "adsl",
+    filter_dataset_name = "adsl",
     filter_key = "SUBJID",
     enableBookmarking = "url"
   )
