@@ -1338,8 +1338,8 @@ hierarchical_count_table_server <- function(
           label = "Table",
           info = "table",
           metareactive = list(
-            html = AEE[["A"]][["sm_mr"]](export_count_table(..(et()))),
-            pdf = AEE[["A"]][["sm_mr"]](export_count_table(..(et())))
+            html = AEE[["A"]][["sm_mr"]](dv.tables:::export_count_table(..(et()))),
+            pdf = AEE[["A"]][["sm_mr"]](dv.tables:::export_count_table(..(et())))
           )
         )
       )
