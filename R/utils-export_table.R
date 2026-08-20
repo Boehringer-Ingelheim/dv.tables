@@ -418,28 +418,15 @@ export_count_table <- function(count_table) {
       )
   }
 
+  # The latex.header_repeat workaround belongs to the latex conversion, which is
+  # done downstream, so a gt table is returned here
   tbl <- tbl |>
     gt::tab_options(
       heading.align = "left",
       latex.use_longtable = TRUE,
       table.font.size = gt::px(9),
-      # latex.header_repeat = TRUE, # See replacemente below
       data_row.padding = gt::px(3)
-    ) |>
-    latex_header_repeat()
-  
-  tbl
+    )
 
-# Workaround for gt versions predating the latex.header_repeat tab_options()
-# Usage: gt(tbl) |> tab_options(latex.use_longtable = TRUE) |> as_latex() |>
-# latex.header_repeat()
-# In specific environments we won't have access to gt (>=1.3.0)
-# To be removed when the access if granted
-latex_header_repeat <- function(x) {
-  x <- as.character(x)
-  if (!grepl("\\\\endhead", x)) {
-    x <- sub("(\\\\midrule\\n)", "\\1\\\\endhead\n", x)
-  }
-  class(x) <- "knit_asis"
-  x
+  tbl
 }
