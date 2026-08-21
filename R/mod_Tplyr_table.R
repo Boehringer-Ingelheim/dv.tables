@@ -144,14 +144,14 @@ Tplyr_table_server <- function(
   shiny::moduleServer(module_id, function(input, output, session) {
     ns <- session$ns
 
-    v_dataset_list <- AEE[["A"]][["sm_mr2"]]({
+    v_dataset_list <- ODGE[["A"]][["sm_mr2"]]({
       checkmate::assert_list(
         dataset_list(),
         types = "data.frame",
         null.ok = TRUE,
         names = "named"
       )
-      AEE[["A"]][["sm_me"]]({
+      ODGE[["A"]][["sm_me"]]({
         ..(dataset_list())
       })
     })
@@ -255,7 +255,7 @@ Tplyr_table_server <- function(
 
     ## table part start ---
 
-    selected_output <- AEE[["A"]][["sm_mr2"]]({
+    selected_output <- ODGE[["A"]][["sm_mr2"]]({
       shiny::req(selected_output_id())
 
       sel_id <- selected_output_id()
@@ -267,7 +267,7 @@ Tplyr_table_server <- function(
       is_table <- "tplyr_tab_fun" %in% names(curr_selected_output)
 
       if (!is_table) {
-        res <- AEE[["A"]][["sm_me"]]({
+        res <- ODGE[["A"]][["sm_me"]]({
           list(
             tplyr_tab = NULL,
             needed_data = ..(v_dataset_list())[..(curr_selected_output[[
@@ -284,7 +284,7 @@ Tplyr_table_server <- function(
             function(tbl) nrow(tbl) == 0
           ))
         ) {
-          res <- AEE[["A"]][["sm_me"]]({
+          res <- ODGE[["A"]][["sm_me"]]({
             list(
               tplyr_tab = NULL,
               needed_data = ..(v_dataset_list())[..(names(formals(
@@ -295,7 +295,7 @@ Tplyr_table_server <- function(
             )
           })
         } else {
-          res <- AEE[["A"]][["sm_me"]](
+          res <- ODGE[["A"]][["sm_me"]](
             {
               l_needed_data <- ..(v_dataset_list())[..(names(formals(
                 tplyr_tab_fun
@@ -343,7 +343,7 @@ Tplyr_table_server <- function(
       res
     })
 
-    table_tplyr_df <- AEE[["A"]][["sm_mr2"]]({
+    table_tplyr_df <- ODGE[["A"]][["sm_mr2"]]({
       is_table <- selected_output()[["is_table"]]
       needed_data <- selected_output()[["needed_data"]]
 
@@ -355,7 +355,7 @@ Tplyr_table_server <- function(
       )
 
       if (is_table) {
-        AEE[["A"]][["sm_me"]]({
+        ODGE[["A"]][["sm_me"]]({
           dplyr::select(
             ..(selected_output())[["tplyr_tab_build"]],
             -dplyr::any_of(c("row_id")),
@@ -363,7 +363,7 @@ Tplyr_table_server <- function(
           )
         })
       } else {
-        AEE[["A"]][["sm_me"]]({
+        ODGE[["A"]][["sm_me"]]({
           NULL
         })
       }
@@ -559,7 +559,7 @@ Tplyr_table_server <- function(
     )
     ## listings part end ---
 
-    res_listings[["to_export"]] <- list(
+    res_listings[["to_odg"]] <- list(
       table = list(
         reactive = list(
           html = table_tplyr_df,
@@ -772,7 +772,7 @@ mod_Tplyr_table <- function(
 
       Tplyr_table_server(
         module_id = module_id,
-        dataset_list = AEE[["A"]][["sm_mr"]](..(afmm$filtered_dataset_list())[..(needed_datasets)]),
+        dataset_list = ODGE[["A"]][["sm_mr"]](..(afmm$filtered_dataset_list())[..(needed_datasets)]),
         output_list = output_list,
         dataset_metadata = afmm$dataset_metadata,
         subjid_var = subjid_var,

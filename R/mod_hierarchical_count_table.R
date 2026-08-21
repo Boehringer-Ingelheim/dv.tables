@@ -1080,7 +1080,7 @@ hierarchical_count_table_server <- function(
 
     }
 
-    et <- AEE[["A"]][["sm_mr2"]](
+    et <- ODGE[["A"]][["sm_mr2"]](
       {
         # Helper: checks whether a value is actually "provided"
         is_provided <- function(x) {
@@ -1176,7 +1176,7 @@ hierarchical_count_table_server <- function(
           )
         )
 
-        AEE[["A"]][["sm_me"]]({
+        ODGE[["A"]][["sm_me"]]({
           d <- ..(table_dataset())
           pd <- ..(pop_dataset())
           hierarchy <- ..(hierarchy)
@@ -1333,13 +1333,13 @@ hierarchical_count_table_server <- function(
         ))
         input[["clicked_sbj"]]
       }),
-      to_export = list(
+      to_odg = list(
         table = list(
           label = "Table",
           info = "table",
           metareactive = list(
-            html = AEE[["A"]][["sm_mr"]](dv.tables:::export_count_table(..(et()))),
-            pdf = AEE[["A"]][["sm_mr"]](dv.tables:::export_count_table(..(et())))
+            html = ODGE[["A"]][["sm_mr"]](dv.tables:::export_count_table(..(et()))),
+            pdf = ODGE[["A"]][["sm_mr"]](dv.tables:::export_count_table(..(et())))
           )
         )
       )
@@ -1513,7 +1513,7 @@ mod_hierarchical_count_table <- function(module_id,
 
       hierarchical_count_table_server(
         id = module_id,
-        table_dataset = AEE[["A"]][["sm_mr"]](
+        table_dataset = ODGE[["A"]][["sm_mr"]](
           {
             ..(afmm[["filtered_dataset_list"]]())[[
               ..(table_dataset_name)
@@ -1521,7 +1521,7 @@ mod_hierarchical_count_table <- function(module_id,
           },
           varname = "table_dataset"
         ),
-        pop_dataset = AEE[["A"]][["sm_mr"]](
+        pop_dataset = ODGE[["A"]][["sm_mr"]](
           {
             ..(afmm[["filtered_dataset_list"]]())[[..(pop_dataset_name)]]
           },
