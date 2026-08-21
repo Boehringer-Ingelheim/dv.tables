@@ -1,3 +1,5 @@
+url: https://boehringer-ingelheim.github.io/dv.tables
+
 template:
   bootstrap: 5
 
@@ -16,10 +18,10 @@ home:
     href: https://github.com/Boehringer-Ingelheim/dv.tables/
 
 reference:
-  - title: Modules
-  - desc: Main functions to call the modules
-  - contents:
-    - has_keyword("main")
-  - title: Mock Applications
-  - contents:
-    - has_keyword("mock")
+- title: Modules
+  desc: Main functions to call the modules
+  contents:
+  - has_keyword("main")
+- title: Mock Applications
+  contents:
+  - has_keyword("mock")
