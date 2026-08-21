@@ -1162,6 +1162,7 @@ hierarchical_count_table_server <- function(
           !checkmate::test_choice(event_group_var, hierarchy, null.ok = FALSE),
           EC$MSG$VALIDATE$EVENT_GRP_CLASH
         )
+      )
 
         ODGE[["A"]][["sm_me"]]({
           d <- ..(table_dataset())
