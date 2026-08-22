@@ -1083,6 +1083,8 @@ hierarchical_count_table_server <- function(
 
     et <- ODGE[["A"]][["sm_mr2"]](
       {
+        d <- table_dataset()
+        pd <- pop_dataset()
         # Helper: checks whether a value is actually "provided"
         is_provided <- function(x) {
           checkmate::test_string(x, min.chars = 1)
@@ -1118,15 +1120,26 @@ hierarchical_count_table_server <- function(
           EC$MSG$VALIDATE$NO_POP_ROWS
         ),
         shiny::need(
-          checkmate::test_string(group_var, min.chars = 1) && group_var != "None",
+          checkmate::test_string(group_var, min.chars = 1) &&
+            group_var != "None",
           EC$MSG$VALIDATE$NO_GRP
         ),
         shiny::need(
-          checkmate::test_character(hierarchy, min.chars = 1, min.len = 1, max.len = 2),
+          checkmate::test_character(
+            hierarchy,
+            min.chars = 1,
+            min.len = 1,
+            max.len = 2
+          ),
           EC$MSG$VALIDATE$NO_HIERARCHY
         ),
         shiny::need(
-          checkmate::test_number(min_percent, na.ok = FALSE, lower = 0, upper = 100),
+          checkmate::test_number(
+            min_percent,
+            na.ok = FALSE,
+            lower = 0,
+            upper = 100
+          ),
           EC$MSG$VALIDATE$NO_MIN_PERCENT
         ),
         shiny::need(
@@ -1147,7 +1160,8 @@ hierarchical_count_table_server <- function(
         ),
         shiny::need(
           (!compute_risk || is_provided(event_date_var)) &&
-            (!(is_provided(origin_date_var) || is_provided(censor_date_var)) || is_provided(event_date_var)),
+            (!(is_provided(origin_date_var) || is_provided(censor_date_var)) ||
+              is_provided(event_date_var)),
           EC$MSG$VALIDATE$NO_EVENT_DATE
         ),
         shiny::need(
@@ -1500,9 +1514,7 @@ mod_hierarchical_count_table <- function(module_id,
       }
 
       hierarchical_count_table_server(
-        id = module_id,
-        table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[table_dataset_name]]),
-        pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[pop_dataset_name]]),
+        id = module_id,        
         table_dataset = ODGE[["A"]][["sm_mr"]](
           {
             ..(afmm[["filtered_dataset_list"]]())[[
