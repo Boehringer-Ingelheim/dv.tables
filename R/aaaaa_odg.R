@@ -1,9 +1,12 @@
+
 ..activate_odg <- function() {
   if (requireNamespace("shinymeta", quietly = TRUE)) {
     log_warn("Output documentation generation is under development")
 
     # These set of functions is declared inside to avoid calling shinymeta out of a function.
     # Doing that would require some extra if statements that would worsen code readability.
+
+    ODGA <- list()
 
     # shinymeta::metaReactive2
     ODGA[["sm_mr2"]] <- shinymeta::metaReactive2
