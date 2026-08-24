@@ -552,7 +552,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0) {
   hierarchy <- d[["meta"]][["hierarchy"]]
   group_var <- d[["meta"]][["group_var"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
-  table_type <- d[["meta"]][["table_type"]]
+  table_type <- d[["meta"]][["table_type"]]  
   df <- d[["df"]]
 
   # Flag when event group has been specified
@@ -560,29 +560,56 @@ pivot_wide_format_events_table <- function(d, min_percent = 0) {
 
   cell_col <- paste0(EC$VAL$SPECIAL_CHAR, "cell")
 
-  count <- ifelse(df[["pct"]] > min_percent,
-                  sprintf("%d ( %.2f %%)", df[["n"]], df[["pct"]]),
-                  "\u2014")
+  pct_above_min <- df[["pct"]] > min_percent
+
+  count <- ifelse(
+    pct_above_min,
+    sprintf("%d ( %.2f %%)", df[["n"]], df[["pct"]]),
+    "\u2014"
+  )
   subjid <- purrr::map(df[["subjid"]], as.character)
 
   if (table_type == "time_at_risk") {
-    time_at_risk <- ifelse(df[["pct"]] > min_percent,
-                           sprintf("%.2f", df[["time_at_risk"]]),
-                           "\u2014")
-    incidence_rate <- ifelse(df[["pct"]] > min_percent,
-                             sprintf("%.2f", df[["incidence_rate"]]),
-                             "\u2014")
+    time_at_risk <- ifelse(
+      pct_above_min,
+      sprintf("%.2f", df[["time_at_risk"]]),
+      "\u2014"
+    )
+    incidence_rate <- ifelse(
+      pct_above_min,
+      sprintf("%.2f", df[["incidence_rate"]]),
+      "\u2014"
+    )
 
-    df[[cell_col]] <- purrr::pmap(list(count = count,
-                                       subjid = subjid,
-                                       time_at_risk = time_at_risk,
-                                       incidence_rate = incidence_rate),
-                                  ~ list(count = ..1,
-                                         subjid = ..2,
-                                         time_at_risk = ..3,
-                                         incidence_rate = ..4))
+    df[[cell_col]] <- purrr::pmap(
+      list(
+        count = count,
+        subjid = subjid,
+        time_at_risk = time_at_risk,
+        incidence_rate = incidence_rate,
+        pct_above_min = pct_above_min
+      ),
+      ~ list(
+        count = ..1,
+        subjid = ..2,
+        time_at_risk = ..3,
+        incidence_rate = ..4,
+        pct_above_min = ..4
+      )
+    )
   } else {
-    df[[cell_col]] <- purrr::map2(count, subjid, ~ list(count = .x, subjid = .y))
+    df[[cell_col]] <- purrr::pmap(
+      list(
+        count = count,
+        subjid = subjid,        
+        pct_above_min = pct_above_min
+      ),
+      ~ list(
+        count = ..1,
+        subjid = ..2,
+        pct_above_min = ..3        
+      )
+    )
   }
 
   # Keep only the necessary columns
@@ -604,7 +631,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0) {
     values_fill = list(EC$VAL$SPECIAL_CHAR)
   )
 
-  res <- list(df = wide_event, meta = d[["meta"]])
+  res <- list(df = wide_event, meta = c(d[["meta"]], list(min_percent = min_percent)))
   res
 }
 
@@ -757,7 +784,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
 
   hierarchy_length <- length(hierarchy)
 
-  body <- vector(mode = "list", length = nrow(df))
+  body <- vector(mode = "list", length = nrow(df))  
   for (r in seq_len(nrow(df))) {
     curr_row <- df[r, , drop = FALSE]
     curr_hier_lvl <- curr_row[[hier_lvl_col]]
@@ -774,6 +801,8 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
                                  curr_row[[entry_name_col]],
                                  class = "truncate",
                                  title = curr_row[[entry_name_col]]))
+    
+    is_hidden <- !any(purrr::map_lgl(curr_row[data_columns], ~.x[[1]][["pct_above_min"]]))
     data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
       if (table_type == "time_at_risk") {
         data_list <- .col[[1]]
@@ -793,6 +822,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
     body[[r]] <- tr(
       "row-id" = r,
       class = c(indent_class),
+      style = if(is_hidden) "display:none;" else NULL,
       indent = indent,
       entry_cell,
       data_cells
