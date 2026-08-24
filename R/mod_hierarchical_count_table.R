@@ -1,10 +1,12 @@
-EC <- poc( # nolint
+EC <- poc(
+  # nolint
   ID = poc(
     TABLE = "table",
     DROP_MENU = "drop_menu",
     HIERARCHY = "hierarchy",
     GRP = "group",
     MIN_PERCENT = "min_percent",
+    HIDE_ROWS_UNDER_MIN_PERCENT = "hide_rows_under_mnin_percent",
     TOTAL_FLAG = "total",
     EVENT_GROUP = "event_group",
     RISK_FLAG = "time_at_risk",
@@ -22,6 +24,7 @@ EC <- poc( # nolint
     HIERARCHY = "Event count by",
     GRP = "Group by",
     MIN_PERCENT = "Minimum %",
+    HIDE_ROWS_UNDER_MIN_PERCENT = "Hide rows under minimum %",
     TOTAL_FLAG = "Total",
     EVENT_GROUP = "Event group by",
     RISK_FLAG = "Time at Risk",
@@ -36,8 +39,11 @@ EC <- poc( # nolint
     EVENT_DATE = "Events with missing dates will be dropped",
     ORIGIN_DATE = "Events occurring before origin date will be dropped",
     CENSOR_DATE = "Events occurring after censor date will be dropped",
-    RISK_FLAG = paste("Event date, origin date and censor date must be provided; data with",
-                      "missing dates will be excluded from time at risk analysis.", sep = "\n")
+    RISK_FLAG = paste(
+      "Event date, origin date and censor date must be provided; data with",
+      "missing dates will be excluded from time at risk analysis.",
+      sep = "\n"
+    )
   ),
   WARN = poc(
     REQ_TIME_AT_RISK = "Required for Time at Risk"
@@ -678,10 +684,14 @@ sort_wider_formatter_events_table <- function(event_d, sort_df) { # nolint
 #' @param on_cell_click `character(0)`
 #' A JavaScript callback function to be executed when a table cell is clicked. Default is `NULL`.
 #'
+#' @param hide_rows_under_min_percent `logical(1)`
+#' Whether to hide (rather than just render as a dash) rows for which every group's percentage of subjects
+#' falls below the `min_percent` threshold used to build `d`.
+#'
 #' @return An HTML table generated using `shiny::tags` and formatted for interactive display.
 #'
 #' @keywords internal
-sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # nolint
+sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL, hide_rows_under_min_percent = FALSE) { # nolint
   checkmate::assert_data_frame(d[["df"]]) # DP
   checkmate::assert_list(d[["meta"]]) # DP
 
@@ -802,7 +812,8 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
                                  class = "truncate",
                                  title = curr_row[[entry_name_col]]))
     
-    is_hidden <- !any(purrr::map_lgl(curr_row[data_columns], ~.x[[1]][["pct_above_min"]]))
+    is_hidden <- isTRUE(hide_rows_under_min_percent) &&
+      !any(purrr::map_lgl(curr_row[data_columns], ~.x[[1]][["pct_above_min"]]))
     data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
       if (table_type == "time_at_risk") {
         data_list <- .col[[1]]
@@ -858,7 +869,10 @@ hierarchical_count_table_ui <- function(id,
                                         show_event_group_by = FALSE,
                                         show_time_at_risk_options = FALSE,
                                         default_total = TRUE,
-                                        default_risk = FALSE) {
+                                        default_risk = FALSE,
+                                        default_min_percent = 0,
+                                        default_hide_rows_under_min_percent = FALSE
+                                      ) {
   ns <- shiny::NS(id)
 
   # Initialize optional selections
@@ -886,13 +900,30 @@ hierarchical_count_table_ui <- function(id,
   }
 
   drop_menu <- shinyWidgets::dropMenu(
-    shiny::tags[["button"]](id = ns(EC$ID$DROP_MENU), EC$LBL$DROP_MENU, class = "btn btn-default"),
+    shiny::tags[["button"]](
+      id = ns(EC$ID$DROP_MENU),
+      EC$LBL$DROP_MENU,
+      class = "btn btn-default"
+    ),
     col_menu_UI(id = ns(EC$ID$HIERARCHY)),
     col_menu_UI(id = ns(EC$ID$GRP)),
-    shiny::numericInput(ns(EC$ID$MIN_PERCENT),
-                        label = EC$LBL$MIN_PERCENT,
-                        value = 0, min = 0, max = 100),
-    shiny::checkboxInput(ns(EC$ID$TOTAL_FLAG), label = EC$LBL$TOTAL_FLAG, value = default_total),
+    shiny::numericInput(
+      ns(EC$ID$MIN_PERCENT),
+      label = EC$LBL$MIN_PERCENT,
+      value = default_min_percent,
+      min = 0,
+      max = 100
+    ),
+    shiny::checkboxInput(
+      ns(EC$ID$HIDE_ROWS_UNDER_MIN_PERCENT),
+      label = EC$LBL$HIDE_ROWS_UNDER_MIN_PERCENT,
+      value = default_hide_rows_under_min_percent
+    ),
+    shiny::checkboxInput(
+      ns(EC$ID$TOTAL_FLAG),
+      label = EC$LBL$TOTAL_FLAG,
+      value = default_total
+    ),
     event_by_group,
     time_at_risk_options,
     options = shinyWidgets::dropMenuOptions(
@@ -1005,6 +1036,10 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$MIN_PERCENT]] <- shiny::reactive({
       input[[EC$ID$MIN_PERCENT]]
+    })
+
+    inputs[[EC$ID$HIDE_ROWS_UNDER_MIN_PERCENT]] <- shiny::reactive({
+      input[[EC$ID$HIDE_ROWS_UNDER_MIN_PERCENT]]
     })
 
     inputs[[EC$ID$TOTAL_FLAG]] <- shiny::reactive({
@@ -1253,7 +1288,11 @@ hierarchical_count_table_server <- function(
       on.exit(p$inc(amount = 0.3))
       p$set(message = "2) Generating & Rendering Table", value = 0.2)
 
-      rendered_content <- sort_wide_format_event_table_to_HTML(et, on_cell_click)
+      rendered_content <- sort_wide_format_event_table_to_HTML(
+        et,
+        on_cell_click,
+        hide_rows_under_min_percent = inputs[[EC$ID$HIDE_ROWS_UNDER_MIN_PERCENT]]()
+      )
       shiny::tagList(rendered_content, render_completion_callback)
     })
 
@@ -1375,6 +1414,16 @@ hierarchical_count_table_server <- function(
 #'
 #' A default value for checkbox determining whether to add a total group column.
 #'
+#' @param default_min_percent `[numeric(1)]`
+#'
+#' A default value (0-100) for the minimum percentage of subjects a row must reach to be displayed. Rows below
+#' this threshold have their counts replaced with a dash instead of being shown.
+#'
+#' @param default_hide_rows_under_min_percent `[logical(1)]`
+#'
+#' A default value for checkbox determining whether to hide entire rows for which every group's percentage of
+#' subjects falls below `default_min_percent`, instead of just showing a dash for those cells.
+#'
 #' @param default_event_group `[character(1)|NULL]`
 #'
 #' A default value for the event group variable selection.
@@ -1445,36 +1494,44 @@ hierarchical_count_table_server <- function(
 #' @keywords main
 #'
 #' @export
-mod_hierarchical_count_table <- function(module_id,
-                                         table_dataset_name,
-                                         pop_dataset_name,
-                                         subjid_var = "USUBJID",
-                                         show_event_group_by = FALSE,
-                                         show_time_at_risk_options = FALSE,
-                                         show_modal_on_click = TRUE,
-                                         default_hierarchy = NULL,
-                                         default_group = NULL,
-                                         default_total = TRUE,
-                                         default_event_group = NULL,
-                                         default_event_date = NULL,
-                                         default_origin_date = NULL,
-                                         default_censor_date = NULL,
-                                         default_risk = FALSE,
-                                         hierarchy_choices = NULL,
-                                         group_choices = NULL,
-                                         event_group_choices = NULL,
-                                         event_date_choices = NULL,
-                                         origin_date_choices = NULL,
-                                         censor_date_choices = NULL,
-                                         intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
-                                         receiver_id = NULL) {
+mod_hierarchical_count_table <- function(
+  module_id,
+  table_dataset_name,
+  pop_dataset_name,
+  subjid_var = "USUBJID",
+  show_event_group_by = FALSE,
+  show_time_at_risk_options = FALSE,
+  show_modal_on_click = TRUE,
+  default_hierarchy = NULL,
+  default_group = NULL,
+  default_total = TRUE,
+  default_min_percent = 5,
+  default_hide_rows_under_min_percent = FALSE,
+  default_event_group = NULL,
+  default_event_date = NULL,
+  default_origin_date = NULL,
+  default_censor_date = NULL,
+  default_risk = FALSE,
+  hierarchy_choices = NULL,
+  group_choices = NULL,
+  event_group_choices = NULL,
+  event_date_choices = NULL,
+  origin_date_choices = NULL,
+  censor_date_choices = NULL,
+  intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
+  receiver_id = NULL
+) {
   mod <- list(
     ui = function(module_id) {
-      hierarchical_count_table_ui(id = module_id,
-                                  show_event_group_by = show_event_group_by,
-                                  show_time_at_risk_options = show_time_at_risk_options,
-                                  default_total = default_total,
-                                  default_risk = default_risk)
+      hierarchical_count_table_ui(
+        id = module_id,
+        show_event_group_by = show_event_group_by,
+        show_time_at_risk_options = show_time_at_risk_options,
+        default_total = default_total,
+        default_risk = default_risk,
+        default_min_percent = default_min_percent,
+        default_hide_rows_under_min_percent = default_hide_rows_under_min_percent
+      )
     },
     server = function(afmm) {
       if (is.null(receiver_id)) {
@@ -1487,8 +1544,12 @@ mod_hierarchical_count_table <- function(module_id,
 
       hierarchical_count_table_server(
         id = module_id,
-        table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[table_dataset_name]]),
-        pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[pop_dataset_name]]),
+        table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[
+          table_dataset_name
+        ]]),
+        pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[
+          pop_dataset_name
+        ]]),
         subjid_var = subjid_var,
         show_event_group_by = show_event_group_by,
         show_time_at_risk_options = show_time_at_risk_options,
@@ -1528,6 +1589,8 @@ mod_hierarchical_count_table_API_docs <- list(
   default_hierarchy = "",
   default_group = "",
   default_total = "",
+  default_min_percent = "",
+  default_hide_rows_under_min_percent = "",
   default_event_group = "",
   default_event_date = "",
   default_origin_date = "",
@@ -1551,32 +1614,62 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   show_event_group_by = TC$logical(),
   show_time_at_risk_options = TC$logical(),
   show_modal_on_click = TC$logical(),
-  default_hierarchy = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
+  default_hierarchy = TC$col(
+    "table_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
     TC$flag("zero_or_more", "optional"),
-  default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  default_group = TC$col(
+    "pop_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
+    TC$flag("optional"),
   default_total = TC$logical(),
-  default_event_group = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
-  default_event_date = TC$col("table_dataset_name", TC$date()) |> TC$flag("optional"),
-  default_origin_date = TC$col("pop_dataset_name", TC$date()) |> TC$flag("optional"),
-  default_censor_date = TC$col("pop_dataset_name", TC$date()) |> TC$flag("optional"),
+  default_min_percent = TC$numeric(min = 0, max = 100),
+  default_hide_rows_under_min_percent = TC$logical(),
+  default_event_group = TC$col(
+    "table_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
+    TC$flag("optional"),
+  default_event_date = TC$col("table_dataset_name", TC$date()) |>
+    TC$flag("optional"),
+  default_origin_date = TC$col("pop_dataset_name", TC$date()) |>
+    TC$flag("optional"),
+  default_censor_date = TC$col("pop_dataset_name", TC$date()) |>
+    TC$flag("optional"),
   default_risk = TC$logical(),
-  hierarchy_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
+  hierarchy_choices = TC$col(
+    "table_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
     TC$flag("zero_or_more", "optional"),
-  group_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+  group_choices = TC$col(
+    "pop_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
     TC$flag("zero_or_more", "optional"),
-  event_group_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
+  event_group_choices = TC$col(
+    "table_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
     TC$flag("zero_or_more", "optional"),
-  event_date_choices = TC$col("table_dataset_name", TC$date()) |> TC$flag("zero_or_more", "optional"),
-  origin_date_choices = TC$col("pop_dataset_name", TC$date()) |> TC$flag("zero_or_more", "optional"),
-  censor_date_choices = TC$col("pop_dataset_name", TC$date()) |> TC$flag("zero_or_more", "optional"),
+  event_date_choices = TC$col("table_dataset_name", TC$date()) |>
+    TC$flag("zero_or_more", "optional"),
+  origin_date_choices = TC$col("pop_dataset_name", TC$date()) |>
+    TC$flag("zero_or_more", "optional"),
+  censor_date_choices = TC$col("pop_dataset_name", TC$date()) |>
+    TC$flag("zero_or_more", "optional"),
   intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
-) |> TC$attach_docs(mod_hierarchical_count_table_API_docs)
+) |>
+  TC$attach_docs(mod_hierarchical_count_table_API_docs)
 
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_event_group_by, show_time_at_risk_options,
-    show_modal_on_click, default_hierarchy, default_group, default_total, default_event_group, default_event_date, default_origin_date,
+    show_modal_on_click, default_hierarchy, default_group, default_total, default_min_percent, default_hide_rows_under_min_percent,
+    default_event_group, default_event_date, default_origin_date,
     default_censor_date, default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
     censor_date_choices, intended_use_label, receiver_id) {
   err <- CM$container()
@@ -1584,12 +1677,35 @@ check_mod_hierarchical_count_table <- function(
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
   # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), err)
 
-  OK <- check_mod_hierarchical_count_table_auto( # nolint unused
-    afmm, datasets,
-    module_id, table_dataset_name, pop_dataset_name, subjid_var, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
-    default_hierarchy, default_group, default_total, default_event_group, default_event_date, default_origin_date, default_censor_date,
-    default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices, censor_date_choices,
-    intended_use_label, receiver_id,
+  OK <- check_mod_hierarchical_count_table_auto(
+    # nolint unused
+    afmm,
+    datasets,
+    module_id,
+    table_dataset_name,
+    pop_dataset_name,
+    subjid_var,
+    show_event_group_by,
+    show_time_at_risk_options,
+    show_modal_on_click,
+    default_hierarchy,
+    default_group,
+    default_total,
+    default_min_percent,
+    default_hide_rows_under_min_percent,
+    default_event_group,
+    default_event_date,
+    default_origin_date,
+    default_censor_date,
+    default_risk,
+    hierarchy_choices,
+    group_choices,
+    event_group_choices,
+    event_date_choices,
+    origin_date_choices,
+    censor_date_choices,
+    intended_use_label,
+    receiver_id,
     err
   )
 

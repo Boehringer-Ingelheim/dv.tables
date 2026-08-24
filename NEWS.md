@@ -1,3 +1,7 @@
+# dv.tables 0.4.1-9007
+
+- `mod_hierarchical count` hides rows below a given minimum percentage. Adds new argument `default_min_percent`
+
 # dv.tables 0.4.1-9006
 
 - New module `mod_summary_table` that provides numerical and categorical analysis.
