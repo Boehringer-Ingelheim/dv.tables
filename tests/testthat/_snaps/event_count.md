@@ -113,6 +113,9 @@
       $meta$warning_message
       NULL
       
+      $meta$min_percent
+      [1] 0
+      
       $meta$rank_col
       [1] "\035rank"
       
@@ -263,13 +266,13 @@
       # A tibble: 7 x 6
         lvl1     lvl2     GA               GB               GC           Total       
         <fct>    <fct>    <list>           <list>           <list>       <list>      
-      1 "\u001d" "\u001d" <named list [2]> <named list [2]> <named list> <named list>
-      2 "A1"     "\u001d" <named list [2]> <named list [2]> <named list> <named list>
-      3 "A1"     "A2"     <named list [2]> <named list [2]> <named list> <named list>
-      4 "A1"     "B2"     <named list [2]> <named list [2]> <named list> <named list>
-      5 "B1"     "\u001d" <named list [2]> <named list [2]> <named list> <named list>
-      6 "B1"     "A2"     <named list [2]> <named list [2]> <named list> <named list>
-      7 "B1"     "B2"     <named list [2]> <named list [2]> <named list> <named list>
+      1 "\u001d" "\u001d" <named list [3]> <named list [3]> <named list> <named list>
+      2 "A1"     "\u001d" <named list [3]> <named list [3]> <named list> <named list>
+      3 "A1"     "A2"     <named list [3]> <named list [3]> <named list> <named list>
+      4 "A1"     "B2"     <named list [3]> <named list [3]> <named list> <named list>
+      5 "B1"     "\u001d" <named list [3]> <named list [3]> <named list> <named list>
+      6 "B1"     "A2"     <named list [3]> <named list [3]> <named list> <named list>
+      7 "B1"     "B2"     <named list [3]> <named list [3]> <named list> <named list>
       
       $meta
       $meta$hierarchy
@@ -299,6 +302,9 @@
       
       $meta$warning_message
       NULL
+      
+      $meta$min_percent
+      [1] 50
       
       
 
