@@ -600,7 +600,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0) {
         subjid = ..2,
         time_at_risk = ..3,
         incidence_rate = ..4,
-        pct_above_min = ..4
+        pct_above_min = ..5
       )
     )
   } else {
@@ -817,7 +817,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL, hide_r
     data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
       if (table_type == "time_at_risk") {
         data_list <- .col[[1]]
-        purrr::map(setdiff(names(data_list), "subjid"),
+        purrr::map(setdiff(names(data_list), c("subjid", "pct_above_min")),
                    ~ tdc(data_list[[.x]], column = .col_id, onclick = on_cell_click))
       } else if (has_event_group) {
         event_group_list <- .col[[1]]
