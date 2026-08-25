@@ -833,7 +833,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL, hide_r
     body[[r]] <- tr(
       "row-id" = r,
       class = c(indent_class),
-      style = if(is_hidden) "display:none;" else NULL,
+      style = if (is_hidden) "display:none;" else NULL,
       indent = indent,
       entry_cell,
       data_cells
