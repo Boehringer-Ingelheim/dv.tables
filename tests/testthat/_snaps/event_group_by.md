@@ -113,6 +113,9 @@
       $meta$warning_message
       NULL
       
+      $meta$min_percent
+      [1] 0
+      
       $meta$rank_col
       [1] "\035rank"
       
