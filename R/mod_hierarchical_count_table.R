@@ -6,7 +6,7 @@ EC <- poc(
     HIERARCHY = "hierarchy",
     GRP = "group",
     MIN_PERCENT = "min_percent",
-    HIDE_ROWS_UNDER_MIN_PERCENT = "hide_rows_under_mnin_percent",
+    REMOVE_ROWS_UNDER_MIN_PERCENT = "remove_rows_under_min_percent",
     TOTAL_FLAG = "total",
     EVENT_GROUP = "event_group",
     RISK_FLAG = "time_at_risk",
@@ -24,7 +24,7 @@ EC <- poc(
     HIERARCHY = "Event count by",
     GRP = "Group by",
     MIN_PERCENT = "Minimum %",
-    HIDE_ROWS_UNDER_MIN_PERCENT = "Hide rows under minimum %",
+    REMOVE_ROWS_UNDER_MIN_PERCENT = "Remove rows under minimum %",
     TOTAL_FLAG = "Total",
     EVENT_GROUP = "Event group by",
     RISK_FLAG = "Time at Risk",
@@ -544,14 +544,18 @@ compute_order_events_table <- function(d) {
 #'
 #' @param min_percent `numeric`
 #' The minimum percentage threshold for filtering events. Rows where the percentage of subjects is below this threshold
-#' will be removed from the output.
+#' will have their cell values replaced with a dash instead of being shown.
+#'
+#' @param remove_rows_under_min_pct `logical(1)`
+#' Whether to remove entire rows (across all groups) for which every group's percentage of subjects falls below
+#' `min_percent`, instead of just replacing the cell values for those rows with a dash.
 #'
 #' @return A list containing:
 #' - `df`: A wide-format data frame with the event counts and percentages for each group and hierarchy level.
 #' - `meta`: A list of metadata related to the event table.
 #'
 #' @keywords internal
-pivot_wide_format_events_table <- function(d, min_percent = 0) {
+pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under_min_pct = FALSE) {
   checkmate::assert_data_frame(d[["df"]]) # DP
   checkmate::assert_list(d[["meta"]]) # DP
 
@@ -609,6 +613,15 @@ pivot_wide_format_events_table <- function(d, min_percent = 0) {
     )    
     .mapply(list, cells, NULL)
   })
+
+  if(remove_rows_under_min_pct) {
+    pct_above_min_col <- paste0(EC$VAL$SPECIAL_CHAR, "pct_min_col")
+    df[[pct_above_min_col]] <- pct_above_min
+    df <- df |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(hierarchy))) |>
+      dplyr::filter(any(.data[[pct_above_min_col]])) |>
+      dplyr::ungroup()
+    df[[pct_above_min_col]] <- NULL
   }
 
   # Keep only the necessary columns
@@ -677,14 +690,10 @@ sort_wider_formatter_events_table <- function(event_d, sort_df) { # nolint
 #' @param on_cell_click `character(0)`
 #' A JavaScript callback function to be executed when a table cell is clicked. Default is `NULL`.
 #'
-#' @param hide_rows_under_min_percent `logical(1)`
-#' Whether to hide (rather than just render as a dash) rows for which every group's percentage of subjects
-#' falls below the `min_percent` threshold used to build `d`.
-#'
 #' @return An HTML table generated using `shiny::tags` and formatted for interactive display.
 #'
 #' @keywords internal
-sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL, hide_rows_under_min_percent = FALSE) { # nolint
+sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # nolint
   checkmate::assert_data_frame(d[["df"]]) # DP
   checkmate::assert_list(d[["meta"]]) # DP
 
@@ -804,13 +813,11 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL, hide_r
                                  curr_row[[entry_name_col]],
                                  class = "truncate",
                                  title = curr_row[[entry_name_col]]))
-    
-    is_hidden <- isTRUE(hide_rows_under_min_percent) &&
-      !any(purrr::map_lgl(curr_row[data_columns], ~.x[[1]][["pct_above_min"]]))
+        
     data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
       if (table_type == "time_at_risk") {
         data_list <- .col[[1]]
-        purrr::map(setdiff(names(data_list), c("subjid", "pct_above_min")),
+        purrr::map(setdiff(names(data_list), c("subjid")),
                    ~ tdc(data_list[[.x]], column = .col_id, onclick = on_cell_click))
       } else if (has_event_group) {
         event_group_list <- .col[[1]]
@@ -826,7 +833,6 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL, hide_r
     body[[r]] <- tr(
       "row-id" = r,
       class = c(indent_class),
-      style = if (is_hidden) "display:none;" else NULL,
       indent = indent,
       entry_cell,
       data_cells
@@ -864,7 +870,7 @@ hierarchical_count_table_ui <- function(id,
                                         default_total = TRUE,
                                         default_risk = FALSE,
                                         default_min_percent = 0,
-                                        default_hide_rows_under_min_percent = FALSE
+                                        default_remove_rows_under_min_percent = FALSE
                                       ) {
   ns <- shiny::NS(id)
 
@@ -908,9 +914,9 @@ hierarchical_count_table_ui <- function(id,
       max = 100
     ),
     shiny::checkboxInput(
-      ns(EC$ID$HIDE_ROWS_UNDER_MIN_PERCENT),
-      label = EC$LBL$HIDE_ROWS_UNDER_MIN_PERCENT,
-      value = default_hide_rows_under_min_percent
+      ns(EC$ID$REMOVE_ROWS_UNDER_MIN_PERCENT),
+      label = EC$LBL$REMOVE_ROWS_UNDER_MIN_PERCENT,
+      value = default_remove_rows_under_min_percent
     ),
     shiny::checkboxInput(
       ns(EC$ID$TOTAL_FLAG),
@@ -1031,8 +1037,8 @@ hierarchical_count_table_server <- function(
       input[[EC$ID$MIN_PERCENT]]
     })
 
-    inputs[[EC$ID$HIDE_ROWS_UNDER_MIN_PERCENT]] <- shiny::reactive({
-      input[[EC$ID$HIDE_ROWS_UNDER_MIN_PERCENT]]
+    inputs[[EC$ID$REMOVE_ROWS_UNDER_MIN_PERCENT]] <- shiny::reactive({
+      input[[EC$ID$REMOVE_ROWS_UNDER_MIN_PERCENT]]
     })
 
     inputs[[EC$ID$TOTAL_FLAG]] <- shiny::reactive({
@@ -1250,7 +1256,11 @@ hierarchical_count_table_server <- function(
 
       sorted_events_table <- compute_order_events_table(events_table_raw)
 
-      t <- pivot_wide_format_events_table(events_table_raw, min_percent) |>
+      t <- pivot_wide_format_events_table(
+        events_table_raw,
+        min_percent,
+        inputs[[EC$ID$REMOVE_ROWS_UNDER_MIN_PERCENT]]()
+      ) |>
         sort_wider_formatter_events_table(sorted_events_table)
 
       t
@@ -1283,8 +1293,7 @@ hierarchical_count_table_server <- function(
 
       rendered_content <- sort_wide_format_event_table_to_HTML(
         et,
-        on_cell_click,
-        hide_rows_under_min_percent = inputs[[EC$ID$HIDE_ROWS_UNDER_MIN_PERCENT]]()
+        on_cell_click
       )
       shiny::tagList(rendered_content, render_completion_callback)
     })
@@ -1412,9 +1421,9 @@ hierarchical_count_table_server <- function(
 #' A default value (0-100) for the minimum percentage of subjects a row must reach to be displayed. Rows below
 #' this threshold have their counts replaced with a dash instead of being shown.
 #'
-#' @param default_hide_rows_under_min_percent `[logical(1)]`
+#' @param default_remove_rows_under_min_percent `[logical(1)]`
 #'
-#' A default value for checkbox determining whether to hide entire rows for which every group's percentage of
+#' A default value for checkbox determining whether to remove entire rows for which every group's percentage of
 #' subjects falls below `default_min_percent`, instead of just showing a dash for those cells.
 #'
 #' @param default_event_group `[character(1)|NULL]`
@@ -1499,7 +1508,7 @@ mod_hierarchical_count_table <- function(
   default_group = NULL,
   default_total = TRUE,
   default_min_percent = 5,
-  default_hide_rows_under_min_percent = FALSE,
+  default_remove_rows_under_min_percent = FALSE,
   default_event_group = NULL,
   default_event_date = NULL,
   default_origin_date = NULL,
@@ -1523,7 +1532,7 @@ mod_hierarchical_count_table <- function(
         default_total = default_total,
         default_risk = default_risk,
         default_min_percent = default_min_percent,
-        default_hide_rows_under_min_percent = default_hide_rows_under_min_percent
+        default_remove_rows_under_min_percent = default_remove_rows_under_min_percent
       )
     },
     server = function(afmm) {
@@ -1583,7 +1592,7 @@ mod_hierarchical_count_table_API_docs <- list(
   default_group = "",
   default_total = "",
   default_min_percent = "",
-  default_hide_rows_under_min_percent = "",
+  default_remove_rows_under_min_percent = "",
   default_event_group = "",
   default_event_date = "",
   default_origin_date = "",
@@ -1619,7 +1628,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
     TC$flag("optional"),
   default_total = TC$logical(),
   default_min_percent = TC$numeric(min = 0, max = 100),
-  default_hide_rows_under_min_percent = TC$logical(),
+  default_remove_rows_under_min_percent = TC$logical(),
   default_event_group = TC$col(
     "table_dataset_name",
     TC$or(TC$character(), TC$factor())
@@ -1661,7 +1670,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_event_group_by, show_time_at_risk_options,
-    show_modal_on_click, default_hierarchy, default_group, default_total, default_min_percent, default_hide_rows_under_min_percent,
+    show_modal_on_click, default_hierarchy, default_group, default_total, default_min_percent, default_remove_rows_under_min_percent,
     default_event_group, default_event_date, default_origin_date,
     default_censor_date, default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
     censor_date_choices, intended_use_label, receiver_id) {
@@ -1685,7 +1694,7 @@ check_mod_hierarchical_count_table <- function(
     default_group,
     default_total,
     default_min_percent,
-    default_hide_rows_under_min_percent,
+    default_remove_rows_under_min_percent,
     default_event_group,
     default_event_date,
     default_origin_date,
