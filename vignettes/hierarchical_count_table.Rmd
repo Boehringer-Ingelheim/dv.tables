@@ -58,7 +58,11 @@ A drop-down "Options" menu provides the following inputs:
 - **Group by**: Selection of a grouping variable from the subject-level population dataset, to be displayed across the
   top of the table, e.g. `TRT01P`.
 - **Minimum %**: The minimum percentage threshold for filtering events. Rows where the percentage of subjects (totalled
-  across all group categories) is below this threshold will be removed from the output. Defaults to `0`.
+  across all group categories) is below this threshold will have their event counts and percentages replaced with a
+  dash (—) instead of being shown. Defaults to `0`.
+- **Remove rows under minimum %**: Checkbox that controls whether to remove entire rows (across all hierarchy levels)
+  for which every group's percentage of subjects falls below the **Minimum %** threshold, instead of just showing a
+  dash for those cells.
 - **Total**: Checkbox that controls whether or not to display a "Total" column totalling data from all group categories.
 
 The following input will also be available in the "Options" menu when the `show_event_group_by` module argument
