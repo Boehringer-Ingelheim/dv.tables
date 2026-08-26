@@ -587,35 +587,28 @@ pivot_wide_format_events_table <- function(d, min_percent = 0) {
       "\u2014"
     )
 
-    df[[cell_col]] <- purrr::pmap(
-      list(
-        count = count,
-        subjid = subjid,
-        time_at_risk = time_at_risk,
-        incidence_rate = incidence_rate,
-        pct_above_min = pct_above_min
-      ),
-      ~ list(
-        count = ..1,
-        subjid = ..2,
-        time_at_risk = ..3,
-        incidence_rate = ..4,
-        pct_above_min = ..5
-      )
+    cells <- list(
+      count = count,
+      subjid = subjid,
+      time_at_risk = time_at_risk,
+      incidence_rate = incidence_rate
     )
+
   } else {
-    df[[cell_col]] <- purrr::pmap(
-      list(
+    cells <- list(
         count = count,
-        subjid = subjid,        
-        pct_above_min = pct_above_min
-      ),
-      ~ list(
-        count = ..1,
-        subjid = ..2,
-        pct_above_min = ..3        
-      )
-    )
+        subjid = subjid
+      )    
+  }
+  
+
+  df[[cell_col]] <- local({
+    stopifnot(
+      "cell components must all have length nrow(df)" = lengths(cells) ==
+        nrow(df)
+    )    
+    .mapply(list, cells, NULL)
+  })
   }
 
   # Keep only the necessary columns
