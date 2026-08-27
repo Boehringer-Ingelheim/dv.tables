@@ -184,8 +184,7 @@ summtab_calc_stats <- function(analysis_df,
 #' @param replace A named list of lists of `list(pattern =, replacement =)` pairs, applied in order to the formatted
 #'   results from `stats_fmts` (`pattern` is a regular expression matched against the formatted result; `replacement`
 #'   is the string to substitute in). The names of the outer list should match the names of the list elements in
-#'   `stats_fmts`. Patterns are stored as values rather than list/vector names because `deparse()` does not correctly
-#'   re-escape backslashes inside names, which corrupts the code shinymeta reconstructs for ODG reports.
+#'   `stats_fmts`. 
 #' @param stats_element_names A vector of all statistics element names, used to determine elements that have not been
 #'   used in `stats_fmts` and therefore have basic formatting applied (conversion to character).
 #'
