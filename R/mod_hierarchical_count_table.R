@@ -1,5 +1,4 @@
-EC <- poc(
-  # nolint
+EC <- poc(  
   ID = poc(
     TABLE = "table",
     DROP_MENU = "drop_menu",
@@ -562,7 +561,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
   hierarchy <- d[["meta"]][["hierarchy"]]
   group_var <- d[["meta"]][["group_var"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
-  table_type <- d[["meta"]][["table_type"]]  
+  table_type <- d[["meta"]][["table_type"]]
   df <- d[["df"]]
 
   # Flag when event group has been specified
@@ -614,7 +613,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
     .mapply(list, cells, NULL)
   })
 
-  if(remove_rows_under_min_pct) {
+  if (remove_rows_under_min_pct) {
     pct_above_min_col <- paste0(EC$VAL$SPECIAL_CHAR, "pct_min_col")
     df[[pct_above_min_col]] <- pct_above_min
     df <- df |>
@@ -1679,8 +1678,7 @@ check_mod_hierarchical_count_table <- function(
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
   # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), err)
 
-  OK <- check_mod_hierarchical_count_table_auto(
-    # nolint unused
+  OK <- check_mod_hierarchical_count_table_auto(    
     afmm,
     datasets,
     module_id,
