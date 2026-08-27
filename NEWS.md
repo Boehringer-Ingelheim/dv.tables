@@ -1,3 +1,7 @@
+# dv.tables 0.4.1-9007
+
+- Adds Output Document Generation to `mod_hierarchical_count_table`
+
 # dv.tables 0.4.1-9006
 
 - New module `mod_summary_table` that provides numerical and categorical analysis.

@@ -1,3 +1,8 @@
+# TODO: Check for very long row names (Two pass) (Already mono font, now we need to calculate total width of the table)
+# TODO: Write latex, or via pandoc directly? ^
+# TODO: Check export for now current exports everything
+# TODO: Testing what do do here?
+
 EC <- poc( # nolint
   ID = poc(
     TABLE = "table",
@@ -455,6 +460,7 @@ compute_events_table <- function(event_df,
       hierarchy = hierarchy,
       hier_lvl_col = hier_lvl_col,
       group_var = group_var,
+      group_vals = denom_df[[group_var]],
       event_group_var = event_group_var,
       event_group_vals = event_group_vals,
       total_group_val = total_group_val,
@@ -1075,33 +1081,34 @@ hierarchical_count_table_server <- function(
 
     }
 
-    et <- shiny::reactive({
-      d <- table_dataset()
-      pd <- pop_dataset()
-      group_var <- inputs[[EC$ID$GRP]]()
-      hierarchy <- inputs[[EC$ID$HIERARCHY]]()
-      min_percent <- inputs[[EC$ID$MIN_PERCENT]]()
-      total <- inputs[[EC$ID$TOTAL_FLAG]]()
+    et <- ODGE[["A"]][["sm_mr2"]](
+      {
+        d <- table_dataset()
+        pd <- pop_dataset()
+        # Helper: checks whether a value is actually "provided"
+        is_provided <- function(x) {
+          checkmate::test_string(x, min.chars = 1)
+        }
 
-      event_group_var <- NULL
-      event_date_var <- NULL
-      origin_date_var <- NULL
-      censor_date_var <- NULL
-      compute_risk <- FALSE
+        group_var <- inputs[[EC$ID$GRP]]()
+        hierarchy <- inputs[[EC$ID$HIERARCHY]]()
+        min_percent <- inputs[[EC$ID$MIN_PERCENT]]()
+        total <- inputs[[EC$ID$TOTAL_FLAG]]()
 
-      if (show_event_group_by) {
-        event_group_var <- inputs[[EC$ID$EVENT_GROUP]]()
-      } else if (show_time_at_risk_options) {
-        event_date_var <- inputs[[EC$ID$EVENT_DATE]]()
-        origin_date_var <- inputs[[EC$ID$ORIGIN_DATE]]()
-        censor_date_var <- inputs[[EC$ID$CENSOR_DATE]]()
-        compute_risk <- inputs[[EC$ID$RISK_FLAG]]()
-      }
+        event_group_var <- NULL
+        event_date_var <- NULL
+        origin_date_var <- NULL
+        censor_date_var <- NULL
+        compute_risk <- FALSE
 
-      # Helper: checks whether a value is actually "provided"
-      is_provided <- function(x) {
-        checkmate::test_string(x, min.chars = 1)
-      }
+        if (show_event_group_by) {
+          event_group_var <- inputs[[EC$ID$EVENT_GROUP]]()
+        } else if (show_time_at_risk_options) {
+          event_date_var <- inputs[[EC$ID$EVENT_DATE]]()
+          origin_date_var <- inputs[[EC$ID$ORIGIN_DATE]]()
+          censor_date_var <- inputs[[EC$ID$CENSOR_DATE]]()
+          compute_risk <- inputs[[EC$ID$RISK_FLAG]]()
+        }
 
       shiny::validate(
         shiny::need(
@@ -1113,15 +1120,26 @@ hierarchical_count_table_server <- function(
           EC$MSG$VALIDATE$NO_POP_ROWS
         ),
         shiny::need(
-          checkmate::test_string(group_var, min.chars = 1) && group_var != "None",
+          checkmate::test_string(group_var, min.chars = 1) &&
+            group_var != "None",
           EC$MSG$VALIDATE$NO_GRP
         ),
         shiny::need(
-          checkmate::test_character(hierarchy, min.chars = 1, min.len = 1, max.len = 2),
+          checkmate::test_character(
+            hierarchy,
+            min.chars = 1,
+            min.len = 1,
+            max.len = 2
+          ),
           EC$MSG$VALIDATE$NO_HIERARCHY
         ),
         shiny::need(
-          checkmate::test_number(min_percent, na.ok = FALSE, lower = 0, upper = 100),
+          checkmate::test_number(
+            min_percent,
+            na.ok = FALSE,
+            lower = 0,
+            upper = 100
+          ),
           EC$MSG$VALIDATE$NO_MIN_PERCENT
         ),
         shiny::need(
@@ -1142,7 +1160,8 @@ hierarchical_count_table_server <- function(
         ),
         shiny::need(
           (!compute_risk || is_provided(event_date_var)) &&
-            (!(is_provided(origin_date_var) || is_provided(censor_date_var)) || is_provided(event_date_var)),
+            (!(is_provided(origin_date_var) || is_provided(censor_date_var)) ||
+              is_provided(event_date_var)),
           EC$MSG$VALIDATE$NO_EVENT_DATE
         ),
         shiny::need(
@@ -1159,44 +1178,68 @@ hierarchical_count_table_server <- function(
         )
       )
 
-      # Associate labels attribute to hierarchy column names
-      hierarchy_labels <- get_lbls_robust(d)[hierarchy]
-      attr(hierarchy, "labels") <- unlist(hierarchy_labels)
+        ODGE[["A"]][["sm_me"]]({
+          d <- ..(table_dataset())
+          pd <- ..(pop_dataset())
+          hierarchy <- ..(hierarchy)
+          group_var <- ..(group_var)
+          subjid_var <- ..(subjid_var)
+          event_group_var <- ..(event_group_var)
+          origin_date_var <- ..(origin_date_var)
+          censor_date_var <- ..(censor_date_var)
+          event_date_var <- ..(event_date_var)
+          total <- ..(total)
+          compute_risk <- ..(compute_risk)
+          min_percent <- ..(min_percent)
 
-      # Show a progress bar for the remainder of the execution of this reactive
-      # This bar does not really progress; it just disappears once we're through
-      p <- shiny::Progress$new(session = session)
-      on.exit(p$close())
-      p$set(message = "1) Processing data", value = 0.50)
+          # Associate labels attribute to hierarchy column names
+          hierarchy_labels <- dv.tables:::get_lbls_robust(d)[hierarchy]
+          attr(hierarchy, "labels") <- unlist(hierarchy_labels)
 
-      events_table_raw <- compute_events_table(event_df = d,
-                                               pop_df = pd,
-                                               hierarchy = hierarchy,
-                                               group_var = group_var,
-                                               subjid_var = subjid_var,
-                                               event_group_var = event_group_var,
-                                               origin_date_var = origin_date_var,
-                                               censor_date_var = censor_date_var,
-                                               event_date_var = event_date_var,
-                                               total = total,
-                                               total_group_val = "Total",
-                                               compute_risk = compute_risk)
+          # Show a progress bar for the remainder of the execution of this reactive
+          # This bar does not really progress; it just disappears once we're through
+          # p <- shiny::Progress$new(session = session)
+          # on.exit(p$close())
+          # p$set(message = "1) Processing data", value = 0.50)
 
-      # Show warning when origin date is after non-missing censor date (bad data!)
-      shiny::validate(
-        shiny::need(
-          is.null(events_table_raw$meta$warning_message),
-          events_table_raw$meta$warning_message
-        )
-      )
+          events_table_raw <- dv.tables:::compute_events_table(
+            event_df = d,
+            pop_df = pd,
+            hierarchy = hierarchy,
+            group_var = group_var,
+            subjid_var = subjid_var,
+            event_group_var = event_group_var,
+            origin_date_var = origin_date_var,
+            censor_date_var = censor_date_var,
+            event_date_var = event_date_var,
+            total = total,
+            total_group_val = "Total",
+            compute_risk = compute_risk
+          )
 
-      sorted_events_table <- compute_order_events_table(events_table_raw)
+          # Show warning when origin date is after non-missing censor date (bad data!)
+          # shiny::validate(
+          #   shiny::need(
+          #     is.null(events_table_raw$meta$warning_message),
+          #     events_table_raw$meta$warning_message
+          #   )
+          # )
 
-      t <- pivot_wide_format_events_table(events_table_raw, min_percent) |>
-        sort_wider_formatter_events_table(sorted_events_table)
+          sorted_events_table <- dv.tables:::compute_order_events_table(
+            events_table_raw
+          )
 
-      t
-    })
+          t <- dv.tables:::pivot_wide_format_events_table(
+            events_table_raw,
+            min_percent
+          ) |>
+            dv.tables:::sort_wider_formatter_events_table(sorted_events_table)
+
+          t
+        })
+      },
+      varname = "et"
+    )
 
     render_completion_callback <- shiny::tags$script(shiny::HTML(sprintf("
     requestAnimationFrame(() => { // repaint preceding the table render
@@ -1284,9 +1327,24 @@ hierarchical_count_table_server <- function(
 
     res <- list(
       subj_id = shiny::reactive({
-        shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+        shiny::req(checkmate::test_string(
+          input[["clicked_sbj"]],
+          na.ok = FALSE,
+          min.chars = 1,
+          null.ok = FALSE
+        ))
         input[["clicked_sbj"]]
-      })
+      }),
+      to_odg = list(
+        table = list(
+          label = "Table",
+          info = "table",
+          metareactive = list(
+            html = ODGE[["A"]][["sm_mr"]](dv.tables:::export_count_table(..(et()))),
+            pdf = ODGE[["A"]][["sm_mr"]](dv.tables:::export_count_table(..(et())))
+          )
+        )
+      )
     )
 
     if (isTRUE(getOption("shiny.testmode"))) do.call(shiny::exportTestValues, as.list(environment()))
@@ -1456,9 +1514,21 @@ mod_hierarchical_count_table <- function(module_id,
       }
 
       hierarchical_count_table_server(
-        id = module_id,
-        table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[table_dataset_name]]),
-        pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[pop_dataset_name]]),
+        id = module_id,        
+        table_dataset = ODGE[["A"]][["sm_mr"]](
+          {
+            ..(afmm[["filtered_dataset_list"]]())[[
+              ..(table_dataset_name)
+            ]]
+          },
+          varname = "table_dataset"
+        ),
+        pop_dataset = ODGE[["A"]][["sm_mr"]](
+          {
+            ..(afmm[["filtered_dataset_list"]]())[[..(pop_dataset_name)]]
+          },
+          varname = "pop_dataset"
+        ),
         subjid_var = subjid_var,
         show_event_group_by = show_event_group_by,
         show_time_at_risk_options = show_time_at_risk_options,
@@ -1481,8 +1551,11 @@ mod_hierarchical_count_table <- function(module_id,
     },
     module_id = module_id
   )
+  
   mod
 }
+
+
 
 # hierarchical table module interface description ----
 # TODO: Fill in
