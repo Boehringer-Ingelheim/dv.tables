@@ -1,3 +1,7 @@
+# dv.tables 0.4.1-9007
+
+- [TO BE REMOVED BEFORE MERGING INTO MAIN] Replace patterns in names for formatting in `mod_summary_table`
+
 # dv.tables 0.4.1-9006
 
 - New module `mod_summary_table` that provides numerical and categorical analysis.
