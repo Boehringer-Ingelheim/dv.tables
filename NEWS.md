@@ -1,6 +1,10 @@
-# dv.tables 0.4.1-9007
+# dv.tables 0.4.1-9008
 
 - `mod_hierarchical count` hides rows below a given minimum percentage. Adds new argument `default_min_percent`
+
+# dv.tables 0.4.1-9007
+
+- [TO BE REMOVED BEFORE MERGING INTO MAIN] Replace patterns in names for formatting in `mod_summary_table`
 
 # dv.tables 0.4.1-9006
 

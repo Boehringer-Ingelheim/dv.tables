@@ -181,10 +181,10 @@ summtab_calc_stats <- function(analysis_df,
 #' @param stats_fmts A named list of lists defining the combination and formatting of the statistics elements from
 #'   `analysis_df`. Each element of `stats_fmts` lists the argument values passed to `sprintf`, the result being
 #'   assigned to the element name.
-#' @param replace A named list of named vectors defining replacements that should be applied to the formatted results
-#'   from `stats_fmts`. The names given to the vector elements are regular expressions to match the formatted results,
-#'   and the elements themselves are the replacement strings. The names of the list elements should match the names of
-#'   the list elements in `stats_fmts`.
+#' @param replace A named list of lists of `list(pattern =, replacement =)` pairs, applied in order to the formatted
+#'   results from `stats_fmts` (`pattern` is a regular expression matched against the formatted result; `replacement`
+#'   is the string to substitute in). The names of the outer list should match the names of the list elements in
+#'   `stats_fmts`. 
 #' @param stats_element_names A vector of all statistics element names, used to determine elements that have not been
 #'   used in `stats_fmts` and therefore have basic formatting applied (conversion to character).
 #'
@@ -213,8 +213,8 @@ summtab_format_stats <- function(analysis_df,
     lookups <- replace[[fmt_name]]
     if (!is.null(lookups)) {
       for (lui in seq_along(lookups)) {
-        lu_pat <- names(lookups)[lui]
-        lu_rep <- lookups[[lui]]
+        lu_pat <- lookups[[lui]][["pattern"]]
+        lu_rep <- lookups[[lui]][["replacement"]]
         formatted_df[[fmt_name]] <- sub(lu_pat, lu_rep, formatted_df[[fmt_name]])
       }
     }
@@ -248,8 +248,8 @@ summtab_format_stats <- function(analysis_df,
 #' @param stats_formats A named list of lists defining the combination and formatting of the function results from
 #'   summarizing numerical data.
 #' @param stats_labels A named vector of statistics labels that should be used in the summary table.
-#' @param stats_replace A named list of named vectors defining replacements that should be applied to the formatted
-#'   results from `stats_formats`.
+#' @param stats_replace A named list of lists of `list(pattern =, replacement =)` pairs defining replacements that
+#'   should be applied, in order, to the formatted results from `stats_formats`.
 #' @param total A flag that determines whether to add a total group column.
 #' @param total_group_val A string indicating the label for the total group column.
 #' @param drop_na A flag that determines whether to drop NA values from selected 'group by' and 'row by' variables.
@@ -408,7 +408,7 @@ summtab_compute <- function(tbl_df,
       av_stats_funcs <- list(n = length,
                              pct = \(x, n) 100 * length(x) / n) # calc_pct)
       av_stats_fmts <- list(n_pct = list(fmt = "%d (%.1f %%)", "n", "pct"))
-      av_stats_replace <- list(n_pct = c(`^NA \\(NA \\%\\)$` = "0"))
+      av_stats_replace <- list(n_pct = list(list(pattern = "^NA \\(NA \\%\\)$", replacement = "0")))
 
       group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
       av_mod <- ".dummy" # Counts done on dummy variable
@@ -1338,10 +1338,10 @@ summary_table_server <- function(module_id,
 #'
 #' @param stats_replace `[list(1+) | NULL]`
 #'
-#' A named list of named vectors defining replacements that should be applied to the formatted results from
-#' `stats_formats`. The names given to the vector elements are regular expressions to match the formatted results, and
-#' the elements themselves are the replacement strings. The names of the list elements should match the names of the
-#' list elements in `stats_formats`.
+#' A named list of lists of `list(pattern =, replacement =)` pairs defining replacements that should be applied, in
+#' order, to the formatted results from `stats_formats`. `pattern` is a regular expression matched against the
+#' formatted result, and `replacement` is the string substituted in. The names of the outer list should match the
+#' names of the list elements in `stats_formats`.
 #'
 #' @param default_summarize_on `[character(1+) | NULL]`
 #'
@@ -1505,16 +1505,20 @@ mod_summary_table <- function(
       minmax = "Min - Max"
     ),
     stats_replace = list(
-      n = c(`^NA$` = "0"),
-      meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
-                 `\\(NA\\)$` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
-      meanci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
-      geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH,
-                  `^NaN$` = "NE"),
-      median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
-      medianci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
-      q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
-      minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH)
+      n = list(list(pattern = "^NA$", replacement = "0")),
+      meansd = list(
+        list(pattern = "^NA \\(NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
+        list(pattern = "\\(NA\\)$", replacement = sprintf("(%s)", SUMMTAB$VAL$EM_DASH))
+      ),
+      meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+      geomean = list(
+        list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH),
+        list(pattern = "^NaN$", replacement = "NE")
+      ),
+      median = list(list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH)),
+      medianci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+      q1q3 = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH)),
+      minmax = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH))
     ),
 
     default_summarize_on = NULL,
@@ -1552,7 +1556,7 @@ mod_summary_table <- function(
   checkmate::assert_list(stats_functions, types = "function", any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_list(stats_formats, types = "list", names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_character(stats_labels, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
-  checkmate::assert_list(stats_replace, types = "character", names = "unique", null.ok = TRUE, add = ac)
+  checkmate::assert_list(stats_replace, types = "list", names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_logical(default_total, add = ac)
   checkmate::assert_logical(default_drop_na, add = ac)
   checkmate::assert_logical(default_show_category_n, add = ac)
