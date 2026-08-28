@@ -4,7 +4,11 @@
 \alias{sort_wide_format_event_table_to_HTML}
 \title{Renders the wide-format event table as an HTML table}
 \usage{
-sort_wide_format_event_table_to_HTML(d, on_cell_click = NULL)
+sort_wide_format_event_table_to_HTML(
+  d,
+  on_cell_click = NULL,
+  hide_rows_under_min_percent = FALSE
+)
 }
 \arguments{
 \item{d}{\code{list}
@@ -12,6 +16,10 @@ A list returned from \code{sort_wider_formatter_events_table()} containing the s
 
 \item{on_cell_click}{\code{character(0)}
 A JavaScript callback function to be executed when a table cell is clicked. Default is \code{NULL}.}
+
+\item{hide_rows_under_min_percent}{\code{logical(1)}
+Whether to hide (rather than just render as a dash) rows for which every group's percentage of subjects
+falls below the \code{min_percent} threshold used to build \code{d}.}
 }
 \value{
 An HTML table generated using \code{shiny::tags} and formatted for interactive display.

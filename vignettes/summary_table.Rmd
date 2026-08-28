@@ -379,25 +379,30 @@ stats_labels = c(
 ## User-defined formatted value replacements for numerical analysis
 
 A named list of formatted value replacements can be passed to the `stats_replace` argument. Primarily this is used for
-presentation formatting, such as replacing values like `NA` and `NaN` with zeros, dashes or `NE`. The default is as
-follows:
+presentation formatting, such as replacing values like `NA` and `NaN` with zeros, dashes or `NE`. Each replacement is a
+`list(pattern =, replacement =)` pair, where `pattern` is a regular expression matched against the formatted result and
+`replacement` is the string substituted in; pairs are applied in order. The default is as follows:
 
 ```
 stats_replace = list(
-  n = c(`^NA$` = "0"),
-  meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
-             `\\(NA\\)$` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
-  meanci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
-  geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH,
-              `^NaN$` = "NE"),
-  median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
-  medianci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
-  q1q3 = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH),
-  minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH)
+  n = list(list(pattern = "^NA$", replacement = "0")),
+  meansd = list(
+    list(pattern = "^NA \\(NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
+    list(pattern = "\\(NA\\)$", replacement = sprintf("(%s)", SUMMTAB$VAL$EM_DASH))
+  ),
+  meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+  geomean = list(
+    list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH),
+    list(pattern = "^NaN$", replacement = "NE")
+  ),
+  median = list(list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH)),
+  medianci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+  q1q3 = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH)),
+  minmax = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH))
 )
 ```
 
-The name of each element of the list directly corresponds to a name from the `stats_formats` list.
+The name of each element of the outer list directly corresponds to a name from the `stats_formats` list.
 
 Each of those elements is a named vector defining regular expression substitutions to be applied for that formatted
 statistic. The names given to the vector elements are regular expressions to match the formatted results, and the
