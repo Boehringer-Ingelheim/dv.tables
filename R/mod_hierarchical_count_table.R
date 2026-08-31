@@ -111,12 +111,12 @@ create_adtte <- function(event_df,
                          event_date_var) {
 
   # Flag when event group has been specified
-  has_event_group <- !is.null(event_group_var) && length(event_group_var) > 0
+  has_event_group <- !is.null(event_group_var) && length(event_group_var) > 0L
 
   # Flags when time at risk dates are specified for population and event data frames
-  has_origin_dt <- !is.null(origin_date_var) && length(origin_date_var) > 0
-  has_censor_dt <- !is.null(censor_date_var) && length(censor_date_var) > 0
-  has_event_dt <- !is.null(event_date_var) && length(event_date_var) > 0
+  has_origin_dt <- !is.null(origin_date_var) && length(origin_date_var) > 0L
+  has_censor_dt <- !is.null(censor_date_var) && length(censor_date_var) > 0L
+  has_event_dt <- !is.null(event_date_var) && length(event_date_var) > 0L
 
   # Define column names for columns creating in function
   hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
@@ -138,22 +138,22 @@ create_adtte <- function(event_df,
   bind_adtte <- NULL
 
   # Loop over hierarchy levels, including totals dealt with as level 0
-  for (hierarchy_level in 0:length(hierarchy)) {
+  for (hierarchy_level in 0L:length(hierarchy)) {
 
-    hierarchy_cols <- hierarchy[0:hierarchy_level]
+    hierarchy_cols <- hierarchy[0L:hierarchy_level]
 
     # Remove rows where hierarchy value is NA in any processed hierarchy columns
     subset_event_df <- event_df[stats::complete.cases(event_df[, hierarchy_cols]), ]
 
     # For each hierarchy group, only keep first event occurrence
-    if (has_event_dt && nrow(event_df) > 0) {
+    if (has_event_dt && nrow(subset_event_df) > 0L) {
       subset_event_df <- subset_event_df |>
         dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, hierarchy_cols, event_group_var)))) |>
         dplyr::summarise(!!event_date_var := min(.data[[event_date_var]]), .groups = "drop")
     } else {
       subset_event_df <- subset_event_df |>
         dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, hierarchy_cols, event_group_var)))) |>
-        dplyr::slice(1) |>
+        dplyr::slice(1L) |>
         dplyr::ungroup()
     }
 
@@ -162,7 +162,7 @@ create_adtte <- function(event_df,
 
     # Expand population data using grid of hierarchy combinations to create base records for ADTTE ----
 
-    if (hierarchy_level != 0) {
+    if (hierarchy_level != 0L) {
       hierarchy_grid <- unique(subset_event_df[, hierarchy_cols, drop = FALSE])
       adtte <- dplyr::cross_join(pop_df, hierarchy_grid)
     } else {
@@ -188,7 +188,12 @@ create_adtte <- function(event_df,
                                     time_at_risk_col, censor_col)))
 
     # Add hierarchy level to data
-    adtte[[hier_lvl_col]] <- hierarchy_level
+    adtte[[hier_lvl_col]] <-
+      if (nrow(adtte) > 0L) {
+        hierarchy_level
+      } else {
+        integer(0L)
+      }
 
     bind_adtte <- dplyr::bind_rows(bind_adtte, adtte)
   }
@@ -958,7 +963,7 @@ hierarchical_count_table_server <- function(
       default = default_hierarchy,
       multiple = TRUE,
       include_none = FALSE,
-      options = list(maxItems = 2)
+      options = list(maxItems = 4)
     )
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
@@ -1117,7 +1122,7 @@ hierarchical_count_table_server <- function(
           EC$MSG$VALIDATE$NO_GRP
         ),
         shiny::need(
-          checkmate::test_character(hierarchy, min.chars = 1, min.len = 1, max.len = 2),
+          checkmate::test_character(hierarchy, min.chars = 1, min.len = 1, max.len = 4),
           EC$MSG$VALIDATE$NO_HIERARCHY
         ),
         shiny::need(

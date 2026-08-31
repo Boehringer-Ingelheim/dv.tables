@@ -1,18 +1,18 @@
-.hier_count_table .table>tbody>tr.indent-0 td {            
+.hier_count_table .table>tbody>tr.indent-0 td {
     border-color: black;
 }
 
-.hier_count_table .table>tbody>tr.no-border th {            
+.hier_count_table .table>tbody>tr.no-border th {
     border-color: white;
 }
 
-.hier_count_table .table>tbody>tr.indent-1 td {            
+.hier_count_table .table>tbody>tr.indent-1 td {
     background-color: lightgray;
 }
 
 .hier_count_table tr.indent-0 span{
-    font-weight: bold;    
-    font-size: 1.5rem;    
+    font-weight: bold;
+    font-size: 1.5rem;
 }
 .hier_count_table tr.indent-1 span {
     padding-left: 2em;
@@ -20,6 +20,14 @@
 
 .hier_count_table tr.indent-2 span {
     padding-left: 4em;
+}
+
+.hier_count_table tr.indent-3 span {
+    padding-left: 6em;
+}
+
+.hier_count_table tr.indent-4 span {
+    padding-left: 8em;
 }
 
 .hier_count_table .truncate {
@@ -31,6 +39,6 @@
   overflow-wrap: break-word;
 }
 
-.hier_count_table td{
+.hier_count_table td {
     vertical-align: baseline;
 }
