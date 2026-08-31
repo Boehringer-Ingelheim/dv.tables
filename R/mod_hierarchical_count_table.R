@@ -799,7 +799,6 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
     )
   })
 
-  #title <- sprintf("Event count by %s", paste(hierarchy, collapse = ", "))
   title <- sprintf(
     "Event count by %s%s",
     paste(unlist(var_labels[hierarchy], use.names = FALSE), collapse = ", "),
@@ -1038,7 +1037,7 @@ hierarchical_count_table_server <- function(
       default = default_hierarchy,
       multiple = TRUE,
       include_none = FALSE,
-      options = list(maxItems = 4)
+      options = list(maxItems = 4, plugins = list("drag_drop"))
     )
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
