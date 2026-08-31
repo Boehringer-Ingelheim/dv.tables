@@ -1,4 +1,4 @@
-EC <- poc(  
+EC <- poc(
   ID = poc(
     TABLE = "table",
     DROP_MENU = "drop_menu",
@@ -606,15 +606,15 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
     cells <- list(
         count = count,
         subjid = subjid
-      )    
+      )
   }
-  
+
 
   df[[cell_col]] <- local({
     stopifnot(
       "cell components must all have length nrow(df)" = lengths(cells) ==
         nrow(df)
-    )    
+    )
     .mapply(list, cells, NULL)
   })
 
@@ -691,13 +691,16 @@ sort_wider_formatter_events_table <- function(event_d, sort_df) { # nolint
 #' @param d `list`
 #' A list returned from `sort_wider_formatter_events_table()` containing the sorted wide-format event data and metadata.
 #'
+#' @param var_labels `list`
+#' A list of variable labels indexed by variable names.
+#'
 #' @param on_cell_click `character(0)`
 #' A JavaScript callback function to be executed when a table cell is clicked. Default is `NULL`.
 #'
 #' @return An HTML table generated using `shiny::tags` and formatted for interactive display.
 #'
 #' @keywords internal
-sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # nolint
+sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = NULL) { # nolint
   checkmate::assert_data_frame(d[["df"]]) # DP
   checkmate::assert_list(d[["meta"]]) # DP
 
@@ -796,11 +799,17 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
     )
   })
 
-  title <- sprintf("Event count by %s", paste(hierarchy, collapse = ", "))
+  #title <- sprintf("Event count by %s", paste(hierarchy, collapse = ", "))
+  title <- sprintf(
+    "Event count by %s%s",
+    paste(unlist(var_labels[hierarchy], use.names = FALSE), collapse = ", "),
+    ifelse(length(event_group_var) == 0L, "",
+           paste("; event group by", paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", ")))
+  )
 
   hierarchy_length <- length(hierarchy)
 
-  body <- vector(mode = "list", length = nrow(df))  
+  body <- vector(mode = "list", length = nrow(df))
   for (r in seq_len(nrow(df))) {
     curr_row <- df[r, , drop = FALSE]
     curr_hier_lvl <- curr_row[[hier_lvl_col]]
@@ -817,7 +826,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
                                  curr_row[[entry_name_col]],
                                  class = "truncate",
                                  title = curr_row[[entry_name_col]]))
-        
+
     data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
       if (table_type == "time_at_risk") {
         data_list <- .col[[1]]
@@ -834,9 +843,16 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
         tdc(.col[[1]][["count"]], column = .col_id, onclick = on_cell_click)
       }
     })
+
+    data_cell_classes <- if (indent == 0L || is.null(collapse_control)) {
+      indent_class
+    } else {
+      c(indent_class, "bg-gray")
+    }
+
     body[[r]] <- tr(
       "row-id" = r,
-      class = c(indent_class),
+      class = data_cell_classes,
       indent = indent,
       entry_cell,
       data_cells
@@ -1143,6 +1159,9 @@ hierarchical_count_table_server <- function(
 
     }
 
+    # Initialize variable labels reactive value
+    var_labels <- shiny::reactiveVal(list())
+
     et <- shiny::reactive({
       d <- table_dataset()
       pd <- pop_dataset()
@@ -1165,6 +1184,10 @@ hierarchical_count_table_server <- function(
         censor_date_var <- inputs[[EC$ID$CENSOR_DATE]]()
         compute_risk <- inputs[[EC$ID$RISK_FLAG]]()
       }
+
+      # Store variable labels for information display in final HTML
+      combined_labels <- c(get_lbls_robust(d), get_lbls_robust(pd))
+      var_labels(combined_labels[!duplicated(names(combined_labels))])
 
       # Helper: checks whether a value is actually "provided"
       is_provided <- function(x) {
@@ -1288,6 +1311,7 @@ hierarchical_count_table_server <- function(
     output[[EC$ID$TABLE]] <- shiny::renderUI({
       on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
       et <- et()
+      var_labels <- var_labels()
 
       # Start a progress bar and leave its cleanup to the `input[[EC$ID$RENDER_COMPLETION_CALLBACK]]` observer
       p <- shiny::Progress$new(session = session)
@@ -1297,6 +1321,7 @@ hierarchical_count_table_server <- function(
 
       rendered_content <- sort_wide_format_event_table_to_HTML(
         et,
+        var_labels,
         on_cell_click
       )
       shiny::tagList(rendered_content, render_completion_callback)
@@ -1683,7 +1708,7 @@ check_mod_hierarchical_count_table <- function(
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
   # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), err)
 
-  OK <- check_mod_hierarchical_count_table_auto(    
+  OK <- check_mod_hierarchical_count_table_auto(
     afmm,
     datasets,
     module_id,
@@ -1800,8 +1825,8 @@ mock_app_hierarchical_count_table_mm <- function() {
       pharmaverseadam = list(adae = adae, adsl = adsl)
     ),
     module_list = list(
-      "ADAE by term" = mod_hierarchical_count_table(
-        "hierarchical_count_table",
+      "ADAE by body system and term" = mod_hierarchical_count_table(
+        module_id = "hier_count_table",
         table_dataset_name = "adae",
         pop_dataset_name = "adsl",
         show_time_at_risk_options = TRUE,
@@ -1813,10 +1838,21 @@ mock_app_hierarchical_count_table_mm <- function() {
         default_censor_date = "EOSDT",
         default_total = TRUE,
         default_risk = FALSE
+      ),
+      "ADAE event group by severity" = mod_hierarchical_count_table(
+        module_id = "hier_event_group",
+        table_dataset_name = "adae",
+        pop_dataset_name = "adsl",
+        show_event_group_by = TRUE,
+        show_modal_on_click = TRUE,
+        default_hierarchy = c("AEBODSYS", "AEDECOD"),
+        default_group = "TRT01P",
+        default_total = TRUE,
+        default_event_group = "AESEV"
       )
     ),
     filter_dataset_name = "adsl",
-    filter_key = "SUBJID",
+    filter_key = "USUBJID",
     enableBookmarking = "url"
   )
 }

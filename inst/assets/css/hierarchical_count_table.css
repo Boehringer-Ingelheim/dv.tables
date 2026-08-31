@@ -6,7 +6,7 @@
     border-color: white;
 }
 
-.hier_count_table .table>tbody>tr.indent-1 td {
+.hier_count_table .table>tbody>tr.bg-gray td {
     background-color: lightgray;
 }
 
