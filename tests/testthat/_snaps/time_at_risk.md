@@ -132,7 +132,7 @@
       html
     Output
       <div>
-        <p>Event count by lvl1, lvl2</p>
+        <p>Event count by Level 1, Level 2</p>
         <table class="table event-count">
           <tr class="no-border">
             <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
@@ -199,7 +199,7 @@
             <td class="text-center" column="GC">—</td>
             <td class="text-center" column="GC">—</td>
           </tr>
-          <tr row-id="2" class="indent-1" indent="1">
+          <tr row-id="2" class="indent-1 bg-gray" indent="1">
             <td>
               <span class="truncate" title="A1">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
@@ -244,7 +244,7 @@
             <td class="text-center" column="GC">—</td>
             <td class="text-center" column="GC">—</td>
           </tr>
-          <tr row-id="5" class="indent-1" indent="1">
+          <tr row-id="5" class="indent-1 bg-gray" indent="1">
             <td>
               <span class="truncate" title="B1">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
