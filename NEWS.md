@@ -1,6 +1,12 @@
+# dv.tables 0.4.1-9009
+
+- `mod_hierarchical_count_table`:
+  - Allow up to 4 levels of hierarchical variables.
+  - Show variable labels rather than variable names in the information above the table.
+
 # dv.tables 0.4.1-9008
 
-- `mod_hierarchical count` hides rows below a given minimum percentage. Adds new argument `default_min_percent`
+- `mod_hierarchical_count_table` hides rows below a given minimum percentage. Adds new argument `default_min_percent`
 
 # dv.tables 0.4.1-9007
 
