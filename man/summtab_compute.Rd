@@ -48,8 +48,8 @@ summarizing numerical data.}
 
 \item{stats_labels}{A named vector of statistics labels that should be used in the summary table.}
 
-\item{stats_replace}{A named list of named vectors defining replacements that should be applied to the formatted
-results from \code{stats_formats}.}
+\item{stats_replace}{A named list of lists of \code{list(pattern =, replacement =)} pairs defining replacements that
+should be applied, in order, to the formatted results from \code{stats_formats}.}
 
 \item{total}{A flag that determines whether to add a total group column.}
 
