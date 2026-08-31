@@ -27,13 +27,17 @@ labels_vector <- c(
 )
 
 rep_list <- list(
-  n = c(`^NA$` = "0"),
-  meansd = c(`^NA \\(NA\\)$` = SUMMTAB$VAL$EM_DASH,
-             `\\(NA\\)$` = sprintf("(%s)", SUMMTAB$VAL$EM_DASH)),
-  meanci = c(`^\\(NA, NA\\)$` = SUMMTAB$VAL$EM_DASH),
-  geomean = c(`^NA$` = SUMMTAB$VAL$EM_DASH,
-              `^NaN$` = "NE"),
-  minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH)
+  n = list(list(pattern = "^NA$", replacement = "0")),
+  meansd = list(
+    list(pattern = "^NA \\(NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
+    list(pattern = "\\(NA\\)$", replacement = sprintf("(%s)", SUMMTAB$VAL$EM_DASH))
+  ),
+  meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+  geomean = list(
+    list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH),
+    list(pattern = "^NaN$", replacement = "NE")
+  ),
+  minmax = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH))
 )
 
 # Function to get choice values from HTML selection

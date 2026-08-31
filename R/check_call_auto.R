@@ -5,9 +5,10 @@
 # dv.tables::mod_hierarchical_count_table
 check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, table_dataset_name, pop_dataset_name,
     subjid_var, show_event_group_by, show_time_at_risk_options, show_modal_on_click, default_hierarchy,
-    default_group, default_total, default_event_group, default_event_date, default_origin_date, default_censor_date,
-    default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
-    censor_date_choices, intended_use_label, receiver_id, err) {
+    default_group, default_total, default_min_percent, default_hide_rows_under_min_percent, default_event_group,
+    default_event_date, default_origin_date, default_censor_date, default_risk, hierarchy_choices, group_choices,
+    event_group_choices, event_date_choices, origin_date_choices, censor_date_choices, intended_use_label,
+    receiver_id, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
     OK[["module_id"]] <- CM$check_module_id("module_id", module_id, err)
@@ -39,6 +40,12 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     OK[["default_group"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("default_group",
         default_group, subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], err)
     "NOTE: default_total (logical) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: default_min_percent (numeric) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: default_hide_rows_under_min_percent (logical) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."
     subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
