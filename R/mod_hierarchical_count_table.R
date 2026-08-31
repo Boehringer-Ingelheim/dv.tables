@@ -574,7 +574,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
 
   cell_col <- paste0(EC$VAL$SPECIAL_CHAR, "cell")
 
-  pct_above_min <- df[["pct"]] > min_percent
+  pct_above_min <- df[["pct"]] >= min_percent
 
   count <- ifelse(
     pct_above_min,
@@ -647,7 +647,14 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
     values_fill = list(EC$VAL$SPECIAL_CHAR)
   )
 
-  res <- list(df = wide_event, meta = c(d[["meta"]], list(min_percent = min_percent)))
+  res <- list(
+    df = wide_event,
+    meta = c(
+      d[["meta"]],
+      list(min_percent = min_percent)
+    )
+  )
+
   res
 }
 
@@ -706,10 +713,12 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
 
   hierarchy <- d[["meta"]][["hierarchy"]]
   hier_lvl_col <- d[["meta"]][["hier_lvl_col"]]
+  group_var <- d[["meta"]][["group_var"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
   event_group_vals <- d[["meta"]][["event_group_vals"]]
   n_denominator <- d[["meta"]][["n_denominator"]]
   table_type <- d[["meta"]][["table_type"]]
+  min_percent <- d[["meta"]][["min_percent"]]
   df <- d[["df"]]
 
   # Flag when event group has been specified
@@ -800,10 +809,14 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   })
 
   title <- sprintf(
-    "Event count by %s%s",
+    "Event count by %s%s%s%s",
     paste(unlist(var_labels[hierarchy], use.names = FALSE), collapse = ", "),
+    ifelse(length(group_var) == 0L, "",
+           paste("; group by", paste(unlist(var_labels[group_var], use.names = FALSE), collapse = ", "))),
     ifelse(length(event_group_var) == 0L, "",
-           paste("; event group by", paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", ")))
+           paste("; event group by", paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", "))),
+    ifelse(min_percent == 0, "",
+           sprintf("; minimum %.2f%%", min_percent))
   )
 
   hierarchy_length <- length(hierarchy)
@@ -1535,7 +1548,7 @@ mod_hierarchical_count_table <- function(
     default_hierarchy = NULL,
     default_group = NULL,
     default_total = TRUE,
-    default_min_percent = 5,
+    default_min_percent = 0,
     default_remove_rows_under_min_percent = FALSE,
     default_event_group = NULL,
     default_event_date = NULL,
@@ -1811,6 +1824,7 @@ mock_app_hierarchical_count_table <- function(dry_run = FALSE,
 mock_app_hierarchical_count_table_mm <- function() {
 
   if (!requireNamespace("dv.manager")) stop("Install dv.manager")
+  if (!requireNamespace("dv.papo")) stop("Install dv.papo")
   if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
 
   adsl <- pharmaverseadam::adsl
@@ -1824,8 +1838,18 @@ mock_app_hierarchical_count_table_mm <- function() {
       pharmaverseadam = list(adae = adae, adsl = adsl)
     ),
     module_list = list(
-      "ADAE by body system and term" = mod_hierarchical_count_table(
-        module_id = "hier_count_table",
+      "AE Hierarchy Table" = mod_hierarchical_count_table(
+        module_id = "hier_table",
+        table_dataset_name = "adae",
+        pop_dataset_name = "adsl",
+        show_modal_on_click = TRUE,
+        default_hierarchy = c("AEBODSYS", "AEDECOD"),
+        default_group = "TRT01P",
+        default_total = TRUE,
+        receiver_id = "papo"
+      ),
+      "AE Time at Risk Hierarchy Table" = mod_hierarchical_count_table(
+        module_id = "hier_time_at_risk",
         table_dataset_name = "adae",
         pop_dataset_name = "adsl",
         show_time_at_risk_options = TRUE,
@@ -1835,10 +1859,11 @@ mock_app_hierarchical_count_table_mm <- function() {
         default_event_date = "ASTDT",
         default_origin_date = "TRTSDT",
         default_censor_date = "EOSDT",
-        default_total = TRUE,
-        default_risk = FALSE
+        default_total = FALSE,
+        default_risk = TRUE,
+        receiver_id = "papo"
       ),
-      "ADAE event group by severity" = mod_hierarchical_count_table(
+      "AE Hierarchy Table by Event Group" = mod_hierarchical_count_table(
         module_id = "hier_event_group",
         table_dataset_name = "adae",
         pop_dataset_name = "adsl",
@@ -1846,8 +1871,17 @@ mock_app_hierarchical_count_table_mm <- function() {
         show_modal_on_click = TRUE,
         default_hierarchy = c("AEBODSYS", "AEDECOD"),
         default_group = "TRT01P",
-        default_total = TRUE,
-        default_event_group = "AESEV"
+        default_total = FALSE,
+        default_event_group = "AESEV",
+        receiver_id = "papo"
+      ),
+      "Patient Profile" = dv.papo::mod_patient_profile(
+        module_id = "papo",
+        subject_level_dataset_name = "adsl",
+        subjid_var = "USUBJID",
+        sender_ids = c("hier_table", "hier_time_at_risk", "hier_event_group"),
+        summary = list(vars = c("AGE", "SEX", "RACE", "ETHNIC", "ARM"),
+                       column_count = 1)
       )
     ),
     filter_dataset_name = "adsl",
