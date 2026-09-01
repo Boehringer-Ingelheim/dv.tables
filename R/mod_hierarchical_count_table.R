@@ -575,10 +575,15 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
   cell_col <- paste0(EC$VAL$SPECIAL_CHAR, "cell")
 
   pct_above_min <- df[["pct"]] >= min_percent
+  zero_count <- df[["n"]] == 0
 
   count <- ifelse(
     pct_above_min,
-    sprintf("%d ( %.2f %%)", df[["n"]], df[["pct"]]),
+    ifelse(
+      zero_count,
+      "0",
+      sprintf("%d ( %.2f %%)", df[["n"]], df[["pct"]])
+    ),
     "\u2014"
   )
   subjid <- purrr::map(df[["subjid"]], as.character)
@@ -608,7 +613,6 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
         subjid = subjid
       )
   }
-
 
   df[[cell_col]] <- local({
     stopifnot(

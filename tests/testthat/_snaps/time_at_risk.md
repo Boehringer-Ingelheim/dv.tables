@@ -195,7 +195,7 @@
             <td class="text-center" column="GB">2 ( 100.00 %)</td>
             <td class="text-center" column="GB">0.05</td>
             <td class="text-center" column="GB">3844.74</td>
-            <td class="text-center" column="GC">0 ( 0.00 %)</td>
+            <td class="text-center" column="GC">0</td>
             <td class="text-center" column="GC">0.06</td>
             <td class="text-center" column="GC">0.00</td>
           </tr>
@@ -212,7 +212,7 @@
             <td class="text-center" column="GB">2 ( 100.00 %)</td>
             <td class="text-center" column="GB">0.05</td>
             <td class="text-center" column="GB">3844.74</td>
-            <td class="text-center" column="GC">0 ( 0.00 %)</td>
+            <td class="text-center" column="GC">0</td>
             <td class="text-center" column="GC">0.06</td>
             <td class="text-center" column="GC">0.00</td>
           </tr>
@@ -220,13 +220,13 @@
             <td>
               <span class="truncate" title="A2">A2</span>
             </td>
-            <td class="text-center" column="GA">0 ( 0.00 %)</td>
+            <td class="text-center" column="GA">0</td>
             <td class="text-center" column="GA">0.03</td>
             <td class="text-center" column="GA">0.00</td>
             <td class="text-center" column="GB">2 ( 100.00 %)</td>
             <td class="text-center" column="GB">0.05</td>
             <td class="text-center" column="GB">3844.74</td>
-            <td class="text-center" column="GC">0 ( 0.00 %)</td>
+            <td class="text-center" column="GC">0</td>
             <td class="text-center" column="GC">0.06</td>
             <td class="text-center" column="GC">0.00</td>
           </tr>
@@ -237,10 +237,10 @@
             <td class="text-center" column="GA">1 ( 100.00 %)</td>
             <td class="text-center" column="GA">0.00</td>
             <td class="text-center" column="GA">36525.00</td>
-            <td class="text-center" column="GB">0 ( 0.00 %)</td>
+            <td class="text-center" column="GB">0</td>
             <td class="text-center" column="GB">0.11</td>
             <td class="text-center" column="GB">0.00</td>
-            <td class="text-center" column="GC">0 ( 0.00 %)</td>
+            <td class="text-center" column="GC">0</td>
             <td class="text-center" column="GC">0.06</td>
             <td class="text-center" column="GC">0.00</td>
           </tr>
@@ -257,7 +257,7 @@
             <td class="text-center" column="GB">1 ( 50.00 %)</td>
             <td class="text-center" column="GB">0.11</td>
             <td class="text-center" column="GB">913.12</td>
-            <td class="text-center" column="GC">0 ( 0.00 %)</td>
+            <td class="text-center" column="GC">0</td>
             <td class="text-center" column="GC">0.06</td>
             <td class="text-center" column="GC">0.00</td>
           </tr>
@@ -271,7 +271,7 @@
             <td class="text-center" column="GB">1 ( 50.00 %)</td>
             <td class="text-center" column="GB">0.11</td>
             <td class="text-center" column="GB">913.12</td>
-            <td class="text-center" column="GC">0 ( 0.00 %)</td>
+            <td class="text-center" column="GC">0</td>
             <td class="text-center" column="GC">0.06</td>
             <td class="text-center" column="GC">0.00</td>
           </tr>
