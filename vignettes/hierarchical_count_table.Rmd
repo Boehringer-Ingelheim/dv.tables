@@ -94,19 +94,19 @@ options are not available.
 
 A collapsible hierarchy table.
 
-![](images/hierarchical_count_table.png)
+![](images/hierarchical_count_table.png){style="border: 2px solid gray;"}
 
 ## Sub-grouped Hierarchical Event Count table
 
 A collapsible hierarchy table sub-grouped by a variable from the table events dataset.
 
-![](images/hierarchical_count_table_event_group_by.png)
+![](images/hierarchical_count_table_event_group_by.png){style="border: 2px solid gray;"}
 
 ## Time at Risk Hierarchical Event Count table
 
 A collapsible hierarchy table displaying time at risk and incidence rate.
 
-![](images/hierarchical_count_table_time_at_risk.png)
+![](images/hierarchical_count_table_time_at_risk.png){style="border: 2px solid gray;"}
 
 # Creating a hierarchical count table application
 
