@@ -1831,7 +1831,7 @@ mock_app_hierarchical_count_table_mm <- function() {
   if (!requireNamespace("dv.papo")) stop("Install dv.papo")
   if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
 
-  adsl <- pharmaverseadam::adsl
+  adsl <- pharmaverseadam::adsl |> dplyr::filter(!is.na(.data[["RANDDT"]]))
   adae <- pharmaverseadam::adae
 
   attr(adsl, "meta") <- base::file.info("NEWS.md")
@@ -1842,7 +1842,7 @@ mock_app_hierarchical_count_table_mm <- function() {
       pharmaverseadam = list(adae = adae, adsl = adsl)
     ),
     module_list = list(
-      "AE Hierarchy Table" = mod_hierarchical_count_table(
+      "Hierarchy Table" = mod_hierarchical_count_table(
         module_id = "hier_table",
         table_dataset_name = "adae",
         pop_dataset_name = "adsl",
@@ -1852,7 +1852,7 @@ mock_app_hierarchical_count_table_mm <- function() {
         default_total = TRUE,
         receiver_id = "papo"
       ),
-      "AE Time at Risk Hierarchy Table" = mod_hierarchical_count_table(
+      "Time at Risk Hierarchy Table" = mod_hierarchical_count_table(
         module_id = "hier_time_at_risk",
         table_dataset_name = "adae",
         pop_dataset_name = "adsl",
@@ -1867,7 +1867,7 @@ mock_app_hierarchical_count_table_mm <- function() {
         default_risk = TRUE,
         receiver_id = "papo"
       ),
-      "AE Hierarchy Table by Event Group" = mod_hierarchical_count_table(
+      "Hierarchy Table by Event Group" = mod_hierarchical_count_table(
         module_id = "hier_event_group",
         table_dataset_name = "adae",
         pop_dataset_name = "adsl",
