@@ -12,7 +12,7 @@ specs <- vdoc[["specs"]]
 
 # -----
 
-if(
+if (
   !isTRUE(as.logical(Sys.getenv("CI"))) &&
   !isTRUE(as.logical(Sys.getenv("LOCAL_SHINY_TESTS")))
 ) {
