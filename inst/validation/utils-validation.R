@@ -29,7 +29,7 @@ if (FALSE) {
 
 #' Considerations:
 #' - parse_spec uses deparse(substitute()). These spec_ids are later used to check if all requirements
-#'  are covered or not, therefore those calls cannot by substituted for:
+#'  are covered or not, therefore those calls cannot be substituted for:
 
 if (FALSE) {
   my_spec <- specs$my$hier$spec

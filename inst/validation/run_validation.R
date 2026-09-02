@@ -38,7 +38,7 @@ local({
     output_file = validation_report_html
   )
 
-  # We use one of the leaked variables, created inside the validation report to asses if the validation is
-  # succesful or not
+  # We use one of the leaked variables, created inside the validation report to assess if the validation is
+  # successful or not
   VALIDATION_PASSED
 })
