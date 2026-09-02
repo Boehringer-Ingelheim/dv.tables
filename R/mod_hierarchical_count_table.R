@@ -217,8 +217,8 @@ create_adtte <- function(event_df,
 #' @param pop_df `data.frame`
 #' A data frame containing the population data. It must have columns corresponding to subjects and group variables.
 #'
-#' @param hierarchy `character(1|2)`
-#' A character vector of column names from `event_df` to use as the hierarchy. Can be one or two levels.
+#' @param hierarchy `character(1+)`
+#' A character vector of column names from `event_df` to use as the hierarchy.
 #'
 #' @param group_var `character(1)`
 #' A string representing the column name in `pop_df` used for grouping the population data.
