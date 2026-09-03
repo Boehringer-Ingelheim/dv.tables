@@ -498,6 +498,7 @@ Tplyr_table_server <- function(
       intended_use_label = intended_use_label,
       pagination = pagination,
       on_sbj_click = on_sbj_click,
+      exclude_var_names_from_column_headings = FALSE,
       review = review
     )
     ## listings part end ---
@@ -763,10 +764,10 @@ check_mod_Tplyr_table <- function(
   )
   if ("afmm" %in% names(formals(dv.listings::check_review_parameter))) {
     check_review_parameter_args[["afmm"]] <- afmm
-  } 
-  
+  }
+
   do.call(dv.listings::check_review_parameter, check_review_parameter_args)
-  
+
   res <- list(errors = err[["messages"]])
   return(res)
 }
