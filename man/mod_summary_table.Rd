@@ -27,12 +27,17 @@ mod_summary_table(
   stats_labels = c(n = "n", meansd = "Mean (SD)", meanci = "Mean 95\% CI", geomean =
     "Geometric Mean", median = "Median", medianci = "Median 95\% CI", q1q3 =
     "25\% and 75\%-ile", minmax = "Min - Max"),
-  stats_replace = list(n = c(`^NA$` = "0"), meansd = c(`^NA \\\\(NA\\\\)$` =
-    SUMMTAB$VAL$EM_DASH, `\\\\(NA\\\\)$` = sprintf("(\%s)", SUMMTAB$VAL$EM_DASH)), meanci
-    = c(`^\\\\(NA, NA\\\\)$` = SUMMTAB$VAL$EM_DASH), geomean = c(`^NA$` =
-    SUMMTAB$VAL$EM_DASH, `^NaN$` = "NE"), median = c(`^NA$` = SUMMTAB$VAL$EM_DASH),
-    medianci = c(`^\\\\(NA, NA\\\\)$` = SUMMTAB$VAL$EM_DASH), q1q3 = c(`^NA - NA$` =
-    SUMMTAB$VAL$EM_DASH), minmax = c(`^NA - NA$` = SUMMTAB$VAL$EM_DASH)),
+  stats_replace = list(n = list(list(pattern = "^NA$", replacement = "0")), meansd =
+    list(list(pattern = "^NA \\\\(NA\\\\)$", replacement = SUMMTAB$VAL$EM_DASH),
+    list(pattern = "\\\\(NA\\\\)$", replacement = sprintf("(\%s)",
+    SUMMTAB$VAL$EM_DASH))), meanci = list(list(pattern = "^\\\\(NA, NA\\\\)$",
+    replacement = SUMMTAB$VAL$EM_DASH)), geomean = list(list(pattern = "^NA$",
+    replacement = SUMMTAB$VAL$EM_DASH), list(pattern = "^NaN$", replacement = "NE")),
+    median = list(list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH)), medianci =
+    list(list(pattern = "^\\\\(NA, NA\\\\)$", 
+     replacement = SUMMTAB$VAL$EM_DASH)),
+    q1q3 = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH)), minmax =
+    list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH))),
   default_summarize_on = NULL,
   default_group_by = NULL,
   default_row_by = NULL,
@@ -126,10 +131,10 @@ further information.}
 
 \item{stats_replace}{\verb{[list(1+) | NULL]}
 
-A named list of named vectors defining replacements that should be applied to the formatted results from
-\code{stats_formats}. The names given to the vector elements are regular expressions to match the formatted results, and
-the elements themselves are the replacement strings. The names of the list elements should match the names of the
-list elements in \code{stats_formats}.}
+A named list of lists of \code{list(pattern =, replacement =)} pairs defining replacements that should be applied, in
+order, to the formatted results from \code{stats_formats}. \code{pattern} is a regular expression matched against the
+formatted result, and \code{replacement} is the string substituted in. The names of the outer list should match the
+names of the list elements in \code{stats_formats}.}
 
 \item{default_summarize_on}{\verb{[character(1+) | NULL]}
 

@@ -15,8 +15,8 @@ mod_hierarchical_count_table(
   default_hierarchy = NULL,
   default_group = NULL,
   default_total = TRUE,
-  default_min_percent = 5,
-  default_hide_rows_under_min_percent = FALSE,
+  default_min_percent = 0,
+  default_remove_rows_under_min_percent = FALSE,
   default_event_group = NULL,
   default_event_date = NULL,
   default_origin_date = NULL,
@@ -82,9 +82,9 @@ A default value for checkbox determining whether to add a total group column.}
 A default value (0-100) for the minimum percentage of subjects a row must reach to be displayed. Rows below
 this threshold have their counts replaced with a dash instead of being shown.}
 
-\item{default_hide_rows_under_min_percent}{\verb{[logical(1)]}
+\item{default_remove_rows_under_min_percent}{\verb{[logical(1)]}
 
-A default value for checkbox determining whether to hide entire rows for which every group's percentage of
+A default value for checkbox determining whether to remove entire rows for which every group's percentage of
 subjects falls below \code{default_min_percent}, instead of just showing a dash for those cells.}
 
 \item{default_event_group}{\verb{[character(1)|NULL]}

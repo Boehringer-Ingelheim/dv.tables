@@ -94,19 +94,19 @@ options are not available.
 
 A collapsible hierarchy table.
 
-![](images/hierarchical_count_table.png)
+![](images/hierarchical_count_table.png){style="border: 2px solid gray;"}
 
 ## Sub-grouped Hierarchical Event Count table
 
 A collapsible hierarchy table sub-grouped by a variable from the table events dataset.
 
-![](images/hierarchical_count_table_event_group_by.png)
+![](images/hierarchical_count_table_event_group_by.png){style="border: 2px solid gray;"}
 
 ## Time at Risk Hierarchical Event Count table
 
 A collapsible hierarchy table displaying time at risk and incidence rate.
 
-![](images/hierarchical_count_table_time_at_risk.png)
+![](images/hierarchical_count_table_time_at_risk.png){style="border: 2px solid gray;"}
 
 # Creating a hierarchical count table application
 
@@ -116,6 +116,7 @@ The following code specifies the bare minimum module arguments with no default h
 
 ```{r, eval=FALSE}
 requireNamespace("pharmaverseadam")
+requireNamespace("dv.manager")
 
 dv.manager::run_app(
   data = list(dummy = list(adsl = pharmaverseadam::adsl,
@@ -127,7 +128,7 @@ dv.manager::run_app(
       pop_dataset_name = "adsl"
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
@@ -139,6 +140,7 @@ by planned treatment group, and event severity:
 
 ```{r, eval=FALSE}
 requireNamespace("pharmaverseadam")
+requireNamespace("dv.manager")
 
 dv.manager::run_app(
   data = list(dummy = list(adsl = pharmaverseadam::adsl,
@@ -156,7 +158,7 @@ dv.manager::run_app(
       event_group_choices = c("AESEV", "AETOXGR")
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
@@ -168,6 +170,7 @@ treatment group, with date variables specified for time at risk and incidence ra
 
 ```{r, eval=FALSE}
 requireNamespace("pharmaverseadam")
+requireNamespace("dv.manager")
 
 dv.manager::run_app(
   data = list(dummy = list(adsl = pharmaverseadam::adsl,
@@ -187,7 +190,7 @@ dv.manager::run_app(
       default_risk = TRUE
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```

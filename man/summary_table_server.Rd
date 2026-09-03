@@ -100,10 +100,10 @@ further information.}
 
 \item{stats_replace}{\verb{[list(1+) | NULL]}
 
-A named list of named vectors defining replacements that should be applied to the formatted results from
-\code{stats_formats}. The names given to the vector elements are regular expressions to match the formatted results, and
-the elements themselves are the replacement strings. The names of the list elements should match the names of the
-list elements in \code{stats_formats}.}
+A named list of lists of \code{list(pattern =, replacement =)} pairs defining replacements that should be applied, in
+order, to the formatted results from \code{stats_formats}. \code{pattern} is a regular expression matched against the
+formatted result, and \code{replacement} is the string substituted in. The names of the outer list should match the
+names of the list elements in \code{stats_formats}.}
 
 \item{default_summarize_on}{\verb{[character(1+) | NULL]}
 

@@ -1,7 +1,7 @@
 Package: dv.tables
 Type: Package
 Title: Table Modules
-Version: 0.4.1-9008
+Version: 0.4.1-9009
 Authors@R: c(
         person("Boehringer-Ingelheim Pharma GmbH & Co.KG", role = c("cph", "fnd")),
         person(given = "Luis", family = "Moris Fernandez", role = c("aut", "cre"), email = "luis.moris.fernandez@gmail.com"),
@@ -40,3 +40,4 @@ Remotes: boehringer-ingelheim/dv.manager,
          boehringer-ingelheim/dv.papo,
          boehringer-ingelheim/dv.listings
 Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.3

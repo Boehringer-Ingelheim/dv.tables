@@ -1,4 +1,3 @@
-# nolint start
 # validation (S)
 vdoc <- local({
   #                      ##########
@@ -13,7 +12,7 @@ specs <- vdoc[["specs"]]
 
 # -----
 
-if(
+if (
   !isTRUE(as.logical(Sys.getenv("CI"))) &&
   !isTRUE(as.logical(Sys.getenv("LOCAL_SHINY_TESTS")))
 ) {
@@ -121,7 +120,7 @@ test_communication_with_papo <- function(mod, data, trigger_input_id, papo_spec_
 
     trigger_subject_selection <- function(subject_id) {
       set_input_params <- append(
-        as.list(setNames(subject_id, trigger_input_id)),
+        as.list(stats::setNames(subject_id, trigger_input_id)),
         list(allow_no_input_binding_ = TRUE, priority_ = "event")
       )
       do.call(app$set_inputs, set_input_params)
@@ -142,6 +141,3 @@ test_communication_with_papo <- function(mod, data, trigger_input_id, papo_spec_
     app$stop()
   })
 }
-
-
-# nolint end
