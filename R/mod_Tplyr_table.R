@@ -498,6 +498,7 @@ Tplyr_table_server <- function(
       intended_use_label = intended_use_label,
       pagination = pagination,
       on_sbj_click = on_sbj_click,
+      exclude_var_names_from_column_headings = FALSE,
       review = review
     )
     ## listings part end ---
