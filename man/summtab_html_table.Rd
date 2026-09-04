@@ -2,21 +2,19 @@
 % Please edit documentation in R/mod_summary_table.R
 \name{summtab_html_table}
 \alias{summtab_html_table}
-\title{Create HTML summary table}
+\title{summtab_html_table}
 \usage{
-summtab_html_table(summtab_list, var_labels, on_cell_click = NULL)
+summtab_html_table(summtab_list, on_cell_click = NULL)
 }
 \arguments{
-\item{summtab_list}{A list of the data frame of the analysed data and metadata from \code{summtab_compute()}.}
+\item{summtab_list}{TDB}
 
-\item{var_labels}{A list of variable labels indexed by variable names.}
-
-\item{on_cell_click}{A string holding the JavaScript callback function to be executed when a table cell is clicked.}
+\item{on_cell_click}{TDB}
 }
 \value{
-An HTML table generated using \code{shiny::tags} and formatted for interactive display.
+TBD
 }
 \description{
-Create HTML summary table
+summtab_html_table
 }
 \keyword{internal}
