@@ -4,6 +4,8 @@ EC <- poc(
     DROP_MENU = "drop_menu",
     HIERARCHY = "hierarchy",
     GRP = "group",
+    POP_FLAG_VARS = "pop_flag_vars",
+    POP_FLAGS_AFTER_GROUPS = "pop_flags_after_groups",
     MIN_PERCENT = "min_percent",
     REMOVE_ROWS_UNDER_MIN_PERCENT = "remove_rows_under_min_percent",
     TOTAL_FLAG = "total",
@@ -22,6 +24,8 @@ EC <- poc(
     DROP_MENU = "Options",
     HIERARCHY = "Event count by",
     GRP = "Group by",
+    POP_FLAG_VARS = "Population flags:",
+    POP_FLAGS_AFTER_GROUPS = "Move after group variables",
     MIN_PERCENT = "Minimum %",
     REMOVE_ROWS_UNDER_MIN_PERCENT = "Remove rows under minimum %",
     TOTAL_FLAG = "Total",
@@ -51,7 +55,7 @@ EC <- poc(
     VALIDATE = poc(
       NO_GRP = "No group selected",
       NO_HIERARCHY = "No hierarchy selected",
-      NO_MIN_PERCENT = "No minimum percent selected",
+      NO_MIN_PERCENT = "Minimum percent must be between 0 and 100",
       NO_TABLE_ROWS = "Table dataset has 0 rows",
       NO_POP_ROWS = "Population dataset has 0 rows",
       GRP_CLASH = "Group selection cannot be used in hierarchy",
@@ -108,7 +112,7 @@ EC <- poc(
 create_adtte <- function(event_df,
                          pop_df,
                          hierarchy = character(),
-                         group_var,
+                         group_vars,
                          subjid_var,
                          event_group_var,
                          origin_date_var,
@@ -189,7 +193,7 @@ create_adtte <- function(event_df,
 
     # Some ADTTE variables are not required for purpose of app, so only keep necessary ones
     adtte <- adtte |>
-      dplyr::select(dplyr::any_of(c(subjid_var, event_group_var, hierarchy_cols, group_var,
+      dplyr::select(dplyr::any_of(c(subjid_var, event_group_var, hierarchy_cols, group_vars,
                                     time_at_risk_col, censor_col)))
 
     # Add hierarchy level to data
@@ -217,15 +221,18 @@ create_adtte <- function(event_df,
 #' @param pop_df `data.frame`
 #' A data frame containing the population data. It must have columns corresponding to subjects and group variables.
 #'
-#' @param hierarchy `character(1|2)`
-#' A character vector of column names from `event_df` to use as the hierarchy. Can be one or two levels.
+#' @param hierarchy `character(1+)`
+#' A character vector of column names from `event_df` to use as the hierarchy.
 #'
-#' @param group_var `character(1)`
-#' A string representing the column name in `pop_df` used for grouping the population data.
+#' @param group_vars `character(1)`
+#' A character vector of column names from `pop_df` used for grouping the population data.
 #'
 #' @param subjid_var `character(1)`
 #' A string representing the subject identifier column name. This column must be present in both `event_df` and
 #' `pop_df`.
+#'
+#' @param pop_flag_vars
+#' A vector of names of population flag variables from `pop_df`.
 #'
 #' @param event_group_var `character(1)`
 #' A string representing the column name in `event_df` used for grouping the event data.
@@ -251,13 +258,27 @@ create_adtte <- function(event_df,
 #' @return A list containing:
 #' - `df`: A data frame with the processed event data, including counts and percentages.
 #' - `meta`: A list containing metadata related to the hierarchy, group variable, and subject counts.
+#' - `meta`: A list of metadata:
+#'   - `hierarchy`: A vector of hierarchy variable names.
+#'   - `group_var`: A string indicating the group variable name.
+#'   - `event_group_var`: A string indicating the event group variable name.
+#'   - `event_group_vals`: A vector of ??.
+#'   - `pop_flag_vars`: A vector of population flag variable names.
+#'   - `total_group_val`: A string indicating the label for the total group column.
+#'   - `n_denom`: A named vector of denominators for each group variable, named by values of group variable.
+#'   - `table_type`: A string, either "frequency" or "time_at_risk", indicating the table type.
+#'   - `warning_message`: A string indicating a warning message to be raised by shiny::validate.
+#'
+#' <!-- - `data_columns`: A vector of names of columns holding the statistics for each population group combination. -->
+#' <!-- - `denom_df`: A data frame of population group denominator data. -->
 #'
 #' @keywords internal
 compute_events_table <- function(event_df,
                                  pop_df,
                                  hierarchy = NULL,
-                                 group_var = NULL,
+                                 group_vars = NULL,
                                  subjid_var = NULL,
+                                 pop_flag_vars = NULL,
                                  event_group_var = NULL,
                                  origin_date_var = NULL,
                                  censor_date_var = NULL,
@@ -269,14 +290,16 @@ compute_events_table <- function(event_df,
   checkmate::assert_data_frame(event_df, min.rows = 1)
   checkmate::assert_data_frame(pop_df, min.rows = 1)
   checkmate::assert_character(hierarchy, min.chars = 1, min.len = 1)
-  checkmate::assert_string(group_var, min.chars = 1)
+  checkmate::assert_character(group_vars, min.chars = 1, min.len = 1)
   checkmate::assert_string(subjid_var, min.chars = 1)
 
   checkmate::assert_names(names(event_df), must.include = c(hierarchy, event_group_var, subjid_var))
-  checkmate::assert_names(names(pop_df), must.include = c(group_var, subjid_var))
+  checkmate::assert_names(names(pop_df), must.include = c(group_vars, subjid_var))
 
-  checkmate::assert_factor(pop_df[[group_var]])
-  lapply(hierarchy, function(h) checkmate::assert_factor(event_df[[h]]))
+  checkmate::assert_character(pop_flag_vars, min.chars = 1, null.ok = TRUE)
+
+  lapply(group_vars, function(v) checkmate::assert_factor(pop_df[[v]]))
+  lapply(hierarchy, function(v) checkmate::assert_factor(event_df[[v]]))
   checkmate::assert_factor(event_df[[subjid_var]])
   checkmate::assert_factor(pop_df[[subjid_var]])
   checkmate::assert_character(event_group_var, min.chars = 1, max.len = 1, null.ok = TRUE)
@@ -303,10 +326,10 @@ compute_events_table <- function(event_df,
 
   # Prepare population data ----
 
-  subset_pop_df <- pop_df[, c(subjid_var, group_var, origin_date_var, censor_date_var)]
+  subset_pop_df <- pop_df[, c(subjid_var, group_vars, origin_date_var, censor_date_var)]
 
   # Replace NA values in group var factor with "<NA>" and add associated level
-  subset_pop_df[[group_var]] <- add_na_factor_level(subset_pop_df[[group_var]])
+  subset_pop_df[group_vars] <- lapply(subset_pop_df[group_vars], add_na_factor_level)
 
   # Prepare event data ----
 
@@ -353,10 +376,11 @@ compute_events_table <- function(event_df,
 
   # Prepare subject level analysis data ----
 
+  browser()
   adtte <- create_adtte(event_df = subset_event_df,
                         pop_df = subset_pop_df,
                         hierarchy = hierarchy,
-                        group_var = group_var,
+                        group_vars = group_vars,
                         subjid_var = subjid_var,
                         event_group_var = event_group_var,
                         origin_date_var = origin_date_var,
@@ -376,10 +400,23 @@ compute_events_table <- function(event_df,
   # Add group totals ----
 
   if (total) {
-    adtte_totals <- adtte
-    adtte_totals[[group_var]] <- total_group_val
+    group_var_1 <- group_vars[[1]]
+    gv1_fct_levels <- c(levels(adtte[[group_var_1]]), total_group_val)
 
-    adtte <- rbind(adtte, adtte_totals)
+    adtte[[group_var_1]] <- factor(adtte[[group_var_1]], levels = gv1_fct_levels)
+    total_grp_fct <- factor(total_group_val, levels = c(levels(adtte[[group_var_1]])))
+    total_rows <- dplyr::mutate(adtte, !!group_var_1 := total_grp_fct) |>
+      dplyr::distinct()
+
+    #adtte_col_labels <- get_lbls_robust(adtte)
+    adtte <- adtte |>
+      rbind(total_rows) #|>
+      #set_lbls(adtte_col_labels)
+
+    # adtte_totals <- adtte
+    # adtte_totals[[group_vars[1]]] <- total_group_val
+    #
+    # adtte <- rbind(adtte, adtte_totals)
   } else {
     # No group total requested so clear the total group value
     total_group_val <- character()
@@ -391,7 +428,7 @@ compute_events_table <- function(event_df,
     dplyr::mutate(dplyr::across(dplyr::all_of(hierarchy),
                                 ~ as.factor(replace(as.character(.), is.na(.), EC$VAL$SPECIAL_CHAR)))) |>
 
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(hierarchy, group_var, event_group_var, hier_lvl_col))))
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(hierarchy, group_vars, event_group_var, hier_lvl_col))))
 
   if (compute_risk) {
     # Time-to-event data
@@ -428,12 +465,13 @@ compute_events_table <- function(event_df,
   }
 
   # Identify any population groups that are completely missing from the event data
-  missing_groups <- setdiff(levels(calc_stats[[group_var]]),
-                            unique(calc_stats[[group_var]]))
+  missing_groups <- setdiff(levels(calc_stats[[group_vars[[1]]]]),
+                            unique(calc_stats[[group_vars[[1]]]]))
 
   # Create extra rows for these missing groups
   if (length(missing_groups) > 0L) {
-    missing_groups_df <- stats::setNames(as.data.frame(as.factor(missing_groups)), group_var)
+    browser() # THIS SHOULD NOT HAPPEN, RIGHT ?!?!?!?!
+    missing_groups_df <- stats::setNames(as.data.frame(as.factor(missing_groups)), group_vars)
     template_groups_df <- unique(calc_stats[, c(hierarchy, event_group_var, hier_lvl_col)])
 
     missing_rows_df <- merge(template_groups_df, missing_groups_df, by = NULL)
@@ -450,12 +488,14 @@ compute_events_table <- function(event_df,
     calc_stats <- rbind(calc_stats, missing_rows_df)
   }
 
+  browser()
+
   # Extract the denominators for the grouping variable into a named vector
-  denom_df <- unique(calc_stats[calc_stats[[hier_lvl_col]] == 0L, c("N", group_var)])
-  n_denominator <- stats::setNames(denom_df[["N"]], denom_df[[group_var]])
+  denom_df <- unique(calc_stats[calc_stats[[hier_lvl_col]] == 0L, c("N", group_vars)])
+  n_denominator <- stats::setNames(denom_df[["N"]], denom_df[[group_vars]])
 
   # Re-order based on factor levels
-  n_denominator <- n_denominator[levels(calc_stats[[group_var]])]
+  n_denominator <- n_denominator[levels(calc_stats[[group_vars]])]
 
   # Return from function ----
 
@@ -464,7 +504,8 @@ compute_events_table <- function(event_df,
     meta = list(
       hierarchy = hierarchy,
       hier_lvl_col = hier_lvl_col,
-      group_var = group_var,
+      group_vars = group_vars,
+      pop_flag_vars = pop_flag_vars,
       event_group_var = event_group_var,
       event_group_vals = event_group_vals,
       total_group_val = total_group_val,
@@ -491,13 +532,13 @@ compute_order_events_table <- function(d) {
   checkmate::assert_list(d[["meta"]])
 
   hierarchy <- d[["meta"]][["hierarchy"]]
-  group_var <- d[["meta"]][["group_var"]]
+  group_vars <- d[["meta"]][["group_vars"]]
   total_group_val <- d[["meta"]][["total_group_val"]]
 
   results_df <- d[["df"]]
 
   # Exclude total group
-  order_groups <- setdiff(unique(results_df[[group_var]]), total_group_val)
+  order_groups <- setdiff(unique(results_df[[group_vars]]), total_group_val)
 
   hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
   count_col_prefix <- paste0(EC$VAL$SPECIAL_CHAR, "count")
@@ -510,7 +551,7 @@ compute_order_events_table <- function(d) {
     group_cols <- hierarchy[1:hierarchy_level]
 
     across_group_counts <- results_df |>
-      dplyr::filter(.data[[group_var]] %in% order_groups,
+      dplyr::filter(.data[[group_vars]] %in% order_groups,
                     .data[[hier_lvl_col]] == hierarchy_level) |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) |>
       dplyr::summarise(!!paste0(count_col_prefix, hierarchy_level) := sum(.data[["n"]]), .groups = "drop")
@@ -564,7 +605,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
   checkmate::assert_list(d[["meta"]]) # DP
 
   hierarchy <- d[["meta"]][["hierarchy"]]
-  group_var <- d[["meta"]][["group_var"]]
+  group_vars <- d[["meta"]][["group_vars"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
   table_type <- d[["meta"]][["table_type"]]
   df <- d[["df"]]
@@ -633,11 +674,11 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
   }
 
   # Keep only the necessary columns
-  df <- df[, c(hierarchy, group_var, event_group_var, cell_col)]
+  df <- df[, c(hierarchy, group_vars, event_group_var, cell_col)]
 
   if (has_event_group) {
     df <- df |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(c(hierarchy, group_var)))) |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(c(hierarchy, group_vars)))) |>
       dplyr::summarise(!!cell_col := list(stats::setNames(.data[[cell_col]], .data[[event_group_var]])),
                        .groups = "drop")
   }
@@ -645,7 +686,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
   wide_event <- tidyr::pivot_wider(
     df,
     id_cols = dplyr::all_of(hierarchy),
-    names_from = dplyr::all_of(group_var),
+    names_from = dplyr::all_of(group_vars),
     names_expand = TRUE,
     values_from = dplyr::all_of(cell_col),
     values_fill = list(EC$VAL$SPECIAL_CHAR)
@@ -717,7 +758,8 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
 
   hierarchy <- d[["meta"]][["hierarchy"]]
   hier_lvl_col <- d[["meta"]][["hier_lvl_col"]]
-  group_var <- d[["meta"]][["group_var"]]
+  group_vars <- d[["meta"]][["group_vars"]]
+  pop_flag_vars <- d[["meta"]][["pop_flag_vars"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
   event_group_vals <- d[["meta"]][["event_group_vals"]]
   n_denominator <- d[["meta"]][["n_denominator"]]
@@ -812,11 +854,14 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
     )
   })
 
+  mod_group_vars <- setdiff(group_vars, ".pop_group")
   title <- sprintf(
-    "Event count by %s%s%s%s",
+    "Event count by %s%s%s%s%s",
     paste(unlist(var_labels[hierarchy], use.names = FALSE), collapse = ", "),
-    ifelse(length(group_var) == 0L, "",
-           paste("; group by", paste(unlist(var_labels[group_var], use.names = FALSE), collapse = ", "))),
+    ifelse(length(mod_group_vars) == 0L, "",
+           paste("; group by", paste(unlist(var_labels[mod_group_vars], use.names = FALSE), collapse = ", "))),
+    ifelse(length(pop_flag_vars) == 0L, "",
+           paste("; flag by", paste(unlist(var_labels[pop_flag_vars], use.names = FALSE), collapse = ", "))),
     ifelse(length(event_group_var) == 0L, "",
            paste("; event group by", paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", "))),
     ifelse(min_percent == 0, "",
@@ -901,8 +946,10 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
 #'
 #' @export
 hierarchical_count_table_ui <- function(id,
+                                        show_pop_flag_selection = FALSE,
                                         show_event_group_by = FALSE,
                                         show_time_at_risk_options = FALSE,
+                                        default_pop_flags_after_groups = FALSE,
                                         default_total = TRUE,
                                         default_risk = FALSE,
                                         default_min_percent = 0,
@@ -911,8 +958,19 @@ hierarchical_count_table_ui <- function(id,
   ns <- shiny::NS(id)
 
   # Initialize optional selections
+  pop_flags <- NULL
   event_by_group <- NULL
   time_at_risk_options <- NULL
+
+  if (show_pop_flag_selection) {
+    pop_flags <- shiny::div(
+      shiny::tags$hr(),
+      col_menu_UI(id = ns(EC$ID$POP_FLAG_VARS)),
+      shiny::checkboxInput(ns(EC$ID$POP_FLAGS_AFTER_GROUPS),
+                           label = EC$LBL$POP_FLAGS_AFTER_GROUPS,
+                           value = default_pop_flags_after_groups)
+    )
+  }
 
   if (show_event_group_by) {
     event_by_group <- shiny::div(
@@ -942,6 +1000,8 @@ hierarchical_count_table_ui <- function(id,
     ),
     col_menu_UI(id = ns(EC$ID$HIERARCHY)),
     col_menu_UI(id = ns(EC$ID$GRP)),
+    pop_flags,
+    shiny::tags$hr(),
     shiny::numericInput(
       ns(EC$ID$MIN_PERCENT),
       label = EC$LBL$MIN_PERCENT,
@@ -1020,18 +1080,21 @@ hierarchical_count_table_server <- function(
   table_dataset,
   pop_dataset,
   subjid_var,
+  show_pop_flag_selection = FALSE,
   show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
   on_sbj_click_fun = function() NULL,
   default_hierarchy = NULL,
   default_group = NULL,
+  default_pop_flags = NULL,
   default_event_group = NULL,
   default_event_date = NULL,
   default_origin_date = NULL,
   default_censor_date = NULL,
   hierarchy_choices = NULL,
   group_choices = NULL,
+  pop_flag_choices = NULL,
   event_group_choices = NULL,
   event_date_choices = NULL,
   origin_date_choices = NULL,
@@ -1080,6 +1143,25 @@ hierarchical_count_table_server <- function(
     inputs[[EC$ID$TOTAL_FLAG]] <- shiny::reactive({
       input[[EC$ID$TOTAL_FLAG]]
     })
+
+    if (show_pop_flag_selection) {
+      inputs[[EC$ID$POP_FLAG_VARS]] <- col_menu_server(
+        id = EC$ID$POP_FLAG_VARS,
+        data = pop_dataset,
+        label = EC$LBL$POP_FLAG_VARS,
+        include_func = function(var, var_name) {
+          (is.factor(var) || is.character(var)) &&
+            var_name != subjid_var &&
+            ((is.null(pop_flag_choices) && grepl("FL([0-9]*)?$", var_name)) || var_name %in% pop_flag_choices)
+        },
+        default = default_pop_flags,
+        multiple = TRUE,
+        include_none = FALSE,
+        options = list(plugins = list("drag_drop"))
+      )
+
+      inputs[[EC$ID$POP_FLAGS_AFTER_GROUPS]] <- shiny::reactive(input[[EC$ID$POP_FLAGS_AFTER_GROUPS]])
+    }
 
     if (show_event_group_by) {
       inputs[[EC$ID$EVENT_GROUP]] <- col_menu_server(
@@ -1181,7 +1263,7 @@ hierarchical_count_table_server <- function(
     et <- shiny::reactive({
       d <- table_dataset()
       pd <- pop_dataset()
-      group_var <- inputs[[EC$ID$GRP]]()
+      group_vars <- inputs[[EC$ID$GRP]]()
       hierarchy <- inputs[[EC$ID$HIERARCHY]]()
       min_percent <- inputs[[EC$ID$MIN_PERCENT]]()
       total <- inputs[[EC$ID$TOTAL_FLAG]]()
@@ -1205,6 +1287,27 @@ hierarchical_count_table_server <- function(
       combined_labels <- c(get_lbls_robust(d), get_lbls_robust(pd))
       var_labels(combined_labels[!duplicated(names(combined_labels))])
 
+# NEW!!!!!!
+      # Avoid an index error when a group var has been used as a population flag var
+      pd_orig <- pd
+      group_vars_orig <- group_vars
+
+      selected_vars <- c(hierarchy, group_vars, event_group_var)
+      pop_flag_vars <- NULL
+
+      if (show_pop_flag_selection) {
+        pop_flag_vars <- inputs[[EC$ID$POP_FLAG_VARS]]()
+        pop_flags_after_groups <- inputs[[EC$ID$POP_FLAGS_AFTER_GROUPS]]()
+
+        if (!is.null(pop_flag_vars) && length(pop_flag_vars) > 0) {
+          pd <- process_pop_flag_vars(pd, pop_flag_vars)
+
+          group_vars <- if (pop_flags_after_groups) c(group_vars, ".pop_group") else c(".pop_group", group_vars)
+          selected_vars <- c(selected_vars, pop_flag_vars)
+        }
+      }
+# END OF NEW!!!!
+
       # Helper: checks whether a value is actually "provided"
       is_provided <- function(x) {
         checkmate::test_string(x, min.chars = 1)
@@ -1220,7 +1323,7 @@ hierarchical_count_table_server <- function(
           EC$MSG$VALIDATE$NO_POP_ROWS
         ),
         shiny::need(
-          checkmate::test_string(group_var, min.chars = 1) && group_var != "None",
+          checkmate::test_character(group_vars, min.chars = 1, min.len = 1, max.len = 2),
           EC$MSG$VALIDATE$NO_GRP
         ),
         shiny::need(
@@ -1232,7 +1335,7 @@ hierarchical_count_table_server <- function(
           EC$MSG$VALIDATE$NO_MIN_PERCENT
         ),
         shiny::need(
-          !checkmate::test_choice(group_var, hierarchy, null.ok = TRUE),
+          !checkmate::test_choice(group_vars, hierarchy, null.ok = TRUE),
           EC$MSG$VALIDATE$GRP_CLASH
         ),
         shiny::need(
@@ -1279,8 +1382,9 @@ hierarchical_count_table_server <- function(
       events_table_raw <- compute_events_table(event_df = d,
                                                pop_df = pd,
                                                hierarchy = hierarchy,
-                                               group_var = group_var,
+                                               group_vars = group_vars,
                                                subjid_var = subjid_var,
+                                               pop_flag_vars = pop_flag_vars,
                                                event_group_var = event_group_var,
                                                origin_date_var = origin_date_var,
                                                censor_date_var = censor_date_var,
@@ -1434,6 +1538,11 @@ hierarchical_count_table_server <- function(
 #'
 #' A string representing the subject identifier column in both datasets.
 #'
+#' @param show_pop_flag_selection `[logical(1)]`
+#'
+#' A flag to indicate whether to show the population flag selection. Other associated arguments are `default_pop_flags`
+#' and `pop_flag_choices`.
+#'
 #' @param show_event_group_by `[logical(1)]`
 #'
 #' A flag to indicate whether to show the event by-group selection. This takes precedence over
@@ -1471,6 +1580,18 @@ hierarchical_count_table_server <- function(
 #' A default value for checkbox determining whether to remove entire rows for which every group's percentage of
 #' subjects falls below `default_min_percent`, instead of just showing a dash for those cells.
 #'
+#' @param default_pop_flags `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the population dataset, used as the default for selected population flag variables
+#' (optional).
+#'
+#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#'
+#' @param default_pop_flags_after_groups `[logical(1)]`
+#'
+#' A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+#' group variables.
+#'
 #' @param default_event_group `[character(1)|NULL]`
 #'
 #' A default value for the event group variable selection.
@@ -1504,6 +1625,14 @@ hierarchical_count_table_server <- function(
 #'
 #' A character vector specifying the possible choices for the group variable selection (optional).
 #' If it is not specified then all factor and character variables from the population data will be used.
+#'
+#' @param pop_flag_choices `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the population dataset, specifying the possible choices for the population flag
+#' variables (optional). If it is not specified then all `FL` suffixed factor and character variables from the
+#' population dataset will be used.
+#'
+#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' @param event_group_choices `[character(1+)|NULL]`
 #'
@@ -1546,21 +1675,27 @@ mod_hierarchical_count_table <- function(
     table_dataset_name,
     pop_dataset_name,
     subjid_var = "USUBJID",
+    show_pop_flag_selection = FALSE,
     show_event_group_by = FALSE,
     show_time_at_risk_options = FALSE,
     show_modal_on_click = TRUE,
+
     default_hierarchy = NULL,
     default_group = NULL,
     default_total = TRUE,
     default_min_percent = 0,
     default_remove_rows_under_min_percent = FALSE,
+    default_pop_flags = NULL,
+    default_pop_flags_after_groups = FALSE,
     default_event_group = NULL,
     default_event_date = NULL,
     default_origin_date = NULL,
     default_censor_date = NULL,
     default_risk = FALSE,
+
     hierarchy_choices = NULL,
     group_choices = NULL,
+    pop_flag_choices = NULL,
     event_group_choices = NULL,
     event_date_choices = NULL,
     origin_date_choices = NULL,
@@ -1572,8 +1707,10 @@ mod_hierarchical_count_table <- function(
     ui = function(module_id) {
       hierarchical_count_table_ui(
         id = module_id,
+        show_pop_flag_selection = show_pop_flag_selection,
         show_event_group_by = show_event_group_by,
         show_time_at_risk_options = show_time_at_risk_options,
+        default_pop_flags_after_groups = default_pop_flags_after_groups,
         default_total = default_total,
         default_risk = default_risk,
         default_min_percent = default_min_percent,
@@ -1598,18 +1735,21 @@ mod_hierarchical_count_table <- function(
           pop_dataset_name
         ]]),
         subjid_var = subjid_var,
+        show_pop_flag_selection = show_pop_flag_selection,
         show_event_group_by = show_event_group_by,
         show_time_at_risk_options = show_time_at_risk_options,
         show_modal_on_click = show_modal_on_click,
         on_sbj_click_fun = on_sbj_click_fun,
         default_hierarchy = default_hierarchy,
         default_group = default_group,
+        default_pop_flags = default_pop_flags,
         default_event_group = default_event_group,
         default_event_date = default_event_date,
         default_origin_date = default_origin_date,
         default_censor_date = default_censor_date,
         hierarchy_choices = hierarchy_choices,
         group_choices = group_choices,
+        pop_flag_choices = pop_flag_choices,
         event_group_choices = event_group_choices,
         event_date_choices = event_date_choices,
         origin_date_choices = origin_date_choices,
@@ -1630,6 +1770,7 @@ mod_hierarchical_count_table_API_docs <- list(
   table_dataset_name = "",
   pop_dataset_name = "",
   subjid_var = "",
+  show_pop_flag_selection = "",
   show_event_group_by = "",
   show_time_at_risk_options = "",
   show_modal_on_click = "",
@@ -1638,6 +1779,8 @@ mod_hierarchical_count_table_API_docs <- list(
   default_total = "",
   default_min_percent = "",
   default_remove_rows_under_min_percent = "",
+  default_pop_flags = "",
+  default_pop_flags_after_groups = "",
   default_event_group = "",
   default_event_date = "",
   default_origin_date = "",
@@ -1645,6 +1788,7 @@ mod_hierarchical_count_table_API_docs <- list(
   default_risk = "",
   hierarchy_choices = "",
   group_choices = "",
+  pop_flag_choices = "",
   event_group_choices = "",
   event_date_choices = "",
   origin_date_choices = "",
@@ -1658,6 +1802,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   table_dataset_name = TC$dataset_name(),
   pop_dataset_name = TC$dataset_name(),
   subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
+  show_pop_flag_selection = TC$logical(),
   show_event_group_by = TC$logical(),
   show_time_at_risk_options = TC$logical(),
   show_modal_on_click = TC$logical(),
@@ -1674,6 +1819,12 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   default_total = TC$logical(),
   default_min_percent = TC$numeric(min = 0, max = 100),
   default_remove_rows_under_min_percent = TC$logical(),
+  default_pop_flags = TC$col(
+    "pop_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
+    TC$flag("zero_or_more", "optional"),
+  default_pop_flags_after_groups = TC$logical(),
   default_event_group = TC$col(
     "table_dataset_name",
     TC$or(TC$character(), TC$factor())
@@ -1696,6 +1847,11 @@ mod_hierarchical_count_table_API_spec <- TC$group(
     TC$or(TC$character(), TC$factor())
   ) |>
     TC$flag("zero_or_more", "optional"),
+  pop_flag_choices = TC$col(
+    "pop_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
+    TC$flag("zero_or_more", "optional"),
   event_group_choices = TC$col(
     "table_dataset_name",
     TC$or(TC$character(), TC$factor())
@@ -1714,11 +1870,12 @@ mod_hierarchical_count_table_API_spec <- TC$group(
 
 
 check_mod_hierarchical_count_table <- function(
-    afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_event_group_by, show_time_at_risk_options,
-    show_modal_on_click, default_hierarchy, default_group, default_total, default_min_percent, default_remove_rows_under_min_percent,
-    default_event_group, default_event_date, default_origin_date,
-    default_censor_date, default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
-    censor_date_choices, intended_use_label, receiver_id) {
+    afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var,
+    show_pop_flag_selection, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
+    default_hierarchy, default_group, default_total, default_min_percent, default_remove_rows_under_min_percent,
+    default_pop_flags, default_pop_flags_after_groups, default_event_group, default_event_date, default_origin_date,
+    default_censor_date, default_risk, hierarchy_choices, group_choices, pop_flag_choices, event_group_choices,
+    event_date_choices, origin_date_choices, censor_date_choices, intended_use_label, receiver_id) {
   err <- CM$container()
 
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
@@ -1731,6 +1888,7 @@ check_mod_hierarchical_count_table <- function(
     table_dataset_name,
     pop_dataset_name,
     subjid_var,
+    show_pop_flag_selection,
     show_event_group_by,
     show_time_at_risk_options,
     show_modal_on_click,
@@ -1739,6 +1897,8 @@ check_mod_hierarchical_count_table <- function(
     default_total,
     default_min_percent,
     default_remove_rows_under_min_percent,
+    default_pop_flags,
+    default_pop_flags_after_groups,
     default_event_group,
     default_event_date,
     default_origin_date,
@@ -1746,6 +1906,7 @@ check_mod_hierarchical_count_table <- function(
     default_risk,
     hierarchy_choices,
     group_choices,
+    pop_flag_choices,
     event_group_choices,
     event_date_choices,
     origin_date_choices,
@@ -1846,10 +2007,12 @@ mock_app_hierarchical_count_table_mm <- function() {
         module_id = "hier_table",
         table_dataset_name = "adae",
         pop_dataset_name = "adsl",
+        show_pop_flag_selection = TRUE,
         show_modal_on_click = TRUE,
         default_hierarchy = c("AEBODSYS", "AEDECOD"),
         default_group = "TRT01P",
         default_total = TRUE,
+        default_pop_flags = c("SAFFL", "DTHFL"),
         receiver_id = "papo"
       ),
       "Time at Risk Hierarchy Table" = mod_hierarchical_count_table(

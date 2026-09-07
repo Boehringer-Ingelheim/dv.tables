@@ -184,7 +184,7 @@ summtab_calc_stats <- function(analysis_df,
 #' @param replace A named list of lists of `list(pattern =, replacement =)` pairs, applied in order to the formatted
 #'   results from `stats_fmts` (`pattern` is a regular expression matched against the formatted result; `replacement`
 #'   is the string to substitute in). The names of the outer list should match the names of the list elements in
-#'   `stats_fmts`. 
+#'   `stats_fmts`.
 #' @param stats_element_names A vector of all statistics element names, used to determine elements that have not been
 #'   used in `stats_fmts` and therefore have basic formatting applied (conversion to character).
 #'
@@ -270,6 +270,7 @@ summtab_format_stats <- function(analysis_df,
 #'   - `anl_var`: A vector of analysis variable names.
 #'   - `group_vars`: A vector of group variable names.
 #'   - `row_vars`: A vector of row variable names.
+#'   - `pop_flag_vars`: A vector of population flag variable names.
 #'   - `flag_columns`: A vector of names of columns holding the ".first" flags for rendering.
 #'   - `data_columns`: A vector of names of columns holding the statistics for each population group combination.
 #'   - `total_group_val`: A string indicating the label for the total group column.
