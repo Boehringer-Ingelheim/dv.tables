@@ -1,10 +1,15 @@
-# dv.tables 0.4.1-9009
+# dv.tables 0.4.1-9010
 
 - `mod_hierarchical_count_table`:
   - Allow up to 4 levels of hierarchical variables.
   - Show variable labels rather than variable names in the information above the table.
   - Display count of "0" when `n = 0`, instead of em dash.
   - Display time at risk and incidence rate when `n = 0`, instead of em dash.
+
+# dv.tables 0.4.1-9009
+
+- [Tplyr_table module] Add new arguments from `dv.listings` module
+- [Tplyr_table module] Enable pagination for Tplyr tables
 
 # dv.tables 0.4.1-9008
 

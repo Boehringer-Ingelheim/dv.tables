@@ -192,7 +192,10 @@ mock_Tplyr_table <- function() {
       subjid_var = "USUBJID",
       default_vars = NULL,
       intended_use_label = "Test Label",
-      pagination = NULL
+      listing_pagination = NULL,
+      table_pagination = TRUE,
+      exclude_var_names_from_column_headings = FALSE,
+      footers = NULL
     )
   }
 
@@ -320,8 +323,11 @@ mock_Tplyr_table_tabs <- function() {
       subjid_var = "USUBJID",
       default_vars = NULL,
       intended_use_label = "Test Label",
-      pagination = NULL,
-      title_layout = "tabs"
+      listing_pagination = NULL,
+      table_pagination = TRUE,
+      title_layout = "tabs",
+      exclude_var_names_from_column_headings = FALSE,
+      footers = NULL
     )
   }
 
