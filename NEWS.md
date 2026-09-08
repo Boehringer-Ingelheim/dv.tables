@@ -1,51 +1,23 @@
-# dv.tables 0.4.1-9010
+# dv.tables 0.5.0
+
+- New module `mod_summary_table` that provides numerical and categorical analysis.
 
 - `mod_hierarchical_count_table`:
   - Allow up to 4 levels of hierarchical variables.
   - Show variable labels rather than variable names in the information above the table.
   - Display count of "0" when `n = 0`, instead of em dash.
   - Display time at risk and incidence rate when `n = 0`, instead of em dash.
+  - `mod_hierarchical_count_table` hides rows below a given minimum percentage. Adds new argument                       `default_min_percent`
+  - Add scrollbar to options dropdown to avoid truncation in short window space.
+  - Add progress bar shown during table generation
 
-# dv.tables 0.4.1-9009
 
-- [Tplyr_table module] Add new arguments from `dv.listings` module
-- [Tplyr_table module] Enable pagination for Tplyr tables
+- `mod_Tplyr_table`
 
-# dv.tables 0.4.1-9008
-
-- `mod_hierarchical_count_table` hides rows below a given minimum percentage. Adds new argument `default_min_percent`
-
-# dv.tables 0.4.1-9007
-
-- [TO BE REMOVED BEFORE MERGING INTO MAIN] Replace patterns in names for formatting in `mod_summary_table`
-
-# dv.tables 0.4.1-9006
-
-- New module `mod_summary_table` that provides numerical and categorical analysis.
-
-# dv.tables 0.4.1-9005
-
-- [NOT USER-FACING] CSS tweak to container of dv.listings Tplyr_table.
-
-# dv.tables 0.4.1-9004
-
-- Add scrollbar to options dropdown to avoid truncation in short window space.
-
-# dv.tables 0.4.1-9003
-
-- [NOT USER-FACING] Provide `afmm` to newer version of `dv.listings::check_review_parameter`
-
-# dv.tables 0.4.1-9002
-
-- Add progress bar shown during table generation
-
-# dv.tables 0.4.1-9001
-
-- [NOT USER-FACING] Update TC.R and DR.R snippet
-
-# dv.tables 0.4.1-9000
-
-- [NOT USER-FACING] Update CM.R snippet
+  - Add new arguments from `dv.listings` module
+  - Enable pagination for Tplyr tables
+  - [NOT USER-FACING] CSS tweak to container of dv.listings Tplyr_table.
+  - [NOT USER-FACING] Provide `afmm` to newer version of `dv.listings::check_review_parameter`
 
 # dv.tables 0.4.1
 
