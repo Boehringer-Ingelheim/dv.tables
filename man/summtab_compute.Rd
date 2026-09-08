@@ -81,6 +81,7 @@ population group combination, ".first" flags for rendering.
 \item \code{anl_var}: A vector of analysis variable names.
 \item \code{group_vars}: A vector of group variable names.
 \item \code{row_vars}: A vector of row variable names.
+\item \code{pop_flag_vars}: A vector of population flag variable names.
 \item \code{flag_columns}: A vector of names of columns holding the ".first" flags for rendering.
 \item \code{data_columns}: A vector of names of columns holding the statistics for each population group combination.
 \item \code{total_group_val}: A string indicating the label for the total group column.

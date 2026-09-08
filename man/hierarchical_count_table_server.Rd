@@ -9,18 +9,21 @@ hierarchical_count_table_server(
   table_dataset,
   pop_dataset,
   subjid_var,
+  show_pop_flag_selection = FALSE,
   show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
   on_sbj_click_fun = function() NULL,
   default_hierarchy = NULL,
   default_group = NULL,
+  default_pop_flags = NULL,
   default_event_group = NULL,
   default_event_date = NULL,
   default_origin_date = NULL,
   default_censor_date = NULL,
   hierarchy_choices = NULL,
   group_choices = NULL,
+  pop_flag_choices = NULL,
   event_group_choices = NULL,
   event_date_choices = NULL,
   origin_date_choices = NULL,
@@ -44,6 +47,11 @@ A reactive dataset containing the population data.}
 \item{subjid_var}{\verb{[character(1)]}
 
 A string representing the subject identifier column in both datasets.}
+
+\item{show_pop_flag_selection}{\verb{[logical(1)]}
+
+A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
+and \code{pop_flag_choices}.}
 
 \item{show_event_group_by}{\verb{[logical(1)]}
 
@@ -71,6 +79,13 @@ A default value for the hierarchy variables selection (optional).}
 \item{default_group}{\verb{[character(1)|NULL]}
 
 A default value for the group variable selection (optional).}
+
+\item{default_pop_flags}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, used as the default for selected population flag variables
+(optional).
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
 
 \item{default_event_group}{\verb{[character(1)|NULL]}
 
@@ -100,6 +115,14 @@ If it is not specified then all factor and character variables from the event da
 
 A character vector specifying the possible choices for the group variable selection (optional).
 If it is not specified then all factor and character variables from the population data will be used.}
+
+\item{pop_flag_choices}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, specifying the possible choices for the population flag
+variables (optional). If it is not specified then all \code{FL} suffixed factor and character variables from the
+population dataset will be used.
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
 
 \item{event_group_choices}{\verb{[character(1+)|NULL]}
 

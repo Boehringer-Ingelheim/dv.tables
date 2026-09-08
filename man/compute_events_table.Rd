@@ -8,8 +8,9 @@ compute_events_table(
   event_df,
   pop_df,
   hierarchy = NULL,
-  group_var = NULL,
+  group_vars = NULL,
   subjid_var = NULL,
+  pop_flag_vars = NULL,
   event_group_var = NULL,
   origin_date_var = NULL,
   censor_date_var = NULL,
@@ -30,12 +31,14 @@ A data frame containing the population data. It must have columns corresponding 
 \item{hierarchy}{\verb{character(1+)}
 A character vector of column names from \code{event_df} to use as the hierarchy.}
 
-\item{group_var}{\code{character(1)}
-A string representing the column name in \code{pop_df} used for grouping the population data.}
+\item{group_vars}{\code{character(1)}
+A character vector of column names from \code{pop_df} used for grouping the population data.}
 
 \item{subjid_var}{\code{character(1)}
 A string representing the subject identifier column name. This column must be present in both \code{event_df} and
 \code{pop_df}.}
+
+\item{pop_flag_vars}{A vector of names of population flag variables from \code{pop_df}.}
 
 \item{event_group_var}{\code{character(1)}
 A string representing the column name in \code{event_df} used for grouping the event data.}
@@ -63,7 +66,24 @@ A list containing:
 \itemize{
 \item \code{df}: A data frame with the processed event data, including counts and percentages.
 \item \code{meta}: A list containing metadata related to the hierarchy, group variable, and subject counts.
+\item \code{meta}: A list of metadata:
+\itemize{
+\item \code{hierarchy}: A vector of hierarchy variable names.
+\item \code{group_var}: A string indicating the group variable name.
+\item \code{event_group_var}: A string indicating the event group variable name.
+\item \code{event_group_vals}: A vector of ??.
+\item \code{pop_flag_vars}: A vector of population flag variable names.
+\item \code{total_group_val}: A string indicating the label for the total group column.
+\item \code{n_denom}: A named vector of denominators for each group variable, named by values of group variable.
+\item \code{table_type}: A string, either "frequency" or "time_at_risk", indicating the table type.
+\item \code{warning_message}: A string indicating a warning message to be raised by shiny::validate.
 }
+}\if{html}{\out{
+<!-- - `data_columns`: A vector of names of columns holding the statistics for each population group combination. -->
+}}
+\if{html}{\out{
+<!-- - `denom_df`: A data frame of population group denominator data. -->
+}}
 }
 \description{
 Computes an event table with subject counts and percentages

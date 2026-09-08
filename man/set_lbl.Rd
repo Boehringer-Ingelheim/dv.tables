@@ -7,14 +7,14 @@
 set_lbl(df, var, lbl)
 }
 \arguments{
-\item{df}{a dataframe.}
+\item{df}{a data frame.}
 
-\item{var}{a column of the dataframe}
+\item{var}{a column of the data frame}
 
 \item{lbl}{the label}
 }
 \value{
-the dataframe with the replaced label
+the data frame with the replaced label
 }
 \description{
 Set the label attribute of a column in a data frame

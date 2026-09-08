@@ -9,6 +9,7 @@ mod_hierarchical_count_table(
   table_dataset_name,
   pop_dataset_name,
   subjid_var = "USUBJID",
+  show_pop_flag_selection = FALSE,
   show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
@@ -17,6 +18,8 @@ mod_hierarchical_count_table(
   default_total = TRUE,
   default_min_percent = 0,
   default_remove_rows_under_min_percent = FALSE,
+  default_pop_flags = NULL,
+  default_pop_flags_after_groups = FALSE,
   default_event_group = NULL,
   default_event_date = NULL,
   default_origin_date = NULL,
@@ -24,6 +27,7 @@ mod_hierarchical_count_table(
   default_risk = FALSE,
   hierarchy_choices = NULL,
   group_choices = NULL,
+  pop_flag_choices = NULL,
   event_group_choices = NULL,
   event_date_choices = NULL,
   origin_date_choices = NULL,
@@ -49,6 +53,11 @@ Name of the population dataset.}
 \item{subjid_var}{\verb{[character(1)]}
 
 A string representing the subject identifier column in both datasets.}
+
+\item{show_pop_flag_selection}{\verb{[logical(1)]}
+
+A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
+and \code{pop_flag_choices}.}
 
 \item{show_event_group_by}{\verb{[logical(1)]}
 
@@ -87,6 +96,18 @@ this threshold have their counts replaced with a dash instead of being shown.}
 A default value for checkbox determining whether to remove entire rows for which every group's percentage of
 subjects falls below \code{default_min_percent}, instead of just showing a dash for those cells.}
 
+\item{default_pop_flags}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, used as the default for selected population flag variables
+(optional).
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
+
+\item{default_pop_flags_after_groups}{\verb{[logical(1)]}
+
+A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+group variables.}
+
 \item{default_event_group}{\verb{[character(1)|NULL]}
 
 A default value for the event group variable selection.}
@@ -120,6 +141,14 @@ If it is not specified then all factor and character variables from the event da
 
 A character vector specifying the possible choices for the group variable selection (optional).
 If it is not specified then all factor and character variables from the population data will be used.}
+
+\item{pop_flag_choices}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, specifying the possible choices for the population flag
+variables (optional). If it is not specified then all \code{FL} suffixed factor and character variables from the
+population dataset will be used.
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
 
 \item{event_group_choices}{\verb{[character(1+)|NULL]}
 
