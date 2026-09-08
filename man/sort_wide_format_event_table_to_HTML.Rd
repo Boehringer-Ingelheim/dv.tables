@@ -4,11 +4,14 @@
 \alias{sort_wide_format_event_table_to_HTML}
 \title{Renders the wide-format event table as an HTML table}
 \usage{
-sort_wide_format_event_table_to_HTML(d, on_cell_click = NULL)
+sort_wide_format_event_table_to_HTML(d, var_labels, on_cell_click = NULL)
 }
 \arguments{
 \item{d}{\code{list}
 A list returned from \code{sort_wider_formatter_events_table()} containing the sorted wide-format event data and metadata.}
+
+\item{var_labels}{\code{list}
+A list of variable labels indexed by variable names.}
 
 \item{on_cell_click}{\code{character(0)}
 A JavaScript callback function to be executed when a table cell is clicked. Default is \code{NULL}.}

@@ -1,4 +1,6 @@
 # Event count tests
+
+# Function tests ----
 local({
   event_list <- list()
   event_list[["subj"]] <- factor(c("1", "1", "1", "1", "2", "2", "2", "3"))
@@ -10,6 +12,13 @@ local({
   pop_list[["subj"]] <- factor(c("1", "2", "3", "4"))
   pop_list[["group"]] <- factor(c("GA", "GB", "GC", "GC"))
   pop_df <- as.data.frame(pop_list)
+
+  attr(event_df$lvl1, "label") <- "Level 1"
+  attr(event_df$lvl2, "label") <- "Level 2"
+
+  # Get variable labels for information display in final HTML
+  combined_labels <- c(get_lbls_robust(event_df), get_lbls_robust(pop_df))
+  var_labels <- combined_labels[!duplicated(names(combined_labels))]
 
   x <- compute_events_table(
     event_df = event_df,
@@ -25,7 +34,7 @@ local({
 
   sw <- sort_wider_formatter_events_table(w, s)
 
-  html <- sort_wide_format_event_table_to_HTML(sw)
+  html <- sort_wide_format_event_table_to_HTML(sw, var_labels)
 
   # We will test against snapshots that we have checked is correct
 
@@ -57,7 +66,11 @@ local({
     expect_snapshot(w)
   })
 
-  # app ----
+})
+
+# app ----
+local({
+  skip_if_not_running_shiny_tests()
 
   tns <- tns_factory("mod")
 
@@ -75,13 +88,7 @@ local({
   root_app <- start_app_driver(rlang::quo(dv.tables::mock_app_hierarchical_count_table()))
   on.exit(if ("stop" %in% names(root_app)) root_app$stop())
 
-  fail_if_app_not_started <- function() {
-    if (is.null(root_app)) rlang::abort("App could not be started")
-  }
-
-  fail_if_app_not_started()
-  skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
-
+  fail_if_app_not_started(root_app)
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
