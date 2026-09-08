@@ -16,6 +16,13 @@ local({
   pop_list[["censdt"]] <- as.Date(c("2025-01-10", "2025-02-20", "2025-03-23", "2025-04-24"))
   pop_df <- as.data.frame(pop_list)
 
+  attr(event_df$lvl1, "label") <- "Level 1"
+  attr(event_df$lvl2, "label") <- "Level 2"
+
+  # Get variable labels for information display in final HTML
+  combined_labels <- c(get_lbls_robust(event_df), get_lbls_robust(pop_df))
+  var_labels <- combined_labels[!duplicated(names(combined_labels))]
+
   x <- compute_events_table(
     event_df = event_df,
     pop_df = pop_df,
@@ -36,7 +43,7 @@ local({
 
   sw <- sort_wider_formatter_events_table(w, s)
 
-  html <- sort_wide_format_event_table_to_HTML(sw)
+  html <- sort_wide_format_event_table_to_HTML(sw, var_labels)
 
   # We will test against snapshots that we have checked is correct
 

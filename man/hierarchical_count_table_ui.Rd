@@ -11,7 +11,7 @@ hierarchical_count_table_ui(
   default_total = TRUE,
   default_risk = FALSE,
   default_min_percent = 0,
-  default_hide_rows_under_min_percent = FALSE
+  default_remove_rows_under_min_percent = FALSE
 )
 }
 \arguments{
@@ -44,9 +44,9 @@ applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 A default value (0-100) for the minimum percentage of subjects a row must reach to be displayed. Rows below
 this threshold have their counts replaced with a dash instead of being shown.}
 
-\item{default_hide_rows_under_min_percent}{\verb{[logical(1)]}
+\item{default_remove_rows_under_min_percent}{\verb{[logical(1)]}
 
-A default value for checkbox determining whether to hide entire rows for which every group's percentage of
+A default value for checkbox determining whether to remove entire rows for which every group's percentage of
 subjects falls below \code{default_min_percent}, instead of just showing a dash for those cells.}
 }
 \value{

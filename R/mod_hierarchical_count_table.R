@@ -1,4 +1,4 @@
-EC <- poc(  
+EC <- poc(
   ID = poc(
     TABLE = "table",
     DROP_MENU = "drop_menu",
@@ -116,12 +116,12 @@ create_adtte <- function(event_df,
                          event_date_var) {
 
   # Flag when event group has been specified
-  has_event_group <- !is.null(event_group_var) && length(event_group_var) > 0
+  has_event_group <- !is.null(event_group_var) && length(event_group_var) > 0L
 
   # Flags when time at risk dates are specified for population and event data frames
-  has_origin_dt <- !is.null(origin_date_var) && length(origin_date_var) > 0
-  has_censor_dt <- !is.null(censor_date_var) && length(censor_date_var) > 0
-  has_event_dt <- !is.null(event_date_var) && length(event_date_var) > 0
+  has_origin_dt <- !is.null(origin_date_var) && length(origin_date_var) > 0L
+  has_censor_dt <- !is.null(censor_date_var) && length(censor_date_var) > 0L
+  has_event_dt <- !is.null(event_date_var) && length(event_date_var) > 0L
 
   # Define column names for columns creating in function
   hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
@@ -143,22 +143,22 @@ create_adtte <- function(event_df,
   bind_adtte <- NULL
 
   # Loop over hierarchy levels, including totals dealt with as level 0
-  for (hierarchy_level in 0:length(hierarchy)) {
+  for (hierarchy_level in 0L:length(hierarchy)) {
 
-    hierarchy_cols <- hierarchy[0:hierarchy_level]
+    hierarchy_cols <- hierarchy[0L:hierarchy_level]
 
     # Remove rows where hierarchy value is NA in any processed hierarchy columns
     subset_event_df <- event_df[stats::complete.cases(event_df[, hierarchy_cols]), ]
 
     # For each hierarchy group, only keep first event occurrence
-    if (has_event_dt && nrow(event_df) > 0) {
+    if (has_event_dt && nrow(subset_event_df) > 0L) {
       subset_event_df <- subset_event_df |>
         dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, hierarchy_cols, event_group_var)))) |>
         dplyr::summarise(!!event_date_var := min(.data[[event_date_var]]), .groups = "drop")
     } else {
       subset_event_df <- subset_event_df |>
         dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, hierarchy_cols, event_group_var)))) |>
-        dplyr::slice(1) |>
+        dplyr::slice(1L) |>
         dplyr::ungroup()
     }
 
@@ -167,7 +167,7 @@ create_adtte <- function(event_df,
 
     # Expand population data using grid of hierarchy combinations to create base records for ADTTE ----
 
-    if (hierarchy_level != 0) {
+    if (hierarchy_level != 0L) {
       hierarchy_grid <- unique(subset_event_df[, hierarchy_cols, drop = FALSE])
       adtte <- dplyr::cross_join(pop_df, hierarchy_grid)
     } else {
@@ -193,7 +193,12 @@ create_adtte <- function(event_df,
                                     time_at_risk_col, censor_col)))
 
     # Add hierarchy level to data
-    adtte[[hier_lvl_col]] <- hierarchy_level
+    adtte[[hier_lvl_col]] <-
+      if (nrow(adtte) > 0L) {
+        hierarchy_level
+      } else {
+        integer(0L)
+      }
 
     bind_adtte <- dplyr::bind_rows(bind_adtte, adtte)
   }
@@ -212,8 +217,8 @@ create_adtte <- function(event_df,
 #' @param pop_df `data.frame`
 #' A data frame containing the population data. It must have columns corresponding to subjects and group variables.
 #'
-#' @param hierarchy `character(1|2)`
-#' A character vector of column names from `event_df` to use as the hierarchy. Can be one or two levels.
+#' @param hierarchy `character(1+)`
+#' A character vector of column names from `event_df` to use as the hierarchy.
 #'
 #' @param group_var `character(1)`
 #' A string representing the column name in `pop_df` used for grouping the population data.
@@ -569,11 +574,16 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
 
   cell_col <- paste0(EC$VAL$SPECIAL_CHAR, "cell")
 
-  pct_above_min <- df[["pct"]] > min_percent
+  pct_above_min <- df[["pct"]] >= min_percent
+  zero_count <- df[["n"]] == 0
 
   count <- ifelse(
     pct_above_min,
-    sprintf("%d ( %.2f %%)", df[["n"]], df[["pct"]]),
+    ifelse(
+      zero_count,
+      "0",
+      sprintf("%d ( %.2f %%)", df[["n"]], df[["pct"]])
+    ),
     "\u2014"
   )
   subjid <- purrr::map(df[["subjid"]], as.character)
@@ -601,15 +611,14 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
     cells <- list(
         count = count,
         subjid = subjid
-      )    
+      )
   }
-  
 
   df[[cell_col]] <- local({
     stopifnot(
       "cell components must all have length nrow(df)" = lengths(cells) ==
         nrow(df)
-    )    
+    )
     .mapply(list, cells, NULL)
   })
 
@@ -642,7 +651,14 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
     values_fill = list(EC$VAL$SPECIAL_CHAR)
   )
 
-  res <- list(df = wide_event, meta = c(d[["meta"]], list(min_percent = min_percent)))
+  res <- list(
+    df = wide_event,
+    meta = c(
+      d[["meta"]],
+      list(min_percent = min_percent)
+    )
+  )
+
   res
 }
 
@@ -686,22 +702,27 @@ sort_wider_formatter_events_table <- function(event_d, sort_df) { # nolint
 #' @param d `list`
 #' A list returned from `sort_wider_formatter_events_table()` containing the sorted wide-format event data and metadata.
 #'
+#' @param var_labels `list`
+#' A list of variable labels indexed by variable names.
+#'
 #' @param on_cell_click `character(0)`
 #' A JavaScript callback function to be executed when a table cell is clicked. Default is `NULL`.
 #'
 #' @return An HTML table generated using `shiny::tags` and formatted for interactive display.
 #'
 #' @keywords internal
-sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # nolint
+sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = NULL) { # nolint
   checkmate::assert_data_frame(d[["df"]]) # DP
   checkmate::assert_list(d[["meta"]]) # DP
 
   hierarchy <- d[["meta"]][["hierarchy"]]
   hier_lvl_col <- d[["meta"]][["hier_lvl_col"]]
+  group_var <- d[["meta"]][["group_var"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
   event_group_vals <- d[["meta"]][["event_group_vals"]]
   n_denominator <- d[["meta"]][["n_denominator"]]
   table_type <- d[["meta"]][["table_type"]]
+  min_percent <- d[["meta"]][["min_percent"]]
   df <- d[["df"]]
 
   # Flag when event group has been specified
@@ -791,11 +812,20 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
     )
   })
 
-  title <- sprintf("Event count by %s", paste(hierarchy, collapse = ", "))
+  title <- sprintf(
+    "Event count by %s%s%s%s",
+    paste(unlist(var_labels[hierarchy], use.names = FALSE), collapse = ", "),
+    ifelse(length(group_var) == 0L, "",
+           paste("; group by", paste(unlist(var_labels[group_var], use.names = FALSE), collapse = ", "))),
+    ifelse(length(event_group_var) == 0L, "",
+           paste("; event group by", paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", "))),
+    ifelse(min_percent == 0, "",
+           sprintf("; minimum %.2f%%", min_percent))
+  )
 
   hierarchy_length <- length(hierarchy)
 
-  body <- vector(mode = "list", length = nrow(df))  
+  body <- vector(mode = "list", length = nrow(df))
   for (r in seq_len(nrow(df))) {
     curr_row <- df[r, , drop = FALSE]
     curr_hier_lvl <- curr_row[[hier_lvl_col]]
@@ -812,7 +842,7 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
                                  curr_row[[entry_name_col]],
                                  class = "truncate",
                                  title = curr_row[[entry_name_col]]))
-        
+
     data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
       if (table_type == "time_at_risk") {
         data_list <- .col[[1]]
@@ -829,9 +859,16 @@ sort_wide_format_event_table_to_HTML <- function(d, on_cell_click = NULL) { # no
         tdc(.col[[1]][["count"]], column = .col_id, onclick = on_cell_click)
       }
     })
+
+    data_cell_classes <- if (indent == 0L || is.null(collapse_control)) {
+      indent_class
+    } else {
+      c(indent_class, "bg-gray")
+    }
+
     body[[r]] <- tr(
       "row-id" = r,
-      class = c(indent_class),
+      class = data_cell_classes,
       indent = indent,
       entry_cell,
       data_cells
@@ -1017,7 +1054,7 @@ hierarchical_count_table_server <- function(
       default = default_hierarchy,
       multiple = TRUE,
       include_none = FALSE,
-      options = list(maxItems = 2)
+      options = list(maxItems = 4, plugins = list("drag_drop"))
     )
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
@@ -1138,6 +1175,9 @@ hierarchical_count_table_server <- function(
 
     }
 
+    # Initialize variable labels reactive value
+    var_labels <- shiny::reactiveVal(list())
+
     et <- shiny::reactive({
       d <- table_dataset()
       pd <- pop_dataset()
@@ -1161,6 +1201,10 @@ hierarchical_count_table_server <- function(
         compute_risk <- inputs[[EC$ID$RISK_FLAG]]()
       }
 
+      # Store variable labels for information display in final HTML
+      combined_labels <- c(get_lbls_robust(d), get_lbls_robust(pd))
+      var_labels(combined_labels[!duplicated(names(combined_labels))])
+
       # Helper: checks whether a value is actually "provided"
       is_provided <- function(x) {
         checkmate::test_string(x, min.chars = 1)
@@ -1180,7 +1224,7 @@ hierarchical_count_table_server <- function(
           EC$MSG$VALIDATE$NO_GRP
         ),
         shiny::need(
-          checkmate::test_character(hierarchy, min.chars = 1, min.len = 1, max.len = 2),
+          checkmate::test_character(hierarchy, min.chars = 1, min.len = 1, max.len = 4),
           EC$MSG$VALIDATE$NO_HIERARCHY
         ),
         shiny::need(
@@ -1283,6 +1327,7 @@ hierarchical_count_table_server <- function(
     output[[EC$ID$TABLE]] <- shiny::renderUI({
       on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
       et <- et()
+      var_labels <- var_labels()
 
       # Start a progress bar and leave its cleanup to the `input[[EC$ID$RENDER_COMPLETION_CALLBACK]]` observer
       p <- shiny::Progress$new(session = session)
@@ -1292,6 +1337,7 @@ hierarchical_count_table_server <- function(
 
       rendered_content <- sort_wide_format_event_table_to_HTML(
         et,
+        var_labels,
         on_cell_click
       )
       shiny::tagList(rendered_content, render_completion_callback)
@@ -1496,31 +1542,31 @@ hierarchical_count_table_server <- function(
 #'
 #' @export
 mod_hierarchical_count_table <- function(
-  module_id,
-  table_dataset_name,
-  pop_dataset_name,
-  subjid_var = "USUBJID",
-  show_event_group_by = FALSE,
-  show_time_at_risk_options = FALSE,
-  show_modal_on_click = TRUE,
-  default_hierarchy = NULL,
-  default_group = NULL,
-  default_total = TRUE,
-  default_min_percent = 5,
-  default_remove_rows_under_min_percent = FALSE,
-  default_event_group = NULL,
-  default_event_date = NULL,
-  default_origin_date = NULL,
-  default_censor_date = NULL,
-  default_risk = FALSE,
-  hierarchy_choices = NULL,
-  group_choices = NULL,
-  event_group_choices = NULL,
-  event_date_choices = NULL,
-  origin_date_choices = NULL,
-  censor_date_choices = NULL,
-  intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
-  receiver_id = NULL
+    module_id,
+    table_dataset_name,
+    pop_dataset_name,
+    subjid_var = "USUBJID",
+    show_event_group_by = FALSE,
+    show_time_at_risk_options = FALSE,
+    show_modal_on_click = TRUE,
+    default_hierarchy = NULL,
+    default_group = NULL,
+    default_total = TRUE,
+    default_min_percent = 0,
+    default_remove_rows_under_min_percent = FALSE,
+    default_event_group = NULL,
+    default_event_date = NULL,
+    default_origin_date = NULL,
+    default_censor_date = NULL,
+    default_risk = FALSE,
+    hierarchy_choices = NULL,
+    group_choices = NULL,
+    event_group_choices = NULL,
+    event_date_choices = NULL,
+    origin_date_choices = NULL,
+    censor_date_choices = NULL,
+    intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
+    receiver_id = NULL
 ) {
   mod <- list(
     ui = function(module_id) {
@@ -1678,7 +1724,7 @@ check_mod_hierarchical_count_table <- function(
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
   # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), err)
 
-  OK <- check_mod_hierarchical_count_table_auto(    
+  OK <- check_mod_hierarchical_count_table_auto(
     afmm,
     datasets,
     module_id,
@@ -1782,9 +1828,10 @@ mock_app_hierarchical_count_table <- function(dry_run = FALSE,
 mock_app_hierarchical_count_table_mm <- function() {
 
   if (!requireNamespace("dv.manager")) stop("Install dv.manager")
+  if (!requireNamespace("dv.papo")) stop("Install dv.papo")
   if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
 
-  adsl <- pharmaverseadam::adsl
+  adsl <- pharmaverseadam::adsl |> dplyr::filter(!is.na(.data[["RANDDT"]]))
   adae <- pharmaverseadam::adae
 
   attr(adsl, "meta") <- base::file.info("NEWS.md")
@@ -1795,8 +1842,18 @@ mock_app_hierarchical_count_table_mm <- function() {
       pharmaverseadam = list(adae = adae, adsl = adsl)
     ),
     module_list = list(
-      "ADAE by term" = mod_hierarchical_count_table(
-        "hierarchical_count_table",
+      "Hierarchy Table" = mod_hierarchical_count_table(
+        module_id = "hier_table",
+        table_dataset_name = "adae",
+        pop_dataset_name = "adsl",
+        show_modal_on_click = TRUE,
+        default_hierarchy = c("AEBODSYS", "AEDECOD"),
+        default_group = "TRT01P",
+        default_total = TRUE,
+        receiver_id = "papo"
+      ),
+      "Time at Risk Hierarchy Table" = mod_hierarchical_count_table(
+        module_id = "hier_time_at_risk",
         table_dataset_name = "adae",
         pop_dataset_name = "adsl",
         show_time_at_risk_options = TRUE,
@@ -1806,12 +1863,33 @@ mock_app_hierarchical_count_table_mm <- function() {
         default_event_date = "ASTDT",
         default_origin_date = "TRTSDT",
         default_censor_date = "EOSDT",
-        default_total = TRUE,
-        default_risk = FALSE
+        default_total = FALSE,
+        default_risk = TRUE,
+        receiver_id = "papo"
+      ),
+      "Hierarchy Table by Event Group" = mod_hierarchical_count_table(
+        module_id = "hier_event_group",
+        table_dataset_name = "adae",
+        pop_dataset_name = "adsl",
+        show_event_group_by = TRUE,
+        show_modal_on_click = TRUE,
+        default_hierarchy = c("AEBODSYS", "AEDECOD"),
+        default_group = "TRT01P",
+        default_total = FALSE,
+        default_event_group = "AESEV",
+        receiver_id = "papo"
+      ),
+      "Patient Profile" = dv.papo::mod_patient_profile(
+        module_id = "papo",
+        subject_level_dataset_name = "adsl",
+        subjid_var = "USUBJID",
+        sender_ids = c("hier_table", "hier_time_at_risk", "hier_event_group"),
+        summary = list(vars = c("AGE", "SEX", "RACE", "ETHNIC", "ARM"),
+                       column_count = 1)
       )
     ),
     filter_dataset_name = "adsl",
-    filter_key = "SUBJID",
+    filter_key = "USUBJID",
     enableBookmarking = "url"
   )
 }

@@ -127,7 +127,7 @@
       html
     Output
       <div>
-        <p>Event count by lvl1, lvl2</p>
+        <p>Event count by Level 1, Level 2; group by group; event group by Event Group</p>
         <table class="table event-count">
           <tr class="no-border">
             <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
@@ -220,14 +220,14 @@
             <td class="text-center" column="GBEG1">1 ( 50.00 %)</td>
             <td class="text-center" column="GBEG2">1 ( 50.00 %)</td>
             <td class="text-center" column="GBEG3">2 ( 100.00 %)</td>
-            <td class="text-center" column="GCEG1">—</td>
-            <td class="text-center" column="GCEG2">—</td>
-            <td class="text-center" column="GCEG3">—</td>
+            <td class="text-center" column="GCEG1">0</td>
+            <td class="text-center" column="GCEG2">0</td>
+            <td class="text-center" column="GCEG3">0</td>
             <td class="text-center" column="TotalEG1">2 ( 50.00 %)</td>
             <td class="text-center" column="TotalEG2">2 ( 50.00 %)</td>
             <td class="text-center" column="TotalEG3">3 ( 75.00 %)</td>
           </tr>
-          <tr row-id="2" class="indent-1" indent="1">
+          <tr row-id="2" class="indent-1 bg-gray" indent="1">
             <td>
               <span class="truncate" title="A1">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
@@ -235,14 +235,14 @@
               </span>
             </td>
             <td class="text-center" column="GAEG1">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG2">—</td>
-            <td class="text-center" column="GAEG3">—</td>
+            <td class="text-center" column="GAEG2">0</td>
+            <td class="text-center" column="GAEG3">0</td>
             <td class="text-center" column="GBEG1">1 ( 50.00 %)</td>
             <td class="text-center" column="GBEG2">1 ( 50.00 %)</td>
             <td class="text-center" column="GBEG3">1 ( 50.00 %)</td>
-            <td class="text-center" column="GCEG1">—</td>
-            <td class="text-center" column="GCEG2">—</td>
-            <td class="text-center" column="GCEG3">—</td>
+            <td class="text-center" column="GCEG1">0</td>
+            <td class="text-center" column="GCEG2">0</td>
+            <td class="text-center" column="GCEG3">0</td>
             <td class="text-center" column="TotalEG1">2 ( 50.00 %)</td>
             <td class="text-center" column="TotalEG2">1 ( 25.00 %)</td>
             <td class="text-center" column="TotalEG3">1 ( 25.00 %)</td>
@@ -252,14 +252,14 @@
               <span class="truncate" title="A2">A2</span>
             </td>
             <td class="text-center" column="GAEG1">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG2">—</td>
-            <td class="text-center" column="GAEG3">—</td>
-            <td class="text-center" column="GBEG1">—</td>
+            <td class="text-center" column="GAEG2">0</td>
+            <td class="text-center" column="GAEG3">0</td>
+            <td class="text-center" column="GBEG1">0</td>
             <td class="text-center" column="GBEG2">1 ( 50.00 %)</td>
             <td class="text-center" column="GBEG3">1 ( 50.00 %)</td>
-            <td class="text-center" column="GCEG1">—</td>
-            <td class="text-center" column="GCEG2">—</td>
-            <td class="text-center" column="GCEG3">—</td>
+            <td class="text-center" column="GCEG1">0</td>
+            <td class="text-center" column="GCEG2">0</td>
+            <td class="text-center" column="GCEG3">0</td>
             <td class="text-center" column="TotalEG1">1 ( 25.00 %)</td>
             <td class="text-center" column="TotalEG2">1 ( 25.00 %)</td>
             <td class="text-center" column="TotalEG3">1 ( 25.00 %)</td>
@@ -269,35 +269,35 @@
               <span class="truncate" title="B2">B2</span>
             </td>
             <td class="text-center" column="GAEG1">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG2">—</td>
-            <td class="text-center" column="GAEG3">—</td>
+            <td class="text-center" column="GAEG2">0</td>
+            <td class="text-center" column="GAEG3">0</td>
             <td class="text-center" column="GBEG1">1 ( 50.00 %)</td>
-            <td class="text-center" column="GBEG2">—</td>
-            <td class="text-center" column="GBEG3">—</td>
-            <td class="text-center" column="GCEG1">—</td>
-            <td class="text-center" column="GCEG2">—</td>
-            <td class="text-center" column="GCEG3">—</td>
+            <td class="text-center" column="GBEG2">0</td>
+            <td class="text-center" column="GBEG3">0</td>
+            <td class="text-center" column="GCEG1">0</td>
+            <td class="text-center" column="GCEG2">0</td>
+            <td class="text-center" column="GCEG3">0</td>
             <td class="text-center" column="TotalEG1">2 ( 50.00 %)</td>
-            <td class="text-center" column="TotalEG2">—</td>
-            <td class="text-center" column="TotalEG3">—</td>
+            <td class="text-center" column="TotalEG2">0</td>
+            <td class="text-center" column="TotalEG3">0</td>
           </tr>
-          <tr row-id="5" class="indent-1" indent="1">
+          <tr row-id="5" class="indent-1 bg-gray" indent="1">
             <td>
               <span class="truncate" title="B1">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
                 B1
               </span>
             </td>
-            <td class="text-center" column="GAEG1">—</td>
+            <td class="text-center" column="GAEG1">0</td>
             <td class="text-center" column="GAEG2">1 ( 100.00 %)</td>
             <td class="text-center" column="GAEG3">1 ( 100.00 %)</td>
-            <td class="text-center" column="GBEG1">—</td>
-            <td class="text-center" column="GBEG2">—</td>
+            <td class="text-center" column="GBEG1">0</td>
+            <td class="text-center" column="GBEG2">0</td>
             <td class="text-center" column="GBEG3">1 ( 50.00 %)</td>
-            <td class="text-center" column="GCEG1">—</td>
-            <td class="text-center" column="GCEG2">—</td>
-            <td class="text-center" column="GCEG3">—</td>
-            <td class="text-center" column="TotalEG1">—</td>
+            <td class="text-center" column="GCEG1">0</td>
+            <td class="text-center" column="GCEG2">0</td>
+            <td class="text-center" column="GCEG3">0</td>
+            <td class="text-center" column="TotalEG1">0</td>
             <td class="text-center" column="TotalEG2">1 ( 25.00 %)</td>
             <td class="text-center" column="TotalEG3">2 ( 50.00 %)</td>
           </tr>
@@ -305,16 +305,16 @@
             <td>
               <span class="truncate" title="B2">B2</span>
             </td>
-            <td class="text-center" column="GAEG1">—</td>
+            <td class="text-center" column="GAEG1">0</td>
             <td class="text-center" column="GAEG2">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG3">—</td>
-            <td class="text-center" column="GBEG1">—</td>
-            <td class="text-center" column="GBEG2">—</td>
+            <td class="text-center" column="GAEG3">0</td>
+            <td class="text-center" column="GBEG1">0</td>
+            <td class="text-center" column="GBEG2">0</td>
             <td class="text-center" column="GBEG3">1 ( 50.00 %)</td>
-            <td class="text-center" column="GCEG1">—</td>
-            <td class="text-center" column="GCEG2">—</td>
-            <td class="text-center" column="GCEG3">—</td>
-            <td class="text-center" column="TotalEG1">—</td>
+            <td class="text-center" column="GCEG1">0</td>
+            <td class="text-center" column="GCEG2">0</td>
+            <td class="text-center" column="GCEG3">0</td>
+            <td class="text-center" column="TotalEG1">0</td>
             <td class="text-center" column="TotalEG2">1 ( 25.00 %)</td>
             <td class="text-center" column="TotalEG3">1 ( 25.00 %)</td>
           </tr>
@@ -322,17 +322,17 @@
             <td>
               <span class="truncate" title="A2">A2</span>
             </td>
-            <td class="text-center" column="GAEG1">—</td>
-            <td class="text-center" column="GAEG2">—</td>
+            <td class="text-center" column="GAEG1">0</td>
+            <td class="text-center" column="GAEG2">0</td>
             <td class="text-center" column="GAEG3">1 ( 100.00 %)</td>
-            <td class="text-center" column="GBEG1">—</td>
-            <td class="text-center" column="GBEG2">—</td>
-            <td class="text-center" column="GBEG3">—</td>
-            <td class="text-center" column="GCEG1">—</td>
-            <td class="text-center" column="GCEG2">—</td>
-            <td class="text-center" column="GCEG3">—</td>
-            <td class="text-center" column="TotalEG1">—</td>
-            <td class="text-center" column="TotalEG2">—</td>
+            <td class="text-center" column="GBEG1">0</td>
+            <td class="text-center" column="GBEG2">0</td>
+            <td class="text-center" column="GBEG3">0</td>
+            <td class="text-center" column="GCEG1">0</td>
+            <td class="text-center" column="GCEG2">0</td>
+            <td class="text-center" column="GCEG3">0</td>
+            <td class="text-center" column="TotalEG1">0</td>
+            <td class="text-center" column="TotalEG2">0</td>
             <td class="text-center" column="TotalEG3">1 ( 25.00 %)</td>
           </tr>
         </table>
