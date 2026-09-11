@@ -65,9 +65,14 @@ SUMMTAB <- poc(
     POP_GROUP_DUP = "Population dataset has more than one row per subject per grouping",
     MULTI_RESULTS = paste("Multiple results per subject per group!",
                           "Please refine column selections to get one row per subject per group.",
-                          "Alternatively, app creator can enable aggregation via 'show_aggregate_method' parameter.",
-                          sep = "\n"),
-    EMPTY_GROUP_VAL = 'Empty strings ("") found in group variables'
+                          "Alternatively, app creator can enable aggregation via 'show_aggregate_method' parameter."),
+    EMPTY_GROUP_VAL = 'Empty strings ("") found in group variables',
+    ALL_NA_ANL_VAR = paste("Variable to summarize on contains only NA values.",
+                           "Remove offending variable."),
+    ALL_NA_GROUP_VAR = paste("Group variable contains only NA values.",
+                             "Remove offending variable or select 'Drop NA values from groupings/categories' option."),
+    ALL_NA_ROW_VAR = paste("Row variable contains only NA values.",
+                           "Remove offending variable or select 'Drop NA values from groupings/categories' option.")
   ),
   VAL = poc(
     SPECIAL_CHAR = "\u001D", # For naming and processing row levels
@@ -319,6 +324,9 @@ summtab_compute <- function(tbl_df,
   tbl_df <- tbl_df |>
     dplyr::select(dplyr::any_of(c(subjid_var, anl_vars, group_vars, row_vars)))
 
+  # Identify population group vars that occur in table data frame
+  common_group_vars <- intersect(group_vars, names(tbl_df))
+
   if (drop_na) {
     # Remove NA values (analysis variables handled individually later on)
     pop_df <- tidyr::drop_na(pop_df, dplyr::all_of(group_vars))
@@ -328,10 +336,8 @@ summtab_compute <- function(tbl_df,
     pop_df[group_vars] <- lapply(pop_df[group_vars], add_na_factor_level)
     tbl_df[row_vars] <- lapply(tbl_df[row_vars], add_na_factor_level)
     tbl_df[anl_vars_cat] <- lapply(tbl_df[anl_vars_cat], add_na_factor_level)
+    tbl_df[common_group_vars] <- lapply(tbl_df[common_group_vars], add_na_factor_level)
   }
-
-  # Identify population group vars that occur in table data frame
-  common_group_vars <- intersect(group_vars, names(tbl_df))
 
   # Duplicate all rows so that total can be calculated for first group var
   if (total) {
@@ -1122,8 +1128,20 @@ summary_table_server <- function(module_id,
           SUMMTAB$VALIDATE$POP_GROUP_DUP
         ),
         shiny::need(
-          all(sapply(pop_df[group_vars], \(x) !any(x == "", na.rm = TRUE))),
+          all(sapply(pop_df_orig[group_vars_orig], \(x) !any(x == "", na.rm = TRUE))),
           SUMMTAB$VALIDATE$EMPTY_GROUP_VAL
+        ),
+        shiny::need(
+          all(sapply(tbl_df[anl_vars], \(x) any(!is.na(x)))),
+          SUMMTAB$VALIDATE$ALL_NA_ANL_VAR
+        ),
+        shiny::need(
+          !drop_na || all(sapply(pop_df_orig[group_vars_orig], \(x) any(!is.na(x)))),
+          SUMMTAB$VALIDATE$ALL_NA_GROUP_VAR
+        ),
+        shiny::need(
+          !drop_na || all(sapply(tbl_df[row_vars], \(x) any(!is.na(x)))),
+          SUMMTAB$VALIDATE$ALL_NA_ROW_VAR
         )
       )
 
