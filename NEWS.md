@@ -1,3 +1,13 @@
+# dv.tables 0.5.0-9001
+
+- `mod_hierarchical_count_table`:
+  - Add optional SMQ source-variable derivation as a hierarchy.
+  - Add optional UDAEC category derivation from SMQ source variables and/or
+    preferred terms (`pt_var` and `pt_values`).
+  - Allow UDAEC categories to be configured using preferred terms without
+    specifying SMQ source variables.
+  - Add category filtering for selected SMQ or UDAEC hierarchy levels.
+
 # dv.tables 0.4.1-9010
 
 - `mod_hierarchical_count_table`:
