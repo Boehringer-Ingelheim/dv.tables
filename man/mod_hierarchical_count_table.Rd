@@ -74,13 +74,13 @@ both cannot be shown together.}
 
 A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.}
 
-\item{default_hierarchy}{\verb{[character(1|2)|NULL]}
+\item{default_hierarchy}{\verb{[character(1+)|NULL]}
 
 A default value for the hierarchy variables selection (optional).}
 
-\item{default_group}{\verb{[character(1)|NULL]}
+\item{default_group}{\verb{[character(1+)|NULL]}
 
-A default value for the group variable selection (optional).}
+A default value for the group variables selection (optional).}
 
 \item{default_total}{\verb{[logical(1)]}
 
@@ -139,7 +139,7 @@ If it is not specified then all factor and character variables from the event da
 
 \item{group_choices}{\verb{[character(1+)|NULL]}
 
-A character vector specifying the possible choices for the group variable selection (optional).
+A character vector specifying the possible choices for the group variables selection (optional).
 If it is not specified then all factor and character variables from the population data will be used.}
 
 \item{pop_flag_choices}{\verb{[character(1+) | NULL]}

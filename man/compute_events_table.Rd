@@ -71,10 +71,11 @@ A list containing:
 \item \code{hierarchy}: A vector of hierarchy variable names.
 \item \code{group_var}: A string indicating the group variable name.
 \item \code{event_group_var}: A string indicating the event group variable name.
-\item \code{event_group_vals}: A vector of ??.
+\item \code{event_group_vals}: A vector of event group values.
 \item \code{pop_flag_vars}: A vector of population flag variable names.
+\item \code{total_vars}: A vector of variable names that will have a total column displayed in the table.
 \item \code{total_group_val}: A string indicating the label for the total group column.
-\item \code{n_denom}: A named vector of denominators for each group variable, named by values of group variable.
+\item \code{denom_df}: A data frame of population group denominator data.
 \item \code{table_type}: A string, either "frequency" or "time_at_risk", indicating the table type.
 \item \code{warning_message}: A string indicating a warning message to be raised by shiny::validate.
 }
