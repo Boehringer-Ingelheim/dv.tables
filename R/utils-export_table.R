@@ -33,7 +33,7 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
                          names = "named")
 
   checkmate::assert_subset(names(count_table), c("df", "meta"))
-  checkmate::assert_subset(c("n_denominator",
+  checkmate::assert_subset(c("denom_df",
                              "hierarchy"),
                            names(count_table[["meta"]]))
 
@@ -45,9 +45,13 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   checkmate::assert_logical(split_columns)
 
+  # Get data frame
+  df_prep <- count_table[["df"]]
+
   # Get group subject totals (named by group) and extract group names
-  total_colname <- count_table[["meta"]]$n_denominator
-  group_names <- names(total_colname)
+  denom_df <- count_table[["meta"]]$denom_df
+  total_colname <- stats::setNames(denom_df[[".N"]], denom_df[[".lookup"]])
+  group_names <- intersect(names(df_prep), names(total_colname))
 
   # Get event variables
   event_vars <- count_table[["meta"]]$hierarchy
@@ -58,9 +62,6 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   # Flag when event group has been specified
   has_event_group <- length(event_group_vals) > 0
-
-  # Get data frame
-  df_prep <- count_table[["df"]]
 
   # For event group data, expand groups into columns for each event group value
   if (has_event_group) {
@@ -149,7 +150,8 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
     new_row[[col]] <- list(empty_stat_list)
 
     if (has_event_group) {
-      group_val <- strsplit(col, EC$VAL$SPECIAL_CHAR)[[1]][[1]]
+      # Strip off event group then look up total
+      group_val <- sub(paste0(".[^", EC$VAL$SPECIAL_CHAR, "]*$"), "", col)
       new_row[[col]][[1]][["count"]] <- as.character(total_colname[group_val])
     } else {
       new_row[[col]][[1]][["count"]] <- as.character(total_colname[col])
@@ -228,10 +230,8 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
     -dplyr::all_of(group_names)
   )
 
-  # For event group column names, replace special separator character with display-friendly "/"
-  if (has_event_group) {
-    names(df_prep) <- sub(EC$VAL$SPECIAL_CHAR, "/", names(df_prep), fixed = TRUE)
-  }
+  # Replace special separator characters in group column names with display-friendly "/"
+  names(df_prep) <- gsub(EC$VAL$SPECIAL_CHAR, "/", names(df_prep), fixed = TRUE)
 
   return(df_prep)
 }
