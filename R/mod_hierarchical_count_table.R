@@ -16,7 +16,9 @@ EC <- poc(
     ORIGIN_DATE_LBL = "origin_date_label",
     CENSOR_DATE_LBL = "censor_date_label",
     TAB_DOWNLOAD = "table_download",
-    RENDER_COMPLETION_CALLBACK = "render_completion_callback"
+    RENDER_COMPLETION_CALLBACK = "render_completion_callback",
+    SMQ = "smq",
+    SMQ_UI = "smq_ui"
   ),
   LBL = poc(
     DROP_MENU = "Options",
@@ -33,7 +35,7 @@ EC <- poc(
     TAB_DOWNLOAD = "table_download"
   ),
   INFO = poc(
-    HIERARCHY = "Up to 2 selections allowed",
+    HIERARCHY = "Up to 4 selections allowed",
     EVENT_GROUP = "Selection from event data",
     EVENT_DATE = "Events with missing dates will be dropped",
     ORIGIN_DATE = "Events occurring before origin date will be dropped",
@@ -67,6 +69,9 @@ EC <- poc(
   ),
   VAL = poc(
     SPECIAL_CHAR = "\u001D" # For naming and processing hierarchy levels
+  ),
+  CONST = poc(
+    MAX_HIERARCHY = 4
   )
 )
 
@@ -79,8 +84,9 @@ EC <- poc(
 #' @param pop_df `data.frame`
 #' A data frame containing the population data. It must have columns corresponding to subjects and group variables.
 #'
-#' @param hierarchy `character(1|2)`
-#' A character vector of column names from `event_df` to use as the hierarchy. Can be one or two levels.
+#' @param hierarchy `character(1:4)`
+#' A character vector of column names from `event_df` to use as the hierarchy.
+#' Can contain one to four levels.
 #'
 #' @param group_var `character(1)`
 #' A string representing the column name in `pop_df` used for grouping the population data.
@@ -889,10 +895,138 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   )
 }
 
+#' Derive SMQ and UDAEC hierarchy variables
+#'
+#' @param base_data `data.frame`
+#' Event data used to derive the hierarchy variables.
+#'
+#' @param smq_vars `character(1+)`
+#' Names of the source columns containing SMQ indicators or categories.
+#'
+#' @param smq_name `character(1)`
+#' Name of the derived SMQ variable.
+#'
+#' @param udaec_name `character(1)`
+#' Name of the derived UDAEC variable.
+#'
+#' @param udaec_list `list|NULL`
+#' Optional named list defining UDAEC categories.
+#'
+#' @return A data frame containing the derived hierarchy variables.
+#'
+#' @keywords internal
+derive_smq_dataset <- function(base_data,
+                               smq_vars,
+                               smq_name,
+                               udaec_name,
+                               udaec_list = NULL) {
+
+  checkmate::assert_character(smq_vars, unique = TRUE)
+  checkmate::assert_subset(smq_vars, names(base_data))
+  checkmate::assert_character(smq_name, min.chars = 1)
+  checkmate::assert_character(udaec_name, min.chars = 1)
+  checkmate::assert_list(udaec_list, types = "list", null.ok = TRUE, unique = TRUE)
+
+  smq_name_var <- paste0(smq_name, "_name")
+  lbls <- get_lbls(base_data)
+  base_data_join <- dplyr::select(base_data, -dplyr::all_of(smq_vars))
+
+  d <- base_data |>
+    tidyr::pivot_longer(
+      dplyr::all_of(smq_vars),
+      names_to = smq_name_var,
+      values_to = smq_name
+    ) |>
+    dplyr::mutate(!!smq_name_var := factor(.data[[smq_name_var]])) |>
+    dplyr::filter(.data[[smq_name]] != "") |>
+    dplyr::distinct() |>
+    dplyr::right_join(base_data_join, by = names(base_data_join)) |>
+    dplyr::mutate(!!smq_name := factor(dplyr::if_else(is.na(.data[[smq_name]]), "", .data[[smq_name]])))
+
+  if (!is.null(udaec_list)) {
+    udaec_lookup <- dplyr::bind_rows(
+      lapply(names(udaec_list), function(udaec) {
+
+        smq_sources <- udaec_list[[udaec]][["smq_vars"]]
+        if (is.null(smq_sources) || length(smq_sources) == 0) {
+          return(NULL)
+        }
+
+        data.frame(
+          .smq_source = smq_sources, # starts with . to avoid potential name collision with smq_name
+          .udaec = udaec, # starts with . to avoid potential name collision with udaec_name
+          stringsAsFactors = FALSE
+        )
+      })
+    )
+
+    if (nrow(udaec_lookup) == 0 || !".smq_source" %in% names(udaec_lookup)) {
+      d[[udaec_name]] <- factor("", levels = c(names(udaec_list), ""))
+      d <- dplyr::select(d, -dplyr::all_of(smq_name_var))
+    } else {
+      d <- d |>
+        dplyr::mutate(.smq_source = as.character(.data[[smq_name_var]])) |>
+        dplyr::left_join(udaec_lookup, by = ".smq_source") |>
+        dplyr::mutate(
+          !!udaec_name := factor(
+            dplyr::if_else(is.na(.data[[".udaec"]]), "", .data[[".udaec"]]),
+            levels = c(names(udaec_list), "")
+          )
+        ) |>
+        dplyr::select(-dplyr::all_of(c(smq_name_var, ".smq_source", ".udaec")))
+    }
+
+    pt_rows <- dplyr::bind_rows(
+      lapply(names(udaec_list), function(udaec) {
+        udaec_definition <- udaec_list[[udaec]]
+        pt_var <- udaec_definition[["pt_var"]]
+        pt_values <- udaec_definition[["pt_values"]]
+
+        if (is.null(pt_var) || is.null(pt_values)) {
+          return(NULL)
+        }
+
+        base_data |>
+          dplyr::filter(.data[[pt_var]] %in% pt_values) |>
+          dplyr::select(-dplyr::all_of(smq_vars)) |>
+          dplyr::mutate(
+            !!smq_name := "",
+            !!udaec_name := udaec
+          )
+      })
+    )
+
+    d <- dplyr::bind_rows(d, pt_rows) |>
+      dplyr::mutate(
+        !!smq_name := factor(.data[[smq_name]]),
+        !!udaec_name := factor(
+          dplyr::if_else(is.na(.data[[udaec_name]]), "", as.character(.data[[udaec_name]])),
+          levels = c(names(udaec_list), "")
+        )
+      ) |>
+      dplyr::distinct()
+  } else {
+    d <- d |>
+      dplyr::select(-dplyr::all_of(smq_name_var))
+  }
+
+  d <- set_lbls(d, lbls[!names(lbls) %in% smq_vars])
+
+  return(d)
+}
+
+
+
 #' UI for the event count module
 #'
 #' @inheritParams mod_hierarchical_count_table
 #' @inheritParams hierarchical_count_table_server
+#'
+#' @param enable_smq `[logical(1)]`
+#'
+#' A flag to indicate whether to display the SMQ/UDAEC category filter UI.
+#' This should be enabled when the server is configured with `smq_vars` and
+#' `smq_name`.
 #'
 #' @return A `shiny::div` containing the user interface for selecting hierarchy, group,
 #' and minimum percentage for event counting.
@@ -906,7 +1040,8 @@ hierarchical_count_table_ui <- function(id,
                                         default_total = TRUE,
                                         default_risk = FALSE,
                                         default_min_percent = 0,
-                                        default_remove_rows_under_min_percent = FALSE
+                                        default_remove_rows_under_min_percent = FALSE,
+                                        enable_smq = FALSE
                                       ) {
   ns <- shiny::NS(id)
 
@@ -932,6 +1067,11 @@ hierarchical_count_table_ui <- function(id,
                                                            title = EC$INFO$RISK_FLAG)),
                            value = default_risk)
     )
+  }
+
+  smqs <- NULL
+  if (enable_smq) {
+    smqs <- shiny::uiOutput(ns(EC$ID$SMQ_UI))
   }
 
   drop_menu <- shinyWidgets::dropMenu(
@@ -960,6 +1100,7 @@ hierarchical_count_table_ui <- function(id,
       value = default_total
     ),
     event_by_group,
+    smqs,
     time_at_risk_options,
     options = shinyWidgets::dropMenuOptions(
       popperOptions = list(
@@ -1036,26 +1177,137 @@ hierarchical_count_table_server <- function(
   event_date_choices = NULL,
   origin_date_choices = NULL,
   censor_date_choices = NULL,
-  intended_use_label = NULL) {
+  intended_use_label = NULL,
+  smq_name = NULL,
+  smq_vars = NULL,
+  udaec_name = NULL,
+  udaec_list = NULL) {
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
 
     inputs <- list()
-    inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
-      id = EC$ID$HIERARCHY, data = table_dataset,
-      label = shiny::span(EC$LBL$HIERARCHY,
-                          shiny::icon("circle-info",
-                                      title = EC$INFO$HIERARCHY)),
-      include_func = function(var, var_name) {
-        (is.factor(var) || is.character(var)) &&
-          var_name != subjid_var &&
-          (is.null(hierarchy_choices) || var_name %in% hierarchy_choices)
-      },
-      default = default_hierarchy,
-      multiple = TRUE,
-      include_none = FALSE,
-      options = list(maxItems = 4, plugins = list("drag_drop"))
-    )
+
+    enable_smq <- if (!is.null(smq_vars) && !is.null(smq_name)) TRUE else FALSE
+
+    if (enable_smq) {
+
+      table_dataset_smq <- shiny::reactive({
+        base_data <- table_dataset()
+
+       derive_smq_dataset(
+          base_data = base_data,
+          smq_vars = smq_vars,
+          smq_name = smq_name,
+          udaec_name = udaec_name,
+          udaec_list = udaec_list
+        )
+      })
+
+      if (!is.null(hierarchy_choices)) hierarchy_choices <- c(hierarchy_choices, smq_name, udaec_name)
+
+      inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
+        id = EC$ID$HIERARCHY, data = table_dataset_smq,
+        label = shiny::span(EC$LBL$HIERARCHY,
+                            shiny::icon("circle-info",
+                                        title = EC$INFO$HIERARCHY)),
+        include_func = function(var, var_name) {
+          (is.factor(var) || is.character(var)) &&
+            var_name != subjid_var &&
+            (is.null(hierarchy_choices) || var_name %in% hierarchy_choices)
+        },
+        default = default_hierarchy,
+        multiple = TRUE,
+        include_none = FALSE,
+        options = list(maxItems = EC$CONST$MAX_HIERARCHY, plugins = list("drag_drop"))
+      )
+
+
+      output[[EC$ID$SMQ_UI]] <- shiny::renderUI({
+
+        input_hierarchy <- inputs[[EC$ID$HIERARCHY]]()
+
+        if (!is.null(input_hierarchy) && (smq_name %in% input_hierarchy | udaec_name %in% input_hierarchy)) {
+          if (udaec_name %in% input_hierarchy) {
+            choices <- unique(table_dataset_smq()[[udaec_name]])
+            label <- paste(udaec_name, "categories:")
+          } else {
+            choices <- unique(table_dataset_smq()[[smq_name]])
+            label <- paste(smq_name, "categories:")
+          }
+          smq_input <- shiny::isolate(input[[EC$ID$SMQ]])
+
+          if (!is.null(smq_input) && all(smq_input %in% choices)) {
+            selected <- smq_input
+          } else {
+            selected <- choices[[1]]
+          }
+
+
+          shiny::div(
+            shiny::tags$hr(),
+
+            shiny::tagList(
+              shiny::tags$head(
+                shiny::tags$style(
+                  HTML("
+                    .vscomp-option.selected .checkbox-icon::after,
+                    .vscomp-toggle-all-checkbox.checked::after {
+                      border-color: #08312A !important;
+                      border-left-color: transparent !important;
+                      border-top-color: transparent !important;
+                    }
+                  ")
+                )
+              ),
+              shinyWidgets::virtualSelectInput(
+                inputId = ns(EC$ID$SMQ),
+                label = label,
+                choices = choices,
+                multiple = TRUE,
+                selected = selected,
+                showValueAsTags = TRUE,
+                showSelectedOptionsFirst = TRUE,
+                search = TRUE
+              )
+            )
+
+          )
+
+        }
+
+      })
+
+      filtered_table_dataset_smq <- shiny::reactive({
+        if (udaec_name %in% inputs[[EC$ID$HIERARCHY]]()) {
+          table_dataset_smq() |>
+            dplyr::filter(get(udaec_name) %in% input[[EC$ID$SMQ]])
+        } else if (smq_name %in% inputs[[EC$ID$HIERARCHY]]()) {
+          table_dataset_smq() |>
+            dplyr::filter(get(smq_name) %in% input[[EC$ID$SMQ]])
+        } else {
+          table_dataset_smq()
+        }
+      })
+
+    } else {
+      inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
+        id = EC$ID$HIERARCHY, data = table_dataset,
+        label = shiny::span(EC$LBL$HIERARCHY,
+                            shiny::icon("circle-info",
+                                        title = EC$INFO$HIERARCHY)),
+        include_func = function(var, var_name) {
+          (is.factor(var) || is.character(var)) &&
+            var_name != subjid_var &&
+            (is.null(hierarchy_choices) || var_name %in% hierarchy_choices)
+        },
+        default = default_hierarchy,
+        multiple = TRUE,
+        include_none = FALSE,
+        options = list(maxItems = EC$CONST$MAX_HIERARCHY, plugins = list("drag_drop"))
+      )
+    }
+
+
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
       id = EC$ID$GRP, data = pop_dataset,
@@ -1179,7 +1431,11 @@ hierarchical_count_table_server <- function(
     var_labels <- shiny::reactiveVal(list())
 
     et <- shiny::reactive({
-      d <- table_dataset()
+      if (enable_smq) {
+        d <- filtered_table_dataset_smq()
+      } else {
+        d <- table_dataset()
+      }
       pd <- pop_dataset()
       group_var <- inputs[[EC$ID$GRP]]()
       hierarchy <- inputs[[EC$ID$HIERARCHY]]()
@@ -1449,9 +1705,11 @@ hierarchical_count_table_server <- function(
 #'
 #' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
 #'
-#' @param default_hierarchy `[character(1|2)|NULL]`
+#' @param default_hierarchy `[character(1:4)|NULL]`
 #'
-#' A default value for the hierarchy variables selection (optional).
+#' Optional character vector specifying the default hierarchy variables.
+#' Variables must be columns in `table_dataset_name`. Up to four variables
+#' can be selected, and their order determines the nesting order in the table.
 #'
 #' @param default_group `[character(1)|NULL]`
 #'
@@ -1463,13 +1721,15 @@ hierarchical_count_table_server <- function(
 #'
 #' @param default_min_percent `[numeric(1)]`
 #'
-#' A default value (0-100) for the minimum percentage of subjects a row must reach to be displayed. Rows below
-#' this threshold have their counts replaced with a dash instead of being shown.
+#' Initial minimum percentage threshold, between 0 and 100. The threshold is
+#' applied separately to each displayed group cell. Cells below the threshold
+#' show a dash instead of their count and percentage. The default is `0`.
 #'
 #' @param default_remove_rows_under_min_percent `[logical(1)]`
 #'
-#' A default value for checkbox determining whether to remove entire rows for which every group's percentage of
-#' subjects falls below `default_min_percent`, instead of just showing a dash for those cells.
+#' Initial setting controlling whether to remove hierarchy rows for which no
+#' displayed group cell meets `default_min_percent`. When `FALSE`, the rows
+#' remain visible and only cells below the threshold are replaced by a dash.
 #'
 #' @param default_event_group `[character(1)|NULL]`
 #'
@@ -1492,7 +1752,7 @@ hierarchical_count_table_server <- function(
 #'
 #' @param default_risk `[logical(1)]`
 #'
-#' A default value for for checkbox determining whether to calculate time at risk. Not
+#' A default value for the checkbox determining whether to calculate time at risk. Not
 #' applicable when `show_time_at_risk_options` is `FALSE`.
 #'
 #' @param hierarchy_choices `[character(1+)|NULL]`
@@ -1533,10 +1793,61 @@ hierarchical_count_table_server <- function(
 #' Either a string indicating the intended use for export, or NULL. The provided label will be displayed
 #' prior to the download and will also be included in the exported file.
 #'
-#' @param receiver_id `[character(1)]`
+#' @param receiver_id `[character(1)|NULL]`
 #'
 #' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app
 #' or be NULL.
+#'
+#' @param smq_name `[character(1)]`
+#'
+#' Name of the derived SMQ hierarchy variable. The variable is created from
+#' the columns listed in `smq_vars`. Defaults to `"SMQ"`.
+#'
+#' @param smq_vars `[character(1+)|NULL]`
+#'
+#' Optional character vector of columns in `table_dataset_name` containing
+#' SMQ indicators or categories. When supplied together with `smq_name`, an
+#' additional SMQ hierarchy variable is available for selection. If `NULL`,
+#' no SMQ hierarchy is created.
+#'
+#' @param udaec_name `[character(1)]`
+#'
+#' Name of the derived UDAEC hierarchy variable. Defaults to `"UDAEC"`.
+#' This argument is used together with `udaec_list`.
+#'
+#' @param udaec_list `[list|NULL]`
+#'
+#' Optional named list defining UDAEC categories. The names of the list are the
+#' UDAEC category labels, and must be unique and non-empty. Each element must
+#' be a list containing at least one of the following definitions:
+#' No other entries are allowed.
+#' \itemize{
+#'   \item `smq_vars`: A character vector of SMQ source column names. These
+#'   columns must also be included in the top-level `smq_vars` argument.
+#'   \item `pt_var` and `pt_values`: The event-data column containing preferred
+#'   terms and an atomic vector of values identifying the preferred terms for
+#'   the category. `pt_var` must be a column in `table_dataset_name`, and both
+#'   fields must be supplied together.
+#' }
+#' A category may contain either definition or both definitions. The
+#' `udaec_list` argument requires a non-`NULL` top-level `smq_vars` argument,
+#' and `udaec_name` defines the name of the derived UDAEC hierarchy variable.
+#' For example:
+#' \preformatted{
+#' udaec_list <- list(
+#'   "Cardiac disorders" = list(
+#'     smq_vars = "SMQ01NAM",
+#'     pt_var = "AEDECOD",
+#'     pt_values = c("Atrial fibrillation", "Myocardial infarction")
+#'   ),
+#'   "Renal disorders" = list(
+#'     pt_var = "AEDECOD",
+#'     pt_values = c("Acute kidney injury")
+#'   )
+#' )
+#' }
+#' When supplied, the derived UDAEC variable is available as a hierarchy
+#' selection and its categories can be filtered in the module UI.
 #'
 #' @keywords main
 #'
@@ -1566,7 +1877,11 @@ mod_hierarchical_count_table <- function(
     origin_date_choices = NULL,
     censor_date_choices = NULL,
     intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
-    receiver_id = NULL
+    receiver_id = NULL,
+    smq_name = "SMQ",
+    smq_vars = NULL,
+    udaec_name = "UDAEC",
+    udaec_list = NULL
 ) {
   mod <- list(
     ui = function(module_id) {
@@ -1577,7 +1892,8 @@ mod_hierarchical_count_table <- function(
         default_total = default_total,
         default_risk = default_risk,
         default_min_percent = default_min_percent,
-        default_remove_rows_under_min_percent = default_remove_rows_under_min_percent
+        default_remove_rows_under_min_percent = default_remove_rows_under_min_percent,
+        enable_smq = if (!is.null(smq_vars) && !is.null(smq_name)) TRUE else FALSE
       )
     },
     server = function(afmm) {
@@ -1614,7 +1930,11 @@ mod_hierarchical_count_table <- function(
         event_date_choices = event_date_choices,
         origin_date_choices = origin_date_choices,
         censor_date_choices = censor_date_choices,
-        intended_use_label = intended_use_label
+        intended_use_label = intended_use_label,
+        smq_name = smq_name,
+        smq_vars = smq_vars,
+        udaec_name = udaec_name,
+        udaec_list = udaec_list
       )
     },
     module_id = module_id
@@ -1650,7 +1970,11 @@ mod_hierarchical_count_table_API_docs <- list(
   origin_date_choices = "",
   censor_date_choices = "",
   intended_use_label = "",
-  receiver_id = ""
+  receiver_id = "",
+  smq_name = "",
+  smq_vars = "",
+  udaec_name = "",
+  udaec_list = ""
 )
 
 mod_hierarchical_count_table_API_spec <- TC$group(
@@ -1708,9 +2032,85 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   censor_date_choices = TC$col("pop_dataset_name", TC$date()) |>
     TC$flag("zero_or_more", "optional"),
   intended_use_label = TC$character() |> TC$flag("optional"),
-  receiver_id = TC$character() |> TC$flag("optional")
+  receiver_id = TC$character() |> TC$flag("optional"),
+  smq_name = TC$character() |> TC$flag("optional"),
+  smq_vars = TC$col(
+    "table_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
+    TC$flag("zero_or_more", "optional"),
+  udaec_name = TC$character() |> TC$flag("optional"),
+  udaec_list = TC$character() |> TC$flag("manual_check", "optional")
 ) |>
   TC$attach_docs(mod_hierarchical_count_table_API_docs)
+
+
+validate_smq_udaec_args <- function(smq_name, smq_vars, udaec_name, udaec_list, event_data = NULL) {
+  if (!is.null(smq_vars)) {
+    checkmate::assert_character(
+      smq_vars,
+      min.len = 1,
+      any.missing = FALSE,
+      unique = TRUE
+    )
+    checkmate::assert_string(smq_name, min.chars = 1)
+  }
+
+  if (!is.null(udaec_list)) {
+    checkmate::assert_list(udaec_list, types = "list", min.len = 1)
+    checkmate::assert_character(
+      names(udaec_list),
+      min.len = 1,
+      min.chars = 1,
+      any.missing = FALSE,
+      unique = TRUE
+    )
+    checkmate::assert_string(udaec_name, min.chars = 1)
+    checkmate::assert_true(!is.null(smq_vars))
+
+    for (definition in udaec_list) {
+      checkmate::assert_list(definition)
+      checkmate::assert_subset(
+        names(definition),
+        choices = c("smq_vars", "pt_var", "pt_values")
+      )
+
+      has_smq_definition <- !is.null(definition[["smq_vars"]])
+      has_pt_definition <- !is.null(definition[["pt_var"]]) ||
+        !is.null(definition[["pt_values"]])
+      checkmate::assert_true(has_smq_definition || has_pt_definition)
+
+      if (has_smq_definition) {
+        checkmate::assert_character(
+          definition[["smq_vars"]],
+          min.len = 1,
+          any.missing = FALSE
+        )
+        checkmate::assert_subset(definition[["smq_vars"]], choices = smq_vars)
+      }
+
+      if (has_pt_definition) {
+        checkmate::assert_string(definition[["pt_var"]], min.chars = 1)
+        checkmate::assert_atomic_vector(
+          definition[["pt_values"]],
+          min.len = 1,
+          any.missing = FALSE
+        )
+        if (!is.null(event_data)) {
+          checkmate::assert_true(
+            definition[["pt_var"]] %in% names(event_data),
+            .var.name = sprintf(
+              "`pt_var` column `%s` in the event dataset",
+              definition[["pt_var"]]
+            )
+          )
+        }
+      }
+    }
+  }
+
+  invisible(NULL)
+}
 
 
 check_mod_hierarchical_count_table <- function(
@@ -1718,7 +2118,7 @@ check_mod_hierarchical_count_table <- function(
     show_modal_on_click, default_hierarchy, default_group, default_total, default_min_percent, default_remove_rows_under_min_percent,
     default_event_group, default_event_date, default_origin_date,
     default_censor_date, default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
-    censor_date_choices, intended_use_label, receiver_id) {
+    censor_date_choices, intended_use_label, receiver_id, smq_name, smq_vars, udaec_name, udaec_list) {
   err <- CM$container()
 
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
@@ -1752,7 +2152,80 @@ check_mod_hierarchical_count_table <- function(
     censor_date_choices,
     intended_use_label,
     receiver_id,
+    smq_name,
+    smq_vars,
+    udaec_name,
+    udaec_list,
     err
+  )
+
+  check_logical <- function(name, value) {
+    CM$assert(
+      err,
+      is.logical(value) && length(value) == 1L && !is.na(value),
+      sprintf("`%s` should be a non-missing logical value of length one.", name)
+    )
+  }
+
+  check_optional_string <- function(name, value) {
+    CM$assert(
+      err,
+      is.null(value) ||
+        (is.character(value) && length(value) == 1L && !is.na(value) && nchar(value) > 0L),
+      sprintf("`%s` should be NULL or a non-empty string.", name)
+    )
+  }
+
+  check_logical("show_event_group_by", show_event_group_by)
+  check_logical("show_time_at_risk_options", show_time_at_risk_options)
+  check_logical("show_modal_on_click", show_modal_on_click)
+  check_logical("default_total", default_total)
+  check_logical("default_remove_rows_under_min_percent", default_remove_rows_under_min_percent)
+  check_logical("default_risk", default_risk)
+
+  CM$assert(
+    err,
+    (is.numeric(default_min_percent) &&
+      length(default_min_percent) == 1L &&
+      !is.na(default_min_percent) &&
+      is.finite(default_min_percent) &&
+      default_min_percent >= 0 &&
+      default_min_percent <= 100),
+    "`default_min_percent` should be a finite numeric value between 0 and 100."
+  )
+
+  check_optional_string("intended_use_label", intended_use_label)
+  check_optional_string("receiver_id", receiver_id)
+  check_optional_string("smq_name", smq_name)
+  check_optional_string("udaec_name", udaec_name)
+
+  event_data <- if (
+    is.character(table_dataset_name) &&
+      length(table_dataset_name) == 1L &&
+      table_dataset_name %in% names(datasets)
+  ) {
+    datasets[[table_dataset_name]]
+  } else {
+    NULL
+  }
+
+  udaec_validation_error <- tryCatch(
+    {
+      validate_smq_udaec_args(
+        smq_name = smq_name,
+        smq_vars = smq_vars,
+        udaec_name = udaec_name,
+        udaec_list = udaec_list,
+        event_data = event_data
+      )
+    },
+    error = function(error) conditionMessage(error)
+  )
+  CM$assert(
+    err,
+    is.null(udaec_validation_error),
+    sprintf("`udaec_list` and related SMQ/UDAEC parameters are inconsistent: %s",
+            udaec_validation_error)
   )
 
   res <- list(errors = err[["messages"]])
