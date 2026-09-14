@@ -38,6 +38,7 @@ EC <- poc(
   ),
   INFO = poc(
     HIERARCHY = "Up to 4 selections allowed",
+    GRP = "Up to 2 selections allowed",
     EVENT_GROUP = "Selection from event data",
     EVENT_DATE = "Events with missing dates will be dropped",
     ORIGIN_DATE = "Events occurring before origin date will be dropped",
@@ -1156,7 +1157,9 @@ hierarchical_count_table_server <- function(
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
       id = EC$ID$GRP, data = pop_dataset,
-      label = EC$LBL$GRP,
+      label = shiny::span(EC$LBL$GRP,
+                          shiny::icon("circle-info",
+                                      title = EC$INFO$GRP)),
       include_func = function(var, var_name) {
         (is.factor(var) || is.character(var)) &&
           var_name != subjid_var &&
