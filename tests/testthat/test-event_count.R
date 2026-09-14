@@ -149,7 +149,7 @@ local({
     app$set_inputs(!!ID$INPUT$GRP := "STUDYID") # nolint
     expect_identical(
       app$get_values(output = TRUE)[["output"]][["mod-table"]]$message,
-      "Group selection cannot be used in hierarchy"
+      "Variable has been selected in more than one selection"
       )
   })
 

@@ -33,7 +33,6 @@ local({
     censor_date_var = "censdt",
     event_date_var = "evntdt",
     total = FALSE,
-    total_group_val = NULL,
     compute_risk = TRUE
   )
 
