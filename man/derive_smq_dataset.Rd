@@ -8,8 +8,10 @@ derive_smq_dataset(
   base_data,
   smq_vars,
   smq_name,
+  smq_na_label,
   udaec_name,
-  udaec_list = NULL
+  udaec_list = NULL,
+  udaec_na_label
 )
 }
 \arguments{
@@ -22,11 +24,18 @@ Names of the source columns containing SMQ indicators or categories.}
 \item{smq_name}{\code{character(1)}
 Name of the derived SMQ variable.}
 
+\item{smq_na_label}{\code{character(1)}
+Label used for the derived SMQ variable when the source values are missing/\code{NA}.}
+
 \item{udaec_name}{\code{character(1)}
 Name of the derived UDAEC variable.}
 
 \item{udaec_list}{\code{list|NULL}
 Optional named list defining UDAEC categories.}
+
+\item{udaec_na_label}{\code{character(1)}
+Label used for the derived UDAEC variable when no category applies (i.e., the subject
+does not match any of the categories defined in \code{udaec_list}).}
 }
 \value{
 A data frame containing the derived hierarchy variables.

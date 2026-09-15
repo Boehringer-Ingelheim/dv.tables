@@ -28,8 +28,10 @@ hierarchical_count_table_server(
   intended_use_label = NULL,
   smq_name = NULL,
   smq_vars = NULL,
+  smq_na_label = "Other",
   udaec_name = NULL,
-  udaec_list = NULL
+  udaec_list = NULL,
+  udaec_na_label = "Other"
 )
 }
 \arguments{
@@ -147,6 +149,12 @@ SMQ indicators or categories. When supplied together with \code{smq_name}, an
 additional SMQ hierarchy variable is available for selection. If \code{NULL},
 no SMQ hierarchy is created.}
 
+\item{smq_na_label}{\verb{[character(1)]}
+
+Label used for the derived SMQ hierarchy variable (\code{smq_name}) when the
+source values in \code{smq_vars} are missing/\code{NA} for a subject. Defaults to
+\code{"Other"}.}
+
 \item{udaec_name}{\verb{[character(1)]}
 
 Name of the derived UDAEC hierarchy variable. Defaults to \code{"UDAEC"}.
@@ -173,7 +181,7 @@ For example:
 \preformatted{
 udaec_list <- list(
   "Cardiac disorders" = list(
-    smq_vars = "SMQ_CARDIAC",
+    smq_vars = "SMQ01NAM",
     pt_var = "AEDECOD",
     pt_values = c("Atrial fibrillation", "Myocardial infarction")
   ),
@@ -185,6 +193,12 @@ udaec_list <- list(
 }
 When supplied, the derived UDAEC variable is available as a hierarchy
 selection and its categories can be filtered in the module UI.}
+
+\item{udaec_na_label}{\verb{[character(1)]}
+
+Label used for the derived UDAEC hierarchy variable (\code{udaec_name}) for
+subjects that do not match any of the categories defined in \code{udaec_list}.
+Defaults to \code{"Other"}.}
 }
 \value{
 A reactive value containing the list of subjects in the clicked cell, if applicable.

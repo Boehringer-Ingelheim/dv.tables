@@ -84,9 +84,8 @@ EC <- poc(
 #' @param pop_df `data.frame`
 #' A data frame containing the population data. It must have columns corresponding to subjects and group variables.
 #'
-#' @param hierarchy `character(1:4)`
+#' @param hierarchy `character(1+)`
 #' A character vector of column names from `event_df` to use as the hierarchy.
-#' Can contain one to four levels.
 #'
 #' @param group_var `character(1)`
 #' A string representing the column name in `pop_df` used for grouping the population data.
@@ -906,11 +905,18 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
 #' @param smq_name `character(1)`
 #' Name of the derived SMQ variable.
 #'
+#' @param smq_na_label `character(1)`
+#' Label used for the derived SMQ variable when the source values are missing/`NA`.
+#'
 #' @param udaec_name `character(1)`
 #' Name of the derived UDAEC variable.
 #'
 #' @param udaec_list `list|NULL`
 #' Optional named list defining UDAEC categories.
+#'
+#' @param udaec_na_label `character(1)`
+#' Label used for the derived UDAEC variable when no category applies (i.e., the subject
+#' does not match any of the categories defined in `udaec_list`).
 #'
 #' @return A data frame containing the derived hierarchy variables.
 #'
@@ -918,8 +924,10 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
 derive_smq_dataset <- function(base_data,
                                smq_vars,
                                smq_name,
+                               smq_na_label,
                                udaec_name,
-                               udaec_list = NULL) {
+                               udaec_list = NULL,
+                               udaec_na_label) {
 
   checkmate::assert_character(smq_vars, unique = TRUE)
   checkmate::assert_subset(smq_vars, names(base_data))
@@ -939,9 +947,8 @@ derive_smq_dataset <- function(base_data,
     ) |>
     dplyr::mutate(!!smq_name_var := factor(.data[[smq_name_var]])) |>
     dplyr::filter(.data[[smq_name]] != "") |>
-    dplyr::distinct() |>
     dplyr::right_join(base_data_join, by = names(base_data_join)) |>
-    dplyr::mutate(!!smq_name := factor(dplyr::if_else(is.na(.data[[smq_name]]), "", .data[[smq_name]])))
+    dplyr::mutate(!!smq_name := factor(dplyr::if_else(is.na(.data[[smq_name]]), smq_na_label, .data[[smq_name]])))
 
   if (!is.null(udaec_list)) {
     udaec_lookup <- dplyr::bind_rows(
@@ -961,7 +968,7 @@ derive_smq_dataset <- function(base_data,
     )
 
     if (nrow(udaec_lookup) == 0 || !".smq_source" %in% names(udaec_lookup)) {
-      d[[udaec_name]] <- factor("", levels = c(names(udaec_list), ""))
+      d[[udaec_name]] <- factor("", levels = c(names(udaec_list), smq_na_label))
       d <- dplyr::select(d, -dplyr::all_of(smq_name_var))
     } else {
       d <- d |>
@@ -969,8 +976,8 @@ derive_smq_dataset <- function(base_data,
         dplyr::left_join(udaec_lookup, by = ".smq_source") |>
         dplyr::mutate(
           !!udaec_name := factor(
-            dplyr::if_else(is.na(.data[[".udaec"]]), "", .data[[".udaec"]]),
-            levels = c(names(udaec_list), "")
+            dplyr::if_else(is.na(.data[[".udaec"]]), udaec_na_label, .data[[".udaec"]]),
+            levels = c(names(udaec_list), udaec_na_label)
           )
         ) |>
         dplyr::select(-dplyr::all_of(c(smq_name_var, ".smq_source", ".udaec")))
@@ -990,7 +997,7 @@ derive_smq_dataset <- function(base_data,
           dplyr::filter(.data[[pt_var]] %in% pt_values) |>
           dplyr::select(-dplyr::all_of(smq_vars)) |>
           dplyr::mutate(
-            !!smq_name := "",
+            !!smq_name := smq_na_label,
             !!udaec_name := udaec
           )
       })
@@ -1000,8 +1007,8 @@ derive_smq_dataset <- function(base_data,
       dplyr::mutate(
         !!smq_name := factor(.data[[smq_name]]),
         !!udaec_name := factor(
-          dplyr::if_else(is.na(.data[[udaec_name]]), "", as.character(.data[[udaec_name]])),
-          levels = c(names(udaec_list), "")
+          dplyr::if_else(is.na(.data[[udaec_name]]), udaec_na_label, as.character(.data[[udaec_name]])),
+          levels = c(names(udaec_list), udaec_na_label)
         )
       ) |>
       dplyr::distinct()
@@ -1180,8 +1187,10 @@ hierarchical_count_table_server <- function(
   intended_use_label = NULL,
   smq_name = NULL,
   smq_vars = NULL,
+  smq_na_label = "Other",
   udaec_name = NULL,
-  udaec_list = NULL) {
+  udaec_list = NULL,
+  udaec_na_label = "Other") {
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
 
@@ -1198,8 +1207,10 @@ hierarchical_count_table_server <- function(
           base_data = base_data,
           smq_vars = smq_vars,
           smq_name = smq_name,
+          smq_na_label = smq_na_label,
           udaec_name = udaec_name,
-          udaec_list = udaec_list
+          udaec_list = udaec_list,
+          udaec_na_label = udaec_na_label
         )
       })
 
@@ -1810,6 +1821,12 @@ hierarchical_count_table_server <- function(
 #' additional SMQ hierarchy variable is available for selection. If `NULL`,
 #' no SMQ hierarchy is created.
 #'
+#' @param smq_na_label `[character(1)]`
+#'
+#' Label used for the derived SMQ hierarchy variable (`smq_name`) when the
+#' source values in `smq_vars` are missing/`NA` for a subject. Defaults to
+#' `"Other"`.
+#'
 #' @param udaec_name `[character(1)]`
 #'
 #' Name of the derived UDAEC hierarchy variable. Defaults to `"UDAEC"`.
@@ -1849,6 +1866,12 @@ hierarchical_count_table_server <- function(
 #' When supplied, the derived UDAEC variable is available as a hierarchy
 #' selection and its categories can be filtered in the module UI.
 #'
+#' @param udaec_na_label `[character(1)]`
+#'
+#' Label used for the derived UDAEC hierarchy variable (`udaec_name`) for
+#' subjects that do not match any of the categories defined in `udaec_list`.
+#' Defaults to `"Other"`.
+#'
 #' @keywords main
 #'
 #' @export
@@ -1878,8 +1901,10 @@ mod_hierarchical_count_table <- function(
     censor_date_choices = NULL,
     smq_name = "SMQ",
     smq_vars = NULL,
+    smq_na_label = "Other",
     udaec_name = "UDAEC",
     udaec_list = NULL,
+    udaec_na_label = "Other",
     intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
     receiver_id = NULL
 ) {
@@ -1933,8 +1958,10 @@ mod_hierarchical_count_table <- function(
         intended_use_label = intended_use_label,
         smq_name = smq_name,
         smq_vars = smq_vars,
+        smq_na_label = smq_na_label,
         udaec_name = udaec_name,
-        udaec_list = udaec_list
+        udaec_list = udaec_list,
+        udaec_na_label = udaec_na_label
       )
     },
     module_id = module_id
@@ -1971,8 +1998,10 @@ mod_hierarchical_count_table_API_docs <- list(
   censor_date_choices = "",
   smq_name = "",
   smq_vars = "",
+  smq_na_label = "",
   udaec_name = "",
   udaec_list = "",
+  udaec_na_label = "",
   intended_use_label = "",
   receiver_id = ""
 )
@@ -1985,11 +2014,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   show_event_group_by = TC$logical(),
   show_time_at_risk_options = TC$logical(),
   show_modal_on_click = TC$logical(),
-  default_hierarchy = TC$col(
-    "table_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("zero_or_more", "optional"),
+  default_hierarchy = TC$character() |> TC$flag("manual_check", "optional"),
   default_group = TC$col(
     "pop_dataset_name",
     TC$or(TC$character(), TC$factor())
@@ -2037,8 +2062,10 @@ mod_hierarchical_count_table_API_spec <- TC$group(
     TC$or(TC$character(), TC$factor())
   ) |>
     TC$flag("zero_or_more", "optional"),
+  smq_na_label = TC$character() |> TC$flag("optional"),
   udaec_name = TC$character() |> TC$flag("optional"),
   udaec_list = TC$character() |> TC$flag("manual_check", "optional"),
+  udaec_na_label = TC$character() |> TC$flag("optional"),
   intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |>
@@ -2118,7 +2145,7 @@ check_mod_hierarchical_count_table <- function(
     show_modal_on_click, default_hierarchy, default_group, default_total, default_min_percent, default_remove_rows_under_min_percent,
     default_event_group, default_event_date, default_origin_date,
     default_censor_date, default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
-    censor_date_choices, smq_name, smq_vars, udaec_name, udaec_list, intended_use_label, receiver_id) {
+    censor_date_choices, smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label, intended_use_label, receiver_id) {
   err <- CM$container()
 
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
@@ -2152,8 +2179,10 @@ check_mod_hierarchical_count_table <- function(
     censor_date_choices,
     smq_name,
     smq_vars,
+    smq_na_label,
     udaec_name,
     udaec_list,
+    udaec_na_label,
     intended_use_label,
     receiver_id,
     err
@@ -2227,6 +2256,12 @@ check_mod_hierarchical_count_table <- function(
     sprintf("`udaec_list` and related SMQ/UDAEC parameters are inconsistent: %s",
             udaec_validation_error)
   )
+
+  CM$assert(
+    err,
+    is.null(default_hierarchy) || all(default_hierarchy %in%  c(names(datasets[[table_dataset_name]]), smq_name, udaec_name)),
+    "`default_hierarchy` contains variables not present in the event dataset or derived SMQ/UDAEC variables."
+    )
 
   res <- list(errors = err[["messages"]])
   return(res)
@@ -2304,11 +2339,27 @@ mock_app_hierarchical_count_table_mm <- function() {
   if (!requireNamespace("dv.papo")) stop("Install dv.papo")
   if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
 
-  adsl <- pharmaverseadam::adsl |> dplyr::filter(!is.na(.data[["RANDDT"]]))
-  adae <- pharmaverseadam::adae
+  adsl <- pharmaverseadam::adsl |>
+    dplyr::filter(!is.na(.data[["RANDDT"]]))
+
+  adae <- pharmaverseadam::adae |>
+    dplyr::mutate(SMQ01NAM = ifelse(substr(.data[["AEDECOD"]], 1, 1) == "A", "SMQ 01", NA)) |>
+    dplyr::mutate(SMQ02NAM = ifelse(substr(.data[["AEDECOD"]], 2, 2) == "P", "SMQ 02", NA))
 
   attr(adsl, "meta") <- base::file.info("NEWS.md")
   attr(adae, "meta") <- base::file.info("NEWS.md")
+
+  udaec_list <- list(
+    "UDAEC 01" = list(
+      smq_vars = c("SMQ01NAM", "SMQ02NAM"),
+      pt_var = "AEDECOD",
+      pt_values = c("DIZZINESS", "ENURESIS", "DIARRHOEA")
+    ),
+    "UDAEC 02" = list(
+      pt_var = "AEDECOD",
+      pt_values = c("DIZZINESS", "ENURESIS", "DIARRHOEA")
+    )
+  )
 
   dv.manager::run_app(
     data = list(
@@ -2352,11 +2403,23 @@ mock_app_hierarchical_count_table_mm <- function() {
         default_event_group = "AESEV",
         receiver_id = "papo"
       ),
+      "UDAEC/SMQ Hierarchy Table" = mod_hierarchical_count_table(
+        module_id = "hier_smq_udaec",
+        table_dataset_name = "adae",
+        pop_dataset_name = "adsl",
+        show_modal_on_click = TRUE,
+        default_hierarchy = c("UDAEC", "SMQ", "AEDECOD"),
+        default_group = "TRT01P",
+        default_total = TRUE,
+        smq_vars = c("SMQ01NAM", "SMQ02NAM"),
+        udaec_list = udaec_list,
+        receiver_id = "papo"
+      ),
       "Patient Profile" = dv.papo::mod_patient_profile(
         module_id = "papo",
         subject_level_dataset_name = "adsl",
         subjid_var = "USUBJID",
-        sender_ids = c("hier_table", "hier_time_at_risk", "hier_event_group"),
+        sender_ids = c("hier_table", "hier_time_at_risk", "hier_event_group", "hier_smq_udaec"),
         summary = list(vars = c("AGE", "SEX", "RACE", "ETHNIC", "ARM"),
                        column_count = 1)
       )
@@ -2366,6 +2429,7 @@ mock_app_hierarchical_count_table_mm <- function() {
     enableBookmarking = "url"
   )
 }
+
 
 #' @keywords internal
 hierarchical_count_table_dep <- function() {

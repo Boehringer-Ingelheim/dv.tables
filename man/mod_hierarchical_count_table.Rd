@@ -28,13 +28,15 @@ mod_hierarchical_count_table(
   event_date_choices = NULL,
   origin_date_choices = NULL,
   censor_date_choices = NULL,
-  intended_use_label =
-    "Use only for internal review and monitoring during the conduct of clinical trials.",
-  receiver_id = NULL,
   smq_name = "SMQ",
   smq_vars = NULL,
+  smq_na_label = "Other",
   udaec_name = "UDAEC",
-  udaec_list = NULL
+  udaec_list = NULL,
+  udaec_na_label = "Other",
+  intended_use_label =
+    "Use only for internal review and monitoring during the conduct of clinical trials.",
+  receiver_id = NULL
 )
 }
 \arguments{
@@ -152,16 +154,6 @@ A character vector specifying the possible choices for the censor date variable 
 If it is not specified then all variables of class "Date" from the population data will be used.
 Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
-\item{intended_use_label}{\verb{[character(1)|NULL]}
-
-Either a string indicating the intended use for export, or NULL. The provided label will be displayed
-prior to the download and will also be included in the exported file.}
-
-\item{receiver_id}{\verb{[character(1)|NULL]}
-
-Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app
-or be NULL.}
-
 \item{smq_name}{\verb{[character(1)]}
 
 Name of the derived SMQ hierarchy variable. The variable is created from
@@ -173,6 +165,12 @@ Optional character vector of columns in \code{table_dataset_name} containing
 SMQ indicators or categories. When supplied together with \code{smq_name}, an
 additional SMQ hierarchy variable is available for selection. If \code{NULL},
 no SMQ hierarchy is created.}
+
+\item{smq_na_label}{\verb{[character(1)]}
+
+Label used for the derived SMQ hierarchy variable (\code{smq_name}) when the
+source values in \code{smq_vars} are missing/\code{NA} for a subject. Defaults to
+\code{"Other"}.}
 
 \item{udaec_name}{\verb{[character(1)]}
 
@@ -200,7 +198,7 @@ For example:
 \preformatted{
 udaec_list <- list(
   "Cardiac disorders" = list(
-    smq_vars = "SMQ_CARDIAC",
+    smq_vars = "SMQ01NAM",
     pt_var = "AEDECOD",
     pt_values = c("Atrial fibrillation", "Myocardial infarction")
   ),
@@ -212,6 +210,22 @@ udaec_list <- list(
 }
 When supplied, the derived UDAEC variable is available as a hierarchy
 selection and its categories can be filtered in the module UI.}
+
+\item{udaec_na_label}{\verb{[character(1)]}
+
+Label used for the derived UDAEC hierarchy variable (\code{udaec_name}) for
+subjects that do not match any of the categories defined in \code{udaec_list}.
+Defaults to \code{"Other"}.}
+
+\item{intended_use_label}{\verb{[character(1)|NULL]}
+
+Either a string indicating the intended use for export, or NULL. The provided label will be displayed
+prior to the download and will also be included in the exported file.}
+
+\item{receiver_id}{\verb{[character(1)|NULL]}
+
+Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app
+or be NULL.}
 }
 \description{
 Hierarchical Count Table Module
