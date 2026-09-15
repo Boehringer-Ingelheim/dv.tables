@@ -1876,12 +1876,12 @@ mod_hierarchical_count_table <- function(
     event_date_choices = NULL,
     origin_date_choices = NULL,
     censor_date_choices = NULL,
-    intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
-    receiver_id = NULL,
     smq_name = "SMQ",
     smq_vars = NULL,
     udaec_name = "UDAEC",
-    udaec_list = NULL
+    udaec_list = NULL,
+    intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
+    receiver_id = NULL
 ) {
   mod <- list(
     ui = function(module_id) {
@@ -1969,12 +1969,12 @@ mod_hierarchical_count_table_API_docs <- list(
   event_date_choices = "",
   origin_date_choices = "",
   censor_date_choices = "",
-  intended_use_label = "",
-  receiver_id = "",
   smq_name = "",
   smq_vars = "",
   udaec_name = "",
-  udaec_list = ""
+  udaec_list = "",
+  intended_use_label = "",
+  receiver_id = ""
 )
 
 mod_hierarchical_count_table_API_spec <- TC$group(
@@ -2031,8 +2031,6 @@ mod_hierarchical_count_table_API_spec <- TC$group(
     TC$flag("zero_or_more", "optional"),
   censor_date_choices = TC$col("pop_dataset_name", TC$date()) |>
     TC$flag("zero_or_more", "optional"),
-  intended_use_label = TC$character() |> TC$flag("optional"),
-  receiver_id = TC$character() |> TC$flag("optional"),
   smq_name = TC$character() |> TC$flag("optional"),
   smq_vars = TC$col(
     "table_dataset_name",
@@ -2040,7 +2038,9 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   ) |>
     TC$flag("zero_or_more", "optional"),
   udaec_name = TC$character() |> TC$flag("optional"),
-  udaec_list = TC$character() |> TC$flag("manual_check", "optional")
+  udaec_list = TC$character() |> TC$flag("manual_check", "optional"),
+  intended_use_label = TC$character() |> TC$flag("optional"),
+  receiver_id = TC$character() |> TC$flag("optional")
 ) |>
   TC$attach_docs(mod_hierarchical_count_table_API_docs)
 
@@ -2118,7 +2118,7 @@ check_mod_hierarchical_count_table <- function(
     show_modal_on_click, default_hierarchy, default_group, default_total, default_min_percent, default_remove_rows_under_min_percent,
     default_event_group, default_event_date, default_origin_date,
     default_censor_date, default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
-    censor_date_choices, intended_use_label, receiver_id, smq_name, smq_vars, udaec_name, udaec_list) {
+    censor_date_choices, smq_name, smq_vars, udaec_name, udaec_list, intended_use_label, receiver_id) {
   err <- CM$container()
 
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
@@ -2150,12 +2150,12 @@ check_mod_hierarchical_count_table <- function(
     event_date_choices,
     origin_date_choices,
     censor_date_choices,
-    intended_use_label,
-    receiver_id,
     smq_name,
     smq_vars,
     udaec_name,
     udaec_list,
+    intended_use_label,
+    receiver_id,
     err
   )
 
