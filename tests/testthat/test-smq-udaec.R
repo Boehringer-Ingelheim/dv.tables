@@ -26,15 +26,17 @@ test_that("SMQ and UDAEC categories are derived from source columns and preferre
     base_data = event_data,
     smq_vars = c("SMQ_CARDIAC", "SMQ_RENAL"),
     smq_name = "SMQ",
+    smq_na_label = "None",
     udaec_name = "UDAEC",
-    udaec_list = udaec_list
+    udaec_list = udaec_list,
+    udaec_na_label = "Other"
   )
 
   expected_df <- data.frame(
     USUBJID = c("01", "03", "02", "04", "02", "03"),
     AEDECOD = c("Term A", "Term C", "Term B", "Term D", "Term B", "Term C"),
-    SMQ = factor(c("Cardiac flag", "Renal flag", "", "", "", "")),
-    UDAEC = factor(c("Cardiac disorders", "Renal disorders", "", "", "Cardiac disorders", "Renal disorders"), levels = c("Cardiac disorders", "Renal disorders", "")),
+    SMQ = factor(c("Cardiac flag", "Renal flag", "None", "None", "None", "None")),
+    UDAEC = factor(c("Cardiac disorders", "Renal disorders", "Other", "Other", "Cardiac disorders", "Renal disorders"), levels = c("Cardiac disorders", "Renal disorders", "Other")),
     stringsAsFactors = FALSE
   )
   expect_false(any(c("SMQ_CARDIAC", "SMQ_RENAL") %in% names(result)))
@@ -58,12 +60,14 @@ test_that("SMQ derivation preserves non-SMQ data and creates empty categories", 
     base_data = event_data,
     smq_vars = "SMQ_CARDIAC",
     smq_name = "SMQ",
-    udaec_name = "UDAEC"
+    smq_na_label = "None",
+    udaec_name = "UDAEC",
+    udaec_na_label = "Other"
   )
 
   expect_equal(as.character(result$USUBJID), as.character(event_data$USUBJID))
   expect_equal(as.character(result$AEDECOD), as.character(event_data$AEDECOD))
-  expect_equal(as.character(result$SMQ), c("Cardiac flag", ""))
+  expect_equal(as.character(result$SMQ), c("Cardiac flag", "None"))
   expect_false("SMQ_CARDIAC" %in% names(result))
   expect_false("UDAEC" %in% names(result))
 })
@@ -80,20 +84,22 @@ test_that("UDAEC categories can be defined from preferred terms only", {
     base_data = event_data,
     smq_vars = "SMQ_CARDIAC",
     smq_name = "SMQ",
+    smq_na_label = "None",
     udaec_name = "UDAEC",
     udaec_list = list(
       "Cardiac disorders" = list(
         pt_var = "AEDECOD",
         pt_values = "Term A"
       )
-    )
+    ),
+    udaec_na_label = "Other"
   )
 
   expected_df <- data.frame(
     USUBJID = c("01", "02", "03", "01", "03"),
     AEDECOD = c("Term A", "Term B", "Term A", "Term A", "Term A"),
-    SMQ = factor(c("", "", "", "", "")),
-    UDAEC = factor(c("", "", "", "Cardiac disorders", "Cardiac disorders"), levels = c("Cardiac disorders", "")),
+    SMQ = factor(c("None", "None", "None", "None", "None")),
+    UDAEC = factor(c("Other", "Other", "Other", "Cardiac disorders", "Cardiac disorders"), levels = c("Cardiac disorders", "Other")),
     stringsAsFactors = FALSE
   )
   expect_equal(
