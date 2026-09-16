@@ -18,7 +18,8 @@ EC <- poc(
     TAB_DOWNLOAD = "table_download",
     RENDER_COMPLETION_CALLBACK = "render_completion_callback",
     SMQ = "smq",
-    SMQ_UI = "smq_ui"
+    SMQ_UI = "smq_ui",
+    SMQ_DIV = "smq_div"
   ),
   LBL = poc(
     DROP_MENU = "Options",
@@ -1255,20 +1256,19 @@ hierarchical_count_table_server <- function(
 
 
           shiny::div(
+            id = ns(EC$ID$SMQ_DIV),
             shiny::tags$hr(),
 
             shiny::tagList(
-              shiny::tags$head(
                 shiny::tags$style(
-                  HTML("
-                    .vscomp-option.selected .checkbox-icon::after,
-                    .vscomp-toggle-all-checkbox.checked::after {
+                    shiny::HTML(sprintf("
+                      #%s .vscomp-option.selected .checkbox-icon::after,
+                      #%s .vscomp-toggle-all-checkbox.checked::after {
                       border-color: #08312A !important;
                       border-left-color: transparent !important;
                       border-top-color: transparent !important;
                     }
-                  ")
-                )
+                    ", ns(EC$ID$SMQ_DIV), ns(EC$ID$SMQ_DIV)))
               ),
               shinyWidgets::virtualSelectInput(
                 inputId = ns(EC$ID$SMQ),
