@@ -4,8 +4,8 @@ test_that("SMQ and UDAEC categories are derived from source columns and preferre
   event_data <- data.frame(
     USUBJID = c("01", "02", "03", "04"),
     AEDECOD = c("Term A", "Term B", "Term C", "Term D"),
-    SMQ_CARDIAC = c("Cardiac flag", "", "", ""),
-    SMQ_RENAL = c("", "", "Renal flag", ""),
+    SMQ_CARDIAC = c("Cardiac flag", NA_character_, NA_character_, NA_character_),
+    SMQ_RENAL = c(NA_character_, NA_character_, "Renal flag", NA_character_),
     stringsAsFactors = FALSE
   )
 
