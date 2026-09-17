@@ -13,13 +13,13 @@ sort_wider_formatter_events_table(event_d, sort_df)
 - event_d:
 
   `list` A list returned from
-  [`pivot_wide_format_events_table()`](pivot_wide_format_events_table.md)
+  [`pivot_wide_format_events_table()`](https://boehringer-ingelheim.github.io/dv.tables/reference/pivot_wide_format_events_table.md)
   containing the wide-format event data and metadata.
 
 - sort_df:
 
   `data.frame` A data frame returned from
-  [`compute_order_events_table()`](compute_order_events_table.md)
+  [`compute_order_events_table()`](https://boehringer-ingelheim.github.io/dv.tables/reference/compute_order_events_table.md)
   containing the sorted event data by subject counts.
 
 ## Value

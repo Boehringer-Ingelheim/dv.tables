@@ -13,13 +13,18 @@
 
 ## Citation
 
+Source:
+[`DESCRIPTION`](https://github.com/boehringer-ingelheim/dv.tables/blob/main/DESCRIPTION)
+
 Moris Fernandez L, Luff M, Matthias K (2026). *dv.tables: Table
-Modules*. R package version 0.4.1.
+Modules*. R package version 0.5.0,
+<https://boehringer-ingelheim.github.io/dv.tables>.
 
     @Manual{,
       title = {dv.tables: Table Modules},
       author = {Luis {Moris
             Fernandez} and Mark Luff and Korbinian Matthias},
       year = {2026},
-      note = {R package version 0.4.1},
+      note = {R package version 0.5.0},
+      url = {https://boehringer-ingelheim.github.io/dv.tables},
     }

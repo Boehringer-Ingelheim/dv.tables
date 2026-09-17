@@ -14,8 +14,8 @@ compute_order_events_table(d)
 - d:
 
   `list` A list returned from
-  [`compute_events_table()`](compute_events_table.md) containing the
-  event data and metadata.
+  [`compute_events_table()`](https://boehringer-ingelheim.github.io/dv.tables/reference/compute_events_table.md)
+  containing the event data and metadata.
 
 ## Value
 

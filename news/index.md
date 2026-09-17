@@ -1,5 +1,37 @@
 # Changelog
 
+## dv.tables 0.5.0
+
+- New module `mod_summary_table` that provides numerical and categorical
+  analysis.
+
+- `mod_hierarchical_count_table`:
+
+  - Add optional SMQ source-variable derivation as a hierarchy.
+  - Add optional UDAEC category derivation from SMQ source variables
+    and/or preferred terms (`pt_var` and `pt_values`).
+  - Add category filtering for selected SMQ or UDAEC hierarchy levels.
+  - Allow up to 4 levels of hierarchical variables.
+  - Show variable labels rather than variable names in the information
+    above the table.
+  - Display count of “0” when `n = 0`, instead of em dash.
+  - Display time at risk and incidence rate when `n = 0`, instead of em
+    dash.
+  - `mod_hierarchical_count_table` hides rows below a given minimum
+    percentage. Adds new argument `default_min_percent`
+  - Add scrollbar to options dropdown to avoid truncation in short
+    window space.
+  - Add progress bar shown during table generation
+
+- `mod_Tplyr_table`
+
+  - Add new arguments from `dv.listings` module
+  - Enable pagination for Tplyr tables
+  - \[NOT USER-FACING\] CSS tweak to container of dv.listings
+    Tplyr_table.
+  - \[NOT USER-FACING\] Provide `afmm` to newer version of
+    [`dv.listings::check_review_parameter`](https://boehringer-ingelheim.github.io/dv.listings/reference/check_review_parameter.html)
+
 ## dv.tables 0.4.1
 
 - \[NOT USER-FACING\] Update test snapshots because of new version of

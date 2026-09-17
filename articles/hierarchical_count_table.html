@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Event Count module • dv.tables</title>
+<title>Hierarchical Event Count module • dv.tables</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Event Count module">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Hierarchical Event Count module">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,8 +33,9 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/hierarchical_count_table.html">Event Count module</a></li>
+<li><a class="dropdown-item" href="../articles/hierarchical_count_table.html">Hierarchical Event Count module</a></li>
     <li><a class="dropdown-item" href="../articles/qc.html">Quality Control</a></li>
+    <li><a class="dropdown-item" href="../articles/summary_table.html">Summary table module</a></li>
     <li><a class="dropdown-item" href="../articles/Tplyr_tables.html">Tplyr table module</a></li>
     <li><a class="dropdown-item" href="../articles/zz_buildinfo.html">Build Info</a></li>
   </ul>
@@ -46,6 +47,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/boehringer-ingelheim/dv.tables/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -59,32 +61,29 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Event Count module</h1>
+      <h1>Hierarchical Event Count module</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/boehringer-ingelheim/dv.tables/blob/main/vignettes/hierarchical_count_table.Rmd" class="external-link"><code>vignettes/hierarchical_count_table.Rmd</code></a></small>
       <div class="d-none name"><code>hierarchical_count_table.Rmd</code></div>
     </div>
 
     
     
-<p><img src="images/hierarchical_count_table.png"></p>
-<p><img src="images/hierarchical_count_table_event_group_by.png"></p>
-<p><img src="images/hierarchical_count_table_time_at_risk.png"></p>
 <p>This guide provides a detailed overview of the
-<code>hierarchical_count_table</code> module and its features. It is
-meant to provide guidance to App Creators on creating Apps in DaVinci
-using the <code>hierarchical_count_table</code> module. Walk-throughs
-for sample app creation using the module are also included to
-demonstrate the various module specific features.</p>
-<p>The <code>hierarchical_count_table</code> module makes it possible to
-visualize a hierarchy table with event counts for each of the levels,
-with the option of showing time at risk and incidence rates.</p>
+<code><a href="../reference/mod_hierarchical_count_table.html">dv.tables::mod_hierarchical_count_table()</a></code> module and its
+features. It is meant to provide guidance to App Creators on creating
+Apps in DaVinci using the module. Walk-throughs for sample app creation
+using the module are also included to demonstrate the various module
+specific features.</p>
+<p>The module makes it possible to visualize a hierarchy table with
+event counts for each of the levels, with the option of showing time at
+risk and incidence rates.</p>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
 <ul>
-<li>One or two levels of hierarchy, and a top-level summary of subjects
+<li>One to four levels of hierarchy, and a top-level summary of subjects
 with any event.</li>
 <li>Second level of hierarchy can be collapsed to only show the first
 level.</li>
@@ -105,25 +104,29 @@ risk and incidence rates can be displayed.</li>
 <div class="section level2">
 <h2 id="arguments-for-the-module">Arguments for the module<a class="anchor" aria-label="anchor" href="#arguments-for-the-module"></a>
 </h2>
-<p><code><a href="../reference/mod_hierarchical_count_table.html">dv.tables::mod_hierarchical_count_table()</a></code> module uses
-several arguments with the following being mandatory and the rest
-optional. As part of app creation, the app creator should specify the
-values for these arguments as applicable.</p>
+<p>The <code><a href="../reference/mod_hierarchical_count_table.html">dv.tables::mod_hierarchical_count_table()</a></code> module
+uses several mandatory arguments with the rest of the arguments
+defaulted or optional. As part of app creation, the app creator should
+specify the values for all mandatory arguments, and values for any other
+arguments as applicable.</p>
 <p><strong>Mandatory Arguments</strong></p>
 <ul>
-<li><p><code>module_id</code> : A unique identifier of type character
-for the module in the app.</p></li>
-<li><p><code>subjid_var</code>: A common column across all datasets that
-uniquely identify subjects. By default: “SUBJID”</p></li>
-<li><p><code>table_dataset_name</code>: The dataset that contains the
-events per row. For example, <code>ADAE</code></p></li>
-<li><p><code>pop_dataset_name</code>: The dataset that contains one row
-per subject in the total population. For example, <code>ADSL</code> It
-expects a one-record-per-subject dataset at least containing
-<code>subjid_var</code>, with a structure similar to <a href="https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806" class="external-link uri">https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806</a></p></li>
+<li>
+<code>module_id</code> : A unique identifier of type character for
+the module in the app.</li>
+<li>
+<code>table_dataset_name</code>: The name of the dataset that
+contains the events per row, e.g., <code>"ADAE"</code>.</li>
+<li>
+<code>pop_dataset_name</code>: The name of the dataset that contains
+one row per subject in the total population, e.g., <code>"ADSL"</code>.
+It expects a one-record-per-subject dataset at least containing
+<code>subjid_var</code>, with a structure similar to <a href="https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806" class="external-link uri">https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806</a>
+</li>
 </ul>
-<p>Refer to <code><a href="../reference/mod_hierarchical_count_table.html">dv.tables::mod_hierarchical_count_table()</a></code> for
-the complete list of arguments and their description.</p>
+<p>Please refer to
+<code><a href="../reference/mod_hierarchical_count_table.html">dv.tables::mod_hierarchical_count_table()</a></code> for the complete
+list of arguments and their description.</p>
 </div>
 <div class="section level2">
 <h2 id="input-menus">Input menus<a class="anchor" aria-label="anchor" href="#input-menus"></a>
@@ -131,7 +134,7 @@ the complete list of arguments and their description.</p>
 <p>A drop-down “Options” menu provides the following inputs:</p>
 <ul>
 <li>
-<strong>Event count by</strong>: Selection of one or two levels of
+<strong>Event count by</strong>: Selection of one to four levels of
 hierarchy variables from the table (events) dataset, to be displayed
 down the left side of the table, e.g. <code>AEBODSYS</code>,
 <code>AEDECOD</code>.</li>
@@ -141,13 +144,88 @@ subject-level population dataset, to be displayed across the top of the
 table, e.g. <code>TRT01P</code>.</li>
 <li>
 <strong>Minimum %</strong>: The minimum percentage threshold for
-filtering events. Rows where the percentage of subjects (totalled across
-all group categories) is below this threshold will be removed from the
-output. Defaults to <code>0</code>.</li>
+filtering events. Each displayed group cell whose percentage of subjects
+is below this threshold has its event count and percentage replaced with
+a dash (—). Defaults to <code>0</code>.</li>
+<li>
+<strong>Remove rows under minimum %</strong>: Checkbox that controls
+whether to remove entire rows (across all hierarchy levels) for which
+every group’s percentage of subjects falls below the <strong>Minimum
+%</strong> threshold, instead of just showing a dash for those
+cells.</li>
 <li>
 <strong>Total</strong>: Checkbox that controls whether or not to
 display a “Total” column totalling data from all group categories.</li>
 </ul>
+<p>When <code>smq_vars</code> is supplied, the module derives an SMQ
+hierarchy from those columns. If <code>udaec_list</code> is also
+supplied, it can derive UDAEC categories from SMQ variables and
+preferred-term definitions. When an SMQ or UDAEC hierarchy is selected,
+an additional menu allows users to filter the displayed categories.</p>
+<div class="section level3">
+<h3 id="smq-and-udaec-hierarchies">SMQ and UDAEC hierarchies<a class="anchor" aria-label="anchor" href="#smq-and-udaec-hierarchies"></a>
+</h3>
+<p>The <code>smq_vars</code> argument is a character vector of
+event-dataset column names that contain SMQ indicators or categories.
+The module derives an <code>SMQ</code> hierarchy variable from these
+columns. The name of the derived variable can be changed with
+<code>smq_name</code>, which defaults to <code>"SMQ"</code>.</p>
+<p>The optional <code>udaec_list</code> argument defines UDAEC
+categories as a named list. Each list name becomes a UDAEC category
+label, and each corresponding element must be a list containing at least
+one of the following definitions: Only <code>smq_vars</code>,
+<code>pt_var</code>, and <code>pt_values</code> are valid entries in a
+category definition.</p>
+<ul>
+<li>
+<code>smq_vars</code>: A character vector of SMQ source column
+names. These names must also be included in the top-level
+<code>smq_vars</code> argument.</li>
+<li>
+<code>pt_var</code> and <code>pt_values</code>: The event-dataset
+column containing preferred terms and an atomic vector of values
+identifying the preferred terms assigned to the category.
+<code>pt_var</code> must exist in the event dataset, and both fields
+must be supplied together.</li>
+</ul>
+<p>A UDAEC category can use either definition or both definitions. For
+example, the following configuration assigns SMQ source columns and
+selected preferred terms to two UDAEC categories:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">udaec_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Cardiac disorders"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    smq_vars <span class="op">=</span> <span class="st">"SMQ_CARDIAC"</span>,</span>
+<span>    pt_var <span class="op">=</span> <span class="st">"AEDECOD"</span>,</span>
+<span>    pt_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Atrial fibrillation"</span>, <span class="st">"Myocardial infarction"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  <span class="st">"Renal disorders"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    smq_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SMQ_RENAL"</span>, <span class="st">"SMQ_KIDNEY"</span><span class="op">)</span>,</span>
+<span>    pt_var <span class="op">=</span> <span class="st">"AEDECOD"</span>,</span>
+<span>    pt_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Acute kidney injury"</span>, <span class="st">"Renal impairment"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  <span class="st">"Selected neurological terms"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    pt_var <span class="op">=</span> <span class="st">"AEDECOD"</span>,</span>
+<span>    pt_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Seizure"</span>, <span class="st">"Headache"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The corresponding module configuration must include every SMQ source
+column referenced inside <code>udaec_list</code> in the top-level
+<code>smq_vars</code> argument:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">dv.tables</span><span class="fu">::</span><span class="fu"><a href="../reference/mod_hierarchical_count_table.html">mod_hierarchical_count_table</a></span><span class="op">(</span></span>
+<span>  module_id <span class="op">=</span> <span class="st">"ae_hierarchy"</span>,</span>
+<span>  table_dataset_name <span class="op">=</span> <span class="st">"adae"</span>,</span>
+<span>  pop_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  smq_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SMQ_CARDIAC"</span>, <span class="st">"SMQ_RENAL"</span>, <span class="st">"SMQ_KIDNEY"</span><span class="op">)</span>,</span>
+<span>  udaec_name <span class="op">=</span> <span class="st">"UDAEC"</span>,</span>
+<span>  udaec_list <span class="op">=</span> <span class="va">udaec_list</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><code>udaec_list</code> requires a non-<code>NULL</code> top-level
+<code>smq_vars</code>, even when a category is defined only with
+preferred terms. The preferred-term column, such as
+<code>AEDECOD</code>, must exist in the event dataset. Once
+<code>SMQ</code> or <code>UDAEC</code> is selected as a hierarchy, the
+module displays an additional category filter in the Options menu.</p>
 <p>The following input will also be available in the “Options” menu when
 the <code>show_event_group_by</code> module argument is set to
 <code>TRUE</code>:</p>
@@ -187,23 +265,42 @@ origin and censor dates, but population count will not be affected.</li>
 (<code>show_event_group_by</code> module argument set to TRUE) then
 time-at-risk options are not available.</p>
 </div>
+</div>
 <div class="section level2">
 <h2 id="visualizations">Visualizations<a class="anchor" aria-label="anchor" href="#visualizations"></a>
 </h2>
 <div class="section level3">
-<h3 id="hierarchy-event-count-table">Hierarchy Event Count table<a class="anchor" aria-label="anchor" href="#hierarchy-event-count-table"></a>
+<h3 id="hierarchical-event-count-table">Hierarchical Event Count table<a class="anchor" aria-label="anchor" href="#hierarchical-event-count-table"></a>
 </h3>
-<p>A collapsible hierarchy table that can optionally display time at
-risk and incidence rate.</p>
+<p>A collapsible hierarchy table.</p>
+<p><img src="images/hierarchical_count_table.png" style="border: 2px solid gray;"></p>
+</div>
+<div class="section level3">
+<h3 id="sub-grouped-hierarchical-event-count-table">Sub-grouped Hierarchical Event Count table<a class="anchor" aria-label="anchor" href="#sub-grouped-hierarchical-event-count-table"></a>
+</h3>
+<p>A collapsible hierarchy table sub-grouped by a variable from the
+table events dataset.</p>
+<p><img src="images/hierarchical_count_table_event_group_by.png" style="border: 2px solid gray;"></p>
+</div>
+<div class="section level3">
+<h3 id="time-at-risk-hierarchical-event-count-table">Time at Risk Hierarchical Event Count table<a class="anchor" aria-label="anchor" href="#time-at-risk-hierarchical-event-count-table"></a>
+</h3>
+<p>A collapsible hierarchy table displaying time at risk and incidence
+rate.</p>
+<p><img src="images/hierarchical_count_table_time_at_risk.png" style="border: 2px solid gray;"></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="creating-a-hierarchical-count-table-application">Creating a hierarchical count table application<a class="anchor" aria-label="anchor" href="#creating-a-hierarchical-count-table-application"></a>
 </h2>
+<div class="section level3">
+<h3 id="example-1">Example 1<a class="anchor" aria-label="anchor" href="#example-1"></a>
+</h3>
 <p>The following code specifies the bare minimum module arguments with
 no default hierarchy or group specified:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pharmaverseadam"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"dv.manager"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">dv.manager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dv.manager/man/run_app.html" class="external-link">run_app</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>adsl <span class="op">=</span> <span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adsl.html" class="external-link">adsl</a></span>,</span>
@@ -215,14 +312,19 @@ no default hierarchy or group specified:</p>
 <span>      pop_dataset_name <span class="op">=</span> <span class="st">"adsl"</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
 <span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="example-2">Example 2<a class="anchor" aria-label="anchor" href="#example-2"></a>
+</h3>
 <p>The following code specifies module arguments for the display of a
 body system and preferred term hierarchy grouped by planned treatment
 group, and event severity:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pharmaverseadam"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"dv.manager"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">dv.manager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dv.manager/man/run_app.html" class="external-link">run_app</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>adsl <span class="op">=</span> <span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adsl.html" class="external-link">adsl</a></span>,</span>
@@ -240,15 +342,20 @@ group, and event severity:</p>
 <span>      event_group_choices <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AESEV"</span>, <span class="st">"AETOXGR"</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
 <span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="example-3">Example 3<a class="anchor" aria-label="anchor" href="#example-3"></a>
+</h3>
 <p>The following code specifies module arguments for the display of a
 body system and preferred term hierarchy and planned treatment group,
 with date variables specified for time at risk and incidence rate
 analysis:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pharmaverseadam"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"dv.manager"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">dv.manager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dv.manager/man/run_app.html" class="external-link">run_app</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>adsl <span class="op">=</span> <span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adsl.html" class="external-link">adsl</a></span>,</span>
@@ -268,9 +375,10 @@ analysis:</p>
 <span>      default_risk <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
 <span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="download">Download<a class="anchor" aria-label="anchor" href="#download"></a>

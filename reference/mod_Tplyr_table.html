@@ -11,7 +11,7 @@ table-building functions and dataset listings."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,8 +22,9 @@ table-building functions and dataset listings."></head><body>
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/hierarchical_count_table.html">Event Count module</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/hierarchical_count_table.html">Hierarchical Event Count module</a></li>
     <li><a class="dropdown-item" href="../articles/qc.html">Quality Control</a></li>
+    <li><a class="dropdown-item" href="../articles/summary_table.html">Summary table module</a></li>
     <li><a class="dropdown-item" href="../articles/Tplyr_tables.html">Tplyr table module</a></li>
     <li><a class="dropdown-item" href="../articles/zz_buildinfo.html">Build Info</a></li>
   </ul></li>
@@ -31,6 +32,7 @@ table-building functions and dataset listings."></head><body>
 <li class="nav-item"><a class="nav-link" href="../articles/qc.html">Quality Control</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/boehringer-ingelheim/dv.tables/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -40,7 +42,7 @@ table-building functions and dataset listings."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Tplyr table module for DaVinci's module manager</h1>
-
+      <small class="dont-index">Source: <a href="https://github.com/boehringer-ingelheim/dv.tables/blob/main/R/mod_Tplyr_table.R" class="external-link"><code>R/mod_Tplyr_table.R</code></a></small>
       <div class="d-none name"><code>mod_Tplyr_table.Rd</code></div>
     </div>
 
@@ -58,11 +60,15 @@ table-building functions and dataset listings.</p>
 <span>  subjid_var <span class="op">=</span> <span class="st">"USUBJID"</span>,</span>
 <span>  default_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pagination <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  listing_pagination <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  table_pagination <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  intended_use_label <span class="op">=</span></span>
 <span>    <span class="st">"Use only for internal review and monitoring during the conduct of clinical trials."</span>,</span>
 <span>  receiver_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  review <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  title_layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dropdown"</span>, <span class="st">"tabs"</span><span class="op">)</span></span>
+<span>  title_layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dropdown"</span>, <span class="st">"tabs"</span><span class="op">)</span>,</span>
+<span>  footers <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  exclude_var_names_from_column_headings <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -83,8 +89,8 @@ corresponds to a table or listing and must be a named list with one of the follo
 <dd><p>A function that takes one or more datasets as input and returns a <code>tplyr_table</code> object.</p></dd>
 
 <dt>build_fun</dt>
-<dd><p>A function that takes the <code>tplyr_table</code> object and returns a built table (typically using <code><a href="https://rdrr.io/pkg/Tplyr/man/build.html" class="external-link">Tplyr::build()</a></code>).
-The metadata argument of <code><a href="https://rdrr.io/pkg/Tplyr/man/build.html" class="external-link">Tplyr::build()</a></code> needs to be set to <code>TRUE</code>, so that the corresponding listing can be shown.</p></dd>
+<dd><p>A function that takes the <code>tplyr_table</code> object and returns a built table (typically using <code><a href="https://atorus-research.github.io/Tplyr/reference/build.html" class="external-link">Tplyr::build()</a></code>).
+The metadata argument of <code><a href="https://atorus-research.github.io/Tplyr/reference/build.html" class="external-link">Tplyr::build()</a></code> needs to be set to <code>TRUE</code>, so that the corresponding listing can be shown.</p></dd>
 
 
 </dl><p>For listings:</p><dl><dt>dataset_names</dt>
@@ -104,7 +110,26 @@ Column corresponding to subject ID. Default value is 'USUBJID'.</p></dd>
 
 
 <dt id="arg-pagination">pagination<a class="anchor" aria-label="anchor" href="#arg-pagination"></a></dt>
-<dd><p>An argument of <a href="https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html" class="external-link">listings_server</a> of <code>{dv.listings}</code> will be passed through.</p></dd>
+<dd><p>Deprecated. Legacy alias for <code>listing_pagination</code>.
+This argument currently controls pagination for drill-down and standalone
+listings generated by <code>dv.listings</code>. It is retained for backward compatibility
+but will be removed in a future version. Please use <code>listing_pagination</code>
+instead.</p></dd>
+
+
+<dt id="arg-listing-pagination">listing_pagination<a class="anchor" aria-label="anchor" href="#arg-listing-pagination"></a></dt>
+<dd><p>Pagination configuration for the drill-down and
+standalone listings generated by <code>dv.listings</code>. This is passed through to
+<code><a href="https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html" class="external-link">dv.listings::listings_server()</a></code>.</p></dd>
+
+
+<dt id="arg-table-pagination">table_pagination<a class="anchor" aria-label="anchor" href="#arg-table-pagination"></a></dt>
+<dd><p><code>[logical(1) | integer(1)]</code>
+Pagination behavior for the rendered Tplyr summary table. If <code>TRUE</code>, table
+pagination is enabled using the default page size from <code>reactable</code>. If <code>FALSE</code>,
+table pagination is disabled. If a positive whole number is supplied, table
+pagination is enabled and the number is used as <code>defaultPageSize</code> in
+<code><a href="https://glin.github.io/reactable/reference/reactable.html" class="external-link">reactable::reactable()</a></code>. Defaults to <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-intended-use-label">intended_use_label<a class="anchor" aria-label="anchor" href="#arg-intended-use-label"></a></dt>
@@ -132,6 +157,14 @@ Tabs will wrap to the next line if there are many. The rest of the module behavi
 
 </dl></dd>
 
+
+<dt id="arg-footers">footers<a class="anchor" aria-label="anchor" href="#arg-footers"></a></dt>
+<dd><p>An argument of <a href="https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html" class="external-link">listings_server</a> of <code>{dv.listings}</code> will be passed through.</p></dd>
+
+
+<dt id="arg-exclude-var-names-from-column-headings">exclude_var_names_from_column_headings<a class="anchor" aria-label="anchor" href="#arg-exclude-var-names-from-column-headings"></a></dt>
+<dd><p>An argument of <a href="https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html" class="external-link">listings_server</a> of <code>{dv.listings}</code> will be passed through.</p></dd>
+
 </dl></div>
 
     <div class="section level2">
@@ -141,52 +174,52 @@ Tabs will wrap to the next line if there are many. The rest of the module behavi
 <span class="r-in"><span><span class="va">ae</span> <span class="op">&lt;-</span> <span class="fu">pharmaversesdtm</span><span class="fu">::</span><span class="va">ae</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">my_tplyr_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dm</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/tplyr_table.html" class="external-link">tplyr_table</a></span><span class="op">(</span><span class="va">dm</span>, <span class="va">ARM</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_constructors.html" class="external-link">group_desc</a></span><span class="op">(</span><span class="va">AGE</span>, by <span class="op">=</span> <span class="st">"Age (years)"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="va">SEX</span>, by <span class="op">=</span> <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="va">RACE</span>, by <span class="op">=</span> <span class="st">"Race"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/tplyr_table.html" class="external-link">tplyr_table</a></span><span class="op">(</span><span class="va">dm</span>, <span class="va">ARM</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_constructors.html" class="external-link">group_desc</a></span><span class="op">(</span><span class="va">AGE</span>, by <span class="op">=</span> <span class="st">"Age (years)"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="va">SEX</span>, by <span class="op">=</span> <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="va">RACE</span>, by <span class="op">=</span> <span class="st">"Race"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">build_func</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">tab</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/build.html" class="external-link">build</a></span><span class="op">(</span><span class="va">tab</span>, metadata <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/build.html" class="external-link">build</a></span><span class="op">(</span><span class="va">tab</span>, metadata <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>row_label2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">row_label2</span> <span class="op">==</span> <span class="va">row_label1</span>, <span class="st">"Total (%)"</span>, <span class="va">row_label2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/apply_row_masks.html" class="external-link">apply_row_masks</a></span><span class="op">(</span>row_breaks <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/apply_row_masks.html" class="external-link">apply_row_masks</a></span><span class="op">(</span>row_breaks <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">my_tplyr_fun2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dm</span>, <span class="va">ae</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">dm_arm</span> <span class="op">&lt;-</span> <span class="va">dm</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">USUBJID</span>, <span class="va">ARM</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">ae_arm</span> <span class="op">&lt;-</span> <span class="va">ae</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span><span class="va">dm_arm</span>, by <span class="op">=</span> <span class="st">"USUBJID"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/tplyr_table.html" class="external-link">tplyr_table</a></span><span class="op">(</span><span class="va">ae_arm</span>, <span class="va">ARM</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/pop_data.html" class="external-link">set_pop_data</a></span><span class="op">(</span><span class="va">dm</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/pop_treat_var.html" class="external-link">set_pop_treat_var</a></span><span class="op">(</span><span class="va">ARM</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="st">"All subjects"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/set_distinct_by.html" class="external-link">set_distinct_by</a></span><span class="op">(</span><span class="va">USUBJID</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/set_format_strings.html" class="external-link">set_format_strings</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/f_str.html" class="external-link">f_str</a></span><span class="op">(</span><span class="st">"xx"</span>, <span class="va">distinct_total</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/tplyr_table.html" class="external-link">tplyr_table</a></span><span class="op">(</span><span class="va">ae_arm</span>, <span class="va">ARM</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/pop_data.html" class="external-link">set_pop_data</a></span><span class="op">(</span><span class="va">dm</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/pop_treat_var.html" class="external-link">set_pop_treat_var</a></span><span class="op">(</span><span class="va">ARM</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="st">"All subjects"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/set_distinct_by.html" class="external-link">set_distinct_by</a></span><span class="op">(</span><span class="va">USUBJID</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/set_format_strings.html" class="external-link">set_format_strings</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/f_str.html" class="external-link">f_str</a></span><span class="op">(</span><span class="st">"xx"</span>, <span class="va">distinct_total</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="st">"Subjects with adverse events"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/set_distinct_by.html" class="external-link">set_distinct_by</a></span><span class="op">(</span><span class="va">USUBJID</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/set_format_strings.html" class="external-link">set_format_strings</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/f_str.html" class="external-link">f_str</a></span><span class="op">(</span><span class="st">"xx (xx %)"</span>, <span class="va">distinct_n</span>, <span class="va">distinct_pct</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="st">"Subjects with adverse events"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/set_distinct_by.html" class="external-link">set_distinct_by</a></span><span class="op">(</span><span class="va">USUBJID</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/set_format_strings.html" class="external-link">set_format_strings</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/f_str.html" class="external-link">f_str</a></span><span class="op">(</span><span class="st">"xx (xx %)"</span>, <span class="va">distinct_n</span>, <span class="va">distinct_pct</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="va">AESEV</span>, by <span class="op">=</span> <span class="st">"Adverse event severity"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/set_distinct_by.html" class="external-link">set_distinct_by</a></span><span class="op">(</span><span class="va">USUBJID</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/set_format_strings.html" class="external-link">set_format_strings</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/f_str.html" class="external-link">f_str</a></span><span class="op">(</span><span class="st">"xx (xx %)"</span>, <span class="va">distinct_n</span>, <span class="va">distinct_pct</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="va">AESEV</span>, by <span class="op">=</span> <span class="st">"Adverse event severity"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/set_distinct_by.html" class="external-link">set_distinct_by</a></span><span class="op">(</span><span class="va">USUBJID</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/set_format_strings.html" class="external-link">set_format_strings</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/f_str.html" class="external-link">f_str</a></span><span class="op">(</span><span class="st">"xx (xx %)"</span>, <span class="va">distinct_n</span>, <span class="va">distinct_pct</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="st">"Subjects with serious AE"</span>, where <span class="op">=</span> <span class="va">AESER</span> <span class="op">==</span> <span class="st">"Y"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/set_distinct_by.html" class="external-link">set_distinct_by</a></span><span class="op">(</span><span class="va">USUBJID</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/set_format_strings.html" class="external-link">set_format_strings</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/f_str.html" class="external-link">f_str</a></span><span class="op">(</span><span class="st">"xx (xx %)"</span>, <span class="va">distinct_n</span>, <span class="va">distinct_pct</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_attachment.html" class="external-link">add_layer</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/layer_constructors.html" class="external-link">group_count</a></span><span class="op">(</span><span class="st">"Subjects with serious AE"</span>, where <span class="op">=</span> <span class="va">AESER</span> <span class="op">==</span> <span class="st">"Y"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/set_distinct_by.html" class="external-link">set_distinct_by</a></span><span class="op">(</span><span class="va">USUBJID</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>        <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/set_format_strings.html" class="external-link">set_format_strings</a></span><span class="op">(</span><span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/f_str.html" class="external-link">f_str</a></span><span class="op">(</span><span class="st">"xx (xx %)"</span>, <span class="va">distinct_n</span>, <span class="va">distinct_pct</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">build_func2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">tab</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/build.html" class="external-link">build</a></span><span class="op">(</span><span class="va">tab</span>, metadata <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Tplyr/man/apply_row_masks.html" class="external-link">apply_row_masks</a></span><span class="op">(</span>row_breaks <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/build.html" class="external-link">build</a></span><span class="op">(</span><span class="va">tab</span>, metadata <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu">Tplyr</span><span class="fu">::</span><span class="fu"><a href="https://atorus-research.github.io/Tplyr/reference/apply_row_masks.html" class="external-link">apply_row_masks</a></span><span class="op">(</span>row_breaks <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">output_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>

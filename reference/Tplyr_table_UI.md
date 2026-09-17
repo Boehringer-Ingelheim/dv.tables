@@ -32,11 +32,11 @@ Tplyr_table_UI(module_id, output_list)
 
   :   A function that takes the `tplyr_table` object and returns a built
       table (typically using
-      [`Tplyr::build()`](https://rdrr.io/pkg/Tplyr/man/build.html)). The
-      metadata argument of
-      [`Tplyr::build()`](https://rdrr.io/pkg/Tplyr/man/build.html) needs
-      to be set to `TRUE`, so that the corresponding listing can be
-      shown.
+      [`Tplyr::build()`](https://atorus-research.github.io/Tplyr/reference/build.html)).
+      The metadata argument of
+      [`Tplyr::build()`](https://atorus-research.github.io/Tplyr/reference/build.html)
+      needs to be set to `TRUE`, so that the corresponding listing can
+      be shown.
 
   For listings:
 

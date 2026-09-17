@@ -1,25 +1,19 @@
-# Event Count module
-
-![](images/hierarchical_count_table.png)
-
-![](images/hierarchical_count_table_event_group_by.png)
-
-![](images/hierarchical_count_table_time_at_risk.png)
+# Hierarchical Event Count module
 
 This guide provides a detailed overview of the
-`hierarchical_count_table` module and its features. It is meant to
-provide guidance to App Creators on creating Apps in DaVinci using the
-`hierarchical_count_table` module. Walk-throughs for sample app creation
-using the module are also included to demonstrate the various module
-specific features.
+[`dv.tables::mod_hierarchical_count_table()`](https://boehringer-ingelheim.github.io/dv.tables/reference/mod_hierarchical_count_table.md)
+module and its features. It is meant to provide guidance to App Creators
+on creating Apps in DaVinci using the module. Walk-throughs for sample
+app creation using the module are also included to demonstrate the
+various module specific features.
 
-The `hierarchical_count_table` module makes it possible to visualize a
-hierarchy table with event counts for each of the levels, with the
-option of showing time at risk and incidence rates.
+The module makes it possible to visualize a hierarchy table with event
+counts for each of the levels, with the option of showing time at risk
+and incidence rates.
 
 ## Features
 
-- One or two levels of hierarchy, and a top-level summary of subjects
+- One to four levels of hierarchy, and a top-level summary of subjects
   with any event.
 - Second level of hierarchy can be collapsed to only show the first
   level.
@@ -38,48 +32,119 @@ option of showing time at risk and incidence rates.
 
 ## Arguments for the module
 
-[`dv.tables::mod_hierarchical_count_table()`](../reference/mod_hierarchical_count_table.md)
-module uses several arguments with the following being mandatory and the
-rest optional. As part of app creation, the app creator should specify
-the values for these arguments as applicable.
+The
+[`dv.tables::mod_hierarchical_count_table()`](https://boehringer-ingelheim.github.io/dv.tables/reference/mod_hierarchical_count_table.md)
+module uses several mandatory arguments with the rest of the arguments
+defaulted or optional. As part of app creation, the app creator should
+specify the values for all mandatory arguments, and values for any other
+arguments as applicable.
 
 **Mandatory Arguments**
 
 - `module_id` : A unique identifier of type character for the module in
   the app.
-
-- `subjid_var`: A common column across all datasets that uniquely
-  identify subjects. By default: “SUBJID”
-
-- `table_dataset_name`: The dataset that contains the events per row.
-  For example, `ADAE`
-
-- `pop_dataset_name`: The dataset that contains one row per subject in
-  the total population. For example, `ADSL` It expects a
+- `table_dataset_name`: The name of the dataset that contains the events
+  per row, e.g., `"ADAE"`.
+- `pop_dataset_name`: The name of the dataset that contains one row per
+  subject in the total population, e.g., `"ADSL"`. It expects a
   one-record-per-subject dataset at least containing `subjid_var`, with
   a structure similar to
   <https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806>
 
-Refer to
-[`dv.tables::mod_hierarchical_count_table()`](../reference/mod_hierarchical_count_table.md)
+Please refer to
+[`dv.tables::mod_hierarchical_count_table()`](https://boehringer-ingelheim.github.io/dv.tables/reference/mod_hierarchical_count_table.md)
 for the complete list of arguments and their description.
 
 ## Input menus
 
 A drop-down “Options” menu provides the following inputs:
 
-- **Event count by**: Selection of one or two levels of hierarchy
+- **Event count by**: Selection of one to four levels of hierarchy
   variables from the table (events) dataset, to be displayed down the
   left side of the table, e.g. `AEBODSYS`, `AEDECOD`.
 - **Group by**: Selection of a grouping variable from the subject-level
   population dataset, to be displayed across the top of the table,
   e.g. `TRT01P`.
 - **Minimum %**: The minimum percentage threshold for filtering events.
-  Rows where the percentage of subjects (totalled across all group
-  categories) is below this threshold will be removed from the output.
+  Each displayed group cell whose percentage of subjects is below this
+  threshold has its event count and percentage replaced with a dash (—).
   Defaults to `0`.
+- **Remove rows under minimum %**: Checkbox that controls whether to
+  remove entire rows (across all hierarchy levels) for which every
+  group’s percentage of subjects falls below the **Minimum %**
+  threshold, instead of just showing a dash for those cells.
 - **Total**: Checkbox that controls whether or not to display a “Total”
   column totalling data from all group categories.
+
+When `smq_vars` is supplied, the module derives an SMQ hierarchy from
+those columns. If `udaec_list` is also supplied, it can derive UDAEC
+categories from SMQ variables and preferred-term definitions. When an
+SMQ or UDAEC hierarchy is selected, an additional menu allows users to
+filter the displayed categories.
+
+### SMQ and UDAEC hierarchies
+
+The `smq_vars` argument is a character vector of event-dataset column
+names that contain SMQ indicators or categories. The module derives an
+`SMQ` hierarchy variable from these columns. The name of the derived
+variable can be changed with `smq_name`, which defaults to `"SMQ"`.
+
+The optional `udaec_list` argument defines UDAEC categories as a named
+list. Each list name becomes a UDAEC category label, and each
+corresponding element must be a list containing at least one of the
+following definitions: Only `smq_vars`, `pt_var`, and `pt_values` are
+valid entries in a category definition.
+
+- `smq_vars`: A character vector of SMQ source column names. These names
+  must also be included in the top-level `smq_vars` argument.
+- `pt_var` and `pt_values`: The event-dataset column containing
+  preferred terms and an atomic vector of values identifying the
+  preferred terms assigned to the category. `pt_var` must exist in the
+  event dataset, and both fields must be supplied together.
+
+A UDAEC category can use either definition or both definitions. For
+example, the following configuration assigns SMQ source columns and
+selected preferred terms to two UDAEC categories:
+
+``` r
+udaec_list <- list(
+  "Cardiac disorders" = list(
+    smq_vars = "SMQ_CARDIAC",
+    pt_var = "AEDECOD",
+    pt_values = c("Atrial fibrillation", "Myocardial infarction")
+  ),
+  "Renal disorders" = list(
+    smq_vars = c("SMQ_RENAL", "SMQ_KIDNEY"),
+    pt_var = "AEDECOD",
+    pt_values = c("Acute kidney injury", "Renal impairment")
+  ),
+  "Selected neurological terms" = list(
+    pt_var = "AEDECOD",
+    pt_values = c("Seizure", "Headache")
+  )
+)
+```
+
+The corresponding module configuration must include every SMQ source
+column referenced inside `udaec_list` in the top-level `smq_vars`
+argument:
+
+``` r
+dv.tables::mod_hierarchical_count_table(
+  module_id = "ae_hierarchy",
+  table_dataset_name = "adae",
+  pop_dataset_name = "adsl",
+  smq_vars = c("SMQ_CARDIAC", "SMQ_RENAL", "SMQ_KIDNEY"),
+  udaec_name = "UDAEC",
+  udaec_list = udaec_list
+)
+```
+
+`udaec_list` requires a non-`NULL` top-level `smq_vars`, even when a
+category is defined only with preferred terms. The preferred-term
+column, such as `AEDECOD`, must exist in the event dataset. Once `SMQ`
+or `UDAEC` is selected as a hierarchy, the module displays an additional
+category filter in the Options menu.
 
 The following input will also be available in the “Options” menu when
 the `show_event_group_by` module argument is set to `TRUE`:
@@ -113,19 +178,36 @@ available.
 
 ## Visualizations
 
-### Hierarchy Event Count table
+### Hierarchical Event Count table
 
-A collapsible hierarchy table that can optionally display time at risk
-and incidence rate.
+A collapsible hierarchy table.
+
+![](images/hierarchical_count_table.png)
+
+### Sub-grouped Hierarchical Event Count table
+
+A collapsible hierarchy table sub-grouped by a variable from the table
+events dataset.
+
+![](images/hierarchical_count_table_event_group_by.png)
+
+### Time at Risk Hierarchical Event Count table
+
+A collapsible hierarchy table displaying time at risk and incidence
+rate.
+
+![](images/hierarchical_count_table_time_at_risk.png)
 
 ## Creating a hierarchical count table application
+
+### Example 1
 
 The following code specifies the bare minimum module arguments with no
 default hierarchy or group specified:
 
 ``` r
-
 requireNamespace("pharmaverseadam")
+requireNamespace("dv.manager")
 
 dv.manager::run_app(
   data = list(dummy = list(adsl = pharmaverseadam::adsl,
@@ -137,18 +219,20 @@ dv.manager::run_app(
       pop_dataset_name = "adsl"
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
+
+### Example 2
 
 The following code specifies module arguments for the display of a body
 system and preferred term hierarchy grouped by planned treatment group,
 and event severity:
 
 ``` r
-
 requireNamespace("pharmaverseadam")
+requireNamespace("dv.manager")
 
 dv.manager::run_app(
   data = list(dummy = list(adsl = pharmaverseadam::adsl,
@@ -166,18 +250,20 @@ dv.manager::run_app(
       event_group_choices = c("AESEV", "AETOXGR")
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
+
+### Example 3
 
 The following code specifies module arguments for the display of a body
 system and preferred term hierarchy and planned treatment group, with
 date variables specified for time at risk and incidence rate analysis:
 
 ``` r
-
 requireNamespace("pharmaverseadam")
+requireNamespace("dv.manager")
 
 dv.manager::run_app(
   data = list(dummy = list(adsl = pharmaverseadam::adsl,
@@ -197,7 +283,7 @@ dv.manager::run_app(
       default_risk = TRUE
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```

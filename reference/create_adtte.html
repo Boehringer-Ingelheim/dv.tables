@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,8 +18,9 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/hierarchical_count_table.html">Event Count module</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/hierarchical_count_table.html">Hierarchical Event Count module</a></li>
     <li><a class="dropdown-item" href="../articles/qc.html">Quality Control</a></li>
+    <li><a class="dropdown-item" href="../articles/summary_table.html">Summary table module</a></li>
     <li><a class="dropdown-item" href="../articles/Tplyr_tables.html">Tplyr table module</a></li>
     <li><a class="dropdown-item" href="../articles/zz_buildinfo.html">Build Info</a></li>
   </ul></li>
@@ -27,6 +28,7 @@
 <li class="nav-item"><a class="nav-link" href="../articles/qc.html">Quality Control</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/boehringer-ingelheim/dv.tables/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -36,7 +38,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Perform count and time at risk analysis on hierarchical data</h1>
-
+      <small class="dont-index">Source: <a href="https://github.com/boehringer-ingelheim/dv.tables/blob/main/R/mod_hierarchical_count_table.R" class="external-link"><code>R/mod_hierarchical_count_table.R</code></a></small>
       <div class="d-none name"><code>create_adtte.Rd</code></div>
     </div>
 
@@ -75,8 +77,8 @@ A data frame containing the population data. It must have columns corresponding 
 
 
 <dt id="arg-hierarchy">hierarchy<a class="anchor" aria-label="anchor" href="#arg-hierarchy"></a></dt>
-<dd><p><code>character(1|2)</code>
-A character vector of column names from <code>event_df</code> to use as the hierarchy. Can be one or two levels.</p></dd>
+<dd><p><code>character(1+)</code>
+A character vector of column names from <code>event_df</code> to use as the hierarchy.</p></dd>
 
 
 <dt id="arg-group-var">group_var<a class="anchor" aria-label="anchor" href="#arg-group-var"></a></dt>

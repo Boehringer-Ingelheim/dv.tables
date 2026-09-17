@@ -15,7 +15,7 @@ mod_export_counttable_UI(module_id)
 
   `[character(1)]` A unique ID string to create a namespace. Must match
   the ID of
-  [`mod_export_counttable_server()`](mod_export_counttable_server.md).
+  [`mod_export_counttable_server()`](https://boehringer-ingelheim.github.io/dv.tables/reference/mod_export_counttable_server.md).
 
 ## Value
 

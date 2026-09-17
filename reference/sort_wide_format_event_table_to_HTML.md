@@ -5,7 +5,7 @@ Renders the wide-format event table as an HTML table
 ## Usage
 
 ``` r
-sort_wide_format_event_table_to_HTML(d, on_cell_click = NULL)
+sort_wide_format_event_table_to_HTML(d, var_labels, on_cell_click = NULL)
 ```
 
 ## Arguments
@@ -13,8 +13,12 @@ sort_wide_format_event_table_to_HTML(d, on_cell_click = NULL)
 - d:
 
   `list` A list returned from
-  [`sort_wider_formatter_events_table()`](sort_wider_formatter_events_table.md)
+  [`sort_wider_formatter_events_table()`](https://boehringer-ingelheim.github.io/dv.tables/reference/sort_wider_formatter_events_table.md)
   containing the sorted wide-format event data and metadata.
+
+- var_labels:
+
+  `list` A list of variable labels indexed by variable names.
 
 - on_cell_click:
 

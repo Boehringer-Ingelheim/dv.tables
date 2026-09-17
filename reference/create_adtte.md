@@ -33,8 +33,8 @@ create_adtte(
 
 - hierarchy:
 
-  `character(1|2)` A character vector of column names from `event_df` to
-  use as the hierarchy. Can be one or two levels.
+  `character(1+)` A character vector of column names from `event_df` to
+  use as the hierarchy.
 
 - group_var:
 

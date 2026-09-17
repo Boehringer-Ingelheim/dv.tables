@@ -18,7 +18,7 @@ generated. For displaying the listing the listings module of
 used, which means all functionality of that module can be leveraged.
 
 The Tplyr table module allows multiple output tables created with
-[Tplyr](https://github.com/atorus-research/Tplyr) and standalone
+[Tplyr](https://atorus-research.github.io/Tplyr/) and standalone
 listings to be displayed under the same tab, using a drop-down selector.
 
 ## Features
@@ -29,10 +29,10 @@ listings to be displayed under the same tab, using a drop-down selector.
 - corresponding listing from the selected cell of the table.
 - standalone listing
 
-[`dv.tables::mod_Tplyr_table()`](../reference/mod_Tplyr_table.md) module
-uses several arguments with the following being mandatory and the rest
-optional. As part of app creation, the app creator should specify the
-values for these arguments as applicable.
+[`dv.tables::mod_Tplyr_table()`](https://boehringer-ingelheim.github.io/dv.tables/reference/mod_Tplyr_table.md)
+module uses several arguments with the following being mandatory and the
+rest optional. As part of app creation, the app creator should specify
+the values for these arguments as applicable.
 
 **Mandatory Arguments**
 
@@ -48,10 +48,10 @@ values for these arguments as applicable.
     and returns a `tplyr_table` object.
   - `build_fun` A function that takes the `tplyr_table` object and
     returns a built table (typically using
-    [`Tplyr::build()`](https://rdrr.io/pkg/Tplyr/man/build.html)).\
+    [`Tplyr::build()`](https://atorus-research.github.io/Tplyr/reference/build.html)).  
     *Note: The metadata argument of
-    [`Tplyr::build()`](https://rdrr.io/pkg/Tplyr/man/build.html) needs
-    to be set to `TRUE`, so that the corresponding listing can be
+    [`Tplyr::build()`](https://atorus-research.github.io/Tplyr/reference/build.html)
+    needs to be set to `TRUE`, so that the corresponding listing can be
     shown.*
 
   For standalone listings:
@@ -84,7 +84,6 @@ example:
 First load dummy data:
 
 ``` r
-
 # load demo data
 dm <- pharmaversesdtm::dm
 ```
@@ -92,7 +91,6 @@ dm <- pharmaversesdtm::dm
 Create a Tplyr table and wrap it into a function.
 
 ``` r
-
 my_tplyr_fun <- function(dm) {
   tab <- Tplyr::tplyr_table(dm, ARM) |>
     Tplyr::add_layer(Tplyr::group_desc(AGE, by = "Age (years)")) |>
@@ -105,7 +103,6 @@ my_tplyr_fun <- function(dm) {
 Create a build function for the tplyr table created in the first step
 
 ``` r
-
 build_func <- function(tab) {
   Tplyr::build(tab, metadata = TRUE) |>
     dplyr::mutate(
@@ -116,10 +113,9 @@ build_func <- function(tab) {
 ```
 
 Create the output_list passed to
-[`dv.tables::mod_Tplyr_table`](../reference/mod_Tplyr_table.md)
+[`dv.tables::mod_Tplyr_table`](https://boehringer-ingelheim.github.io/dv.tables/reference/mod_Tplyr_table.md)
 
 ``` r
-
 output_list <- list(
   "Demographic" = list(
     tplyr_tab_fun = my_tplyr_fun,
@@ -131,7 +127,6 @@ output_list <- list(
 Put everything together and start the app within `{dv.manager}`
 
 ``` r
-
 module_list <- list(
   "Table" = dv.tables::mod_Tplyr_table(
     module_id = "tplyr_table",
@@ -150,7 +145,6 @@ dv.manager::run_app(
 It’s also possible to add more than one table into the module.
 
 ``` r
-
 # load additional demo data
 dm <- pharmaversesdtm::dm 
 
@@ -222,7 +216,6 @@ dv.manager::run_app(
 As a last step you can also add a standalone listing to the module
 
 ``` r
-
 # Add additional entry for standalone listings
 output_list <- list(
   "Demographic" = list(
@@ -262,7 +255,6 @@ Here’s an example where we ensure all levels of the `ARM` variable
 (including an “empty level”) are retained in the table:
 
 ``` r
-
 # Create table function
 my_tplyr_fun <- function(dm) {
   dm <- dm |>
