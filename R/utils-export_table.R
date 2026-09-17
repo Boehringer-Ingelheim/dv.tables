@@ -89,24 +89,29 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   if (download_type == ".rtf") {
 
-    if (length(event_vars) == 2) {
+    if (length(event_vars) > 1L) {
+      # Create indented hierarchy of event values for multi-event columns
 
-      # Create indented hierarchy of event values for dual event columns
-      df_prep <- df_prep |>
+      indent_fun <- function(event_vars_df) {
+        for (i in ncol(event_vars_df):2L) {
+          event_vars_df[[i - 1]] <- ifelse(event_vars_df[[i]] != "Total",
+                                           paste0("  ", event_vars_df[[i]]),
+                                           event_vars_df[[i - 1]])
+        }
+        return(event_vars_df[[1]])
+      }
 
-        # Modify second event column to indent values with double-space; otherwise, for event
-        # column totals, copy value from first event column.
-        dplyr::mutate(dplyr::across(dplyr::all_of(event_vars[2]),
-                                    ~ ifelse(.x == "Total",
-                                             .data[[event_vars[1]]],
-                                             paste0("  ", .x)))) |>
-
-        # Remove first event column
-        dplyr::select(-event_vars[1]) |>
-
+      # Modify first event column with indented values from other event columns
+      df_prep[[event_vars[1]]] <- indent_fun(df_prep[event_vars])
+      for (i in 2L:length(event_var_labels)) {
         # Line break code <br> will be replaced by RTF \line after RTF string is generated
-        dplyr::rename_with(~ paste0(event_var_labels[[1]], "<br>  ", event_var_labels[[2]]),
-                           dplyr::all_of(event_vars[2]))
+        event_var_labels[i] <- paste0("<br>", strrep("  ", i - 1), event_var_labels[i])
+      }
+      names(df_prep)[names(df_prep) == event_vars[1]] <- paste(event_var_labels, collapse = "")
+
+      # Remove redundant event columns
+      drop_event_vars <- setdiff(event_vars, event_vars[1])
+      df_prep[drop_event_vars] <- NULL
     } else {
 
       # Single event column - rename with label only

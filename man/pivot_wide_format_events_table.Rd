@@ -4,7 +4,11 @@
 \alias{pivot_wide_format_events_table}
 \title{Converts the event table to wide format}
 \usage{
-pivot_wide_format_events_table(d, min_percent = 0)
+pivot_wide_format_events_table(
+  d,
+  min_percent = 0,
+  remove_rows_under_min_pct = FALSE
+)
 }
 \arguments{
 \item{d}{\code{list}
@@ -12,7 +16,11 @@ A list returned from \code{compute_events_table()} containing the event data and
 
 \item{min_percent}{\code{numeric}
 The minimum percentage threshold for filtering events. Rows where the percentage of subjects is below this threshold
-will be removed from the output.}
+will have their cell values replaced with a dash instead of being shown.}
+
+\item{remove_rows_under_min_pct}{\code{logical(1)}
+Whether to remove entire rows (across all groups) for which every group's percentage of subjects falls below
+\code{min_percent}, instead of just replacing the cell values for those rows with a dash.}
 }
 \value{
 A list containing:

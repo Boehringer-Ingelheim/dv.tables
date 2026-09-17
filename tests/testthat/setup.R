@@ -1,4 +1,3 @@
-# nolint start
 # validation (S)
 vdoc <- local({
   #                      ##########
@@ -13,16 +12,18 @@ specs <- vdoc[["specs"]]
 
 # -----
 
-if(
+if (
   !isTRUE(as.logical(Sys.getenv("CI"))) &&
   !isTRUE(as.logical(Sys.getenv("LOCAL_SHINY_TESTS")))
 ) {
   warning("Attempting to run local tests without 'LOCAL_SHINY_TESTS' option")
 }
 
-run_shiny_tests <- !isFALSE(as.logical(Sys.getenv("SKIP_SHINY_TESTS")))
+run_shiny_tests <- !isTRUE(as.logical(Sys.getenv("SKIP_SHINY_TESTS")))
 
 skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
+
+fail_if_app_not_started <- function(app) if (is.null(app)) rlang::abort("App could not be started")
 
 tns_factory <- function(id) function(...) paste0(c(id, as.character(list(...))), collapse = "-")
 
@@ -119,7 +120,7 @@ test_communication_with_papo <- function(mod, data, trigger_input_id, papo_spec_
 
     trigger_subject_selection <- function(subject_id) {
       set_input_params <- append(
-        as.list(setNames(subject_id, trigger_input_id)),
+        as.list(stats::setNames(subject_id, trigger_input_id)),
         list(allow_no_input_binding_ = TRUE, priority_ = "event")
       )
       do.call(app$set_inputs, set_input_params)
@@ -140,6 +141,3 @@ test_communication_with_papo <- function(mod, data, trigger_input_id, papo_spec_
     app$stop()
   })
 }
-
-
-# nolint end

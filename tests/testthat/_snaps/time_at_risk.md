@@ -118,6 +118,9 @@
       $meta$warning_message
       NULL
       
+      $meta$min_percent
+      [1] 0
+      
       $meta$rank_col
       [1] "\035rank"
       
@@ -129,7 +132,7 @@
       html
     Output
       <div>
-        <p>Event count by lvl1, lvl2</p>
+        <p>Event count by Level 1, Level 2; group by group</p>
         <table class="table event-count">
           <tr class="no-border">
             <th class="text-center" style="vertical-align: bottom; border-top: 1px solid white">
@@ -192,11 +195,11 @@
             <td class="text-center" column="GB">2 ( 100.00 %)</td>
             <td class="text-center" column="GB">0.05</td>
             <td class="text-center" column="GB">3844.74</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="GC">0</td>
+            <td class="text-center" column="GC">0.06</td>
+            <td class="text-center" column="GC">0.00</td>
           </tr>
-          <tr row-id="2" class="indent-1" indent="1">
+          <tr row-id="2" class="indent-1 bg-gray" indent="1">
             <td>
               <span class="truncate" title="A1">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
@@ -209,23 +212,23 @@
             <td class="text-center" column="GB">2 ( 100.00 %)</td>
             <td class="text-center" column="GB">0.05</td>
             <td class="text-center" column="GB">3844.74</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="GC">0</td>
+            <td class="text-center" column="GC">0.06</td>
+            <td class="text-center" column="GC">0.00</td>
           </tr>
           <tr row-id="3" class="indent-2" indent="2">
             <td>
               <span class="truncate" title="A2">A2</span>
             </td>
-            <td class="text-center" column="GA">—</td>
-            <td class="text-center" column="GA">—</td>
-            <td class="text-center" column="GA">—</td>
+            <td class="text-center" column="GA">0</td>
+            <td class="text-center" column="GA">0.03</td>
+            <td class="text-center" column="GA">0.00</td>
             <td class="text-center" column="GB">2 ( 100.00 %)</td>
             <td class="text-center" column="GB">0.05</td>
             <td class="text-center" column="GB">3844.74</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="GC">0</td>
+            <td class="text-center" column="GC">0.06</td>
+            <td class="text-center" column="GC">0.00</td>
           </tr>
           <tr row-id="4" class="indent-2" indent="2">
             <td>
@@ -234,14 +237,14 @@
             <td class="text-center" column="GA">1 ( 100.00 %)</td>
             <td class="text-center" column="GA">0.00</td>
             <td class="text-center" column="GA">36525.00</td>
-            <td class="text-center" column="GB">—</td>
-            <td class="text-center" column="GB">—</td>
-            <td class="text-center" column="GB">—</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="GB">0</td>
+            <td class="text-center" column="GB">0.11</td>
+            <td class="text-center" column="GB">0.00</td>
+            <td class="text-center" column="GC">0</td>
+            <td class="text-center" column="GC">0.06</td>
+            <td class="text-center" column="GC">0.00</td>
           </tr>
-          <tr row-id="5" class="indent-1" indent="1">
+          <tr row-id="5" class="indent-1 bg-gray" indent="1">
             <td>
               <span class="truncate" title="B1">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
@@ -254,9 +257,9 @@
             <td class="text-center" column="GB">1 ( 50.00 %)</td>
             <td class="text-center" column="GB">0.11</td>
             <td class="text-center" column="GB">913.12</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="GC">0</td>
+            <td class="text-center" column="GC">0.06</td>
+            <td class="text-center" column="GC">0.00</td>
           </tr>
           <tr row-id="6" class="indent-2" indent="2">
             <td>
@@ -268,9 +271,9 @@
             <td class="text-center" column="GB">1 ( 50.00 %)</td>
             <td class="text-center" column="GB">0.11</td>
             <td class="text-center" column="GB">913.12</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
-            <td class="text-center" column="GC">—</td>
+            <td class="text-center" column="GC">0</td>
+            <td class="text-center" column="GC">0.06</td>
+            <td class="text-center" column="GC">0.00</td>
           </tr>
         </table>
       </div>

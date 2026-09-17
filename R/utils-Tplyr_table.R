@@ -73,3 +73,69 @@ it_interactive_title <- function(...) {
 
   return(shiny::tagList(it_custom_styles, div))
 }
+
+resolve_table_pagination <- function(table_pagination) {
+  if (is.logical(table_pagination) && length(table_pagination) == 1L && !is.na(table_pagination)) {
+    if (isTRUE(table_pagination)) {
+      return(list(
+        pagination = TRUE,
+        showPageSizeOptions = TRUE
+      ))
+    }
+
+    return(list(
+      pagination = FALSE,
+      showPagination = TRUE,
+      showPageInfo = TRUE,
+      showPageSizeOptions = FALSE
+    ))
+  }
+
+  if (checkmate::test_count(table_pagination, positive = TRUE)) {
+
+    default_page_size <- as.integer(table_pagination)
+
+    return(list(
+      pagination = TRUE,
+      defaultPageSize = as.integer(default_page_size),
+      showPageSizeOptions = TRUE,
+      pageSizeOptions = sort(unique(c(10L, 25L, 50L, 100L, default_page_size)))
+    ))
+  }
+
+  stop(
+    "`table_pagination` must be TRUE, FALSE, or a positive whole number.",
+    call. = FALSE
+  )
+}
+
+warn_deprecated_pagination <- function() {
+  warning(
+    "`pagination` is deprecated in `mod_Tplyr_table()` and will be removed ",
+    "in a future version of `dv.tables`. ",
+    "Please use `listing_pagination` instead. ",
+    "`pagination` currently controls pagination for drill-down and standalone listings.",
+    call. = FALSE
+  )
+}
+
+validate_listing_pagination <- function(listing_pagination) {
+  # NULL or a single logical is what dv.listings accepts
+  if (is.null(listing_pagination)) {
+    return(NULL)
+  }
+
+  if (is.logical(listing_pagination) && length(listing_pagination) == 1L && !is.na(listing_pagination)) {
+    return(listing_pagination)
+  }
+
+  warning(
+    "`listing_pagination` must be TRUE, FALSE, or NULL. ",
+    "It is passed through to `dv.listings::listings_server()`, which does not support ",
+    "other values (e.g. a page size integer, unlike `table_pagination`). ",
+    "Falling back to the default (NULL).",
+    call. = FALSE
+  )
+
+  return(NULL)
+}

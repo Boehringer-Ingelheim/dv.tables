@@ -1,13 +1,10 @@
 local({
+  skip_if_not_running_shiny_tests()
+
   root_app <- start_app_driver(rlang::quo(dv.tables:::mock_Tplyr_table()))
   on.exit(if ("stop" %in% names(root_app)) root_app$stop())
 
-  fail_if_app_not_started <- function() {
-    if (is.null(root_app)) rlang::abort("App could not be started")
-  }
-
-  fail_if_app_not_started()
-  skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
+  fail_if_app_not_started(root_app)
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
@@ -100,15 +97,12 @@ local({
 
 ## tests with module manager
 local({
+  skip_if_not_running_shiny_tests()
+
   root_app <- start_app_driver(rlang::quo(dv.tables:::mock_Tplyr_table_mm()))
   on.exit(if ("stop" %in% names(root_app)) root_app$stop())
 
-  fail_if_app_not_started <- function() {
-    if (is.null(root_app)) rlang::abort("App could not be started")
-  }
-
-  fail_if_app_not_started()
-  skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
+  fail_if_app_not_started(root_app)
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
@@ -182,15 +176,12 @@ local({
 })
 
 local({
+  skip_if_not_running_shiny_tests()
+
   root_app <- start_app_driver(rlang::quo(dv.tables:::mock_Tplyr_table_tabs()))
   on.exit(if ("stop" %in% names(root_app)) root_app$stop())
 
-  fail_if_app_not_started <- function() {
-    if (is.null(root_app)) rlang::abort("App could not be started")
-  }
-
-  fail_if_app_not_started()
-  skip_if_not_running_shiny_tests <- function() testthat::skip_if_not(run_shiny_tests, message = "Skip tests") # nolint
+  fail_if_app_not_started(root_app)
 
   app <- shinytest2::AppDriver$new(root_app$get_url())
 
