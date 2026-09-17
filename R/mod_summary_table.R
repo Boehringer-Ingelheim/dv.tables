@@ -417,7 +417,7 @@ summtab_compute <- function(tbl_df,
       av_stats_fmts <- list(n_pct = list(fmt = "%d (%.1f %%)", "n", "pct"))
       av_stats_replace <- list(n_pct = list(list(pattern = "^NA \\(NA \\%\\)$", replacement = "0")))
 
-      group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
+      group_by_vars <- c(group_vars, row_vars, av)
       av_mod <- ".dummy" # Counts done on dummy variable
 
       # Drop NA values (unless requested otherwise)
