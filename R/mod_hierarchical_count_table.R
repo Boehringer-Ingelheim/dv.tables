@@ -1288,6 +1288,8 @@ hierarchical_count_table_server <- function(
 
       })
 
+      shiny::outputOptions(output, EC$ID$SMQ_UI, suspendWhenHidden = FALSE)
+
       filtered_table_dataset_smq <- shiny::reactive({
         if (udaec_name %in% inputs[[EC$ID$HIERARCHY]]()) {
           table_dataset_smq() |>
