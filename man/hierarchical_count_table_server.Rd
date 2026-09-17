@@ -14,16 +14,16 @@ hierarchical_count_table_server(
   show_modal_on_click = TRUE,
   on_sbj_click_fun = function() NULL,
   default_hierarchy = NULL,
-  default_group = NULL,
-  default_event_group = NULL,
-  default_event_date = NULL,
-  default_origin_date = NULL,
-  default_censor_date = NULL,
   hierarchy_choices = NULL,
+  default_group = NULL,
   group_choices = NULL,
+  default_event_group = NULL,
   event_group_choices = NULL,
+  default_event_date = NULL,
   event_date_choices = NULL,
+  default_origin_date = NULL,
   origin_date_choices = NULL,
+  default_censor_date = NULL,
   censor_date_choices = NULL,
   intended_use_label = NULL,
   smq_name = NULL,
@@ -76,43 +76,33 @@ Optional character vector specifying the default hierarchy variables.
 Variables must be columns in \code{table_dataset_name}. Up to four variables
 can be selected, and their order determines the nesting order in the table.}
 
-\item{default_group}{\verb{[character(1)|NULL]}
-
-A default value for the group variable selection (optional).}
-
-\item{default_event_group}{\verb{[character(1)|NULL]}
-
-A default value for the event group variable selection.}
-
-\item{default_event_date}{\verb{[character(1)|NULL]}
-
-A default value for the event date variable selection (optional). Not applicable when
-\code{show_time_at_risk_options} is \code{FALSE}.}
-
-\item{default_origin_date}{\verb{[character(1)|NULL]}
-
-A default value for the origin date variable selection (optional). Not applicable when
-\code{show_time_at_risk_options} is \code{FALSE}.}
-
-\item{default_censor_date}{\verb{[character(1)|NULL]}
-
-A default value for the censor date variable selection (optional). Not applicable when
-\code{show_time_at_risk_options} is \code{FALSE}.}
-
 \item{hierarchy_choices}{\verb{[character(1+)|NULL]}
 
 A character vector specifying the possible choices for the hierarchy variables selection (optional).
 If it is not specified then all factor and character variables from the event data will be used.}
+
+\item{default_group}{\verb{[character(1)|NULL]}
+
+A default value for the group variable selection (optional).}
 
 \item{group_choices}{\verb{[character(1+)|NULL]}
 
 A character vector specifying the possible choices for the group variable selection (optional).
 If it is not specified then all factor and character variables from the population data will be used.}
 
+\item{default_event_group}{\verb{[character(1)|NULL]}
+
+A default value for the event group variable selection.}
+
 \item{event_group_choices}{\verb{[character(1+)|NULL]}
 
 A character vector specifying the possible choices for the event group variable selection (optional).
 If it is not specified then all factor and character variables from the event data will be used.}
+
+\item{default_event_date}{\verb{[character(1)|NULL]}
+
+A default value for the event date variable selection (optional). Not applicable when
+\code{show_time_at_risk_options} is \code{FALSE}.}
 
 \item{event_date_choices}{\verb{[character(1+)|NULL]}
 
@@ -120,11 +110,21 @@ A character vector specifying the possible choices for the event date variable s
 If it is not specified then all variables of class "Date" from the event data will be used.
 Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
+\item{default_origin_date}{\verb{[character(1)|NULL]}
+
+A default value for the origin date variable selection (optional). Not applicable when
+\code{show_time_at_risk_options} is \code{FALSE}.}
+
 \item{origin_date_choices}{\verb{[character(1+)|NULL]}
 
 A character vector specifying the possible choices for the origin date variable selection (optional).
 If it is not specified then all variables of class "Date" from the population data will be used.
 Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
+
+\item{default_censor_date}{\verb{[character(1)|NULL]}
+
+A default value for the censor date variable selection (optional). Not applicable when
+\code{show_time_at_risk_options} is \code{FALSE}.}
 
 \item{censor_date_choices}{\verb{[character(1+)|NULL]}
 

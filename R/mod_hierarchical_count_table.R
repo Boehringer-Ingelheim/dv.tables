@@ -1174,16 +1174,16 @@ hierarchical_count_table_server <- function(
   show_modal_on_click = TRUE,
   on_sbj_click_fun = function() NULL,
   default_hierarchy = NULL,
-  default_group = NULL,
-  default_event_group = NULL,
-  default_event_date = NULL,
-  default_origin_date = NULL,
-  default_censor_date = NULL,
   hierarchy_choices = NULL,
+  default_group = NULL,
   group_choices = NULL,
+  default_event_group = NULL,
   event_group_choices = NULL,
+  default_event_date = NULL,
   event_date_choices = NULL,
+  default_origin_date = NULL,
   origin_date_choices = NULL,
+  default_censor_date = NULL,
   censor_date_choices = NULL,
   intended_use_label = NULL,
   smq_name = NULL,
@@ -1724,9 +1724,19 @@ hierarchical_count_table_server <- function(
 #' Variables must be columns in `table_dataset_name`. Up to four variables
 #' can be selected, and their order determines the nesting order in the table.
 #'
+#' @param hierarchy_choices `[character(1+)|NULL]`
+#'
+#' A character vector specifying the possible choices for the hierarchy variables selection (optional).
+#' If it is not specified then all factor and character variables from the event data will be used.
+#'
 #' @param default_group `[character(1)|NULL]`
 #'
 #' A default value for the group variable selection (optional).
+#'
+#' @param group_choices `[character(1+)|NULL]`
+#'
+#' A character vector specifying the possible choices for the group variable selection (optional).
+#' If it is not specified then all factor and character variables from the population data will be used.
 #'
 #' @param default_total `[logical(1)]`
 #'
@@ -1748,40 +1758,15 @@ hierarchical_count_table_server <- function(
 #'
 #' A default value for the event group variable selection.
 #'
-#' @param default_event_date `[character(1)|NULL]`
-#'
-#' A default value for the event date variable selection (optional). Not applicable when
-#' `show_time_at_risk_options` is `FALSE`.
-#'
-#' @param default_origin_date `[character(1)|NULL]`
-#'
-#' A default value for the origin date variable selection (optional). Not applicable when
-#' `show_time_at_risk_options` is `FALSE`.
-#'
-#' @param default_censor_date `[character(1)|NULL]`
-#'
-#' A default value for the censor date variable selection (optional). Not applicable when
-#' `show_time_at_risk_options` is `FALSE`.
-#'
-#' @param default_risk `[logical(1)]`
-#'
-#' A default value for the checkbox determining whether to calculate time at risk. Not
-#' applicable when `show_time_at_risk_options` is `FALSE`.
-#'
-#' @param hierarchy_choices `[character(1+)|NULL]`
-#'
-#' A character vector specifying the possible choices for the hierarchy variables selection (optional).
-#' If it is not specified then all factor and character variables from the event data will be used.
-#'
-#' @param group_choices `[character(1+)|NULL]`
-#'
-#' A character vector specifying the possible choices for the group variable selection (optional).
-#' If it is not specified then all factor and character variables from the population data will be used.
-#'
 #' @param event_group_choices `[character(1+)|NULL]`
 #'
 #' A character vector specifying the possible choices for the event group variable selection (optional).
 #' If it is not specified then all factor and character variables from the event data will be used.
+#'
+#' @param default_event_date `[character(1)|NULL]`
+#'
+#' A default value for the event date variable selection (optional). Not applicable when
+#' `show_time_at_risk_options` is `FALSE`.
 #'
 #' @param event_date_choices `[character(1+)|NULL]`
 #'
@@ -1789,17 +1774,32 @@ hierarchical_count_table_server <- function(
 #' If it is not specified then all variables of class "Date" from the event data will be used.
 #' Not applicable when `show_time_at_risk_options` is `FALSE`.
 #'
+#' @param default_origin_date `[character(1)|NULL]`
+#'
+#' A default value for the origin date variable selection (optional). Not applicable when
+#' `show_time_at_risk_options` is `FALSE`.
+#'
 #' @param origin_date_choices `[character(1+)|NULL]`
 #'
 #' A character vector specifying the possible choices for the origin date variable selection (optional).
 #' If it is not specified then all variables of class "Date" from the population data will be used.
 #' Not applicable when `show_time_at_risk_options` is `FALSE`.
 #'
+#' @param default_censor_date `[character(1)|NULL]`
+#'
+#' A default value for the censor date variable selection (optional). Not applicable when
+#' `show_time_at_risk_options` is `FALSE`.
+#'
 #' @param censor_date_choices `[character(1+)|NULL]`
 #'
 #' A character vector specifying the possible choices for the censor date variable selection (optional).
 #' If it is not specified then all variables of class "Date" from the population data will be used.
 #' Not applicable when `show_time_at_risk_options` is `FALSE`.
+#'
+#' @param default_risk `[logical(1)]`
+#'
+#' A default value for the checkbox determining whether to calculate time at risk. Not
+#' applicable when `show_time_at_risk_options` is `FALSE`.
 #'
 #' @param intended_use_label `[character(1)|NULL]`
 #'
@@ -1886,21 +1886,21 @@ mod_hierarchical_count_table <- function(
     show_time_at_risk_options = FALSE,
     show_modal_on_click = TRUE,
     default_hierarchy = NULL,
+    hierarchy_choices = NULL,
     default_group = NULL,
+    group_choices = NULL,
     default_total = TRUE,
     default_min_percent = 0,
     default_remove_rows_under_min_percent = FALSE,
     default_event_group = NULL,
-    default_event_date = NULL,
-    default_origin_date = NULL,
-    default_censor_date = NULL,
-    default_risk = FALSE,
-    hierarchy_choices = NULL,
-    group_choices = NULL,
     event_group_choices = NULL,
+    default_event_date = NULL,
     event_date_choices = NULL,
+    default_origin_date = NULL,
     origin_date_choices = NULL,
+    default_censor_date = NULL,
     censor_date_choices = NULL,
+    default_risk = FALSE,
     smq_name = "SMQ",
     smq_vars = NULL,
     smq_na_label = "Other",
@@ -1983,21 +1983,21 @@ mod_hierarchical_count_table_API_docs <- list(
   show_time_at_risk_options = "",
   show_modal_on_click = "",
   default_hierarchy = "",
+  hierarchy_choices = "",
   default_group = "",
+  group_choices = "",
   default_total = "",
   default_min_percent = "",
   default_remove_rows_under_min_percent = "",
   default_event_group = "",
-  default_event_date = "",
-  default_origin_date = "",
-  default_censor_date = "",
-  default_risk = "",
-  hierarchy_choices = "",
-  group_choices = "",
   event_group_choices = "",
+  default_event_date = "",
   event_date_choices = "",
+  default_origin_date = "",
   origin_date_choices = "",
+  default_censor_date = "",
   censor_date_choices = "",
+  default_risk = "",
   smq_name = "",
   smq_vars = "",
   smq_na_label = "",
@@ -2017,11 +2017,21 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   show_time_at_risk_options = TC$logical(),
   show_modal_on_click = TC$logical(),
   default_hierarchy = TC$character() |> TC$flag("manual_check", "optional"),
+  hierarchy_choices = TC$col(
+    "table_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
+    TC$flag("zero_or_more", "optional"),
   default_group = TC$col(
     "pop_dataset_name",
     TC$or(TC$character(), TC$factor())
   ) |>
     TC$flag("optional"),
+  group_choices = TC$col(
+    "pop_dataset_name",
+    TC$or(TC$character(), TC$factor())
+  ) |>
+    TC$flag("zero_or_more", "optional"),
   default_total = TC$logical(),
   default_min_percent = TC$numeric(min = 0, max = 100),
   default_remove_rows_under_min_percent = TC$logical(),
@@ -2030,34 +2040,24 @@ mod_hierarchical_count_table_API_spec <- TC$group(
     TC$or(TC$character(), TC$factor())
   ) |>
     TC$flag("optional"),
-  default_event_date = TC$col("table_dataset_name", TC$date()) |>
-    TC$flag("optional"),
-  default_origin_date = TC$col("pop_dataset_name", TC$date()) |>
-    TC$flag("optional"),
-  default_censor_date = TC$col("pop_dataset_name", TC$date()) |>
-    TC$flag("optional"),
-  default_risk = TC$logical(),
-  hierarchy_choices = TC$col(
-    "table_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("zero_or_more", "optional"),
-  group_choices = TC$col(
-    "pop_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("zero_or_more", "optional"),
   event_group_choices = TC$col(
     "table_dataset_name",
     TC$or(TC$character(), TC$factor())
   ) |>
     TC$flag("zero_or_more", "optional"),
+  default_event_date = TC$col("table_dataset_name", TC$date()) |>
+    TC$flag("optional"),
   event_date_choices = TC$col("table_dataset_name", TC$date()) |>
     TC$flag("zero_or_more", "optional"),
+  default_origin_date = TC$col("pop_dataset_name", TC$date()) |>
+    TC$flag("optional"),
   origin_date_choices = TC$col("pop_dataset_name", TC$date()) |>
     TC$flag("zero_or_more", "optional"),
+  default_censor_date = TC$col("pop_dataset_name", TC$date()) |>
+    TC$flag("optional"),
   censor_date_choices = TC$col("pop_dataset_name", TC$date()) |>
     TC$flag("zero_or_more", "optional"),
+  default_risk = TC$logical(),
   smq_name = TC$character() |> TC$flag("optional"),
   smq_vars = TC$col(
     "table_dataset_name",
@@ -2144,10 +2144,10 @@ validate_smq_udaec_args <- function(smq_name, smq_vars, udaec_name, udaec_list, 
 
 check_mod_hierarchical_count_table <- function(
     afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var, show_event_group_by, show_time_at_risk_options,
-    show_modal_on_click, default_hierarchy, default_group, default_total, default_min_percent, default_remove_rows_under_min_percent,
-    default_event_group, default_event_date, default_origin_date,
-    default_censor_date, default_risk, hierarchy_choices, group_choices, event_group_choices, event_date_choices, origin_date_choices,
-    censor_date_choices, smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label, intended_use_label, receiver_id) {
+    show_modal_on_click,     default_hierarchy, hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
+    default_remove_rows_under_min_percent, default_event_group, event_group_choices, default_event_date,
+    event_date_choices, default_origin_date, origin_date_choices, default_censor_date, censor_date_choices,
+    default_risk, smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label, intended_use_label, receiver_id) {
   err <- CM$container()
 
   # TODO: Replace this function with a generic one that performs the checks based on mod_hierarchical_count_API_spec.
@@ -2164,21 +2164,21 @@ check_mod_hierarchical_count_table <- function(
     show_time_at_risk_options,
     show_modal_on_click,
     default_hierarchy,
+    hierarchy_choices,
     default_group,
+    group_choices,
     default_total,
     default_min_percent,
     default_remove_rows_under_min_percent,
     default_event_group,
-    default_event_date,
-    default_origin_date,
-    default_censor_date,
-    default_risk,
-    hierarchy_choices,
-    group_choices,
     event_group_choices,
+    default_event_date,
     event_date_choices,
+    default_origin_date,
     origin_date_choices,
+    default_censor_date,
     censor_date_choices,
+    default_risk,
     smq_name,
     smq_vars,
     smq_na_label,

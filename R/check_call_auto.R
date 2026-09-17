@@ -5,9 +5,10 @@
 # dv.tables::mod_hierarchical_count_table
 check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, table_dataset_name, pop_dataset_name,
     subjid_var, show_event_group_by, show_time_at_risk_options, show_modal_on_click, default_hierarchy,
-    default_group, default_total, default_min_percent, default_remove_rows_under_min_percent, default_event_group,
-    default_event_date, default_origin_date, default_censor_date, default_risk, hierarchy_choices, group_choices,
-    event_group_choices, event_date_choices, origin_date_choices, censor_date_choices, smq_name, smq_vars,
+    hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
+    default_remove_rows_under_min_percent, default_event_group, event_group_choices, default_event_date,
+    event_date_choices, default_origin_date, origin_date_choices, default_censor_date, censor_date_choices,
+    default_risk, smq_name, smq_vars,
     smq_na_label, udaec_name, udaec_list, udaec_na_label, intended_use_label, receiver_id, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
