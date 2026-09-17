@@ -8,7 +8,7 @@ Authors@R: c(
         person(given = "Mark", family = "Luff", role = "aut", email = "mark.luff.ext@boehringer-ingelheim.com"),
         person(given = "Korbinian", family = "Matthias", role = c("aut"), email = "korbinian.matthias@boehringer-ingelheim.com")
         )
-Description: This package provides davinci table modules (Hierachical counts and Tplyr tables) for interactive table outputs.
+Description: This package provides davinci table modules (Hierachical Counts, Summary, and Tplyr tables) for interactive table outputs.
 License: Apache License (>= 2)
 URL: https://boehringer-ingelheim.github.io/dv.tables,
     https://github.com/boehringer-ingelheim/dv.tables
