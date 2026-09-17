@@ -23,7 +23,7 @@ showing time at risk and incidence rates.
 
 # Features
 
-- One or two levels of hierarchy, and a top-level summary of subjects with any event.
+- One to four levels of hierarchy, and a top-level summary of subjects with any event.
 - Second level of hierarchy can be collapsed to only show the first level.
 - First level of hierarchy can be collapsed to only show the subjects with any event.
 - Grouping with group population size (N) displayed across columns of the table, with an optional "Total" column.
@@ -53,17 +53,85 @@ Please refer to `dv.tables::mod_hierarchical_count_table()` for the complete lis
 
 A drop-down "Options" menu provides the following inputs:
 
-- **Event count by**: Selection of one or two levels of hierarchy variables from the table (events) dataset, to be
+- **Event count by**: Selection of one to four levels of hierarchy variables from the table (events) dataset, to be
   displayed down the left side of the table, e.g. `AEBODSYS`, `AEDECOD`.
 - **Group by**: Selection of a grouping variable from the subject-level population dataset, to be displayed across the
   top of the table, e.g. `TRT01P`.
-- **Minimum %**: The minimum percentage threshold for filtering events. Rows where the percentage of subjects (totalled
-  across all group categories) is below this threshold will have their event counts and percentages replaced with a
-  dash (—) instead of being shown. Defaults to `0`.
+- **Minimum %**: The minimum percentage threshold for filtering events. Each displayed group cell whose percentage of
+  subjects is below this threshold has its event count and percentage replaced with a dash (—). Defaults to `0`.
 - **Remove rows under minimum %**: Checkbox that controls whether to remove entire rows (across all hierarchy levels)
   for which every group's percentage of subjects falls below the **Minimum %** threshold, instead of just showing a
   dash for those cells.
 - **Total**: Checkbox that controls whether or not to display a "Total" column totalling data from all group categories.
+
+When `smq_vars` is supplied, the module derives an SMQ hierarchy from those
+columns. If `udaec_list` is also supplied, it can derive UDAEC categories from
+SMQ variables and preferred-term definitions. When an SMQ or UDAEC hierarchy
+is selected, an additional menu allows users to filter the displayed
+categories.
+
+## SMQ and UDAEC hierarchies
+
+The `smq_vars` argument is a character vector of event-dataset column names
+that contain SMQ indicators or categories. The module derives an `SMQ`
+hierarchy variable from these columns. The name of the derived variable can be
+changed with `smq_name`, which defaults to `"SMQ"`.
+
+The optional `udaec_list` argument defines UDAEC categories as a named list.
+Each list name becomes a UDAEC category label, and each corresponding element
+must be a list containing at least one of the following definitions:
+Only `smq_vars`, `pt_var`, and `pt_values` are valid entries in a category
+definition.
+
+- `smq_vars`: A character vector of SMQ source column names. These names must
+  also be included in the top-level `smq_vars` argument.
+- `pt_var` and `pt_values`: The event-dataset column containing preferred terms
+  and an atomic vector of values identifying the preferred terms assigned to
+  the category. `pt_var` must exist in the event dataset, and both fields must
+  be supplied together.
+
+A UDAEC category can use either definition or both definitions. For example,
+the following configuration assigns SMQ source columns and selected preferred
+terms to two UDAEC categories:
+
+```{r, eval=FALSE}
+udaec_list <- list(
+  "Cardiac disorders" = list(
+    smq_vars = "SMQ_CARDIAC",
+    pt_var = "AEDECOD",
+    pt_values = c("Atrial fibrillation", "Myocardial infarction")
+  ),
+  "Renal disorders" = list(
+    smq_vars = c("SMQ_RENAL", "SMQ_KIDNEY"),
+    pt_var = "AEDECOD",
+    pt_values = c("Acute kidney injury", "Renal impairment")
+  ),
+  "Selected neurological terms" = list(
+    pt_var = "AEDECOD",
+    pt_values = c("Seizure", "Headache")
+  )
+)
+```
+
+The corresponding module configuration must include every SMQ source column
+referenced inside `udaec_list` in the top-level `smq_vars` argument:
+
+```{r, eval=FALSE}
+dv.tables::mod_hierarchical_count_table(
+  module_id = "ae_hierarchy",
+  table_dataset_name = "adae",
+  pop_dataset_name = "adsl",
+  smq_vars = c("SMQ_CARDIAC", "SMQ_RENAL", "SMQ_KIDNEY"),
+  udaec_name = "UDAEC",
+  udaec_list = udaec_list
+)
+```
+
+`udaec_list` requires a non-`NULL` top-level `smq_vars`, even when a category
+is defined only with preferred terms. The preferred-term column, such as
+`AEDECOD`, must exist in the event dataset. Once `SMQ` or `UDAEC` is selected
+as a hierarchy, the module displays an additional category filter in the
+Options menu.
 
 The following input will also be available in the "Options" menu when the `show_event_group_by` module argument
 is set to `TRUE`:
