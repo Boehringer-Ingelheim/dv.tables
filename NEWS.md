@@ -1,3 +1,9 @@
+# dv.tables 0.5.0-9000
+
+* `mod_hierarchical_count_table`:
+  * Implement grouping by population flags.
+  * Allow up to 2 levels of grouping (previously limited to 1 level) by population dataset variables.
+
 # dv.tables 0.5.0
 
 * New module `mod_summary_table` that provides numerical and categorical analysis.
