@@ -107,10 +107,10 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
 # dv.tables::mod_summary_table
 check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_dataset_name, pop_dataset_name,
     subjid_var, show_pop_flag_selection, show_aggregate_method, show_modal_on_click, stats_functions,
-    stats_formats, stats_labels, stats_replace, default_summarize_on, default_group_by, default_row_by,
-    default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols, default_show_category_n,
-    default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
-    choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flags,
+    stats_formats, stats_labels, stats_replace, default_summarize_on, choices_summarize_on, default_group_by,
+    choices_group_by, default_row_by, choices_row_by, default_total, default_drop_na, default_drop_empty_rows,
+    default_drop_empty_cols, default_show_category_n, default_denom, default_stats, default_aggregate_method,
+    choices_aggregate_method, default_pop_flags, choices_pop_flags, default_pop_flags_after_groups,
     total_group_val, receiver_id, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())

@@ -12,35 +12,60 @@ mod_summary_table(
   show_pop_flag_selection = FALSE,
   show_aggregate_method = FALSE,
   show_modal_on_click = TRUE,
-  stats_functions = list(n = length, mean = mean, sd = stats::sd, meanci = function(x) if
-    (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
-    geomean = function(x) if (all(x > 0)) exp(mean(log(x))) else NaN, median =
-    stats::median, medianci = function(x) if (length(x) > 1L) stats::wilcox.test(x, exact
-    = FALSE, conf.int = TRUE, conf.level = 0.95)$conf.int else rep(NA_real_, 2L), q1q3 =
-    function(x) stats::quantile(x, c(0.25, 0.75)), min = min, max = max),
-  stats_formats = list(n = list(fmt = "\%d", "n"), meansd = list(fmt = "\%.1f (\%.1f)",
-    "mean", "sd"), meanci = list(fmt = "(\%.2f, \%.2f)", "meanci.1", "meanci.2"), geomean
-    = list(fmt = "\%.1f", "geomean"), median = list(fmt = "\%.1f", "median"), medianci =
-    list(fmt = "(\%.2f, \%.2f)", "medianci.1", "medianci.2"), q1q3 = list(fmt =
-    "\%.1f - \%.1f", "q1q3.1", "q1q3.2"), minmax = list(fmt = "\%.1f - \%.1f", "min",
-    "max")),
-  stats_labels = c(n = "n", meansd = "Mean (SD)", meanci = "Mean 95\% CI", geomean =
-    "Geometric Mean", median = "Median", medianci = "Median 95\% CI", q1q3 =
-    "25\% and 75\%-ile", minmax = "Min - Max"),
-  stats_replace = list(n = list(list(pattern = "^NA$", replacement = "0")), meansd =
-    list(list(pattern = "^NA \\\\(NA\\\\)$", replacement = SUMMTAB$VAL$EM_DASH),
-    list(pattern = "\\\\(NA\\\\)$", replacement = sprintf("(\%s)",
-    SUMMTAB$VAL$EM_DASH))), meanci = list(list(pattern = "^\\\\(NA, NA\\\\)$",
-    replacement = SUMMTAB$VAL$EM_DASH)), geomean = list(list(pattern = "^NA$",
-    replacement = SUMMTAB$VAL$EM_DASH), list(pattern = "^NaN$", replacement = "NE")),
-    median = list(list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH)), medianci =
-    list(list(pattern = "^\\\\(NA, NA\\\\)$", 
-     replacement = SUMMTAB$VAL$EM_DASH)),
-    q1q3 = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH)), minmax =
-    list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH))),
+  stats_functions = list(
+    n = length,
+    mean = mean,
+    sd = stats::sd,
+    meanci = function(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+    geomean = function(x) if (all(x > 0)) exp(mean(log(x))) else NaN,
+    median = stats::median,
+    medianci = function(x) if (length(x) > 1L) stats::wilcox.test(x, exact = FALSE, conf.int = TRUE, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+    q1q3 = function(x) stats::quantile(x, c(0.25, 0.75)),
+    min = min,
+    max = max
+  ),
+  stats_formats = list(
+    n = list(fmt = "\%d", "n"),
+    meansd = list(fmt = "\%.1f (\%.1f)", "mean", "sd"),
+    meanci = list(fmt = "(\%.2f, \%.2f)", "meanci.1", "meanci.2"),
+    geomean = list(fmt = "\%.1f", "geomean"),
+    median = list(fmt = "\%.1f", "median"),
+    medianci = list(fmt = "(\%.2f, \%.2f)", "medianci.1", "medianci.2"),
+    q1q3 = list(fmt = "\%.1f - \%.1f", "q1q3.1", "q1q3.2"),
+    minmax = list(fmt = "\%.1f - \%.1f", "min", "max")
+  ),
+  stats_labels = c(
+    n = "n",
+    meansd = "Mean (SD)",
+    meanci = "Mean 95\% CI",
+    geomean = "Geometric Mean",
+    median = "Median",
+    medianci = "Median 95\% CI",
+    q1q3 = "25\% and 75\%-ile",
+    minmax = "Min - Max"
+  ),
+  stats_replace = list(
+    n = list(list(pattern = "^NA$", replacement = "0")),
+    meansd = list(
+      list(pattern = "^NA \\(NA\\)$", replacement = "—"),
+      list(pattern = "\\(NA\\)$", replacement = sprintf("(\%s)", "—"))
+    ),
+    meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+    geomean = list(
+      list(pattern = "^NA$", replacement = "—"),
+      list(pattern = "^NaN$", replacement = "NE")
+    ),
+    median = list(list(pattern = "^NA$", replacement = "—")),
+    medianci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+    q1q3 = list(list(pattern = "^NA - NA$", replacement = "—")),
+    minmax = list(list(pattern = "^NA - NA$", replacement = "—"))
+  ),
   default_summarize_on = NULL,
+  choices_summarize_on = NULL,
   default_group_by = NULL,
+  choices_group_by = NULL,
   default_row_by = NULL,
+  choices_row_by = NULL,
   default_total = TRUE,
   default_drop_na = FALSE,
   default_drop_empty_rows = FALSE,
@@ -49,14 +74,16 @@ mod_summary_table(
   default_denom = "N",
   default_stats = c("n", "meansd", "minmax"),
   default_aggregate_method = NULL,
+  choices_aggregate_method = c(
+    Mean = "mean",
+    Minimum = "min",
+    Maximum = "max",
+    `First Row` = "dplyr::first",
+    `Last Row` = "dplyr::last"
+  ),
   default_pop_flags = NULL,
-  default_pop_flags_after_groups = FALSE,
-  choices_summarize_on = NULL,
-  choices_group_by = NULL,
-  choices_row_by = NULL,
-  choices_aggregate_method = c(Mean = "mean", Minimum = "min", Maximum = "max",
-    `First Row` = "dplyr::first", `Last Row` = "dplyr::last"),
   choices_pop_flags = NULL,
+  default_pop_flags_after_groups = FALSE,
   total_group_val = "Total",
   receiver_id = NULL
 )
@@ -141,15 +168,31 @@ names of the list elements in \code{stats_formats}.}
 A vector of variable names from the analysis dataset, used as the default for selected variables to summarize on
 (optional).}
 
+\item{choices_summarize_on}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
+on (optional). If it is not specified then all variables from the analysis dataset, excluding \code{Date} and \code{POSIXt}
+class variables, will be used.}
+
 \item{default_group_by}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, used as the default for selected variables to group by
 (optional).}
 
+\item{choices_group_by}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
+(optional). If it is not specified then all factor and character variables from the population dataset will be used.}
+
 \item{default_row_by}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the dataset specified by \code{table_dataset_name}, used as the default for selected
 variables to categorize on (optional).}
+
+\item{choices_row_by}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
+on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
 
 \item{default_total}{\verb{[logical(1)]}
 
@@ -194,34 +237,6 @@ rows when \code{show_aggregate_method = TRUE}. The function is applied to the an
 subject exists after population grouping and row categorization has been applied. The double colon (\code{::}) namespace
 resolution operator can be used to specify a function from a specific package, e.g., \code{"dplyr::first"}.}
 
-\item{default_pop_flags}{\verb{[character(1+) | NULL]}
-
-A vector of variable names from the population dataset, used as the default for selected population flag variables
-(optional).
-
-Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
-
-\item{default_pop_flags_after_groups}{\verb{[logical(1)]}
-
-A flag specifying the default value for the checkbox that determines whether to show the population flags after the
-group variables.}
-
-\item{choices_summarize_on}{\verb{[character(1+) | NULL]}
-
-A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
-on (optional). If it is not specified then all variables from the analysis dataset, excluding \code{Date} and \code{POSIXt}
-class variables, will be used.}
-
-\item{choices_group_by}{\verb{[character(1+) | NULL]}
-
-A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
-(optional). If it is not specified then all factor and character variables from the population dataset will be used.}
-
-\item{choices_row_by}{\verb{[character(1+) | NULL]}
-
-A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
-on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
-
 \item{choices_aggregate_method}{\verb{[character(1+) | NULL]}
 
 A vector of named strings indicating the functions that can be used for aggregating rows when
@@ -230,6 +245,13 @@ exists after population grouping and row categorization has been applied. The do
 resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The names
 associated to the vector elements are displayed in the UI radio button selections.}
 
+\item{default_pop_flags}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, used as the default for selected population flag variables
+(optional).
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
+
 \item{choices_pop_flags}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, specifying the possible choices for the population flag
@@ -237,6 +259,11 @@ variables (optional). If it is not specified then all \code{FL} suffixed factor 
 population dataset will be used.
 
 Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
+
+\item{default_pop_flags_after_groups}{\verb{[logical(1)]}
+
+A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+group variables.}
 
 \item{total_group_val}{\verb{[character(1)]}
 

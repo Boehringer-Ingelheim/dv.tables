@@ -184,7 +184,7 @@ summtab_calc_stats <- function(analysis_df,
 #' @param replace A named list of lists of `list(pattern =, replacement =)` pairs, applied in order to the formatted
 #'   results from `stats_fmts` (`pattern` is a regular expression matched against the formatted result; `replacement`
 #'   is the string to substitute in). The names of the outer list should match the names of the list elements in
-#'   `stats_fmts`. 
+#'   `stats_fmts`.
 #' @param stats_element_names A vector of all statistics element names, used to determine elements that have not been
 #'   used in `stats_fmts` and therefore have basic formatting applied (conversion to character).
 #'
@@ -1348,15 +1348,31 @@ summary_table_server <- function(module_id,
 #' A vector of variable names from the analysis dataset, used as the default for selected variables to summarize on
 #' (optional).
 #'
+#' @param choices_summarize_on `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
+#' on (optional). If it is not specified then all variables from the analysis dataset, excluding `Date` and `POSIXt`
+#' class variables, will be used.
+#'
 #' @param default_group_by `[character(1+) | NULL]`
 #'
 #' A vector of variable names from the population dataset, used as the default for selected variables to group by
 #' (optional).
 #'
+#' @param choices_group_by `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
+#' (optional). If it is not specified then all factor and character variables from the population dataset will be used.
+#'
 #' @param default_row_by `[character(1+) | NULL]`
 #'
 #' A vector of variable names from the dataset specified by `table_dataset_name`, used as the default for selected
 #' variables to categorize on (optional).
+#'
+#' @param choices_row_by `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
+#' on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.
 #'
 #' @param default_total `[logical(1)]`
 #'
@@ -1401,34 +1417,6 @@ summary_table_server <- function(module_id,
 #' subject exists after population grouping and row categorization has been applied. The double colon (`::`) namespace
 #' resolution operator can be used to specify a function from a specific package, e.g., `"dplyr::first"`.
 #'
-#' @param default_pop_flags `[character(1+) | NULL]`
-#'
-#' A vector of variable names from the population dataset, used as the default for selected population flag variables
-#' (optional).
-#'
-#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
-#'
-#' @param default_pop_flags_after_groups `[logical(1)]`
-#'
-#' A flag specifying the default value for the checkbox that determines whether to show the population flags after the
-#' group variables.
-#'
-#' @param choices_summarize_on `[character(1+) | NULL]`
-#'
-#' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
-#' on (optional). If it is not specified then all variables from the analysis dataset, excluding `Date` and `POSIXt`
-#' class variables, will be used.
-#'
-#' @param choices_group_by `[character(1+) | NULL]`
-#'
-#' A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
-#' (optional). If it is not specified then all factor and character variables from the population dataset will be used.
-#'
-#' @param choices_row_by `[character(1+) | NULL]`
-#'
-#' A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
-#' on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.
-#'
 #' @param choices_aggregate_method `[character(1+) | NULL]`
 #'
 #' A vector of named strings indicating the functions that can be used for aggregating rows when
@@ -1436,6 +1424,13 @@ summary_table_server <- function(module_id,
 #' exists after population grouping and row categorization has been applied. The double colon (`::`) namespace
 #' resolution operator can be used to specify functions from specific packages, e.g., `"dplyr::first"`. The names
 #' associated to the vector elements are displayed in the UI radio button selections.
+#'
+#' @param default_pop_flags `[character(1+) | NULL]`
+#'
+#' A vector of variable names from the population dataset, used as the default for selected population flag variables
+#' (optional).
+#'
+#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' @param choices_pop_flags `[character(1+) | NULL]`
 #'
@@ -1445,6 +1440,11 @@ summary_table_server <- function(module_id,
 #'
 #' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
+#' @param default_pop_flags_after_groups `[logical(1)]`
+#'
+#' A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+#' group variables.
+#'
 #' @param total_group_val `[character(1)]`
 #'
 #' A string indicating the label for the total group column.
@@ -1453,6 +1453,91 @@ summary_table_server <- function(module_id,
 #'
 #' Unique identifier for the module receiving the selected subject ID in the data listing. This ID must be present in
 #' the app or be NULL.
+#'
+#' @usage
+#' mod_summary_table(
+#'   module_id,
+#'   table_dataset_name,
+#'   pop_dataset_name,
+#'   subjid_var = "USUBJID",
+#'   show_pop_flag_selection = FALSE,
+#'   show_aggregate_method = FALSE,
+#'   show_modal_on_click = TRUE,
+#'   stats_functions = list(
+#'     n = length,
+#'     mean = mean,
+#'     sd = stats::sd,
+#'     meanci = function(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+#'     geomean = function(x) if (all(x > 0)) exp(mean(log(x))) else NaN,
+#'     median = stats::median,
+#'     medianci = function(x) if (length(x) > 1L) stats::wilcox.test(x, exact = FALSE, conf.int = TRUE, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+#'     q1q3 = function(x) stats::quantile(x, c(0.25, 0.75)),
+#'     min = min,
+#'     max = max
+#'   ),
+#'   stats_formats = list(
+#'     n = list(fmt = "\%d", "n"),
+#'     meansd = list(fmt = "\%.1f (\%.1f)", "mean", "sd"),
+#'     meanci = list(fmt = "(\%.2f, \%.2f)", "meanci.1", "meanci.2"),
+#'     geomean = list(fmt = "\%.1f", "geomean"),
+#'     median = list(fmt = "\%.1f", "median"),
+#'     medianci = list(fmt = "(\%.2f, \%.2f)", "medianci.1", "medianci.2"),
+#'     q1q3 = list(fmt = "\%.1f - \%.1f", "q1q3.1", "q1q3.2"),
+#'     minmax = list(fmt = "\%.1f - \%.1f", "min", "max")
+#'   ),
+#'   stats_labels = c(
+#'     n = "n",
+#'     meansd = "Mean (SD)",
+#'     meanci = "Mean 95\% CI",
+#'     geomean = "Geometric Mean",
+#'     median = "Median",
+#'     medianci = "Median 95\% CI",
+#'     q1q3 = "25\% and 75\%-ile",
+#'     minmax = "Min - Max"
+#'   ),
+#'   stats_replace = list(
+#'     n = list(list(pattern = "^NA$", replacement = "0")),
+#'     meansd = list(
+#'       list(pattern = "^NA \\(NA\\)$", replacement = "—"),
+#'       list(pattern = "\\(NA\\)$", replacement = sprintf("(\%s)", "—"))
+#'     ),
+#'     meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+#'     geomean = list(
+#'       list(pattern = "^NA$", replacement = "—"),
+#'       list(pattern = "^NaN$", replacement = "NE")
+#'     ),
+#'     median = list(list(pattern = "^NA$", replacement = "—")),
+#'     medianci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+#'     q1q3 = list(list(pattern = "^NA - NA$", replacement = "—")),
+#'     minmax = list(list(pattern = "^NA - NA$", replacement = "—"))
+#'   ),
+#'   default_summarize_on = NULL,
+#'   choices_summarize_on = NULL,
+#'   default_group_by = NULL,
+#'   choices_group_by = NULL,
+#'   default_row_by = NULL,
+#'   choices_row_by = NULL,
+#'   default_total = TRUE,
+#'   default_drop_na = FALSE,
+#'   default_drop_empty_rows = FALSE,
+#'   default_drop_empty_cols = FALSE,
+#'   default_show_category_n = TRUE,
+#'   default_denom = "N",
+#'   default_stats = c("n", "meansd", "minmax"),
+#'   default_aggregate_method = NULL,
+#'   choices_aggregate_method = c(
+#'     Mean = "mean",
+#'     Minimum = "min",
+#'     Maximum = "max",
+#'     `First Row` = "dplyr::first",
+#'     `Last Row` = "dplyr::last"
+#'   ),
+#'   default_pop_flags = NULL,
+#'   choices_pop_flags = NULL,
+#'   default_pop_flags_after_groups = FALSE,
+#'   total_group_val = "Total",
+#'   receiver_id = NULL
+#' )
 #'
 #' @return A list containing the following elements to be used by the \pkg{dv.manager}:
 #' \itemize{
@@ -1522,8 +1607,11 @@ mod_summary_table <- function(
     ),
 
     default_summarize_on = NULL,
+    choices_summarize_on = NULL,
     default_group_by = NULL,
+    choices_group_by = NULL,
     default_row_by = NULL,
+    choices_row_by = NULL,
     default_total = TRUE,
     default_drop_na = FALSE,
     default_drop_empty_rows = FALSE,
@@ -1532,18 +1620,14 @@ mod_summary_table <- function(
     default_denom = "N",
     default_stats = c("n", "meansd", "minmax"),
     default_aggregate_method = NULL,
-    default_pop_flags = NULL,
-    default_pop_flags_after_groups = FALSE,
-
-    choices_summarize_on = NULL,
-    choices_group_by = NULL,
-    choices_row_by = NULL,
     choices_aggregate_method = c(Mean = "mean",
                                  Minimum = "min",
                                  Maximum = "max",
                                  "First Row" = "dplyr::first",
                                  "Last Row" = "dplyr::last"),
+    default_pop_flags = NULL,
     choices_pop_flags = NULL,
+    default_pop_flags_after_groups = FALSE,
     total_group_val = "Total",
     receiver_id = NULL
 ) {
@@ -1686,8 +1770,11 @@ mod_summary_table_API_docs <- list(
   stats_labels = "",
   stats_replace = "",
   default_summarize_on = "",
+  choices_summarize_on = "",
   default_group_by = "",
+  choices_group_by = "",
   default_row_by = "",
+  choices_row_by = "",
   default_total = "",
   default_drop_na = "",
   default_drop_empty_rows = "",
@@ -1696,13 +1783,10 @@ mod_summary_table_API_docs <- list(
   default_denom = "",
   default_stats = "",
   default_aggregate_method = "",
-  default_pop_flags = "",
-  default_pop_flags_after_groups = "",
-  choices_summarize_on = "",
-  choices_group_by = "",
-  choices_row_by = "",
   choices_aggregate_method = "",
+  default_pop_flags = "",
   choices_pop_flags = "",
+  default_pop_flags_after_groups = "",
   total_group_val = "",
   receiver_id = ""
 )
@@ -1721,9 +1805,15 @@ mod_summary_table_API_spec <- TC$group(
   stats_replace = TC$character() |> TC$flag("ignore"),
   default_summarize_on = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
+  choices_summarize_on = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
   default_group_by = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
+  choices_group_by = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
   default_row_by = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
+    TC$flag("one_or_more", "optional"),
+  choices_row_by = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   default_total = TC$logical(),
   default_drop_na = TC$logical(),
@@ -1733,18 +1823,12 @@ mod_summary_table_API_spec <- TC$group(
   default_denom = TC$character(),
   default_stats = TC$character(),
   default_aggregate_method = TC$character(),
+  choices_aggregate_method = TC$character(),
   default_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
-  default_pop_flags_after_groups = TC$logical(),
-  choices_summarize_on = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
-    TC$flag("one_or_more", "optional"),
-  choices_group_by = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
-    TC$flag("one_or_more", "optional"),
-  choices_row_by = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |>
-    TC$flag("one_or_more", "optional"),
-  choices_aggregate_method = TC$character(),
   choices_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
+  default_pop_flags_after_groups = TC$logical(),
   total_group_val = TC$character(),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_summary_table_API_docs)
@@ -1753,9 +1837,10 @@ check_mod_summary_table <- function(
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_aggregate_method, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
-    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
-    default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
-    choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flags,
+    default_summarize_on, choices_summarize_on, default_group_by, choices_group_by, default_row_by, choices_row_by,
+    default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
+    default_show_category_n, default_denom, default_stats, default_aggregate_method, choices_aggregate_method,
+    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups,
     total_group_val, receiver_id
 ) {
   err <- CM$container()
@@ -1767,9 +1852,10 @@ check_mod_summary_table <- function(
     afmm, datasets,
     module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_aggregate_method, show_modal_on_click,
     stats_functions, stats_formats, stats_labels, stats_replace,
-    default_summarize_on, default_group_by, default_row_by, default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
-    default_show_category_n, default_denom, default_stats, default_aggregate_method, default_pop_flags, default_pop_flags_after_groups,
-    choices_summarize_on, choices_group_by, choices_row_by, choices_aggregate_method, choices_pop_flags,
+    default_summarize_on, choices_summarize_on, default_group_by, choices_group_by, default_row_by, choices_row_by,
+    default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
+    default_show_category_n, default_denom, default_stats, default_aggregate_method, choices_aggregate_method,
+    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups,
     total_group_val, receiver_id,
     err
   )
