@@ -24,7 +24,7 @@ local({
     event_df = event_df,
     pop_df = pop_df,
     hierarchy = c("lvl1", "lvl2"),
-    group_var = "group",
+    group_vars = "group",
     subjid_var = "subj",
     event_group_var = "evtgrp"
   )

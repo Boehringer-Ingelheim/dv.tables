@@ -1,3 +1,9 @@
+# dv.tables 0.5.0-9000
+
+* `mod_hierarchical_count_table`:
+  * Implement grouping by population flags.
+  * Allow up to 2 levels of grouping (previously limited to 1 level) by population dataset variables.
+
 # dv.tables 0.5.0
 
 * New module `mod_summary_table` that provides numerical and categorical analysis.
@@ -11,12 +17,11 @@
   * Show variable labels rather than variable names in the information above the table.
   * Display count of "0" when `n = 0`, instead of em dash.
   * Display time at risk and incidence rate when `n = 0`, instead of em dash.
-  * `mod_hierarchical_count_table` hides rows below a given minimum percentage. Adds new argument `default_min_percent`
+  * `mod_hierarchical_count_table` hides rows below a given minimum percentage. Adds new argument `default_min_percent`.
   * Add scrollbar to options dropdown to avoid truncation in short window space.
-  * Add progress bar shown during table generation
+  * Add progress bar shown during table generation.
 
-
-* `mod_Tplyr_table`
+* `mod_Tplyr_table`:
 
   * Add new arguments from `dv.listings` module
   * Enable pagination for Tplyr tables

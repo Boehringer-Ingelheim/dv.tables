@@ -2,10 +2,6 @@
     border-color: black;
 }
 
-.summary_table .table>tbody>tr.no-border th {
-    border-color: green;
-}
-
 .summary_table .table>tbody>tr.bg-gray td {
     background-color: lightgray;
 }
@@ -62,15 +58,6 @@
 .summary_table td {
     vertical-align: baseline;
 }
-
-/*
-.summary_table th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: white;
-}
-*/
 
 .summary_table th.short-border {
   /* Remove the actual structural border */

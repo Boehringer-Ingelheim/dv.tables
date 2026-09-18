@@ -8,7 +8,7 @@ create_adtte(
   event_df,
   pop_df,
   hierarchy = character(),
-  group_var,
+  group_vars,
   subjid_var,
   event_group_var,
   origin_date_var,
@@ -27,9 +27,6 @@ A data frame containing the population data. It must have columns corresponding 
 \item{hierarchy}{\verb{character(1+)}
 A character vector of column names from \code{event_df} to use as the hierarchy.}
 
-\item{group_var}{\code{character(1)}
-A string representing the column name in \code{pop_df} used for grouping the population data.}
-
 \item{subjid_var}{\code{character(1)}
 A string representing the subject identifier column name. This column must be present in both \code{event_df} and
 \code{pop_df}.}
@@ -45,6 +42,9 @@ A string representing the column name in \code{pop_df} holding the censor date.}
 
 \item{event_date_var}{\code{character(1)}
 A string representing the column name in \code{event_df} holding the event date.}
+
+\item{group_var}{\code{character(1)}
+A string representing the column name in \code{pop_df} used for grouping the population data.}
 }
 \value{
 A data frame loosely based on ADaM ADTTE format, with count and time at risk analysis for all hierarchy
