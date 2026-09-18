@@ -14,24 +14,24 @@ mod_hierarchical_count_table(
   show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
   default_hierarchy = NULL,
+  hierarchy_choices = NULL,
   default_group = NULL,
+  group_choices = NULL,
   default_total = TRUE,
   default_min_percent = 0,
   default_remove_rows_under_min_percent = FALSE,
   default_pop_flags = NULL,
+  pop_flag_choices = NULL,
   default_pop_flags_after_groups = FALSE,
   default_event_group = NULL,
-  default_event_date = NULL,
-  default_origin_date = NULL,
-  default_censor_date = NULL,
-  default_risk = FALSE,
-  hierarchy_choices = NULL,
-  group_choices = NULL,
-  pop_flag_choices = NULL,
   event_group_choices = NULL,
+  default_event_date = NULL,
   event_date_choices = NULL,
+  default_origin_date = NULL,
   origin_date_choices = NULL,
+  default_censor_date = NULL,
   censor_date_choices = NULL,
+  default_risk = FALSE,
   smq_name = "SMQ",
   smq_vars = NULL,
   smq_na_label = "Other",
@@ -86,9 +86,19 @@ Optional character vector specifying the default hierarchy variables.
 Variables must be columns in \code{table_dataset_name}. Up to four variables
 can be selected, and their order determines the nesting order in the table.}
 
+\item{hierarchy_choices}{\verb{[character(1+)|NULL]}
+
+A character vector specifying the possible choices for the hierarchy variables selection (optional).
+If it is not specified then all factor and character variables from the event data will be used.}
+
 \item{default_group}{\verb{[character(1|2)|NULL]}
 
 A default value for the group variables selection (optional).}
+
+\item{group_choices}{\verb{[character(1+)|NULL]}
+
+A character vector specifying the possible choices for the group variables selection (optional).
+If it is not specified then all factor and character variables from the population data will be used.}
 
 \item{default_total}{\verb{[logical(1)]}
 
@@ -115,6 +125,16 @@ Subjects are identified as being within a population when the value of the flag 
 
 Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
+\item{pop_flag_choices}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, specifying the possible choices for the population flag
+variables (optional). If it is not specified then all \code{FL} suffixed factor and character variables from the
+population dataset will be used.
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.
+
+Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
+
 \item{default_pop_flags_after_groups}{\verb{[logical(1)]}
 
 A flag specifying the default value for the checkbox that determines whether to show the population flags after the
@@ -126,50 +146,15 @@ Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
 A default value for the event group variable selection.}
 
-\item{default_event_date}{\verb{[character(1)|NULL]}
-
-A default value for the event date variable selection (optional). Not applicable when
-\code{show_time_at_risk_options} is \code{FALSE}.}
-
-\item{default_origin_date}{\verb{[character(1)|NULL]}
-
-A default value for the origin date variable selection (optional). Not applicable when
-\code{show_time_at_risk_options} is \code{FALSE}.}
-
-\item{default_censor_date}{\verb{[character(1)|NULL]}
-
-A default value for the censor date variable selection (optional). Not applicable when
-\code{show_time_at_risk_options} is \code{FALSE}.}
-
-\item{default_risk}{\verb{[logical(1)]}
-
-A default value for the checkbox determining whether to calculate time at risk. Not
-applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
-
-\item{hierarchy_choices}{\verb{[character(1+)|NULL]}
-
-A character vector specifying the possible choices for the hierarchy variables selection (optional).
-If it is not specified then all factor and character variables from the event data will be used.}
-
-\item{group_choices}{\verb{[character(1+)|NULL]}
-
-A character vector specifying the possible choices for the group variables selection (optional).
-If it is not specified then all factor and character variables from the population data will be used.}
-
-\item{pop_flag_choices}{\verb{[character(1+) | NULL]}
-
-A vector of variable names from the population dataset, specifying the possible choices for the population flag
-variables (optional). If it is not specified then all \code{FL} suffixed factor and character variables from the
-population dataset will be used.
-
-Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.
-
-Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
-
 \item{event_group_choices}{\verb{[character(1+)|NULL]}
 
 A character vector specifying the possible choices for the event group variable selection (optional).
 If it is not specified then all factor and character variables from the event data will be used.}
+
+\item{default_event_date}{\verb{[character(1)|NULL]}
+
+A default value for the event date variable selection (optional). Not applicable when
+\code{show_time_at_risk_options} is \code{FALSE}.}
 
 \item{event_date_choices}{\verb{[character(1+)|NULL]}
 
@@ -177,17 +162,32 @@ A character vector specifying the possible choices for the event date variable s
 If it is not specified then all variables of class "Date" from the event data will be used.
 Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
+\item{default_origin_date}{\verb{[character(1)|NULL]}
+
+A default value for the origin date variable selection (optional). Not applicable when
+\code{show_time_at_risk_options} is \code{FALSE}.}
+
 \item{origin_date_choices}{\verb{[character(1+)|NULL]}
 
 A character vector specifying the possible choices for the origin date variable selection (optional).
 If it is not specified then all variables of class "Date" from the population data will be used.
 Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
+\item{default_censor_date}{\verb{[character(1)|NULL]}
+
+A default value for the censor date variable selection (optional). Not applicable when
+\code{show_time_at_risk_options} is \code{FALSE}.}
+
 \item{censor_date_choices}{\verb{[character(1+)|NULL]}
 
 A character vector specifying the possible choices for the censor date variable selection (optional).
 If it is not specified then all variables of class "Date" from the population data will be used.
 Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
+
+\item{default_risk}{\verb{[logical(1)]}
+
+A default value for the checkbox determining whether to calculate time at risk. Not
+applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
 \item{smq_name}{\verb{[character(1)]}
 
