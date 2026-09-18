@@ -277,9 +277,6 @@ create_adtte <- function(event_df,
 #'   - `table_type`: A string, either "frequency" or "time_at_risk", indicating the table type.
 #'   - `warning_message`: A string indicating a warning message to be raised by shiny::validate.
 #'
-#' <!-- - `data_columns`: A vector of names of columns holding the statistics for each population group combination. -->
-#' <!-- - `denom_df`: A data frame of population group denominator data. -->
-#'
 #' @keywords internal
 compute_events_table <- function(event_df,
                                  pop_df,
@@ -1897,10 +1894,14 @@ hierarchical_count_table_server <- function(
 #'
 #' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
+#' Not applicable when `show_pop_flag_selection` is `FALSE`.
+#'
 #' @param default_pop_flags_after_groups `[logical(1)]`
 #'
 #' A flag specifying the default value for the checkbox that determines whether to show the population flags after the
 #' group variables.
+#'
+#' Not applicable when `show_pop_flag_selection` is `FALSE`.
 #'
 #' @param default_event_group `[character(1)|NULL]`
 #'
@@ -1923,7 +1924,7 @@ hierarchical_count_table_server <- function(
 #'
 #' @param default_risk `[logical(1)]`
 #'
-#' A default value for for checkbox determining whether to calculate time at risk. Not
+#' A default value for the checkbox determining whether to calculate time at risk. Not
 #' applicable when `show_time_at_risk_options` is `FALSE`.
 #'
 #' @param hierarchy_choices `[character(1+)|NULL]`
@@ -1943,6 +1944,8 @@ hierarchical_count_table_server <- function(
 #' population dataset will be used.
 #'
 #' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#'
+#' Not applicable when `show_pop_flag_selection` is `FALSE`.
 #'
 #' @param event_group_choices `[character(1+)|NULL]`
 #'

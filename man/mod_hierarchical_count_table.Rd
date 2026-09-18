@@ -111,12 +111,16 @@ remain visible and only cells below the threshold are replaced by a dash.}
 A vector of variable names from the population dataset, used as the default for selected population flag variables
 (optional).
 
-Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.
+
+Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
 \item{default_pop_flags_after_groups}{\verb{[logical(1)]}
 
 A flag specifying the default value for the checkbox that determines whether to show the population flags after the
-group variables.}
+group variables.
+
+Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
 \item{default_event_group}{\verb{[character(1)|NULL]}
 
@@ -139,7 +143,7 @@ A default value for the censor date variable selection (optional). Not applicabl
 
 \item{default_risk}{\verb{[logical(1)]}
 
-A default value for for checkbox determining whether to calculate time at risk. Not
+A default value for the checkbox determining whether to calculate time at risk. Not
 applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
 \item{hierarchy_choices}{\verb{[character(1+)|NULL]}
@@ -158,7 +162,9 @@ A vector of variable names from the population dataset, specifying the possible 
 variables (optional). If it is not specified then all \code{FL} suffixed factor and character variables from the
 population dataset will be used.
 
-Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.
+
+Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
 \item{event_group_choices}{\verb{[character(1+)|NULL]}
 

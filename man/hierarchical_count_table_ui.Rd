@@ -41,7 +41,9 @@ both cannot be shown together.}
 \item{default_pop_flags_after_groups}{\verb{[logical(1)]}
 
 A flag specifying the default value for the checkbox that determines whether to show the population flags after the
-group variables.}
+group variables.
+
+Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
 \item{default_total}{\verb{[logical(1)]}
 
@@ -49,7 +51,7 @@ A default value for checkbox determining whether to add a total group column.}
 
 \item{default_risk}{\verb{[logical(1)]}
 
-A default value for for checkbox determining whether to calculate time at risk. Not
+A default value for the checkbox determining whether to calculate time at risk. Not
 applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
 \item{default_min_percent}{\verb{[numeric(1)]}

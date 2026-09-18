@@ -79,12 +79,7 @@ A list containing:
 \item \code{table_type}: A string, either "frequency" or "time_at_risk", indicating the table type.
 \item \code{warning_message}: A string indicating a warning message to be raised by shiny::validate.
 }
-}\if{html}{\out{
-<!-- - `data_columns`: A vector of names of columns holding the statistics for each population group combination. -->
-}}
-\if{html}{\out{
-<!-- - `denom_df`: A data frame of population group denominator data. -->
-}}
+}
 }
 \description{
 Computes an event table with subject counts and percentages
