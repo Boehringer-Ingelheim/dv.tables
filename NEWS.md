@@ -9,6 +9,10 @@
 * New module `mod_summary_table` that provides numerical and categorical analysis.
 
 * `mod_hierarchical_count_table`:
+  * Add optional SMQ source-variable derivation as a hierarchy.
+  * Add optional UDAEC category derivation from SMQ source variables and/or
+    preferred terms (`pt_var` and `pt_values`).
+  * Add category filtering for selected SMQ or UDAEC hierarchy levels.
   * Allow up to 4 levels of hierarchical variables.
   * Show variable labels rather than variable names in the information above the table.
   * Display count of "0" when `n = 0`, instead of em dash.

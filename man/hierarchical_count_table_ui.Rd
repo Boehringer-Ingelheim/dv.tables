@@ -13,7 +13,8 @@ hierarchical_count_table_ui(
   default_total = TRUE,
   default_risk = FALSE,
   default_min_percent = 0,
-  default_remove_rows_under_min_percent = FALSE
+  default_remove_rows_under_min_percent = FALSE,
+  enable_smq = FALSE
 )
 }
 \arguments{
@@ -53,13 +54,21 @@ applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
 \item{default_min_percent}{\verb{[numeric(1)]}
 
-A default value (0-100) for the minimum percentage of subjects a row must reach to be displayed. Rows below
-this threshold have their counts replaced with a dash instead of being shown.}
+Initial minimum percentage threshold, between 0 and 100. The threshold is
+applied separately to each displayed group cell. Cells below the threshold
+show a dash instead of their count and percentage. The default is \code{0}.}
 
 \item{default_remove_rows_under_min_percent}{\verb{[logical(1)]}
 
-A default value for checkbox determining whether to remove entire rows for which every group's percentage of
-subjects falls below \code{default_min_percent}, instead of just showing a dash for those cells.}
+Initial setting controlling whether to remove hierarchy rows for which no
+displayed group cell meets \code{default_min_percent}. When \code{FALSE}, the rows
+remain visible and only cells below the threshold are replaced by a dash.}
+
+\item{enable_smq}{\verb{[logical(1)]}
+
+A flag to indicate whether to display the SMQ/UDAEC category filter UI.
+This should be enabled when the server is configured with \code{smq_vars} and
+\code{smq_name}.}
 }
 \value{
 A \code{shiny::div} containing the user interface for selecting hierarchy, group,

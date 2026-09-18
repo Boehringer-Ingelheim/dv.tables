@@ -28,6 +28,12 @@ hierarchical_count_table_server(
   event_date_choices = NULL,
   origin_date_choices = NULL,
   censor_date_choices = NULL,
+  smq_name = NULL,
+  smq_vars = NULL,
+  smq_na_label = "Other",
+  udaec_name = NULL,
+  udaec_list = NULL,
+  udaec_na_label = "Other",
   intended_use_label = NULL
 )
 }
@@ -72,11 +78,13 @@ A flag to indicate whether clicking a table cell should display a modal dialog w
 
 Function to invoke when a subject is clicked}
 
-\item{default_hierarchy}{\verb{[character(1+)|NULL]}
+\item{default_hierarchy}{\verb{[character(1:4)|NULL]}
 
-A default value for the hierarchy variables selection (optional).}
+Optional character vector specifying the default hierarchy variables.
+Variables must be columns in \code{table_dataset_name}. Up to four variables
+can be selected, and their order determines the nesting order in the table.}
 
-\item{default_group}{\verb{[character(1+)|NULL]}
+\item{default_group}{\verb{[character(1|2)|NULL]}
 
 A default value for the group variables selection (optional).}
 
@@ -146,6 +154,69 @@ Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 A character vector specifying the possible choices for the censor date variable selection (optional).
 If it is not specified then all variables of class "Date" from the population data will be used.
 Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
+
+\item{smq_name}{\verb{[character(1)]}
+
+Name of the derived SMQ hierarchy variable. The variable is created from
+the columns listed in \code{smq_vars}. Defaults to \code{"SMQ"}.}
+
+\item{smq_vars}{\verb{[character(1+)|NULL]}
+
+Optional character vector of columns in \code{table_dataset_name} containing
+SMQ indicators or categories. When supplied together with \code{smq_name}, an
+additional SMQ hierarchy variable is available for selection. If \code{NULL},
+no SMQ hierarchy is created.}
+
+\item{smq_na_label}{\verb{[character(1)]}
+
+Label used for the derived SMQ hierarchy variable (\code{smq_name}) when the
+source values in \code{smq_vars} are missing/\code{NA} for a subject. Defaults to
+\code{"Other"}.}
+
+\item{udaec_name}{\verb{[character(1)]}
+
+Name of the derived UDAEC hierarchy variable. Defaults to \code{"UDAEC"}.
+This argument is used together with \code{udaec_list}.}
+
+\item{udaec_list}{\verb{[list|NULL]}
+
+Optional named list defining UDAEC categories. The names of the list are the
+UDAEC category labels, and must be unique and non-empty. Each element must
+be a list containing at least one of the following definitions:
+No other entries are allowed.
+\itemize{
+\item \code{smq_vars}: A character vector of SMQ source column names. These
+columns must also be included in the top-level \code{smq_vars} argument.
+\item \code{pt_var} and \code{pt_values}: The event-data column containing preferred
+terms and an atomic vector of values identifying the preferred terms for
+the category. \code{pt_var} must be a column in \code{table_dataset_name}, and both
+fields must be supplied together.
+}
+A category may contain either definition or both definitions. The
+\code{udaec_list} argument requires a non-\code{NULL} top-level \code{smq_vars} argument,
+and \code{udaec_name} defines the name of the derived UDAEC hierarchy variable.
+For example:
+\preformatted{
+udaec_list <- list(
+  "Cardiac disorders" = list(
+    smq_vars = "SMQ01NAM",
+    pt_var = "AEDECOD",
+    pt_values = c("Atrial fibrillation", "Myocardial infarction")
+  ),
+  "Renal disorders" = list(
+    pt_var = "AEDECOD",
+    pt_values = c("Acute kidney injury")
+  )
+)
+}
+When supplied, the derived UDAEC variable is available as a hierarchy
+selection and its categories can be filtered in the module UI.}
+
+\item{udaec_na_label}{\verb{[character(1)]}
+
+Label used for the derived UDAEC hierarchy variable (\code{udaec_name}) for
+subjects that do not match any of the categories defined in \code{udaec_list}.
+Defaults to \code{"Other"}.}
 
 \item{intended_use_label}{\verb{[character(1)|NULL]}
 
