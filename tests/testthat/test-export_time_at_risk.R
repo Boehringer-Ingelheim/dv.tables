@@ -23,13 +23,12 @@ local({
     event_df = event_df,
     pop_df = pop_df,
     hierarchy = event_hierarchy,
-    group_var = "group",
+    group_vars = "group",
     subjid_var = "subj",
     origin_date_var = "origdt",
     censor_date_var = "censdt",
     event_date_var = "evntdt",
     total = FALSE,
-    total_group_val = NULL,
     compute_risk = TRUE
   )
 

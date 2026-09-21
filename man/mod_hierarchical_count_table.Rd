@@ -9,6 +9,7 @@ mod_hierarchical_count_table(
   table_dataset_name,
   pop_dataset_name,
   subjid_var = "USUBJID",
+  show_pop_flag_selection = FALSE,
   show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
@@ -19,6 +20,9 @@ mod_hierarchical_count_table(
   default_total = TRUE,
   default_min_percent = 0,
   default_remove_rows_under_min_percent = FALSE,
+  default_pop_flags = NULL,
+  pop_flag_choices = NULL,
+  default_pop_flags_after_groups = FALSE,
   default_event_group = NULL,
   event_group_choices = NULL,
   default_event_date = NULL,
@@ -56,6 +60,11 @@ Name of the population dataset.}
 
 A string representing the subject identifier column in both datasets.}
 
+\item{show_pop_flag_selection}{\verb{[logical(1)]}
+
+A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
+and \code{pop_flag_choices}.}
+
 \item{show_event_group_by}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the event by-group selection. This takes precedence over
@@ -82,13 +91,13 @@ can be selected, and their order determines the nesting order in the table.}
 A character vector specifying the possible choices for the hierarchy variables selection (optional).
 If it is not specified then all factor and character variables from the event data will be used.}
 
-\item{default_group}{\verb{[character(1)|NULL]}
+\item{default_group}{\verb{[character(1|2)|NULL]}
 
-A default value for the group variable selection (optional).}
+A default value for the group variables selection (optional).}
 
 \item{group_choices}{\verb{[character(1+)|NULL]}
 
-A character vector specifying the possible choices for the group variable selection (optional).
+A character vector specifying the possible choices for the group variables selection (optional).
 If it is not specified then all factor and character variables from the population data will be used.}
 
 \item{default_total}{\verb{[logical(1)]}
@@ -106,6 +115,32 @@ show a dash instead of their count and percentage. The default is \code{0}.}
 Initial setting controlling whether to remove hierarchy rows for which no
 displayed group cell meets \code{default_min_percent}. When \code{FALSE}, the rows
 remain visible and only cells below the threshold are replaced by a dash.}
+
+\item{default_pop_flags}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, used as the default for selected population flag variables
+(optional).
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.
+
+Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
+
+\item{pop_flag_choices}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, specifying the possible choices for the population flag
+variables (optional). If it is not specified then all \code{FL} suffixed factor and character variables from the
+population dataset will be used.
+
+Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.
+
+Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
+
+\item{default_pop_flags_after_groups}{\verb{[logical(1)]}
+
+A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+group variables.
+
+Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
 \item{default_event_group}{\verb{[character(1)|NULL]}
 
