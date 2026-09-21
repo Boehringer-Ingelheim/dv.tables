@@ -14,8 +14,9 @@ SUMMTAB <- poc(
     DROP_EMPTY_COLS = "drop_empty_cols",
     SHOW_CATEGORY_N = "show_category_n",
     DENOM = "denom",
-    AGGREGATE_METHOD = "aggregate_method",
     STATS = "stats",
+    SUMMARIZE_FLAGGED_ROWS = "summarize_flagged_rows",
+    AGGREGATE_METHOD = "aggregate_method",
     TBL_OUTPUT = "table_output",
     RENDER_COMPLETION_CALLBACK = "render_completion_callback"
   ),
@@ -34,8 +35,9 @@ SUMMTAB <- poc(
     DROP_EMPTY_COLS = "Remove columns with no data",
     SHOW_CATEGORY_N = "Show categorical n",
     DENOM = "Denominator used for categorical %:",
-    AGGREGATE_METHOD = "Multi-value aggregation method:",
-    STATS = "Statistics for numerical analysis:"
+    STATS = "Statistics for numerical analysis:",
+    SUMMARIZE_FLAGGED_ROWS = "Summarize flagged rows",
+    AGGREGATE_METHOD = "Multi-value aggregation method:"
   ),
   INFO = poc(
     DROP_NA_FLAG = paste("Exclude rows from population and analysis datasets when any 'Group by'",
@@ -50,6 +52,7 @@ SUMMTAB <- poc(
                   "the number of subjects from the 'row by' grouping for each population",
                   "grouping ('n'). If the user selects to drop NA values then those",
                   "values will be excluded from determining the 'n' denominator.", sep = "\n"),
+    SUMMARIZE_FLAGGED_ROWS = "to be done!!!!",
     AGGREGATE_METHOD = paste("Method to use for aggregating rows when more than",
                              "one row per subject exists after population grouping",
                              "and row categorization has been applied.", sep = "\n")
@@ -825,14 +828,16 @@ summary_table_ui <- function(module_id,
                              default_show_category_n = TRUE,
                              default_denom = "N",
                              default_stats = NULL,
+                             choices_stats = NULL,
                              default_aggregate_method = NULL,
                              choices_aggregate_method = NULL,
-                             choices_stats = NULL) {
+                             default_summarize_flagged_rows = FALSE) {
 
   ns <- shiny::NS(module_id)
 
   # Initialize optional selections
   pop_flags <- NULL
+  flagged_rows_checkbox <- NULL
   aggregate_radio_buttons <- NULL
 
   if (show_pop_flag_selection) {
@@ -842,6 +847,17 @@ summary_table_ui <- function(module_id,
       shiny::checkboxInput(ns(SUMMTAB$ID$POP_FLAGS_AFTER_GROUPS),
                            label = SUMMTAB$LBL$POP_FLAGS_AFTER_GROUPS,
                            value = default_pop_flags_after_groups)
+    )
+  }
+
+  # Prior to calling `summary_table_ui()`, the original `default_summarize_flagged_rows` TRUE/FALSE value passed to
+  # `mod_summary_table()` is overridden as NULL when no processing has been specified in `flagged_row_processing`.
+  if (!is.null(default_summarize_flagged_rows)) {
+    flagged_rows_checkbox <- shiny::checkboxInput(
+      ns(SUMMTAB$ID$SUMMARIZE_FLAGGED_ROWS),
+      label = shiny::span(SUMMTAB$LBL$SUMMARIZE_FLAGGED_ROWS,
+                          shiny::icon("circle-info", title = SUMMTAB$INFO$SUMMARIZE_FLAGGED_ROWS)),
+      value = default_summarize_flagged_rows
     )
   }
 
@@ -906,6 +922,7 @@ summary_table_ui <- function(module_id,
       choices = c("N", "n"),
       selected = default_denom
     ),
+    flagged_rows_checkbox,
     aggregate_radio_buttons
   )
 
@@ -958,15 +975,15 @@ summary_table_server <- function(module_id,
                                  stats_replace = NULL,
 
                                  default_summarize_on = NULL,
-                                 default_group_by = NULL,
-                                 default_row_by = NULL,
-                                 default_pop_flags = NULL,
                                  choices_summarize_on = NULL,
+                                 default_group_by = NULL,
                                  choices_group_by = NULL,
+                                 default_row_by = NULL,
                                  choices_row_by = NULL,
+                                 default_pop_flags = NULL,
                                  choices_pop_flags = NULL,
-                                 total_group_val = "Total",
-                                 allow_aggregation = FALSE) {
+                                 flagged_row_processing = NULL,
+                                 total_group_val = "Total") {
 
   mod <- function(input, output, session) {
 
@@ -1045,6 +1062,8 @@ summary_table_server <- function(module_id,
     inputs[[SUMMTAB$ID$DENOM]] <- shiny::reactive(input[[SUMMTAB$ID$DENOM]])
     inputs[[SUMMTAB$ID$STATS]] <- shiny::reactive(input[[SUMMTAB$ID$STATS]])
 
+
+    if (!is.null(flagged_row_processing)) inputs[[SUMMTAB$ID$SUMMARIZE_FLAGGED_ROWS]] <- shiny::reactive(input[[SUMMTAB$ID$SUMMARIZE_FLAGGED_ROWS]])
     if (show_aggregate_method) inputs[[SUMMTAB$ID$AGGREGATE_METHOD]] <- shiny::reactive(input[[SUMMTAB$ID$AGGREGATE_METHOD]])
 
     # Initialize variable labels reactive value
@@ -1063,6 +1082,7 @@ summary_table_server <- function(module_id,
       show_category_n <- inputs[[SUMMTAB$ID$SHOW_CATEGORY_N]]()
       denom <- inputs[[SUMMTAB$ID$DENOM]]()
 
+      summarize_flagged_rows <- if (!is.null(flagged_row_processing)) inputs[[SUMMTAB$ID$SUMMARIZE_FLAGGED_ROWS]]() else FALSE
       aggregate_func_name <- if (show_aggregate_method) inputs[[SUMMTAB$ID$AGGREGATE_METHOD]]() else NULL
 
       choices_stats <- inputs[[SUMMTAB$ID$STATS]]()
@@ -1163,6 +1183,11 @@ summary_table_server <- function(module_id,
       p <- shiny::Progress$new(session = session)
       on.exit(p$close())
       p$set(message = "1) Processing data", value = 0.50)
+
+      if (summarize_flagged_rows) {
+        browser()
+        tbl_df <- tbl_df
+      }
 
       summary_table <- summtab_compute(tbl_df,
                                        pop_df,
@@ -1344,7 +1369,7 @@ summary_table_server <- function(module_id,
 #' Any results from functions given in `stats_functions` that do not appear in the formatting will be automatically
 #' formatted as character.
 #'
-#' @param stats_labels `[list(1+) | NULL]`
+#' @param stats_labels `[character(1+) | NULL]`
 #'
 #' A named vector of statistics labels that should be used in the summary table. The names correspond to the names
 #' assigned in the `stats_formats` list, or otherwise the names in the `stats_functions` list.
@@ -1464,6 +1489,15 @@ summary_table_server <- function(module_id,
 #' A flag specifying the default value for the checkbox that determines whether to show the population flags after the
 #' group variables.
 #'
+#' @param default_summarize_flagged_rows `[logical(1)]`
+#'
+#' A flag specifying the default value for the checkbox that determines whether to summarize flagged rows in their own
+#' category.
+#'
+#' @param flagged_row_processing `[list(1+) | NULL]`
+#'
+#' A named list of lists defining the processing and categorization of flagged rows.
+#'
 #' @param total_group_val `[character(1)]`
 #'
 #' A string indicating the label for the total group column.
@@ -1554,6 +1588,8 @@ summary_table_server <- function(module_id,
 #'   default_pop_flags = NULL,
 #'   choices_pop_flags = NULL,
 #'   default_pop_flags_after_groups = FALSE,
+#'   default_summarize_flagged_rows = FALSE,
+#'   flagged_row_processing = NULL,
 #'   total_group_val = "Total",
 #'   receiver_id = NULL
 #' )
@@ -1647,6 +1683,8 @@ mod_summary_table <- function(
     default_pop_flags = NULL,
     choices_pop_flags = NULL,
     default_pop_flags_after_groups = FALSE,
+    default_summarize_flagged_rows = FALSE,
+    flagged_row_processing = NULL,
     total_group_val = "Total",
     receiver_id = NULL
 ) {
@@ -1668,6 +1706,8 @@ mod_summary_table <- function(
   checkmate::assert_character(default_stats, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::assert_string(default_aggregate_method, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::assert_logical(default_pop_flags_after_groups, add = ac)
+  checkmate::assert_logical(default_summarize_flagged_rows, add = ac)
+  checkmate::assert_list(flagged_row_processing, types = "list", names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_character(choices_aggregate_method, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_subset(default_aggregate_method, choices_aggregate_method, add = ac)
   checkmate::assert_string(total_group_val, add = ac)
@@ -1714,6 +1754,14 @@ mod_summary_table <- function(
     choices_stats <- NULL
   }
 
+  # Prior to calling `summary_table_ui()`, the original `default_summarize_flagged_rows` TRUE/FALSE value passed to
+  # `mod_summary_table()` is overridden as NULL when no processing has been specified in `flagged_row_processing`.
+  default_summarize_flagged_rows <- if (!is.null(flagged_row_processing)) {
+    default_summarize_flagged_rows
+  } else {
+    NULL
+  }
+
   mod <- list(
     ui = function(module_id) {
       summary_table_ui(module_id,
@@ -1726,9 +1774,10 @@ mod_summary_table <- function(
                        default_drop_empty_cols = default_drop_empty_cols,
                        default_show_category_n = default_show_category_n,
                        default_denom = default_denom,
-                       default_aggregate_method = default_aggregate_method,
                        default_stats = default_stats,
+                       default_aggregate_method = default_aggregate_method,
                        choices_aggregate_method = choices_aggregate_method,
+                       default_summarize_flagged_rows = default_summarize_flagged_rows,
                        choices_stats = choices_stats)
     },
     server = function(afmm) {
@@ -1756,13 +1805,14 @@ mod_summary_table <- function(
                            stats_replace = stats_replace,
 
                            default_summarize_on = default_summarize_on,
-                           default_group_by = default_group_by,
-                           default_row_by = default_row_by,
-                           default_pop_flags = default_pop_flags,
                            choices_summarize_on = choices_summarize_on,
+                           default_group_by = default_group_by,
                            choices_group_by = choices_group_by,
+                           default_row_by = default_row_by,
                            choices_row_by = choices_row_by,
+                           default_pop_flags = default_pop_flags,
                            choices_pop_flags = choices_pop_flags,
+                           flagged_row_processing = flagged_row_processing,
                            total_group_val = total_group_val)
     },
     module_id = module_id
@@ -1806,6 +1856,8 @@ mod_summary_table_API_docs <- list(
   default_pop_flags = "",
   choices_pop_flags = "",
   default_pop_flags_after_groups = "",
+  default_summarize_flagged_rows = "",
+  flagged_row_processing = "",
   total_group_val = "",
   receiver_id = ""
 )
@@ -1848,6 +1900,8 @@ mod_summary_table_API_spec <- TC$group(
   choices_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   default_pop_flags_after_groups = TC$logical(),
+  default_summarize_flagged_rows = TC$logical(),
+  flagged_row_processing = TC$character() |> TC$flag("ignore"),
   total_group_val = TC$character(),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_summary_table_API_docs)
@@ -1859,7 +1913,7 @@ check_mod_summary_table <- function(
     default_summarize_on, choices_summarize_on, default_group_by, choices_group_by, default_row_by, choices_row_by,
     default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, choices_aggregate_method,
-    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups,
+    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups, default_summarize_flagged_rows, flagged_row_processing,
     total_group_val, receiver_id
 ) {
   err <- CM$container()
@@ -1874,7 +1928,7 @@ check_mod_summary_table <- function(
     default_summarize_on, choices_summarize_on, default_group_by, choices_group_by, default_row_by, choices_row_by,
     default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, choices_aggregate_method,
-    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups,
+    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups, default_summarize_flagged_rows, flagged_row_processing,
     total_group_val, receiver_id,
     err
   )
@@ -2016,6 +2070,8 @@ mock_app_summary_table_mm <- function() {
         default_group_by = c("TRT01P", "SEX"),
         default_row_by = c("PARAM", "AVISIT"),
         default_denom = "n",
+        default_summarize_flagged_rows = TRUE,
+        flagged_row_processing = list(),
         receiver_id = "papo"
       ),
       "Population Summary" = mod_summary_table(
