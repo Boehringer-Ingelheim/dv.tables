@@ -7,6 +7,7 @@
 summary_table_server(
   module_id,
   table_dataset,
+  table_dataset_unfiltered,
   pop_dataset,
   subjid_var,
   show_pop_flag_selection = FALSE,
@@ -18,15 +19,15 @@ summary_table_server(
   stats_labels = NULL,
   stats_replace = NULL,
   default_summarize_on = NULL,
-  default_group_by = NULL,
-  default_row_by = NULL,
-  default_pop_flags = NULL,
   choices_summarize_on = NULL,
+  default_group_by = NULL,
   choices_group_by = NULL,
+  default_row_by = NULL,
   choices_row_by = NULL,
+  default_pop_flags = NULL,
   choices_pop_flags = NULL,
-  total_group_val = "Total",
-  allow_aggregation = FALSE
+  flagged_row_processing = NULL,
+  total_group_val = "Total"
 )
 }
 \arguments{
@@ -87,7 +88,7 @@ can also be the same as the name from \code{stats_functions}, e.g. \code{meanci}
 Any results from functions given in \code{stats_functions} that do not appear in the formatting will be automatically
 formatted as character.}
 
-\item{stats_labels}{\verb{[list(1+) | NULL]}
+\item{stats_labels}{\verb{[character(1+) | NULL]}
 
 A named vector of statistics labels that should be used in the summary table. The names correspond to the names
 assigned in the \code{stats_formats} list, or otherwise the names in the \code{stats_functions} list.
@@ -110,15 +111,31 @@ names of the list elements in \code{stats_formats}.}
 A vector of variable names from the analysis dataset, used as the default for selected variables to summarize on
 (optional).}
 
+\item{choices_summarize_on}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
+on (optional). If it is not specified then all variables from the analysis dataset, excluding \code{Date} and \code{POSIXt}
+class variables, will be used.}
+
 \item{default_group_by}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, used as the default for selected variables to group by
 (optional).}
 
+\item{choices_group_by}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
+(optional). If it is not specified then all factor and character variables from the population dataset will be used.}
+
 \item{default_row_by}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the dataset specified by \code{table_dataset_name}, used as the default for selected
 variables to categorize on (optional).}
+
+\item{choices_row_by}{\verb{[character(1+) | NULL]}
+
+A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
+on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
 
 \item{default_pop_flags}{\verb{[character(1+) | NULL]}
 
@@ -127,22 +144,6 @@ A vector of variable names from the population dataset, used as the default for 
 
 Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
 
-\item{choices_summarize_on}{\verb{[character(1+) | NULL]}
-
-A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
-on (optional). If it is not specified then all variables from the analysis dataset, excluding \code{Date} and \code{POSIXt}
-class variables, will be used.}
-
-\item{choices_group_by}{\verb{[character(1+) | NULL]}
-
-A vector of variable names from the population dataset, specifying the possible choices for the variables to group by
-(optional). If it is not specified then all factor and character variables from the population dataset will be used.}
-
-\item{choices_row_by}{\verb{[character(1+) | NULL]}
-
-A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
-on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.}
-
 \item{choices_pop_flags}{\verb{[character(1+) | NULL]}
 
 A vector of variable names from the population dataset, specifying the possible choices for the population flag
@@ -150,6 +151,19 @@ variables (optional). If it is not specified then all \code{FL} suffixed factor 
 population dataset will be used.
 
 Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
+
+\item{flagged_row_processing}{\verb{[list(1+) | NULL]}
+
+A list of lists defining the processing and categorization of flagged rows. If NULL then flagged rows will not
+be processed. Each sub-list corresponds to a single flag variable, and has the following elements:
+\itemize{
+\item \code{flag_var}: String naming the flag variable to evaluate (e.g. \code{"LVOTFL"}).
+\item \code{var_assignments}: A named list of variable assignments, where names correspond to target dataset columns and
+values represent the replacement values, e.g. if creating last value on treatment visits, then an example
+assignment would be \code{AVISIT = "Last value on treatment"}.
+}
+
+Each flagged row is duplicated with the specified variable assignments applied.}
 
 \item{total_group_val}{\verb{[character(1)]}
 

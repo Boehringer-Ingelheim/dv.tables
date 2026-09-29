@@ -82,8 +82,6 @@ mock_app_summary_table_mm <- function() {
     dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
                   .data[["AVISITN"]] %in% c(0, 4, 5, 7))
 
-  attr(adlb, "meta") <- base::file.info("NEWS.md")
-
   # Last value on treatment
   adlb <- dplyr::select(adlb, -dplyr::any_of("LVOTFL"))
   adlb <- dplyr::left_join(
@@ -127,6 +125,11 @@ mock_app_summary_table_mm <- function() {
     by = names(adlb)
   )
 
+  attr(adlb, "meta") <- base::file.info("NEWS.md")
+  attr(adlb[["LVOTFL"]], "label") <- "Last Value On Treatment Record Flag"
+  attr(adlb[["MINTRFL"]], "label") <- "Minimum On Treatment Flag"
+  attr(adlb[["MAXTRFL"]], "label") <- "Maximum On Treatment Flag"
+
   dv.manager::run_app(
     data = list(
       pharmaverseadam = list(adsl = adsl, adlb = adlb)
@@ -161,17 +164,16 @@ mock_app_summary_table_mm <- function() {
         default_group_by = c("TRT01P", "SEX"),
         default_row_by = c("PARAM", "AVISIT"),
         default_denom = "n",
-        default_summarize_flagged_rows = TRUE,
         flagged_row_processing = list(
           list(flag_var = "MINTRFL",
-               var_assignments = list(VISIT = "Minimum on treatment", VISITNUM = 9991,
-                                      AVISIT = "Minimum on treatment", AVISITN = 9991)),
+               var_assignments = list(VISIT = "Minimum on treatment",
+                                      AVISIT = "Minimum on treatment")),
           list(flag_var = "MAXTRFL",
-               var_assignments = list(VISIT = "Maximum on treatment", VISITNUM = 9992,
-                                      AVISIT = "Maximum on treatment", AVISITN = 9992)),
+               var_assignments = list(VISIT = "Maximum on treatment",
+                                      AVISIT = "Maximum on treatment")),
           list(flag_var = "LVOTFL",
-               var_assignments = list(VISIT = "Last value on treatment", VISITNUM = 9993,
-                                      AVISIT = "Last value on treatment", AVISITN = 9993))
+               var_assignments = list(VISIT = "Last value on treatment",
+                                      AVISIT = "Last value on treatment"))
         ),
         receiver_id = "papo"
       ),
