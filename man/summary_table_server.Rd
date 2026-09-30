@@ -7,7 +7,6 @@
 summary_table_server(
   module_id,
   table_dataset,
-  table_dataset_unfiltered,
   pop_dataset,
   subjid_var,
   show_pop_flag_selection = FALSE,
@@ -27,6 +26,7 @@ summary_table_server(
   default_pop_flags = NULL,
   choices_pop_flags = NULL,
   flagged_row_processing = NULL,
+  table_dataset_unfiltered = NULL,
   total_group_val = "Total"
 )
 }
@@ -164,6 +164,10 @@ assignment would be \code{AVISIT = "Last value on treatment"}.
 }
 
 Each flagged row is duplicated with the specified variable assignments applied.}
+
+\item{table_dataset_unfiltered}{\verb{[data.frame | NULL]}
+
+A reactive dataset containing the unfiltered analysis data, used for flagged row processing.}
 
 \item{total_group_val}{\verb{[character(1)]}
 

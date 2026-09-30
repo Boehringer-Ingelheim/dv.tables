@@ -13,15 +13,15 @@ process_flagged_rows(
 )
 }
 \arguments{
-\item{filtered_df}{A data frame containing the filtered analysis data.}
+\item{filtered_df}{\verb{[data.frame]} A data frame containing the filtered analysis data.}
 
-\item{unfiltered_df}{A data frame containing the unfiltered analysis data.}
+\item{unfiltered_df}{\verb{[data.frame | NULL]} A data frame containing the unfiltered analysis data.}
 
-\item{flagged_row_processing}{A list of lists defining the processing and categorization of flagged rows.}
+\item{flagged_row_processing}{\verb{[list(1+) | NULL]} A list of lists defining the processing and categorization of flagged rows.}
 
-\item{row_vars}{A vector of names of row categorization variables.}
+\item{row_vars}{\verb{[character(0+)]} A vector of names of row categorization variables.}
 
-\item{subjid_var}{A string representing the subject identifier column.}
+\item{subjid_var}{\verb{[character(1)]} A string representing the subject identifier column.}
 }
 \value{
 Analysis data frame with additional rows added corresponding to flagged rows. Flagged row variable

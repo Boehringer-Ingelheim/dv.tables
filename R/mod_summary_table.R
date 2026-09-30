@@ -814,11 +814,11 @@ process_pop_flag_vars <- function(pop_df, pop_flag_vars) {
 
 #' Process flagged rows in the analysis data creating additional categories
 #'
-#' @param filtered_df A data frame containing the filtered analysis data.
-#' @param unfiltered_df A data frame containing the unfiltered analysis data.
-#' @param flagged_row_processing A list of lists defining the processing and categorization of flagged rows.
-#' @param row_vars A vector of names of row categorization variables.
-#' @param subjid_var A string representing the subject identifier column.
+#' @param filtered_df `[data.frame]` A data frame containing the filtered analysis data.
+#' @param unfiltered_df `[data.frame | NULL]` A data frame containing the unfiltered analysis data.
+#' @param flagged_row_processing `[list(1+) | NULL]` A list of lists defining the processing and categorization of flagged rows.
+#' @param row_vars `[character(0+)]` A vector of names of row categorization variables.
+#' @param subjid_var `[character(1)]` A string representing the subject identifier column.
 #'
 #' @return Analysis data frame with additional rows added corresponding to flagged rows. Flagged row variable
 #' names are added to the attribute named `flagged_row_vars`.
@@ -828,7 +828,7 @@ process_flagged_rows <- function(filtered_df, unfiltered_df, flagged_row_process
 
   flagged_row_vars <- character()
 
-  if (is.null(flagged_row_processing)) {
+  if (is.null(flagged_row_processing) || is.null(unfiltered_df)) {
     attr(filtered_df, "flagged_row_vars") <- flagged_row_vars
     return(filtered_df)
   }
@@ -1042,6 +1042,10 @@ summary_table_ui <- function(module_id,
 #'
 #' Function to invoke when a subject is clicked.
 #'
+#' @param table_dataset_unfiltered `[data.frame | NULL]`
+#'
+#' A reactive dataset containing the unfiltered analysis data, used for flagged row processing.
+#'
 #' @inheritParams mod_summary_table
 #'
 #' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
@@ -1051,7 +1055,6 @@ summary_table_ui <- function(module_id,
 #' @export
 summary_table_server <- function(module_id,
                                  table_dataset,
-                                 table_dataset_unfiltered,
                                  pop_dataset,
                                  subjid_var,
                                  show_pop_flag_selection = FALSE,
@@ -1072,7 +1075,10 @@ summary_table_server <- function(module_id,
                                  choices_row_by = NULL,
                                  default_pop_flags = NULL,
                                  choices_pop_flags = NULL,
+
                                  flagged_row_processing = NULL,
+                                 table_dataset_unfiltered = NULL,
+
                                  total_group_val = "Total") {
 
   mod <- function(input, output, session) {
@@ -1176,7 +1182,11 @@ summary_table_server <- function(module_id,
 
       pop_df <- pop_dataset()
       tbl_df <- table_dataset()
-      unfiltered_tbl_df <- table_dataset_unfiltered()
+      unfiltered_tbl_df <- if (!is.null(table_dataset_unfiltered)) {
+        table_dataset_unfiltered()
+      } else {
+        NULL
+      }
 
       # Store variable labels for information display in final HTML
       combined_labels <- c(get_lbls_robust(pop_df), get_lbls_robust(tbl_df))
@@ -1871,7 +1881,6 @@ mod_summary_table <- function(
 
       summary_table_server(module_id,
                            table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[table_dataset_name]]),
-                           table_dataset_unfiltered = shiny::reactive(afmm[["unfiltered_dataset_list"]]()[[table_dataset_name]]),
                            pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[pop_dataset_name]]),
                            subjid_var = subjid_var,
                            show_pop_flag_selection = show_pop_flag_selection,
@@ -1892,7 +1901,10 @@ mod_summary_table <- function(
                            choices_row_by = choices_row_by,
                            default_pop_flags = default_pop_flags,
                            choices_pop_flags = choices_pop_flags,
+
                            flagged_row_processing = flagged_row_processing,
+                           table_dataset_unfiltered = shiny::reactive(afmm[["unfiltered_dataset_list"]]()[[table_dataset_name]]),
+
                            total_group_val = total_group_val)
     },
     module_id = module_id
