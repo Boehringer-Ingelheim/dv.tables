@@ -166,13 +166,13 @@ mock_app_summary_table_mm <- function() {
         default_denom = "n",
         flagged_row_processing = list(
           list(flag_var = "MINTRFL",
-               var_assignments = list(VISIT = "Minimum on treatment",
+               var_assignments = list(VISIT = "MIN ON TRT",
                                       AVISIT = "Minimum on treatment")),
           list(flag_var = "MAXTRFL",
-               var_assignments = list(VISIT = "Maximum on treatment",
+               var_assignments = list(VISIT = "MAX ON TRT",
                                       AVISIT = "Maximum on treatment")),
           list(flag_var = "LVOTFL",
-               var_assignments = list(VISIT = "Last value on treatment",
+               var_assignments = list(VISIT = "LAST VAL ON TRT",
                                       AVISIT = "Last value on treatment"))
         ),
         receiver_id = "papo"
