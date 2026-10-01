@@ -30,8 +30,8 @@ grouped by variables from the population and analysis datasets.
   variables can also be used.
 - An optional "Total" group can be derived and displayed for the first population grouping level.
 - In addition to the top-level analysis variable sections, further levels of grouping by analysis dataset variables
-  define the row hierarchy of the summary table. The application can also be set up to create new categories for a
-  grouping variable based on analysis dataset variable flags, e.g. last value on treatment category.
+  define the row hierarchy of the summary table. The application can also be set up to create new categories for
+  grouping variables based on analysis dataset variable flags, e.g. last value on treatment category.
 - Optional aggregation of multiple subject results corresponding to a grouping (e.g. multiple lab results for a subject
   at a single visit) can be specified using an aggregation function.
 - Analysis variable sections and row groups can be individually collapsed/hidden.
