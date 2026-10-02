@@ -38,6 +38,7 @@ mod_hierarchical_count_table(
   udaec_name = "UDAEC",
   udaec_list = NULL,
   udaec_na_label = "Other",
+  any_event_text = "Participants with any event",
   intended_use_label =
     "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL
@@ -251,6 +252,11 @@ selection and its categories can be filtered in the module UI.}
 Label used for the derived UDAEC hierarchy variable (\code{udaec_name}) for
 subjects that do not match any of the categories defined in \code{udaec_list}.
 Defaults to \code{"Other"}.}
+
+\item{any_event_text}{\verb{[character(1)]}
+
+A string specifying the text to be displayed in the table row for participants with any event.
+Defaults to \code{"Participants with any event"}.}
 
 \item{intended_use_label}{\verb{[character(1)|NULL]}
 

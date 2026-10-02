@@ -17,7 +17,8 @@ compute_events_table(
   event_date_var = NULL,
   total = TRUE,
   total_group_val = "Total",
-  compute_risk = FALSE
+  compute_risk = FALSE,
+  any_event_text = NULL
 )
 }
 \arguments{
@@ -77,6 +78,7 @@ A list containing:
 \item \code{total_group_val}: A string indicating the label for the total group column.
 \item \code{denom_df}: A data frame of population group denominator data.
 \item \code{table_type}: A string, either "frequency" or "time_at_risk", indicating the table type.
+\item \code{any_event_text}: A string specifying the text to be displayed in the table row for participants with any event.
 \item \code{warning_message}: A string indicating a warning message to be raised by shiny::validate.
 }
 }

@@ -56,4 +56,15 @@ add_na_factor_level <- function(f, level = "<NA>") {
   return(new_factor)
 }
 
-if_not_null <- Negate(is.null)
+#' If else alias for x is not `NULL`
+#'
+#' @param x a potentially NULL variable
+#' @param true the value returned when x is not NULL
+#' @param false the value returned when x is NULL, by default NULL
+#'
+#' @noRd
+#' @keywords internal
+#'
+if_not_null <- function(x, true, false = NULL) {
+  if (!is.null(x)) true else false
+}

@@ -57,6 +57,9 @@
       $meta$table_type
       [1] "time_at_risk"
       
+      $meta$any_event_text
+      [1] "Participants with any event"
+      
       $meta$warning_message
       NULL
       
@@ -130,6 +133,9 @@
       $meta$table_type
       [1] "time_at_risk"
       
+      $meta$any_event_text
+      [1] "Participants with any event"
+      
       $meta$warning_message
       NULL
       
@@ -191,9 +197,9 @@
           </tr>
           <tr row-id="1" class="indent-0" indent="0">
             <td>
-              <span class="truncate" title="Subjects with any event">
+              <span class="truncate" title="Participants with any event">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                Subjects with any event
+                Participants with any event
               </span>
             </td>
             <td class="text-center" column="GA" style="white-space: nowrap;">1 ( 100.00 %)</td>

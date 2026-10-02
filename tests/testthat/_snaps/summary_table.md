@@ -35,6 +35,9 @@
       $meta$pop_flag_vars
       NULL
       
+      $meta$flagged_row_vars
+      NULL
+      
       $meta$flag_columns
       [1] "\035first.\035anl_var" "\035first.param"       "\035first.visit"      
       
@@ -1374,6 +1377,9 @@
       $meta$pop_flag_vars
       NULL
       
+      $meta$flagged_row_vars
+      NULL
+      
       $meta$flag_columns
       [1] "\035first.\035anl_var" "\035first.param"      
       
@@ -1634,6 +1640,9 @@
       $meta$pop_flag_vars
       NULL
       
+      $meta$flagged_row_vars
+      NULL
+      
       $meta$flag_columns
       [1] "\035first.\035anl_var" "\035first.param"      
       
@@ -1869,6 +1878,9 @@
       
       $meta$pop_flag_vars
       [1] "ENRLFL" "RANDFL" "TRTFL"  "DISCFL"
+      
+      $meta$flagged_row_vars
+      NULL
       
       $meta$flag_columns
       [1] "\035first.\035anl_var"
