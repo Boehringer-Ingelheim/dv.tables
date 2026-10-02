@@ -30,7 +30,8 @@ grouped by variables from the population and analysis datasets.
   variables can also be used.
 - An optional "Total" group can be derived and displayed for the first population grouping level.
 - In addition to the top-level analysis variable sections, further levels of grouping by analysis dataset variables
-  define the row hierarchy of the summary table.
+  define the row hierarchy of the summary table. The application can also be set up to create new categories for
+  grouping variables based on analysis dataset variable flags, e.g. last value on treatment category.
 - Optional aggregation of multiple subject results corresponding to a grouping (e.g. multiple lab results for a subject
   at a single visit) can be specified using an aggregation function.
 - Analysis variable sections and row groups can be individually collapsed/hidden.
@@ -140,7 +141,7 @@ dv.manager::run_app(
       pop_dataset_name = "adsl"
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
@@ -163,7 +164,7 @@ dv.manager::run_app(
       default_stats = c("n", "meansd", "meanci", "minmax")
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
@@ -194,7 +195,7 @@ dv.manager::run_app(
       default_aggregate_method = "max"
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
@@ -258,10 +259,103 @@ dv.manager::run_app(
                      column_count = 1)
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
+
+## Example 5
+
+The following code shows and example of how to create new categories for the `VISIT` and `AVISIT` grouping variables
+based on analysis dataset variable flags `LVOTFL` (Last Value On Treatment Record Flag), `MINTRFL` (Minimum On
+Treatment Flag), and `MAXTRFL` (Maximum On Treatment Flag):
+
+```{r, eval=FALSE}
+adsl <- pharmaverseadam::adsl
+
+adlb <- pharmaverseadam::adlb |>
+  dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
+                .data[["AVISITN"]] %in% c(0, 4, 5, 7))
+
+# Last value on treatment
+adlb <- dplyr::select(adlb, -dplyr::any_of("LVOTFL"))
+adlb <- dplyr::left_join(
+  adlb,
+  dplyr::filter(adlb,
+                .data[["ANL01FL"]] == "Y",
+                !is.na(.data[["ADT"]])) |>
+    dplyr::arrange(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD", "ADT")))) |>
+    dplyr::group_by(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD")))) |>
+    dplyr::slice_tail(n = 1) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(LVOTFL = "Y"),
+  by = names(adlb)
+)
+
+# Minimum on treatment
+adlb <- dplyr::left_join(
+  adlb,
+  dplyr::filter(adlb,
+                .data[["ANL01FL"]] == "Y",
+                !is.na(.data[["ADT"]])) |>
+    dplyr::arrange(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD", "ADT")))) |>
+    dplyr::group_by(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD")))) |>
+    dplyr::slice_min(order_by = .data[["AVAL"]], n = 1, with_ties = FALSE, na_rm = TRUE) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(MINTRFL = "Y"),
+  by = names(adlb)
+)
+
+# Maximum on treatment
+adlb <- dplyr::left_join(
+  adlb,
+  dplyr::filter(adlb,
+                .data[["ANL01FL"]] == "Y",
+                !is.na(.data[["ADT"]])) |>
+    dplyr::arrange(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD", "ADT")))) |>
+    dplyr::group_by(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD")))) |>
+    dplyr::slice_max(order_by = .data[["AVAL"]], n = 1, with_ties = FALSE, na_rm = TRUE) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(MAXTRFL = "Y"),
+  by = names(adlb)
+)
+
+attr(adlb[["LVOTFL"]], "label") <- "Last Value On Treatment Record Flag"
+attr(adlb[["MINTRFL"]], "label") <- "Minimum On Treatment Flag"
+attr(adlb[["MAXTRFL"]], "label") <- "Maximum On Treatment Flag"
+
+flagged_row_processing <- list(
+  list(flag_var = "MINTRFL",
+       var_assignments = list(VISIT = "MIN ON TRT",
+                              AVISIT = "Minimum on treatment")),
+  list(flag_var = "MAXTRFL",
+       var_assignments = list(VISIT = "MAX ON TRT",
+                              AVISIT = "Maximum on treatment")),
+  list(flag_var = "LVOTFL",
+       var_assignments = list(VISIT = "LAST VAL ON TRT",
+                              AVISIT = "Last value on treatment"))
+)
+
+dv.manager::run_app(
+  data = list(pharmaverseadam = list(adsl = adsl, adlb = adlb)),
+  module_list = list(
+    "ADLB Summary Table" = dv.tables::mod_summary_table(
+      module_id = "summary_table",
+      table_dataset_name = "adlb",
+      pop_dataset_name = "adsl",
+      default_summarize_on = c("AVAL", "CHG"),
+      default_group_by = c("TRT01P"),
+      default_row_by = c("PARAM", "AVISIT"),
+      default_denom = "n",
+      flagged_row_processing = flagged_row_processing
+    )
+  ),
+  filter_dataset_name = "adsl",
+  filter_key = "USUBJID"
+)
+```
+
+New categories will only be created when the user selects row by variables
 
 ## User-defined statistics for numerical analysis
 

@@ -16,9 +16,9 @@ summary_table_ui(
   default_show_category_n = TRUE,
   default_denom = "N",
   default_stats = NULL,
+  choices_stats = NULL,
   default_aggregate_method = NULL,
-  choices_aggregate_method = NULL,
-  choices_stats = NULL
+  choices_aggregate_method = NULL
 )
 }
 \arguments{
@@ -78,6 +78,11 @@ determining the "n" denominator.}
 A vector of strings from the names of the list elements in \code{stats_formats} or \code{stats_functions}, used as the default
 selection of statistics for summarizing numerical data.}
 
+\item{choices_stats}{\verb{[character(1+) | NULL]}
+
+A vector of strings from the names of the list elements from \code{summary_table_server()} arguments, \code{stats_formats} and
+\code{stats_functions}, used as the choice of statistics for summarizing numerical data.}
+
 \item{default_aggregate_method}{\verb{[character(1) | NULL]}
 
 A string indicating the function name defined in \code{choices_aggregate_method} to use as the default for aggregating
@@ -92,11 +97,6 @@ A vector of named strings indicating the functions that can be used for aggregat
 exists after population grouping and row categorization has been applied. The double colon (\code{::}) namespace
 resolution operator can be used to specify functions from specific packages, e.g., \code{"dplyr::first"}. The names
 associated to the vector elements are displayed in the UI radio button selections.}
-
-\item{choices_stats}{\verb{[character(1+) | NULL]}
-
-A vector of strings from the names of the list elements from \code{summary_table_server()} arguments, \code{stats_formats} and
-\code{stats_functions}, used as the choice of statistics for summarizing numerical data.}
 }
 \value{
 A \code{shiny::tagList} containing the user interface for selecting hierarchy, group,

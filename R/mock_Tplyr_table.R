@@ -47,7 +47,7 @@ mock_Tplyr_table_mm <- function() {
       Tplyr::set_pop_data(adsl) |>
       Tplyr::set_pop_treat_var(TRT01A) |>
       Tplyr::add_layer(
-        Tplyr::group_count("All subject") |>
+        Tplyr::group_count("All participants") |>
           Tplyr::set_distinct_by(USUBJID) |>
           Tplyr::set_format_strings(Tplyr::f_str(
             "xx",
@@ -55,7 +55,7 @@ mock_Tplyr_table_mm <- function() {
           ))
       ) |>
       Tplyr::add_layer(
-        Tplyr::group_count("Subjects with adverse events") |>
+        Tplyr::group_count("Participants with adverse events") |>
           Tplyr::set_distinct_by(USUBJID) |>
           Tplyr::set_format_strings(Tplyr::f_str(
             "xx (xx %)",
@@ -71,7 +71,7 @@ mock_Tplyr_table_mm <- function() {
           ))
       ) |>
       Tplyr::add_layer(
-        Tplyr::group_count("Subjects with severe AE", where = AESER == "Y") |>
+        Tplyr::group_count("Participants with severe AE", where = AESER == "Y") |>
           Tplyr::set_distinct_by(USUBJID) |>
           Tplyr::set_format_strings(Tplyr::f_str(
             "xx (xx %)",
@@ -250,7 +250,7 @@ mock_Tplyr_table_tabs <- function() {
       Tplyr::set_pop_data(adsl) |>
       Tplyr::set_pop_treat_var(TRT01A) |>
       Tplyr::add_layer(
-        Tplyr::group_count("All subject") |>
+        Tplyr::group_count("All participants") |>
           Tplyr::set_distinct_by(USUBJID) |>
           Tplyr::set_format_strings(Tplyr::f_str(
             "xx",
@@ -258,7 +258,7 @@ mock_Tplyr_table_tabs <- function() {
           ))
       ) |>
       Tplyr::add_layer(
-        Tplyr::group_count("Subjects with adverse events") |>
+        Tplyr::group_count("Participants with adverse events") |>
           Tplyr::set_distinct_by(USUBJID) |>
           Tplyr::set_format_strings(Tplyr::f_str(
             "xx (xx %)",
@@ -274,7 +274,7 @@ mock_Tplyr_table_tabs <- function() {
           ))
       ) |>
       Tplyr::add_layer(
-        Tplyr::group_count("Subjects with severe AE", where = AESER == "Y") |>
+        Tplyr::group_count("Participants with severe AE", where = AESER == "Y") |>
           Tplyr::set_distinct_by(USUBJID) |>
           Tplyr::set_format_strings(Tplyr::f_str(
             "xx (xx %)",
