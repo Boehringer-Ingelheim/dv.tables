@@ -275,6 +275,7 @@ create_adtte <- function(event_df,
 #'   - `total_group_val`: A string indicating the label for the total group column.
 #'   - `denom_df`: A data frame of population group denominator data.
 #'   - `table_type`: A string, either "frequency" or "time_at_risk", indicating the table type.
+#'   - `any_event_text`: A string specifying the text to be displayed in the table row for participants with any event.
 #'   - `warning_message`: A string indicating a warning message to be raised by shiny::validate.
 #'
 #' @keywords internal
@@ -290,7 +291,8 @@ compute_events_table <- function(event_df,
                                  event_date_var = NULL,
                                  total = TRUE,
                                  total_group_val = "Total",
-                                 compute_risk = FALSE) {
+                                 compute_risk = FALSE,
+                                 any_event_text = NULL) {
 
   checkmate::assert_data_frame(event_df, min.rows = 1)
   checkmate::assert_data_frame(pop_df, min.rows = 1)
@@ -519,6 +521,7 @@ compute_events_table <- function(event_df,
       total_group_val = total_group_val,
       denom_df = denom_df,
       table_type = table_type,
+      any_event_text = any_event_text,
       warning_message = warning_message
     )
   )
@@ -782,6 +785,7 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   denom_df <- d[["meta"]][["denom_df"]]
   table_type <- d[["meta"]][["table_type"]]
   min_percent <- d[["meta"]][["min_percent"]]
+  any_event_text <- d[["meta"]][["any_event_text"]]
   df <- d[["df"]]
 
   # Flag when event group has been specified
@@ -883,7 +887,7 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
       df[c(hierarchy, hier_lvl_col)], function(...) {
         args <- list(...)
         if (args[[hier_lvl_col]] == 0) {
-          return("Subjects with any event")
+          return(any_event_text)
         }
         curr_lvl <- hierarchy[args[[hier_lvl_col]]]
         curr_label <- as.character(args[[curr_lvl]])
@@ -1284,6 +1288,7 @@ hierarchical_count_table_server <- function(
     udaec_name = NULL,
     udaec_list = NULL,
     udaec_na_label = "Other",
+    any_event_text = "Participants with any event",
     intended_use_label = NULL
 ) {
 
@@ -1686,7 +1691,8 @@ hierarchical_count_table_server <- function(
                                                event_date_var = event_date_var,
                                                total = total,
                                                total_group_val = "Total",
-                                               compute_risk = compute_risk)
+                                               compute_risk = compute_risk,
+                                               any_event_text = any_event_text)
 
       # Show warning when origin date is after non-missing censor date (bad data!)
       shiny::validate(
@@ -2033,6 +2039,11 @@ hierarchical_count_table_server <- function(
 #' subjects that do not match any of the categories defined in `udaec_list`.
 #' Defaults to `"Other"`.
 #'
+#' @param any_event_text `[character(1)]`
+#'
+#' A string specifying the text to be displayed in the table row for participants with any event.
+#' Defaults to `"Participants with any event"`.
+#'
 #' @param intended_use_label `[character(1)|NULL]`
 #'
 #' Either a string indicating the intended use for export, or NULL. The provided label will be displayed
@@ -2083,6 +2094,7 @@ mod_hierarchical_count_table <- function(
     udaec_list = NULL,
     udaec_na_label = "Other",
 
+    any_event_text = "Participants with any event",
     intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
     receiver_id = NULL
 ) {
@@ -2139,13 +2151,14 @@ mod_hierarchical_count_table <- function(
         origin_date_choices = origin_date_choices,
         default_censor_date = default_censor_date,
         censor_date_choices = censor_date_choices,
-        intended_use_label = intended_use_label,
         smq_name = smq_name,
         smq_vars = smq_vars,
         smq_na_label = smq_na_label,
         udaec_name = udaec_name,
         udaec_list = udaec_list,
-        udaec_na_label = udaec_na_label
+        udaec_na_label = udaec_na_label,
+        any_event_text = any_event_text,
+        intended_use_label = intended_use_label
       )
     },
     module_id = module_id
@@ -2190,6 +2203,7 @@ mod_hierarchical_count_table_API_docs <- list(
   udaec_name = "",
   udaec_list = "",
   udaec_na_label = "",
+  any_event_text = "",
   intended_use_label = "",
   receiver_id = ""
 )
@@ -2266,6 +2280,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   udaec_name = TC$character() |> TC$flag("optional"),
   udaec_list = TC$character() |> TC$flag("manual_check", "optional"),
   udaec_na_label = TC$character() |> TC$flag("optional"),
+  any_event_text = TC$character() |> TC$flag("manual_check"),
   intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |>
@@ -2376,6 +2391,7 @@ check_mod_hierarchical_count_table <- function(
     udaec_name,
     udaec_list,
     udaec_na_label,
+    any_event_text,
     intended_use_label,
     receiver_id
 ) {
@@ -2420,6 +2436,7 @@ check_mod_hierarchical_count_table <- function(
     udaec_name,
     udaec_list,
     udaec_na_label,
+    any_event_text,
     intended_use_label,
     receiver_id,
     err
@@ -2430,6 +2447,14 @@ check_mod_hierarchical_count_table <- function(
       err,
       is.logical(value) && length(value) == 1L && !is.na(value),
       sprintf("`%s` should be a non-missing logical value of length one.", name)
+    )
+  }
+
+  check_string <- function(name, value) {
+    CM$assert(
+      err,
+      is.character(value) && length(value) == 1L && !is.na(value) && nchar(value) > 0L,
+      sprintf("`%s` should be a non-empty string.", name)
     )
   }
 
@@ -2460,6 +2485,7 @@ check_mod_hierarchical_count_table <- function(
     "`default_min_percent` should be a finite numeric value between 0 and 100."
   )
 
+  check_string("any_event_text", any_event_text)
   check_optional_string("intended_use_label", intended_use_label)
   check_optional_string("receiver_id", receiver_id)
   check_optional_string("smq_name", smq_name)

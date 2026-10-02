@@ -9,7 +9,8 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     default_remove_rows_under_min_percent, default_pop_flags, pop_flag_choices, default_pop_flags_after_groups,
     default_event_group, event_group_choices, default_event_date, event_date_choices, default_origin_date,
     origin_date_choices, default_censor_date, censor_date_choices, default_risk, smq_name, smq_vars,
-    smq_na_label, udaec_name, udaec_list, udaec_na_label, intended_use_label, receiver_id, err) {
+    smq_na_label, udaec_name, udaec_list, udaec_na_label, any_event_text, intended_use_label, receiver_id,
+    err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
     OK[["module_id"]] <- CM$check_module_id("module_id", module_id, err)
@@ -123,6 +124,9 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     "      the caller of this function has written manual checks near the call site."
     "NOTE: udaec_na_label (character) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: any_event_text (character) tagged as \"manual_check\""
+    "      The expectation is that it either does not require automated checks or that"
     "      the caller of this function has written manual checks near the call site."
     "NOTE: intended_use_label (character) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
