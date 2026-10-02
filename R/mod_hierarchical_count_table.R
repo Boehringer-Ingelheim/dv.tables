@@ -292,7 +292,7 @@ compute_events_table <- function(event_df,
                                  total = TRUE,
                                  total_group_val = "Total",
                                  compute_risk = FALSE,
-                                 any_event_text = NULL) {
+                                 any_event_text = "Participants with any event") {
 
   checkmate::assert_data_frame(event_df, min.rows = 1)
   checkmate::assert_data_frame(pop_df, min.rows = 1)
