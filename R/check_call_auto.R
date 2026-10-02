@@ -143,8 +143,8 @@ check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_datase
     stats_formats, stats_labels, stats_replace, default_summarize_on, choices_summarize_on, default_group_by,
     choices_group_by, default_row_by, choices_row_by, default_total, default_drop_na, default_drop_empty_rows,
     default_drop_empty_cols, default_show_category_n, default_denom, default_stats, default_aggregate_method,
-    choices_aggregate_method, default_pop_flags, choices_pop_flags, default_pop_flags_after_groups, total_group_val,
-    receiver_id, err) {
+    choices_aggregate_method, default_pop_flags, choices_pop_flags, default_pop_flags_after_groups, flagged_row_processing,
+    total_group_val, receiver_id, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
     OK[["module_id"]] <- CM$check_module_id("module_id", module_id, err)
@@ -241,6 +241,9 @@ check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_datase
     OK[["choices_pop_flags"]] <- OK[["pop_dataset_name"]] && CM$check_dataset_colum_name("choices_pop_flags",
         choices_pop_flags, subkind, flags, pop_dataset_name, datasets[[pop_dataset_name]], err)
     "NOTE: default_pop_flags_after_groups (logical) has no associated automated checks"
+    "      The expectation is that it either does not require them or that"
+    "      the caller of this function has written manual checks near the call site."
+    "NOTE: flagged_row_processing (character) has no associated automated checks"
     "      The expectation is that it either does not require them or that"
     "      the caller of this function has written manual checks near the call site."
     "NOTE: total_group_val (character) has no associated automated checks"
