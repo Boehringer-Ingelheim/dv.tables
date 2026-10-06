@@ -1,5 +1,18 @@
 # Summary flagged row tests
 
+adsl <- pharmaverseadam::adlb |>
+  dplyr::filter(
+    .data[["USUBJID"]] %in% c(
+      "01-701-1015",
+      "01-701-1023",
+      "01-701-1028",
+      "01-701-1034",
+      "01-701-1047"
+    )
+  )  |>
+  dplyr::select(dplyr::all_of(c("USUBJID", "TRT01P", "SEX"))) |>
+  chr2factor()
+
 adlb <- pharmaverseadam::adlb |>
   dplyr::filter(
     .data[["USUBJID"]] %in% c(
@@ -68,9 +81,12 @@ flagged_row_processing <- list(
 )
 
 subjid_var <- "USUBJID"
+group_vars <- c("TRT01P")
 
 local({
   # Flagged row processing, no filtering applied
+
+  pop_df <- adsl
 
   unfiltered_df <- adlb
   filtered_df <- adlb
@@ -78,8 +94,10 @@ local({
 
   pfr1 <- process_flagged_rows(
     filtered_df,
+    pop_df,
     unfiltered_df,
     flagged_row_processing,
+    group_vars,
     row_vars,
     subjid_var
   )
@@ -99,17 +117,21 @@ local({
 local({
   # Flagged row processing, filtering applied to subjects, parameters and visits
 
+  pop_df <- adsl |>
+    dplyr::filter(.data[["USUBJID"]] %in% c("01-701-1015", "01-701-1023", "01-701-1028"))
+
   unfiltered_df <- adlb
   filtered_df <- adlb |>
-    dplyr::filter(.data[["USUBJID"]] %in% c("01-701-1015", "01-701-1023", "01-701-1028"),
-                  .data[["PARAMCD"]] != "BILI",
+    dplyr::filter(.data[["PARAMCD"]] != "BILI",
                   .data[["AVISIT"]] != "Week 2")
   row_vars <- c("PARAMCD", "AVISIT")
 
   pfr2 <- process_flagged_rows(
     filtered_df,
+    pop_df,
     unfiltered_df,
     flagged_row_processing,
+    group_vars,
     row_vars,
     subjid_var
   )
