@@ -6,8 +6,10 @@
 \usage{
 process_flagged_rows(
   filtered_df,
+  pop_df,
   unfiltered_df,
   flagged_row_processing,
+  group_vars,
   row_vars,
   subjid_var
 )
@@ -15,9 +17,13 @@ process_flagged_rows(
 \arguments{
 \item{filtered_df}{\verb{[data.frame]} A data frame containing the filtered analysis data.}
 
+\item{pop_df}{\verb{[data.frame]} A data frame containing the filtered population data.}
+
 \item{unfiltered_df}{\verb{[data.frame | NULL]} A data frame containing the unfiltered analysis data.}
 
 \item{flagged_row_processing}{\verb{[list(1+) | NULL]} A list of lists defining the processing and categorization of flagged rows.}
+
+\item{group_vars}{\verb{[character(1+)]} A vector of names of population grouping variables.}
 
 \item{row_vars}{\verb{[character(0+)]} A vector of names of row categorization variables.}
 

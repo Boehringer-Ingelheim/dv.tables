@@ -815,8 +815,10 @@ process_pop_flag_vars <- function(pop_df, pop_flag_vars) {
 #' Process flagged rows in the analysis data creating additional categories
 #'
 #' @param filtered_df `[data.frame]` A data frame containing the filtered analysis data.
+#' @param pop_df `[data.frame]` A data frame containing the filtered population data.
 #' @param unfiltered_df `[data.frame | NULL]` A data frame containing the unfiltered analysis data.
 #' @param flagged_row_processing `[list(1+) | NULL]` A list of lists defining the processing and categorization of flagged rows.
+#' @param group_vars `[character(1+)]` A vector of names of population grouping variables.
 #' @param row_vars `[character(0+)]` A vector of names of row categorization variables.
 #' @param subjid_var `[character(1)]` A string representing the subject identifier column.
 #'
@@ -824,8 +826,15 @@ process_pop_flag_vars <- function(pop_df, pop_flag_vars) {
 #' names are added to the attribute named `flagged_row_vars`.
 #'
 #' @keywords internal
-process_flagged_rows <- function(filtered_df, unfiltered_df, flagged_row_processing, row_vars, subjid_var) {
+process_flagged_rows <- function(filtered_df,
+                                 pop_df,
+                                 unfiltered_df,
+                                 flagged_row_processing,
+                                 group_vars,
+                                 row_vars,
+                                 subjid_var) {
 
+  # Keep track of variables that flag rows
   flagged_row_vars <- character()
 
   if (is.null(flagged_row_processing) || is.null(unfiltered_df)) {
@@ -847,12 +856,24 @@ process_flagged_rows <- function(filtered_df, unfiltered_df, flagged_row_process
   summarized_rows_list <- lapply(flagged_row_processing, \(row_proc) {
     var_assignments <- row_proc[["var_assignments"]]
 
+    # Identify row vars whose values are re-assigned for flagged rows
     target_row_vars <- intersect(row_vars, names(var_assignments))
     if (length(target_row_vars) == 0) return(NULL)
 
-    # Get filtered join values based on filtered data from [dv.manager], excluding target `row_vars`
-    filtered_join_df <- filtered_df |>
-      dplyr::select(dplyr::all_of(c(subjid_var, setdiff(row_vars, target_row_vars)))) |>
+    # Identify population group vars that occur in table data frame
+    common_group_vars <- intersect(group_vars, names(filtered_df))
+
+    # Get filtered join values based on filtered population data from [dv.manager]
+    filtered_pop_join_df <- pop_df |>
+      dplyr::select(dplyr::all_of(c(subjid_var, common_group_vars))) |>
+      dplyr::distinct()
+
+    # Identify row vars whose values are not re-assigned for flagged rows
+    untargetted_row_vars <- setdiff(row_vars, target_row_vars)
+
+    # Get filtered join values of untargetted row vars based on filtered analysis data from [dv.manager]
+    filtered_tbl_join_df <- filtered_df |>
+      dplyr::select(dplyr::all_of(untargetted_row_vars)) |>
       dplyr::distinct()
 
     flag_var <- row_proc[["flag_var"]]
@@ -860,7 +881,18 @@ process_flagged_rows <- function(filtered_df, unfiltered_df, flagged_row_process
     # Subset unfiltered data on flag variable then subset according to filtered data from [dv.manager]
     row_proc_df <- unfiltered_df |>
       dplyr::filter(.data[[flag_var]] == "Y") |>
-      dplyr::inner_join(filtered_join_df, by = names(filtered_join_df))
+      dplyr::inner_join(filtered_pop_join_df, by = names(filtered_pop_join_df)) |>
+      dplyr::inner_join(filtered_tbl_join_df, by = names(filtered_tbl_join_df))
+
+    # Reduce factor levels of common group variables to match any applied global filtering
+    for (cgv in common_group_vars) {
+      row_proc_df[[cgv]] <- factor(row_proc_df[[cgv]], levels(pop_df[[cgv]]))
+    }
+
+    # Reduce factor levels of untargetted row variables to match any applied global filtering
+    for (urv in untargetted_row_vars) {
+      row_proc_df[[urv]] <- factor(row_proc_df[[urv]], levels(filtered_df[[urv]]))
+    }
 
     flagged_row_vars <<- c(flagged_row_vars, flag_var)
 
@@ -1283,7 +1315,13 @@ summary_table_server <- function(module_id,
       p$set(message = "1) Processing data", value = 0.50)
 
       # Duplicate and process flagged rows on the unfiltered analysis dataset
-      tbl_df <- process_flagged_rows(tbl_df, unfiltered_tbl_df, flagged_row_processing, row_vars, subjid_var)
+      tbl_df <- process_flagged_rows(tbl_df,
+                                     pop_df,
+                                     unfiltered_tbl_df,
+                                     flagged_row_processing = flagged_row_processing,
+                                     group_vars = group_vars,
+                                     row_vars = row_vars,
+                                     subjid_var = subjid_var)
 
       flagged_row_vars <- attr(tbl_df, "flagged_row_vars")
 
