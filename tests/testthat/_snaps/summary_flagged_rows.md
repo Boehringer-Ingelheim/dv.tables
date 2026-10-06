@@ -146,7 +146,7 @@
       options(width = 250)
       print(pfr2, n = 999)
     Output
-      # A tibble: 51 x 10
+      # A tibble: 66 x 10
          USUBJID     VISIT       PARAMCD ADT        AVISIT                   AVAL ANL01FL LVOTFL MINTRFL MAXTRFL
          <fct>       <fct>       <fct>   <date>     <fct>                   <dbl> <fct>   <chr>  <chr>   <chr>  
        1 01-701-1015 SCREENING 1 ALKPH   2013-12-26 Baseline                   34 <NA>    <NA>   <NA>    <NA>   
@@ -173,31 +173,46 @@
       22 01-701-1028 SCREENING 1 AST     2013-07-11 Baseline                   24 <NA>    <NA>   <NA>    <NA>   
       23 01-701-1028 WEEK 4      AST     2013-08-14 Week 4                     24 Y       <NA>   <NA>    <NA>   
       24 01-701-1028 WEEK 6      AST     2013-08-29 Week 6                     26 Y       Y      <NA>    Y      
-      25 01-701-1015 WEEK 4      ALKPH   2014-01-30 Minimum on treatment       41 Y       <NA>   Y       <NA>   
-      26 01-701-1015 WEEK 4      ALT     2014-01-30 Minimum on treatment       18 Y       <NA>   Y       <NA>   
-      27 01-701-1015 WEEK 4      AST     2014-01-30 Minimum on treatment       21 Y       <NA>   Y       <NA>   
-      28 01-701-1023 WEEK 2      ALKPH   2012-08-27 Minimum on treatment       90 Y       Y      Y       Y      
-      29 01-701-1023 WEEK 2      ALT     2012-08-27 Minimum on treatment       30 Y       Y      Y       Y      
-      30 01-701-1023 WEEK 2      AST     2012-08-27 Minimum on treatment       25 Y       Y      Y       Y      
-      31 01-701-1028 WEEK 4      ALKPH   2013-08-14 Minimum on treatment       38 Y       <NA>   Y       <NA>   
-      32 01-701-1028 WEEK 4      ALT     2013-08-14 Minimum on treatment       29 Y       <NA>   Y       <NA>   
-      33 01-701-1028 WEEK 2      AST     2013-08-01 Minimum on treatment       23 Y       <NA>   Y       <NA>   
-      34 01-701-1015 WEEK 2      ALKPH   2014-01-16 Maximum on treatment       50 Y       <NA>   <NA>    Y      
-      35 01-701-1015 WEEK 2      ALT     2014-01-16 Maximum on treatment       41 Y       <NA>   <NA>    Y      
-      36 01-701-1015 WEEK 2      AST     2014-01-16 Maximum on treatment       33 Y       <NA>   <NA>    Y      
-      37 01-701-1023 WEEK 2      ALKPH   2012-08-27 Maximum on treatment       90 Y       Y      Y       Y      
-      38 01-701-1023 WEEK 2      ALT     2012-08-27 Maximum on treatment       30 Y       Y      Y       Y      
-      39 01-701-1023 WEEK 2      AST     2012-08-27 Maximum on treatment       25 Y       Y      Y       Y      
-      40 01-701-1028 WEEK 2      ALKPH   2013-08-01 Maximum on treatment       46 Y       <NA>   <NA>    Y      
-      41 01-701-1028 WEEK 6      ALT     2013-08-29 Maximum on treatment       32 Y       Y      <NA>    Y      
-      42 01-701-1028 WEEK 6      AST     2013-08-29 Maximum on treatment       26 Y       Y      <NA>    Y      
-      43 01-701-1015 WEEK 6      ALKPH   2014-02-12 Last value on treatment    43 Y       Y      <NA>    <NA>   
-      44 01-701-1015 WEEK 6      ALT     2014-02-12 Last value on treatment    26 Y       Y      <NA>    <NA>   
-      45 01-701-1015 WEEK 6      AST     2014-02-12 Last value on treatment    26 Y       Y      <NA>    <NA>   
-      46 01-701-1023 WEEK 2      ALKPH   2012-08-27 Last value on treatment    90 Y       Y      Y       Y      
-      47 01-701-1023 WEEK 2      ALT     2012-08-27 Last value on treatment    30 Y       Y      Y       Y      
-      48 01-701-1023 WEEK 2      AST     2012-08-27 Last value on treatment    25 Y       Y      Y       Y      
-      49 01-701-1028 WEEK 6      ALKPH   2013-08-29 Last value on treatment    40 Y       Y      <NA>    <NA>   
-      50 01-701-1028 WEEK 6      ALT     2013-08-29 Last value on treatment    32 Y       Y      <NA>    Y      
-      51 01-701-1028 WEEK 6      AST     2013-08-29 Last value on treatment    26 Y       Y      <NA>    Y      
+      25 01-701-1034 SCREENING 1 ALKPH   2014-06-24 Baseline                   41 <NA>    <NA>   <NA>    <NA>   
+      26 01-701-1034 WEEK 4      ALKPH   2014-07-29 Week 4                     36 Y       <NA>   <NA>    Y      
+      27 01-701-1034 WEEK 6      ALKPH   2014-08-11 Week 6                     33 Y       Y      Y       <NA>   
+      28 01-701-1034 SCREENING 1 ALT     2014-06-24 Baseline                   15 <NA>    <NA>   <NA>    <NA>   
+      29 01-701-1034 WEEK 4      ALT     2014-07-29 Week 4                     21 Y       <NA>   <NA>    Y      
+      30 01-701-1034 WEEK 6      ALT     2014-08-11 Week 6                     15 Y       Y      Y       <NA>   
+      31 01-701-1034 SCREENING 1 AST     2014-06-24 Baseline                   23 <NA>    <NA>   <NA>    <NA>   
+      32 01-701-1034 WEEK 4      AST     2014-07-29 Week 4                     25 Y       <NA>   <NA>    Y      
+      33 01-701-1034 WEEK 6      AST     2014-08-11 Week 6                     19 Y       Y      Y       <NA>   
+      34 01-701-1047 SCREENING 1 ALKPH   2013-01-22 Baseline                   78 <NA>    <NA>   <NA>    <NA>   
+      35 01-701-1047 WEEK 4      ALKPH   2013-03-10 Week 4                     71 <NA>    <NA>   <NA>    <NA>   
+      36 01-701-1047 SCREENING 1 ALT     2013-01-22 Baseline                   22 <NA>    <NA>   <NA>    <NA>   
+      37 01-701-1047 WEEK 4      ALT     2013-03-10 Week 4                     20 <NA>    <NA>   <NA>    <NA>   
+      38 01-701-1047 SCREENING 1 AST     2013-01-22 Baseline                   25 <NA>    <NA>   <NA>    <NA>   
+      39 01-701-1047 WEEK 4      AST     2013-03-10 Week 4                     24 <NA>    <NA>   <NA>    <NA>   
+      40 01-701-1015 WEEK 4      ALKPH   2014-01-30 Minimum on treatment       41 Y       <NA>   Y       <NA>   
+      41 01-701-1015 WEEK 4      ALT     2014-01-30 Minimum on treatment       18 Y       <NA>   Y       <NA>   
+      42 01-701-1015 WEEK 4      AST     2014-01-30 Minimum on treatment       21 Y       <NA>   Y       <NA>   
+      43 01-701-1023 WEEK 2      ALKPH   2012-08-27 Minimum on treatment       90 Y       Y      Y       Y      
+      44 01-701-1023 WEEK 2      ALT     2012-08-27 Minimum on treatment       30 Y       Y      Y       Y      
+      45 01-701-1023 WEEK 2      AST     2012-08-27 Minimum on treatment       25 Y       Y      Y       Y      
+      46 01-701-1028 WEEK 4      ALKPH   2013-08-14 Minimum on treatment       38 Y       <NA>   Y       <NA>   
+      47 01-701-1028 WEEK 4      ALT     2013-08-14 Minimum on treatment       29 Y       <NA>   Y       <NA>   
+      48 01-701-1028 WEEK 2      AST     2013-08-01 Minimum on treatment       23 Y       <NA>   Y       <NA>   
+      49 01-701-1015 WEEK 2      ALKPH   2014-01-16 Maximum on treatment       50 Y       <NA>   <NA>    Y      
+      50 01-701-1015 WEEK 2      ALT     2014-01-16 Maximum on treatment       41 Y       <NA>   <NA>    Y      
+      51 01-701-1015 WEEK 2      AST     2014-01-16 Maximum on treatment       33 Y       <NA>   <NA>    Y      
+      52 01-701-1023 WEEK 2      ALKPH   2012-08-27 Maximum on treatment       90 Y       Y      Y       Y      
+      53 01-701-1023 WEEK 2      ALT     2012-08-27 Maximum on treatment       30 Y       Y      Y       Y      
+      54 01-701-1023 WEEK 2      AST     2012-08-27 Maximum on treatment       25 Y       Y      Y       Y      
+      55 01-701-1028 WEEK 2      ALKPH   2013-08-01 Maximum on treatment       46 Y       <NA>   <NA>    Y      
+      56 01-701-1028 WEEK 6      ALT     2013-08-29 Maximum on treatment       32 Y       Y      <NA>    Y      
+      57 01-701-1028 WEEK 6      AST     2013-08-29 Maximum on treatment       26 Y       Y      <NA>    Y      
+      58 01-701-1015 WEEK 6      ALKPH   2014-02-12 Last value on treatment    43 Y       Y      <NA>    <NA>   
+      59 01-701-1015 WEEK 6      ALT     2014-02-12 Last value on treatment    26 Y       Y      <NA>    <NA>   
+      60 01-701-1015 WEEK 6      AST     2014-02-12 Last value on treatment    26 Y       Y      <NA>    <NA>   
+      61 01-701-1023 WEEK 2      ALKPH   2012-08-27 Last value on treatment    90 Y       Y      Y       Y      
+      62 01-701-1023 WEEK 2      ALT     2012-08-27 Last value on treatment    30 Y       Y      Y       Y      
+      63 01-701-1023 WEEK 2      AST     2012-08-27 Last value on treatment    25 Y       Y      Y       Y      
+      64 01-701-1028 WEEK 6      ALKPH   2013-08-29 Last value on treatment    40 Y       Y      <NA>    <NA>   
+      65 01-701-1028 WEEK 6      ALT     2013-08-29 Last value on treatment    32 Y       Y      <NA>    Y      
+      66 01-701-1028 WEEK 6      AST     2013-08-29 Last value on treatment    26 Y       Y      <NA>    Y      
 
