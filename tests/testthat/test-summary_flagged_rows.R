@@ -1,6 +1,6 @@
 # Summary flagged row tests
 
-adsl <- pharmaverseadam::adlb |>
+adsl <- pharmaverseadam::adsl |>
   dplyr::filter(
     .data[["USUBJID"]] %in% c(
       "01-701-1015",
