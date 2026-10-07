@@ -1,6 +1,6 @@
 # Summary flagged row tests
 
-adsl <- pharmaverseadam::adlb |>
+adsl <- pharmaverseadam::adsl |>
   dplyr::filter(
     .data[["USUBJID"]] %in% c(
       "01-701-1015",
@@ -70,12 +70,15 @@ attr(adlb[["MAXTRFL"]], "label") <- "Maximum On Treatment Flag"
 
 flagged_row_processing <- list(
   list(flag_var = "MINTRFL",
+       dependent_vars = c("USUBJID", "PARAMCD"),
        var_assignments = list(VISIT = "MIN ON TRT",
                               AVISIT = "Minimum on treatment")),
   list(flag_var = "MAXTRFL",
+       dependent_vars = c("USUBJID", "PARAMCD"),
        var_assignments = list(VISIT = "MAX ON TRT",
                               AVISIT = "Maximum on treatment")),
   list(flag_var = "LVOTFL",
+       dependent_vars = c("USUBJID", "PARAMCD"),
        var_assignments = list(VISIT = "LAST VAL ON TRT",
                               AVISIT = "Last value on treatment"))
 )

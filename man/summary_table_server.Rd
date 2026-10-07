@@ -158,6 +158,9 @@ A list of lists defining the processing and categorization of flagged rows. If N
 be processed. Each sub-list corresponds to a single flag variable, and has the following elements:
 \itemize{
 \item \code{flag_var}: String naming the flag variable to evaluate (e.g. \code{"LVOTFL"}).
+\item \code{dependent_vars}: A vector of variable names from the analysis dataset, indicating the variables that the flag
+variable is grouped by (e.g. \code{c("USUBJID", "PARAM")}). This ensures global filtering on the analysis dataset is
+applied to the flagged rows for these dependent variables.
 \item \code{var_assignments}: A named list of variable assignments, where names correspond to target dataset columns and
 values represent the replacement values, e.g. if creating last value on treatment visits, then an example
 assignment would be \code{AVISIT = "Last value on treatment"}.
