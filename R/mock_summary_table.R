@@ -166,12 +166,15 @@ mock_app_summary_table_mm <- function() {
         default_denom = "n",
         flagged_row_processing = list(
           list(flag_var = "MINTRFL",
+               dependent_vars = c("USUBJID", "PARAM"),
                var_assignments = list(VISIT = "MIN ON TRT",
                                       AVISIT = "Minimum on treatment")),
           list(flag_var = "MAXTRFL",
+               dependent_vars = c("USUBJID", "PARAM"),
                var_assignments = list(VISIT = "MAX ON TRT",
                                       AVISIT = "Maximum on treatment")),
           list(flag_var = "LVOTFL",
+               dependent_vars = c("USUBJID", "PARAM"),
                var_assignments = list(VISIT = "LAST VAL ON TRT",
                                       AVISIT = "Last value on treatment"))
         ),
