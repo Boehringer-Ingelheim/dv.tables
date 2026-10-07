@@ -1,3 +1,9 @@
+# dv.tables 0.5.0-9001
+
+* `mod_summary_table`:
+  * The application can be set up to create new categories for grouping variables based on analysis dataset variable
+    flags, e.g. last value on treatment category.
+
 # dv.tables 0.5.0-9000
 
 * `mod_hierarchical_count_table`:

@@ -84,6 +84,7 @@ mod_summary_table(
   default_pop_flags = NULL,
   choices_pop_flags = NULL,
   default_pop_flags_after_groups = FALSE,
+  flagged_row_processing = NULL,
   total_group_val = "Total",
   receiver_id = NULL
 )
@@ -145,7 +146,7 @@ can also be the same as the name from \code{stats_functions}, e.g. \code{meanci}
 Any results from functions given in \code{stats_functions} that do not appear in the formatting will be automatically
 formatted as character.}
 
-\item{stats_labels}{\verb{[list(1+) | NULL]}
+\item{stats_labels}{\verb{[character(1+) | NULL]}
 
 A named vector of statistics labels that should be used in the summary table. The names correspond to the names
 assigned in the \code{stats_formats} list, or otherwise the names in the \code{stats_functions} list.
@@ -264,6 +265,22 @@ Subjects are identified as being within a population when the value of the flag 
 
 A flag specifying the default value for the checkbox that determines whether to show the population flags after the
 group variables.}
+
+\item{flagged_row_processing}{\verb{[list(1+) | NULL]}
+
+A list of lists defining the processing and categorization of flagged rows. If NULL then flagged rows will not
+be processed. Each sub-list corresponds to a single flag variable, and has the following elements:
+\itemize{
+\item \code{flag_var}: String naming the flag variable to evaluate (e.g. \code{"LVOTFL"}).
+\item \code{dependent_vars}: A vector of variable names from the analysis dataset, indicating the variables that the flag
+variable is grouped by (e.g. \code{c("USUBJID", "PARAM")}). This ensures global filtering on the analysis dataset is
+applied to the flagged rows for these dependent variables.
+\item \code{var_assignments}: A named list of variable assignments, where names correspond to target dataset columns and
+values represent the replacement values, e.g. if creating last value on treatment visits, then an example
+assignment would be \code{AVISIT = "Last value on treatment"}.
+}
+
+Each flagged row is duplicated with the specified variable assignments applied.}
 
 \item{total_group_val}{\verb{[character(1)]}
 
