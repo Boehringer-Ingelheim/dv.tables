@@ -877,9 +877,12 @@ process_flagged_rows <- function(filtered_df,
     # Identify row vars whose values are not re-assigned for flagged rows
     untargetted_row_vars <- setdiff(row_vars, target_row_vars)
 
-    # Get filtered join values of untargetted row vars based on filtered analysis data from [dv.manager]
+    # Ensure that target row variables are not included in dependent variables
+    dependent_vars <- setdiff(row_proc[["dependent_vars"]], target_row_vars)
+
+    # Get filtered join values of dependent/untargetted row vars based on filtered analysis data from [dv.manager]
     filtered_tbl_join_df <- filtered_df |>
-      dplyr::select(dplyr::all_of(untargetted_row_vars)) |>
+      dplyr::select(dplyr::all_of(union(dependent_vars, untargetted_row_vars))) |>
       dplyr::distinct()
 
     flag_var <- row_proc[["flag_var"]]
@@ -1637,6 +1640,9 @@ summary_table_server <- function(module_id,
 #' A list of lists defining the processing and categorization of flagged rows. If NULL then flagged rows will not
 #' be processed. Each sub-list corresponds to a single flag variable, and has the following elements:
 #' - `flag_var`: String naming the flag variable to evaluate (e.g. `"LVOTFL"`).
+#' - `dependent_vars`: A vector of variable names from the analysis dataset, indicating the variables that the flag
+#'   variable is grouped by (e.g. `c("USUBJID", "PARAM")`). This ensures global filtering on the analysis dataset is
+#'   applied to the flagged rows for these dependent variables.
 #' - `var_assignments`: A named list of variable assignments, where names correspond to target dataset columns and
 #'   values represent the replacement values, e.g. if creating last value on treatment visits, then an example
 #'   assignment would be `AVISIT = "Last value on treatment"`.
