@@ -44,14 +44,14 @@ SUMMTAB <- poc(
                          "Note: rows are always excluded from the analysis dataset when a numerical",
                          "analysis variable value is missing.", sep = "\n"),
     DROP_EMPTY_ROWS = "Hide rows that have no analysis data, e.g. those resulting from invalid row grouping combinations.",
-    DROP_EMPTY_COLS = "Hide columns that have no subject data, i.e. N = 0.",
+    DROP_EMPTY_COLS = "Hide columns that have no participant data, i.e. N = 0.",
     SHOW_CATEGORY_N = "Show the 'n' category when summarizing categorical data.",
-    DENOM = paste("Either the number of subjects from the population grouping ('N') or",
-                  "the number of subjects from the 'row by' grouping for each population",
+    DENOM = paste("Either the number of participants from the population grouping ('N') or",
+                  "the number of participants from the 'row by' grouping for each population",
                   "grouping ('n'). If the user selects to drop NA values then those",
                   "values will be excluded from determining the 'n' denominator.", sep = "\n"),
     AGGREGATE_METHOD = paste("Method to use for aggregating rows when more than",
-                             "one row per subject exists after population grouping",
+                             "one row per participant exists after population grouping",
                              "and row categorization has been applied.", sep = "\n")
   ),
   VALIDATE = poc(
@@ -62,9 +62,9 @@ SUMMTAB <- poc(
     TOO_MANY_ROW_VARS = "Maximum of 8 row variables allowed",
     VAR_OVERLAP = "Variable has been selected in more than one selection",
     NO_STATS = "No statistics selected",
-    POP_GROUP_DUP = "Population dataset has more than one row per subject per grouping",
-    MULTI_RESULTS = paste("Multiple results per subject per group!",
-                          "Please refine column selections to get one row per subject per group.",
+    POP_GROUP_DUP = "Population dataset has more than one row per participant per grouping",
+    MULTI_RESULTS = paste("Multiple results per participant per group!",
+                          "Please refine column selections to get one row per participant per group.",
                           "Alternatively, app creator can enable aggregation via 'show_aggregate_method' parameter."),
     EMPTY_GROUP_VAL = 'Empty strings ("") found in group variables',
     ALL_NA_ANL_VAR = paste("Variable to summarize on contains only NA values.",
@@ -692,7 +692,7 @@ summtab_html_table <- function(summtab_list, var_labels, on_cell_click = NULL) {
   }
 
   aggregate_note <- if (aggregate_flag) {
-    shiny::p(paste("Note: Multiple results per subject per group, aggregated by", aggregate_func_name))
+    shiny::p(paste("Note: Multiple results per participant per group, aggregated by", aggregate_func_name))
   } else {
     NULL
   }
@@ -877,9 +877,12 @@ process_flagged_rows <- function(filtered_df,
     # Identify row vars whose values are not re-assigned for flagged rows
     untargetted_row_vars <- setdiff(row_vars, target_row_vars)
 
-    # Get filtered join values of untargetted row vars based on filtered analysis data from [dv.manager]
+    # Ensure that target row variables are not included in dependent variables
+    dependent_vars <- setdiff(row_proc[["dependent_vars"]], target_row_vars)
+
+    # Get filtered join values of dependent/untargetted row vars based on filtered analysis data from [dv.manager]
     filtered_tbl_join_df <- filtered_df |>
-      dplyr::select(dplyr::all_of(untargetted_row_vars)) |>
+      dplyr::select(dplyr::all_of(union(dependent_vars, untargetted_row_vars))) |>
       dplyr::distinct()
 
     flag_var <- row_proc[["flag_var"]]
@@ -1078,7 +1081,11 @@ summary_table_ui <- function(module_id,
 #'
 #' @param on_sbj_click_fun `[function]`
 #'
-#' Function to invoke when a subject is clicked.
+#' Function to invoke when a participant identifier is clicked.
+#'
+#' @param table_dataset_unfiltered `[data.frame | NULL]`
+#'
+#' A reactive dataset containing the unfiltered analysis data, used for flagged row processing.
 #'
 #' @param table_dataset_unfiltered `[data.frame | NULL]`
 #'
@@ -1086,7 +1093,7 @@ summary_table_ui <- function(module_id,
 #'
 #' @inheritParams mod_summary_table
 #'
-#' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
+#' @return A reactive value containing the list of participant identifiers in the clicked cell, if applicable.
 #'
 #' @keywords main
 #'
@@ -1421,7 +1428,7 @@ summary_table_server <- function(module_id,
           d <- shiny::modalDialog(
             shiny::div(
               id = ns("sbj_list"),
-              shiny::h3("Subjects"),
+              shiny::h3("Participants"),
               do.call(shiny::p, id_elements),
               onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
             )
@@ -1466,14 +1473,15 @@ summary_table_server <- function(module_id,
 #'
 #' @param pop_dataset_name `[character(1)]`
 #'
-#' The name of the population dataset. Typically this will have one row per subject, but multiple rows per subject is
-#' also valid for summarizing data where a subject may appear in more than one grouping, e.g. for crossover trials
-#' where a subject can take different treatments in different phases, or for population flag summaries (pre-processing
-#' of CDISC subject-level data would be required to transpose the flags to a grouping column).
+#' The name of the population dataset. Typically this will have one row per participant, but multiple rows per
+#' participant is also valid for summarizing data where a participant may appear in more than one grouping, e.g. for
+#' crossover trials where a participant can take different treatments in different phases, or for population flag
+#' summaries (pre-processing of CDISC participant-level data would be required to transpose the flags to a grouping
+#' column).
 #'
 #' @param subjid_var `[character(1)]`
 #'
-#' A string representing the subject identifier column in both datasets.
+#' A string representing the participant identifier column in both datasets.
 #'
 #' @param show_pop_flag_selection `[logical(1)]`
 #'
@@ -1482,13 +1490,13 @@ summary_table_server <- function(module_id,
 #'
 #' @param show_aggregate_method `[logical(1)]`
 #'
-#' A flag to indicate whether to show (and apply) aggregate methods. If more than one row per subject exists after
+#' A flag to indicate whether to show (and apply) aggregate methods. If more than one row per participant exists after
 #' population grouping and row categorization has been applied then aggreation of those rows can be applied using a
 #' selected method. Other associated arguments are `default_aggregate_method` and `choices_aggregate_method`.
 #'
 #' @param show_modal_on_click `[logical(1)]`
 #'
-#' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
+#' A flag to indicate whether clicking a table cell should display a modal dialog with the participant IDs.
 #'
 #' @param stats_functions `[list(1+) | NULL]`
 #'
@@ -1577,8 +1585,7 @@ summary_table_server <- function(module_id,
 #'
 #' @param default_drop_empty_cols `[logical(1)]`
 #'
-#' A flag specifying the default value for the checkbox that determines whether to remove cols with no subject data.
-#' analysis results.
+#' A flag specifying the default value for the checkbox that determines whether to remove cols with no participant data.
 #'
 #' @param default_show_category_n `[logical(1)]`
 #'
@@ -1588,9 +1595,9 @@ summary_table_server <- function(module_id,
 #' @param default_denom `["N" | "n"]`
 #'
 #' A string, either "N" or "n", indicating the default of whether the denominator for categorical data should be taken
-#' as the number of subjects from the population grouping ("N") or the number of subjects from the 'row by' grouping for
-#' each population grouping ("n"). If the user selects to drop `NA` values then those values will be excluded from
-#' determining the "n" denominator.
+#' as the number of participants from the population grouping ("N") or the number of participants from the 'row by'
+#' grouping for each population grouping ("n"). If the user selects to drop `NA` values then those values will be
+#' excluded from determining the "n" denominator.
 #'
 #' @param default_stats `[character(1+) | NULL]`
 #'
@@ -1601,13 +1608,13 @@ summary_table_server <- function(module_id,
 #'
 #' A string indicating the function name defined in `choices_aggregate_method` to use as the default for aggregating
 #' rows when `show_aggregate_method = TRUE`. The function is applied to the analysis variable when more than one row per
-#' subject exists after population grouping and row categorization has been applied. The double colon (`::`) namespace
-#' resolution operator can be used to specify a function from a specific package, e.g., `"dplyr::first"`.
+#' participant exists after population grouping and row categorization has been applied. The double colon (`::`)
+#' namespace resolution operator can be used to specify a function from a specific package, e.g., `"dplyr::first"`.
 #'
 #' @param choices_aggregate_method `[character(1+) | NULL]`
 #'
 #' A vector of named strings indicating the functions that can be used for aggregating rows when
-#' `show_aggregate_method = TRUE`. The functions apply to the analysis variable when more than one row per subject
+#' `show_aggregate_method = TRUE`. The functions apply to the analysis variable when more than one row per participant
 #' exists after population grouping and row categorization has been applied. The double colon (`::`) namespace
 #' resolution operator can be used to specify functions from specific packages, e.g., `"dplyr::first"`. The names
 #' associated to the vector elements are displayed in the UI radio button selections.
@@ -1617,7 +1624,7 @@ summary_table_server <- function(module_id,
 #' A vector of variable names from the population dataset, used as the default for selected population flag variables
 #' (optional).
 #'
-#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#' Participants are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' @param choices_pop_flags `[character(1+) | NULL]`
 #'
@@ -1625,7 +1632,7 @@ summary_table_server <- function(module_id,
 #' variables (optional). If it is not specified then all `FL` suffixed factor and character variables from the
 #' population dataset will be used.
 #'
-#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#' Participants are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' @param default_pop_flags_after_groups `[logical(1)]`
 #'
@@ -1637,6 +1644,9 @@ summary_table_server <- function(module_id,
 #' A list of lists defining the processing and categorization of flagged rows. If NULL then flagged rows will not
 #' be processed. Each sub-list corresponds to a single flag variable, and has the following elements:
 #' - `flag_var`: String naming the flag variable to evaluate (e.g. `"LVOTFL"`).
+#' - `dependent_vars`: A vector of variable names from the analysis dataset, indicating the variables that the flag
+#'   variable is grouped by (e.g. `c("USUBJID", "PARAM")`). This ensures global filtering on the analysis dataset is
+#'   applied to the flagged rows for these dependent variables.
 #' - `var_assignments`: A named list of variable assignments, where names correspond to target dataset columns and
 #'   values represent the replacement values, e.g. if creating last value on treatment visits, then an example
 #'   assignment would be `AVISIT = "Last value on treatment"`.
@@ -1649,8 +1659,8 @@ summary_table_server <- function(module_id,
 #'
 #' @param receiver_id `[character(1) | NULL]`
 #'
-#' Unique identifier for the module receiving the selected subject ID in the data listing. This ID must be present in
-#' the app or be NULL.
+#' Unique identifier for the module receiving the selected participant ID in the data listing. This ID must be present
+#' in the app or be NULL.
 #'
 #' @usage
 #' mod_summary_table(

@@ -44,7 +44,7 @@ For listings:
 The names of the top-level list elements are used as identifiers for the outputs.}
 
 \item{subjid_var}{\verb{[character(1) | NULL]}
-Column corresponding to subject ID. Default value is 'USUBJID'.}
+Column corresponding to participant ID. Default value is 'USUBJID'.}
 
 \item{default_vars}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 
@@ -116,12 +116,12 @@ my_tplyr_fun2 <- function(dm, ae) {
     Tplyr::set_pop_data(dm) |>
     Tplyr::set_pop_treat_var(ARM) |>
     Tplyr::add_layer(
-      Tplyr::group_count("All subjects") |>
+      Tplyr::group_count("All participants") |>
         Tplyr::set_distinct_by(USUBJID) |>
         Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
     ) |>
     Tplyr::add_layer(
-      Tplyr::group_count("Subjects with adverse events") |>
+      Tplyr::group_count("Participants with adverse events") |>
         Tplyr::set_distinct_by(USUBJID) |>
         Tplyr::set_format_strings(Tplyr::f_str("xx (xx \%)", distinct_n, distinct_pct))
     ) |>
@@ -131,7 +131,7 @@ my_tplyr_fun2 <- function(dm, ae) {
         Tplyr::set_format_strings(Tplyr::f_str("xx (xx \%)", distinct_n, distinct_pct))
     ) |>
     Tplyr::add_layer(
-      Tplyr::group_count("Subjects with serious AE", where = AESER == "Y") |>
+      Tplyr::group_count("Participants with serious AE", where = AESER == "Y") |>
         Tplyr::set_distinct_by(USUBJID) |>
         Tplyr::set_format_strings(Tplyr::f_str("xx (xx \%)", distinct_n, distinct_pct))
     )

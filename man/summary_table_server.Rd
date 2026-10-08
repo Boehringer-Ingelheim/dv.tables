@@ -45,7 +45,7 @@ A reactive dataset containing the population data.}
 
 \item{subjid_var}{\verb{[character(1)]}
 
-A string representing the subject identifier column in both datasets.}
+A string representing the participant identifier column in both datasets.}
 
 \item{show_pop_flag_selection}{\verb{[logical(1)]}
 
@@ -54,17 +54,17 @@ and \code{choices_pop_flags}.}
 
 \item{show_aggregate_method}{\verb{[logical(1)]}
 
-A flag to indicate whether to show (and apply) aggregate methods. If more than one row per subject exists after
+A flag to indicate whether to show (and apply) aggregate methods. If more than one row per participant exists after
 population grouping and row categorization has been applied then aggreation of those rows can be applied using a
 selected method. Other associated arguments are \code{default_aggregate_method} and \code{choices_aggregate_method}.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
-A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.}
+A flag to indicate whether clicking a table cell should display a modal dialog with the participant IDs.}
 
 \item{on_sbj_click_fun}{\verb{[function]}
 
-Function to invoke when a subject is clicked.}
+Function to invoke when a participant identifier is clicked.}
 
 \item{stats_functions}{\verb{[list(1+) | NULL]}
 
@@ -142,7 +142,7 @@ on (optional). If it is not specified then all factor and character variables fr
 A vector of variable names from the population dataset, used as the default for selected population flag variables
 (optional).
 
-Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
+Participants are identified as being within a population when the value of the flag variable is \code{"Y"}.}
 
 \item{choices_pop_flags}{\verb{[character(1+) | NULL]}
 
@@ -150,7 +150,7 @@ A vector of variable names from the population dataset, specifying the possible 
 variables (optional). If it is not specified then all \code{FL} suffixed factor and character variables from the
 population dataset will be used.
 
-Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.}
+Participants are identified as being within a population when the value of the flag variable is \code{"Y"}.}
 
 \item{flagged_row_processing}{\verb{[list(1+) | NULL]}
 
@@ -158,6 +158,9 @@ A list of lists defining the processing and categorization of flagged rows. If N
 be processed. Each sub-list corresponds to a single flag variable, and has the following elements:
 \itemize{
 \item \code{flag_var}: String naming the flag variable to evaluate (e.g. \code{"LVOTFL"}).
+\item \code{dependent_vars}: A vector of variable names from the analysis dataset, indicating the variables that the flag
+variable is grouped by (e.g. \code{c("USUBJID", "PARAM")}). This ensures global filtering on the analysis dataset is
+applied to the flagged rows for these dependent variables.
 \item \code{var_assignments}: A named list of variable assignments, where names correspond to target dataset columns and
 values represent the replacement values, e.g. if creating last value on treatment visits, then an example
 assignment would be \code{AVISIT = "Last value on treatment"}.
@@ -174,7 +177,7 @@ A reactive dataset containing the unfiltered analysis data, used for flagged row
 A string indicating the label for the total group column.}
 }
 \value{
-A reactive value containing the list of subjects in the clicked cell, if applicable.
+A reactive value containing the list of participant identifiers in the clicked cell, if applicable.
 }
 \description{
 Server logic for the summary table module
