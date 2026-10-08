@@ -18,7 +18,7 @@ compute_events_table(
   total = TRUE,
   total_group_val = "Total",
   compute_risk = FALSE,
-  any_event_text = NULL
+  any_event_text = "Participants with any event"
 )
 }
 \arguments{
