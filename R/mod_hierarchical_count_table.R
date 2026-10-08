@@ -398,7 +398,7 @@ compute_events_table <- function(event_df,
     invalid_rows <- which(is.na(adtte[[time_at_risk_col]]))
     if (length(invalid_rows) > 0) {
       invalid_subjects <- unique(adtte[[subjid_var]][invalid_rows])
-      log_inform(paste("Time at risk could not be determined for the following subjects:",
+      log_inform(paste("Time at risk could not be determined for the following participants:",
                        paste0('"', invalid_subjects, '"', collapse = ", ")), level = "inform")
     }
   }
@@ -1248,11 +1248,11 @@ hierarchical_count_table_ui <- function(id,
 #'
 #' @param on_sbj_click_fun `[function]`
 #'
-#' Function to invoke when a subject is clicked
+#' Function to invoke when a participant identifier is clicked
 #'
 #' @inheritParams mod_hierarchical_count_table
 #'
-#' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
+#' @return A reactive value containing the list of participant identifiers in the clicked cell, if applicable.
 #'
 #' @keywords main
 #'
@@ -1794,7 +1794,7 @@ hierarchical_count_table_server <- function(
           d <- shiny::modalDialog(
             shiny::div(
               id = ns("sbj_list"),
-              shiny::h3("Subjects"),
+              shiny::h3("Participants"),
               do.call(shiny::p, id_elements),
               onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
             )
@@ -1845,7 +1845,7 @@ hierarchical_count_table_server <- function(
 #'
 #' @param subjid_var `[character(1)]`
 #'
-#' A string representing the subject identifier column in both datasets.
+#' A string representing the participant identifier column in both datasets.
 #'
 #' @param show_pop_flag_selection `[logical(1)]`
 #'
@@ -1865,7 +1865,7 @@ hierarchical_count_table_server <- function(
 #'
 #' @param show_modal_on_click `[logical(1)]`
 #'
-#' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
+#' A flag to indicate whether clicking a table cell should display a modal dialog with the participant IDs.
 #'
 #' @param default_hierarchy `[character(1:4)|NULL]`
 #'
@@ -1908,7 +1908,7 @@ hierarchical_count_table_server <- function(
 #' A vector of variable names from the population dataset, used as the default for selected population flag variables
 #' (optional).
 #'
-#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#' Participants are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' Not applicable when `show_pop_flag_selection` is `FALSE`.
 #'
@@ -1918,7 +1918,7 @@ hierarchical_count_table_server <- function(
 #' variables (optional). If it is not specified then all `FL` suffixed factor and character variables from the
 #' population dataset will be used.
 #'
-#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#' Participants are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' Not applicable when `show_pop_flag_selection` is `FALSE`.
 #'
@@ -1991,7 +1991,7 @@ hierarchical_count_table_server <- function(
 #' @param smq_na_label `[character(1)]`
 #'
 #' Label used for the derived SMQ hierarchy variable (`smq_name`) when the
-#' source values in `smq_vars` are missing/`NA` for a subject. Defaults to
+#' source values in `smq_vars` are missing/`NA` for a participant. Defaults to
 #' `"Other"`.
 #'
 #' @param udaec_name `[character(1)]`
@@ -2036,7 +2036,7 @@ hierarchical_count_table_server <- function(
 #' @param udaec_na_label `[character(1)]`
 #'
 #' Label used for the derived UDAEC hierarchy variable (`udaec_name`) for
-#' subjects that do not match any of the categories defined in `udaec_list`.
+#' participants that do not match any of the categories defined in `udaec_list`.
 #' Defaults to `"Other"`.
 #'
 #' @param any_event_text `[character(1)]`
@@ -2051,8 +2051,8 @@ hierarchical_count_table_server <- function(
 #'
 #' @param receiver_id `[character(1)|NULL]`
 #'
-#' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app
-#' or be NULL.
+#' Unique identifier for the module receiving the selected participant ID in the data listing. This ID must be present
+#' in the app or be NULL.
 #'
 #' @keywords main
 #'
