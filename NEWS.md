@@ -1,3 +1,9 @@
+# dv.tables 0.5.0-9003
+
+* `mod_summary_table`:
+  * Fix issue when global filtering has been applied to a grouping variable of the population dataset then factor levels
+    in the analysis data need to correspond to this.
+
 # dv.tables 0.5.0-9002
 
 * `mod_hierarchical_count_table`:

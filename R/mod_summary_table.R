@@ -384,6 +384,12 @@ summtab_compute <- function(tbl_df,
 
     dplyr::mutate(.dummy = 1)
 
+  # If global filtering has been applied to a common group variable of population dataset then factor levels
+  # in the analysis dataset need to be updated to match.
+  for (gv in common_group_vars) {
+    analysis_df[[gv]] <- factor(analysis_df[[gv]], levels(pop_df[[gv]]))
+  }
+
   # Initialise list to hold results for each analysis variable
   results_list <- list()
 
