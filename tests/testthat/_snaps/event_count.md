@@ -56,6 +56,9 @@
       $meta$table_type
       [1] "frequency"
       
+      $meta$any_event_text
+      [1] "Participants with any event"
+      
       $meta$warning_message
       NULL
       
@@ -132,6 +135,9 @@
       $meta$table_type
       [1] "frequency"
       
+      $meta$any_event_text
+      [1] "Participants with any event"
+      
       $meta$warning_message
       NULL
       
@@ -202,9 +208,9 @@
           </tr>
           <tr row-id="1" class="indent-0" indent="0">
             <td>
-              <span class="truncate" title="Subjects with any event">
+              <span class="truncate" title="Participants with any event">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                Subjects with any event
+                Participants with any event
               </span>
             </td>
             <td class="text-center" column="GA" style="white-space: nowrap;">1 ( 100.00 %)</td>
@@ -329,6 +335,9 @@
       $meta$table_type
       [1] "frequency"
       
+      $meta$any_event_text
+      [1] "Participants with any event"
+      
       $meta$warning_message
       NULL
       
@@ -373,9 +382,9 @@
           </tr>
           <tr row-id="1" class="indent-0" indent="0">
             <td>
-              <span class="truncate" title="Subjects with any event">
+              <span class="truncate" title="Participants with any event">
                 <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                Subjects with any event
+                Participants with any event
               </span>
             </td>
             <td class="text-center" column="F" onclick="Shiny.setInputValue(&#39;mod-cell_click&#39;, {row_id: Number(this.closest(&#39;tr&#39;).getAttribute(&#39;row-id&#39;)), column : this.getAttribute(&#39;column&#39;)}, {priority: &#39;event&#39;})" style="white-space: nowrap;">121 ( 67.60 %)</td>

@@ -1415,7 +1415,7 @@
     Output
       <div>
         <p>Summary of Analysis Value, Flag; row by param; group by arm; % denominator: n</p>
-        <p>Note: Multiple results per subject per group, aggregated by dplyr::first</p>
+        <p>Note: Multiple results per participant per group, aggregated by dplyr::first</p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>
@@ -1679,7 +1679,7 @@
     Output
       <div>
         <p>Summary of Analysis Value, visit; row by param; group by arm; % denominator: N</p>
-        <p>Note: Multiple results per subject per group, aggregated by </p>
+        <p>Note: Multiple results per participant per group, aggregated by </p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>

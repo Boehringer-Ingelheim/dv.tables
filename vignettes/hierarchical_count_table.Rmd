@@ -23,9 +23,9 @@ showing time at risk and incidence rates.
 
 # Features
 
-- Up to four levels of hierarchy, and a top-level summary of subjects with any event.
+- Up to four levels of hierarchy, and a top-level summary of participants with any event.
 - Hierarchy levels can be collapsed to only show higher levels. If the highest hierarchy level is collapsed then only
-  the subjects with any event top-level summary is shown.
+  the participants with any event top-level summary is shown.
 - Up to two levels of grouping by population dataset variables define the columns of the summary table, with group
   population size (N) displayed for each column. A special grouping level derived from one or more population flagging
   variables can also be used.
@@ -46,9 +46,9 @@ and values for any other arguments as applicable.
 
 - `module_id` : A unique identifier of type character for the module in the app.
 - `table_dataset_name`: The name of the dataset that contains the events per row, e.g., `"ADAE"`.
-- `pop_dataset_name`: The name of the dataset that contains one row per subject in the total population, e.g., `"ADSL"`.
-  It expects a one-record-per-subject dataset at least containing `subjid_var`, with a structure similar to
-  https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806
+- `pop_dataset_name`: The name of the dataset that contains one row per participant in the total population, e.g.,
+  `"ADSL"`. It expects a one-record-per-participant dataset at least containing `subjid_var`, with a structure similar
+  to https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806
 
 Please refer to `dv.tables::mod_hierarchical_count_table()` for the complete list of arguments and their description.
 
@@ -58,12 +58,12 @@ A drop-down "Options" menu provides the following inputs:
 
 - **Event count by**: Selection of one to four levels of hierarchy variables from the table (events) dataset, to be
   displayed down the left side of the table, e.g. `AEBODSYS`, `AEDECOD`.
-- **Group by**: Selection of a grouping variable from the subject-level population dataset, to be displayed across the
-  top of the table, e.g. `TRT01P`.
+- **Group by**: Selection of a grouping variable from the participant-level population dataset, to be displayed across
+  the top of the table, e.g. `TRT01P`.
 - **Minimum %**: The minimum percentage threshold for filtering events. Each displayed group cell whose percentage of
-  subjects is below this threshold has its event count and percentage replaced with a dash (—). Defaults to `0`.
+  participants is below this threshold has its event count and percentage replaced with a dash (—). Defaults to `0`.
 - **Remove rows under minimum %**: Checkbox that controls whether to remove entire rows (across all hierarchy levels)
-  for which every group's percentage of subjects falls below the **Minimum %** threshold, instead of just showing a
+  for which every group's percentage of participants falls below the **Minimum %** threshold, instead of just showing a
   dash for those cells.
 - **Total**: Checkbox that controls whether or not to display a "Total" column totalling data from all group categories.
 
@@ -86,14 +86,14 @@ is set to `TRUE`:
 
 - **Event Date**: A "Date" class (e.g. `ASTDT`) from the table events dataset. Events with missing dates will be
   excluded from the analysis.
-- **Origin Date**: A "Date" class (e.g. `RANDDT`) from the subject-level population dataset. Events occurring before
+- **Origin Date**: A "Date" class (e.g. `RANDDT`) from the participant-level population dataset. Events occurring before
   origin date will be excluded from the analysis.
-- **Censor Date**: A "Date" class (e.g. `EOSDT`) from the subject-level population dataset. Events occurring after
+- **Censor Date**: A "Date" class (e.g. `EOSDT`) from the participant-level population dataset. Events occurring after
   censor date will be excluded from the analysis.
 - **Time at Risk**: Checkbox that controls whether or not to display time at risk and incidence rate columns. If a
-  subject has a missing origin or censor date, time at risk cannot be calculated and the subject will be excluded from
-  the population count. Note that even if the checkbox is unchecked, events will still be selected based on event,
-  origin and censor dates, but population count will not be affected.
+  participant has a missing origin or censor date, time at risk cannot be calculated and the participant will be
+  excluded from the population count. Note that even if the checkbox is unchecked, events will still be selected based
+  on event, origin and censor dates, but population count will not be affected.
 
 Note that if event group-by has been specified (`show_event_group_by` module argument set to TRUE) then time-at-risk
 options are not available.
@@ -284,11 +284,14 @@ dv.manager::run_app(
 
 This module allows downloading the table as Excel (.xlsx) or Word (.rtf).
 
-In the downloaded table, overall number of patients (`N =` seen in the selected group's column header) is shown in the first row below the column names.
+In the downloaded table, overall number of participants (`N =` seen in the selected group's column header) is shown in
+the first row below the column names.
 
-Additionally, if the option to split count and percent into separate columns is selected, then selected group variable's metrics is split into two columns for every group item, `{group item} [N]` to show count value and `{group item} [%]` to show relative percentage.
+Additionally, if the option to split count and percent into separate columns is selected, then selected group variable's
+metrics is split into two columns for every group item, `{group item} [N]` to show count value and `{group item} [%]` to
+show relative percentage.
 
 # Drill down functionality
 
-When a cell is clicked the set of subjects in the cell is shown. Each of the ids is clickable and it allows
-exploring that participant in an additional module, for example `dv.papo`.
+When a cell is clicked the set of participants contributing to the cell is shown. Each of the identifiers is clickable
+and it allows exploring that participant in an additional module, for example `dv.papo`.

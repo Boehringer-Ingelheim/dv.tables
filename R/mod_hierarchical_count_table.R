@@ -275,6 +275,7 @@ create_adtte <- function(event_df,
 #'   - `total_group_val`: A string indicating the label for the total group column.
 #'   - `denom_df`: A data frame of population group denominator data.
 #'   - `table_type`: A string, either "frequency" or "time_at_risk", indicating the table type.
+#'   - `any_event_text`: A string specifying the text to be displayed in the table row for participants with any event.
 #'   - `warning_message`: A string indicating a warning message to be raised by shiny::validate.
 #'
 #' @keywords internal
@@ -290,7 +291,8 @@ compute_events_table <- function(event_df,
                                  event_date_var = NULL,
                                  total = TRUE,
                                  total_group_val = "Total",
-                                 compute_risk = FALSE) {
+                                 compute_risk = FALSE,
+                                 any_event_text = "Participants with any event") {
 
   checkmate::assert_data_frame(event_df, min.rows = 1)
   checkmate::assert_data_frame(pop_df, min.rows = 1)
@@ -396,7 +398,7 @@ compute_events_table <- function(event_df,
     invalid_rows <- which(is.na(adtte[[time_at_risk_col]]))
     if (length(invalid_rows) > 0) {
       invalid_subjects <- unique(adtte[[subjid_var]][invalid_rows])
-      log_inform(paste("Time at risk could not be determined for the following subjects:",
+      log_inform(paste("Time at risk could not be determined for the following participants:",
                        paste0('"', invalid_subjects, '"', collapse = ", ")), level = "inform")
     }
   }
@@ -519,6 +521,7 @@ compute_events_table <- function(event_df,
       total_group_val = total_group_val,
       denom_df = denom_df,
       table_type = table_type,
+      any_event_text = any_event_text,
       warning_message = warning_message
     )
   )
@@ -782,6 +785,7 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   denom_df <- d[["meta"]][["denom_df"]]
   table_type <- d[["meta"]][["table_type"]]
   min_percent <- d[["meta"]][["min_percent"]]
+  any_event_text <- d[["meta"]][["any_event_text"]]
   df <- d[["df"]]
 
   # Flag when event group has been specified
@@ -883,7 +887,7 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
       df[c(hierarchy, hier_lvl_col)], function(...) {
         args <- list(...)
         if (args[[hier_lvl_col]] == 0) {
-          return("Subjects with any event")
+          return(any_event_text)
         }
         curr_lvl <- hierarchy[args[[hier_lvl_col]]]
         curr_label <- as.character(args[[curr_lvl]])
@@ -1244,11 +1248,11 @@ hierarchical_count_table_ui <- function(id,
 #'
 #' @param on_sbj_click_fun `[function]`
 #'
-#' Function to invoke when a subject is clicked
+#' Function to invoke when a participant identifier is clicked
 #'
 #' @inheritParams mod_hierarchical_count_table
 #'
-#' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
+#' @return A reactive value containing the list of participant identifiers in the clicked cell, if applicable.
 #'
 #' @keywords main
 #'
@@ -1284,6 +1288,7 @@ hierarchical_count_table_server <- function(
     udaec_name = NULL,
     udaec_list = NULL,
     udaec_na_label = "Other",
+    any_event_text = "Participants with any event",
     intended_use_label = NULL
 ) {
 
@@ -1686,7 +1691,8 @@ hierarchical_count_table_server <- function(
                                                event_date_var = event_date_var,
                                                total = total,
                                                total_group_val = "Total",
-                                               compute_risk = compute_risk)
+                                               compute_risk = compute_risk,
+                                               any_event_text = any_event_text)
 
       # Show warning when origin date is after non-missing censor date (bad data!)
       shiny::validate(
@@ -1788,7 +1794,7 @@ hierarchical_count_table_server <- function(
           d <- shiny::modalDialog(
             shiny::div(
               id = ns("sbj_list"),
-              shiny::h3("Subjects"),
+              shiny::h3("Participants"),
               do.call(shiny::p, id_elements),
               onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
             )
@@ -1839,7 +1845,7 @@ hierarchical_count_table_server <- function(
 #'
 #' @param subjid_var `[character(1)]`
 #'
-#' A string representing the subject identifier column in both datasets.
+#' A string representing the participant identifier column in both datasets.
 #'
 #' @param show_pop_flag_selection `[logical(1)]`
 #'
@@ -1859,7 +1865,7 @@ hierarchical_count_table_server <- function(
 #'
 #' @param show_modal_on_click `[logical(1)]`
 #'
-#' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
+#' A flag to indicate whether clicking a table cell should display a modal dialog with the participant IDs.
 #'
 #' @param default_hierarchy `[character(1:4)|NULL]`
 #'
@@ -1902,7 +1908,7 @@ hierarchical_count_table_server <- function(
 #' A vector of variable names from the population dataset, used as the default for selected population flag variables
 #' (optional).
 #'
-#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#' Participants are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' Not applicable when `show_pop_flag_selection` is `FALSE`.
 #'
@@ -1912,7 +1918,7 @@ hierarchical_count_table_server <- function(
 #' variables (optional). If it is not specified then all `FL` suffixed factor and character variables from the
 #' population dataset will be used.
 #'
-#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#' Participants are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' Not applicable when `show_pop_flag_selection` is `FALSE`.
 #'
@@ -1985,7 +1991,7 @@ hierarchical_count_table_server <- function(
 #' @param smq_na_label `[character(1)]`
 #'
 #' Label used for the derived SMQ hierarchy variable (`smq_name`) when the
-#' source values in `smq_vars` are missing/`NA` for a subject. Defaults to
+#' source values in `smq_vars` are missing/`NA` for a participant. Defaults to
 #' `"Other"`.
 #'
 #' @param udaec_name `[character(1)]`
@@ -2030,8 +2036,13 @@ hierarchical_count_table_server <- function(
 #' @param udaec_na_label `[character(1)]`
 #'
 #' Label used for the derived UDAEC hierarchy variable (`udaec_name`) for
-#' subjects that do not match any of the categories defined in `udaec_list`.
+#' participants that do not match any of the categories defined in `udaec_list`.
 #' Defaults to `"Other"`.
+#'
+#' @param any_event_text `[character(1)]`
+#'
+#' A string specifying the text to be displayed in the table row for participants with any event.
+#' Defaults to `"Participants with any event"`.
 #'
 #' @param intended_use_label `[character(1)|NULL]`
 #'
@@ -2040,8 +2051,8 @@ hierarchical_count_table_server <- function(
 #'
 #' @param receiver_id `[character(1)|NULL]`
 #'
-#' Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app
-#' or be NULL.
+#' Unique identifier for the module receiving the selected participant ID in the data listing. This ID must be present
+#' in the app or be NULL.
 #'
 #' @keywords main
 #'
@@ -2083,6 +2094,7 @@ mod_hierarchical_count_table <- function(
     udaec_list = NULL,
     udaec_na_label = "Other",
 
+    any_event_text = "Participants with any event",
     intended_use_label = "Use only for internal review and monitoring during the conduct of clinical trials.",
     receiver_id = NULL
 ) {
@@ -2139,13 +2151,14 @@ mod_hierarchical_count_table <- function(
         origin_date_choices = origin_date_choices,
         default_censor_date = default_censor_date,
         censor_date_choices = censor_date_choices,
-        intended_use_label = intended_use_label,
         smq_name = smq_name,
         smq_vars = smq_vars,
         smq_na_label = smq_na_label,
         udaec_name = udaec_name,
         udaec_list = udaec_list,
-        udaec_na_label = udaec_na_label
+        udaec_na_label = udaec_na_label,
+        any_event_text = any_event_text,
+        intended_use_label = intended_use_label
       )
     },
     module_id = module_id
@@ -2190,6 +2203,7 @@ mod_hierarchical_count_table_API_docs <- list(
   udaec_name = "",
   udaec_list = "",
   udaec_na_label = "",
+  any_event_text = "",
   intended_use_label = "",
   receiver_id = ""
 )
@@ -2266,6 +2280,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   udaec_name = TC$character() |> TC$flag("optional"),
   udaec_list = TC$character() |> TC$flag("manual_check", "optional"),
   udaec_na_label = TC$character() |> TC$flag("optional"),
+  any_event_text = TC$character() |> TC$flag("manual_check"),
   intended_use_label = TC$character() |> TC$flag("optional"),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |>
@@ -2376,6 +2391,7 @@ check_mod_hierarchical_count_table <- function(
     udaec_name,
     udaec_list,
     udaec_na_label,
+    any_event_text,
     intended_use_label,
     receiver_id
 ) {
@@ -2420,6 +2436,7 @@ check_mod_hierarchical_count_table <- function(
     udaec_name,
     udaec_list,
     udaec_na_label,
+    any_event_text,
     intended_use_label,
     receiver_id,
     err
@@ -2430,6 +2447,14 @@ check_mod_hierarchical_count_table <- function(
       err,
       is.logical(value) && length(value) == 1L && !is.na(value),
       sprintf("`%s` should be a non-missing logical value of length one.", name)
+    )
+  }
+
+  check_string <- function(name, value) {
+    CM$assert(
+      err,
+      is.character(value) && length(value) == 1L && !is.na(value) && nchar(value) > 0L,
+      sprintf("`%s` should be a non-empty string.", name)
     )
   }
 
@@ -2460,6 +2485,7 @@ check_mod_hierarchical_count_table <- function(
     "`default_min_percent` should be a finite numeric value between 0 and 100."
   )
 
+  check_string("any_event_text", any_event_text)
   check_optional_string("intended_use_label", intended_use_label)
   check_optional_string("receiver_id", receiver_id)
   check_optional_string("smq_name", smq_name)

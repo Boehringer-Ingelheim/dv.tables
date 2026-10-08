@@ -1,3 +1,9 @@
+# dv.tables 0.5.0-9002
+
+* `mod_hierarchical_count_table`:
+  * Add new argument to allow the specification of the text to be displayed in the table row for participants with
+    any event. The default has been set to "Participants with any event" (previously "Subjects with any event").
+
 # dv.tables 0.5.0-9001
 
 * `mod_summary_table`:

@@ -34,6 +34,7 @@ hierarchical_count_table_server(
   udaec_name = NULL,
   udaec_list = NULL,
   udaec_na_label = "Other",
+  any_event_text = "Participants with any event",
   intended_use_label = NULL
 )
 }
@@ -52,7 +53,7 @@ A reactive dataset containing the population data.}
 
 \item{subjid_var}{\verb{[character(1)]}
 
-A string representing the subject identifier column in both datasets.}
+A string representing the participant identifier column in both datasets.}
 
 \item{show_pop_flag_selection}{\verb{[logical(1)]}
 
@@ -72,11 +73,11 @@ both cannot be shown together.}
 
 \item{show_modal_on_click}{\verb{[logical(1)]}
 
-A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.}
+A flag to indicate whether clicking a table cell should display a modal dialog with the participant IDs.}
 
 \item{on_sbj_click_fun}{\verb{[function]}
 
-Function to invoke when a subject is clicked}
+Function to invoke when a participant identifier is clicked}
 
 \item{default_hierarchy}{\verb{[character(1:4)|NULL]}
 
@@ -103,7 +104,7 @@ If it is not specified then all factor and character variables from the populati
 A vector of variable names from the population dataset, used as the default for selected population flag variables
 (optional).
 
-Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.
+Participants are identified as being within a population when the value of the flag variable is \code{"Y"}.
 
 Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
@@ -113,7 +114,7 @@ A vector of variable names from the population dataset, specifying the possible 
 variables (optional). If it is not specified then all \code{FL} suffixed factor and character variables from the
 population dataset will be used.
 
-Subjects are identified as being within a population when the value of the flag variable is \code{"Y"}.
+Participants are identified as being within a population when the value of the flag variable is \code{"Y"}.
 
 Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
@@ -174,7 +175,7 @@ no SMQ hierarchy is created.}
 \item{smq_na_label}{\verb{[character(1)]}
 
 Label used for the derived SMQ hierarchy variable (\code{smq_name}) when the
-source values in \code{smq_vars} are missing/\code{NA} for a subject. Defaults to
+source values in \code{smq_vars} are missing/\code{NA} for a participant. Defaults to
 \code{"Other"}.}
 
 \item{udaec_name}{\verb{[character(1)]}
@@ -219,8 +220,13 @@ selection and its categories can be filtered in the module UI.}
 \item{udaec_na_label}{\verb{[character(1)]}
 
 Label used for the derived UDAEC hierarchy variable (\code{udaec_name}) for
-subjects that do not match any of the categories defined in \code{udaec_list}.
+participants that do not match any of the categories defined in \code{udaec_list}.
 Defaults to \code{"Other"}.}
+
+\item{any_event_text}{\verb{[character(1)]}
+
+A string specifying the text to be displayed in the table row for participants with any event.
+Defaults to \code{"Participants with any event"}.}
 
 \item{intended_use_label}{\verb{[character(1)|NULL]}
 
@@ -228,7 +234,7 @@ Either a string indicating the intended use for export, or NULL. The provided la
 prior to the download and will also be included in the exported file.}
 }
 \value{
-A reactive value containing the list of subjects in the clicked cell, if applicable.
+A reactive value containing the list of participant identifiers in the clicked cell, if applicable.
 }
 \description{
 Server logic for the event count module
