@@ -2161,7 +2161,25 @@ mod_hierarchical_count_table <- function(
         intended_use_label = intended_use_label
       )
     },
-    module_id = module_id
+    module_id = module_id,
+    meta = list(
+      dataset_info = list(
+        all = unique(c(table_dataset_name, pop_dataset_name)),
+        subject_level = ifelse(length(pop_dataset_name) == 0, character(0), pop_dataset_name)
+      ),
+      check_mod_fn = function(afmm, datasets) {
+        check_mod_hierarchical_count_table(
+          afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var,
+          show_pop_flag_selection, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
+          default_hierarchy, hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
+          default_remove_rows_under_min_percent, default_pop_flags, pop_flag_choices, default_pop_flags_after_groups,
+          default_event_group, event_group_choices, default_event_date, event_date_choices,
+          default_origin_date, origin_date_choices, default_censor_date, censor_date_choices, default_risk,
+          smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label,
+          any_event_text, intended_use_label, receiver_id
+        )
+      }
+    )
   )
   mod
 }
@@ -2356,44 +2374,14 @@ validate_smq_udaec_args <- function(smq_name, smq_vars, udaec_name, udaec_list, 
 
 
 check_mod_hierarchical_count_table <- function(
-    afmm,
-    datasets,
-    module_id,
-    table_dataset_name,
-    pop_dataset_name,
-    subjid_var,
-    show_pop_flag_selection,
-    show_event_group_by,
-    show_time_at_risk_options,
-    show_modal_on_click,
-    default_hierarchy,
-    hierarchy_choices,
-    default_group,
-    group_choices,
-    default_total,
-    default_min_percent,
-    default_remove_rows_under_min_percent,
-    default_pop_flags,
-    pop_flag_choices,
-    default_pop_flags_after_groups,
-    default_event_group,
-    event_group_choices,
-    default_event_date,
-    event_date_choices,
-    default_origin_date,
-    origin_date_choices,
-    default_censor_date,
-    censor_date_choices,
-    default_risk,
-    smq_name,
-    smq_vars,
-    smq_na_label,
-    udaec_name,
-    udaec_list,
-    udaec_na_label,
-    any_event_text,
-    intended_use_label,
-    receiver_id
+    afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var,
+    show_pop_flag_selection, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
+    default_hierarchy, hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
+    default_remove_rows_under_min_percent, default_pop_flags, pop_flag_choices, default_pop_flags_after_groups,
+    default_event_group, event_group_choices, default_event_date, event_date_choices,
+    default_origin_date, origin_date_choices, default_censor_date, censor_date_choices, default_risk,
+    smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label,
+    any_event_text, intended_use_label, receiver_id
 ) {
   err <- CM$container()
 
@@ -2401,45 +2389,14 @@ check_mod_hierarchical_count_table <- function(
   # Something along the lines of OK <- CM$check_API(mod_hierarchical_count_API_spec, args = match.call(), err)
 
   OK <- check_mod_hierarchical_count_table_auto(
-    afmm,
-    datasets,
-    module_id,
-    table_dataset_name,
-    pop_dataset_name,
-    subjid_var,
-    show_pop_flag_selection,
-    show_event_group_by,
-    show_time_at_risk_options,
-    show_modal_on_click,
-    default_hierarchy,
-    hierarchy_choices,
-    default_group,
-    group_choices,
-    default_total,
-    default_min_percent,
-    default_remove_rows_under_min_percent,
-    default_pop_flags,
-    pop_flag_choices,
-    default_pop_flags_after_groups,
-    default_event_group,
-    event_group_choices,
-    default_event_date,
-    event_date_choices,
-    default_origin_date,
-    origin_date_choices,
-    default_censor_date,
-    censor_date_choices,
-    default_risk,
-    smq_name,
-    smq_vars,
-    smq_na_label,
-    udaec_name,
-    udaec_list,
-    udaec_na_label,
-    any_event_text,
-    intended_use_label,
-    receiver_id,
-    err
+    afmm, datasets, module_id, table_dataset_name, pop_dataset_name, subjid_var,
+    show_pop_flag_selection, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
+    default_hierarchy, hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
+    default_remove_rows_under_min_percent, default_pop_flags, pop_flag_choices, default_pop_flags_after_groups,
+    default_event_group, event_group_choices, default_event_date, event_date_choices,
+    default_origin_date, origin_date_choices, default_censor_date, censor_date_choices, default_risk,
+    smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label,
+    any_event_text, intended_use_label, receiver_id, err
   )
 
   check_logical <- function(name, value) {
@@ -2526,22 +2483,9 @@ check_mod_hierarchical_count_table <- function(
     "`default_hierarchy` contains variables not present in the event dataset or derived SMQ/UDAEC variables."
     )
 
-  res <- list(errors = err[["messages"]])
+  res <- err[["messages"]]
   return(res)
 }
-
-dataset_info_hierarchical_count_table <- function(table_dataset_name, pop_dataset_name, ...) {
-  # TODO: Replace this function with a generic one that builds the list based on mod_boxplot_API_spec.
-  # Something along the lines of CM$dataset_info(mod_hierarchical_count_table_API_spec, args = match.call())
-  all <- unique(c(table_dataset_name, pop_dataset_name))
-  subject_level <- pop_dataset_name
-  if (length(subject_level) == 0) subject_level <- character(0)
-
-  return(list(all = all, subject_level = subject_level))
-}
-
-mod_hierarchical_count_table <- CM$module(mod_hierarchical_count_table, check_mod_hierarchical_count_table, dataset_info_hierarchical_count_table)
-
 
 #' @keywords internal
 hierarchical_count_table_dep <- function() {

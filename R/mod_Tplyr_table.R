@@ -807,7 +807,16 @@ mod_Tplyr_table <- function(
         exclude_var_names_from_column_headings = exclude_var_names_from_column_headings
       )
     },
-    module_id = module_id
+    module_id = module_id,
+    meta = list(
+      dataset_info = dataset_info_Tplyr_table(output_list),
+      check_mod_fn = function(afmm, datasets) {
+        check_mod_Tplyr_table(
+    afmm, datasets, module_id, output_list, subjid_var, default_vars,
+    pagination, listing_pagination, table_pagination, intended_use_label,
+    receiver_id, review, title_layout, footers, exclude_var_names_from_column_headings)
+      }
+    )
   )
   return(mod)
 }
@@ -857,10 +866,6 @@ check_mod_Tplyr_table <- function(
 
   do.call(dv.listings::check_review_parameter, check_review_parameter_args)
 
-  res <- list(errors = err[["messages"]])
+  res <- err[["messages"]]
   return(res)
 }
-
-mod_Tplyr_table <- CM$module(
-  mod_Tplyr_table, check_mod_Tplyr_table, dataset_info_Tplyr_table
-)

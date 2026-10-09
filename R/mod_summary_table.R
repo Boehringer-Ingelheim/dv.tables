@@ -1087,6 +1087,10 @@ summary_table_ui <- function(module_id,
 #'
 #' A reactive dataset containing the unfiltered analysis data, used for flagged row processing.
 #'
+#' @param table_dataset_unfiltered `[data.frame | NULL]`
+#'
+#' A reactive dataset containing the unfiltered analysis data, used for flagged row processing.
+#'
 #' @inheritParams mod_summary_table
 #'
 #' @return A reactive value containing the list of participant identifiers in the clicked cell, if applicable.
@@ -1957,7 +1961,25 @@ mod_summary_table <- function(
 
                            total_group_val = total_group_val)
     },
-    module_id = module_id
+    module_id = module_id,
+    meta = list(
+      dataset_info = list(
+        all = unique(c(table_dataset_name, pop_dataset_name)),
+        subjet_level = ifelse(length(pop_dataset_name) == 0, character(0),  pop_dataset_name)
+        ),
+      check_mod_fn = function(afmm, datasets) {
+        check_mod_summary_table(
+          afmm, datasets,
+          module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_aggregate_method, show_modal_on_click,
+          stats_functions, stats_formats, stats_labels, stats_replace,
+          default_summarize_on, choices_summarize_on, default_group_by, choices_group_by, default_row_by, choices_row_by,
+          default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
+          default_show_category_n, default_denom, default_stats, default_aggregate_method, choices_aggregate_method,
+          default_pop_flags, choices_pop_flags, default_pop_flags_after_groups, flagged_row_processing,
+          total_group_val, receiver_id
+        )
+      }
+    )
   )
 
   return(mod)
@@ -2073,18 +2095,6 @@ check_mod_summary_table <- function(
     err
   )
 
-  res <- list(errors = err[["messages"]])
+  res <- err[["messages"]]
   return(res)
 }
-
-dataset_info_summary_table <- function(table_dataset_name, pop_dataset_name, ...) {
-  # TODO: Replace this function with a generic one that builds the list based on mod_boxplot_API_spec.
-  # Something along the lines of CM$dataset_info(mod_hierarchical_count_table_API_spec, args = match.call())
-  all <- unique(c(table_dataset_name, pop_dataset_name))
-  subject_level <- pop_dataset_name
-  if (length(subject_level) == 0) subject_level <- character(0)
-
-  return(list(all = all, subject_level = subject_level))
-}
-
-mod_summary_table <- CM$module(mod_summary_table, check_mod_summary_table, dataset_info_summary_table)

@@ -1,3 +1,7 @@
+# dv.tables 0.5.0-9004
+
+* [NOT USER-FACING] Call EEF from dv.manager.
+
 # dv.tables 0.5.0-9003
 
 * `mod_summary_table`:
