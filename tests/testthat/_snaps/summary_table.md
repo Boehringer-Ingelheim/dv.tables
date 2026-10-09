@@ -35,6 +35,9 @@
       $meta$pop_flag_vars
       NULL
       
+      $meta$flagged_row_vars
+      NULL
+      
       $meta$flag_columns
       [1] "\035first.\035anl_var" "\035first.param"       "\035first.visit"      
       
@@ -1374,6 +1377,9 @@
       $meta$pop_flag_vars
       NULL
       
+      $meta$flagged_row_vars
+      NULL
+      
       $meta$flag_columns
       [1] "\035first.\035anl_var" "\035first.param"      
       
@@ -1409,7 +1415,7 @@
     Output
       <div>
         <p>Summary of Analysis Value, Flag; row by param; group by arm; % denominator: n</p>
-        <p>Note: Multiple results per subject per group, aggregated by dplyr::first</p>
+        <p>Note: Multiple results per participant per group, aggregated by dplyr::first</p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>
@@ -1634,6 +1640,9 @@
       $meta$pop_flag_vars
       NULL
       
+      $meta$flagged_row_vars
+      NULL
+      
       $meta$flag_columns
       [1] "\035first.\035anl_var" "\035first.param"      
       
@@ -1670,7 +1679,7 @@
     Output
       <div>
         <p>Summary of Analysis Value, visit; row by param; group by arm; % denominator: N</p>
-        <p>Note: Multiple results per subject per group, aggregated by </p>
+        <p>Note: Multiple results per participant per group, aggregated by </p>
         <table class="table event-count">
           <tr>
             <th class="text-center"></th>
@@ -1869,6 +1878,9 @@
       
       $meta$pop_flag_vars
       [1] "ENRLFL" "RANDFL" "TRTFL"  "DISCFL"
+      
+      $meta$flagged_row_vars
+      NULL
       
       $meta$flag_columns
       [1] "\035first.\035anl_var"

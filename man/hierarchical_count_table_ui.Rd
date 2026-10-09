@@ -6,8 +6,10 @@
 \usage{
 hierarchical_count_table_ui(
   id,
+  show_pop_flag_selection = FALSE,
   show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
+  default_pop_flags_after_groups = FALSE,
   default_total = TRUE,
   default_risk = FALSE,
   default_min_percent = 0,
@@ -20,6 +22,11 @@ hierarchical_count_table_ui(
 
 The ID for the event count module instance.}
 
+\item{show_pop_flag_selection}{\verb{[logical(1)]}
+
+A flag to indicate whether to show the population flag selection. Other associated arguments are \code{default_pop_flags}
+and \code{pop_flag_choices}.}
+
 \item{show_event_group_by}{\verb{[logical(1)]}
 
 A flag to indicate whether to show the event by-group selection. This takes precedence over
@@ -30,6 +37,13 @@ A flag to indicate whether to show the event by-group selection. This takes prec
 A flag to indicate whether to show the time at risk related user selections (event/origin/censor
 date selections, and time at risk checkbox). This is ignored when \code{show_event_group_by} is \code{TRUE},
 both cannot be shown together.}
+
+\item{default_pop_flags_after_groups}{\verb{[logical(1)]}
+
+A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+group variables.
+
+Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
 \item{default_total}{\verb{[logical(1)]}
 

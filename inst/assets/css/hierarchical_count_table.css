@@ -2,10 +2,6 @@
     border-color: black;
 }
 
-.hier_count_table .table>tbody>tr.no-border th {
-    border-color: white;
-}
-
 .hier_count_table .table>tbody>tr.bg-gray td {
     background-color: lightgray;
 }
@@ -41,4 +37,22 @@
 
 .hier_count_table td {
     vertical-align: baseline;
+}
+
+.hier_count_table th.short-border {
+  /* Remove the actual structural border */
+  border-bottom: none;
+
+  /* Draw a 1px border line at the bottom, inset by 3px on both sides */
+  background-image: linear-gradient(to right,
+    transparent 3px,
+    black 3px,
+    black calc(100% - 3px),
+    transparent calc(100% - 3px)
+  );
+
+  /* Positions the gradient line exactly at the bottom edge of the cell */
+  background-position: bottom;
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
 }

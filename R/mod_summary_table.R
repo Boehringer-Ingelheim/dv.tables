@@ -14,8 +14,8 @@ SUMMTAB <- poc(
     DROP_EMPTY_COLS = "drop_empty_cols",
     SHOW_CATEGORY_N = "show_category_n",
     DENOM = "denom",
-    AGGREGATE_METHOD = "aggregate_method",
     STATS = "stats",
+    AGGREGATE_METHOD = "aggregate_method",
     TBL_OUTPUT = "table_output",
     RENDER_COMPLETION_CALLBACK = "render_completion_callback"
   ),
@@ -34,8 +34,8 @@ SUMMTAB <- poc(
     DROP_EMPTY_COLS = "Remove columns with no data",
     SHOW_CATEGORY_N = "Show categorical n",
     DENOM = "Denominator used for categorical %:",
-    AGGREGATE_METHOD = "Multi-value aggregation method:",
-    STATS = "Statistics for numerical analysis:"
+    STATS = "Statistics for numerical analysis:",
+    AGGREGATE_METHOD = "Multi-value aggregation method:"
   ),
   INFO = poc(
     DROP_NA_FLAG = paste("Exclude rows from population and analysis datasets when any 'Group by'",
@@ -44,14 +44,14 @@ SUMMTAB <- poc(
                          "Note: rows are always excluded from the analysis dataset when a numerical",
                          "analysis variable value is missing.", sep = "\n"),
     DROP_EMPTY_ROWS = "Hide rows that have no analysis data, e.g. those resulting from invalid row grouping combinations.",
-    DROP_EMPTY_COLS = "Hide columns that have no subject data, i.e. N = 0.",
+    DROP_EMPTY_COLS = "Hide columns that have no participant data, i.e. N = 0.",
     SHOW_CATEGORY_N = "Show the 'n' category when summarizing categorical data.",
-    DENOM = paste("Either the number of subjects from the population grouping ('N') or",
-                  "the number of subjects from the 'row by' grouping for each population",
+    DENOM = paste("Either the number of participants from the population grouping ('N') or",
+                  "the number of participants from the 'row by' grouping for each population",
                   "grouping ('n'). If the user selects to drop NA values then those",
                   "values will be excluded from determining the 'n' denominator.", sep = "\n"),
     AGGREGATE_METHOD = paste("Method to use for aggregating rows when more than",
-                             "one row per subject exists after population grouping",
+                             "one row per participant exists after population grouping",
                              "and row categorization has been applied.", sep = "\n")
   ),
   VALIDATE = poc(
@@ -62,12 +62,17 @@ SUMMTAB <- poc(
     TOO_MANY_ROW_VARS = "Maximum of 8 row variables allowed",
     VAR_OVERLAP = "Variable has been selected in more than one selection",
     NO_STATS = "No statistics selected",
-    POP_GROUP_DUP = "Population dataset has more than one row per subject per grouping",
-    MULTI_RESULTS = paste("Multiple results per subject per group!",
-                          "Please refine column selections to get one row per subject per group.",
-                          "Alternatively, app creator can enable aggregation via 'show_aggregate_method' parameter.",
-                          sep = "\n"),
-    EMPTY_GROUP_VAL = 'Empty strings ("") found in group variables'
+    POP_GROUP_DUP = "Population dataset has more than one row per participant per grouping",
+    MULTI_RESULTS = paste("Multiple results per participant per group!",
+                          "Please refine column selections to get one row per participant per group.",
+                          "Alternatively, app creator can enable aggregation via 'show_aggregate_method' parameter."),
+    EMPTY_GROUP_VAL = 'Empty strings ("") found in group variables',
+    ALL_NA_ANL_VAR = paste("Variable to summarize on contains only NA values.",
+                           "Remove offending variable."),
+    ALL_NA_GROUP_VAR = paste("Group variable contains only NA values.",
+                             "Remove offending variable or select 'Drop NA values from groupings/categories' option."),
+    ALL_NA_ROW_VAR = paste("Row variable contains only NA values.",
+                           "Remove offending variable or select 'Drop NA values from groupings/categories' option.")
   ),
   VAL = poc(
     SPECIAL_CHAR = "\u001D", # For naming and processing row levels
@@ -243,6 +248,7 @@ summtab_format_stats <- function(analysis_df,
 #' @param group_vars A vector of names of population grouping variables from `pop_df`.
 #' @param row_vars A vector of names of row categorization variables from `tbl_df`.
 #' @param pop_flag_vars A vector of names of population flag variables from `pop_df`.
+#' @param flagged_row_vars A vector of names of flagged row variables from `tbl_df`.
 #' @param subjid_var A string representing the subject identifier column in both datasets.
 #' @param stats_functions A named list defining the functions used for summarizing numerical data.
 #' @param stats_formats A named list of lists defining the combination and formatting of the function results from
@@ -270,6 +276,8 @@ summtab_format_stats <- function(analysis_df,
 #'   - `anl_var`: A vector of analysis variable names.
 #'   - `group_vars`: A vector of group variable names.
 #'   - `row_vars`: A vector of row variable names.
+#'   - `pop_flag_vars`: A vector of population flag variable names.
+#'   - `flagged_row_vars`: A vector of flagged row variable names.
 #'   - `flag_columns`: A vector of names of columns holding the ".first" flags for rendering.
 #'   - `data_columns`: A vector of names of columns holding the statistics for each population group combination.
 #'   - `total_group_val`: A string indicating the label for the total group column.
@@ -285,6 +293,7 @@ summtab_compute <- function(tbl_df,
                             group_vars = NULL,
                             row_vars = NULL,
                             pop_flag_vars = NULL,
+                            flagged_row_vars = NULL,
                             subjid_var = NULL,
 
                             stats_functions = NULL,
@@ -318,6 +327,9 @@ summtab_compute <- function(tbl_df,
   tbl_df <- tbl_df |>
     dplyr::select(dplyr::any_of(c(subjid_var, anl_vars, group_vars, row_vars)))
 
+  # Identify population group vars that occur in table data frame
+  common_group_vars <- intersect(group_vars, names(tbl_df))
+
   if (drop_na) {
     # Remove NA values (analysis variables handled individually later on)
     pop_df <- tidyr::drop_na(pop_df, dplyr::all_of(group_vars))
@@ -327,10 +339,8 @@ summtab_compute <- function(tbl_df,
     pop_df[group_vars] <- lapply(pop_df[group_vars], add_na_factor_level)
     tbl_df[row_vars] <- lapply(tbl_df[row_vars], add_na_factor_level)
     tbl_df[anl_vars_cat] <- lapply(tbl_df[anl_vars_cat], add_na_factor_level)
+    tbl_df[common_group_vars] <- lapply(tbl_df[common_group_vars], add_na_factor_level)
   }
-
-  # Identify population group vars that occur in table data frame
-  common_group_vars <- intersect(group_vars, names(tbl_df))
 
   # Duplicate all rows so that total can be calculated for first group var
   if (total) {
@@ -374,6 +384,12 @@ summtab_compute <- function(tbl_df,
 
     dplyr::mutate(.dummy = 1)
 
+  # If global filtering has been applied to a common group variable of population dataset then factor levels
+  # in the analysis dataset need to be updated to match.
+  for (gv in common_group_vars) {
+    analysis_df[[gv]] <- factor(analysis_df[[gv]], levels(pop_df[[gv]]))
+  }
+
   # Initialise list to hold results for each analysis variable
   results_list <- list()
 
@@ -410,7 +426,7 @@ summtab_compute <- function(tbl_df,
       av_stats_fmts <- list(n_pct = list(fmt = "%d (%.1f %%)", "n", "pct"))
       av_stats_replace <- list(n_pct = list(list(pattern = "^NA \\(NA \\%\\)$", replacement = "0")))
 
-      group_by_vars <- c(group_vars, row_vars, av)  # CONVERT av TO FACTOR!?!?!
+      group_by_vars <- c(group_vars, row_vars, av)
       av_mod <- ".dummy" # Counts done on dummy variable
 
       # Drop NA values (unless requested otherwise)
@@ -553,6 +569,7 @@ summtab_compute <- function(tbl_df,
       group_vars = group_vars,
       row_vars = row_vars,
       pop_flag_vars = pop_flag_vars,
+      flagged_row_vars = flagged_row_vars,
       flag_columns = flag_columns,
       data_columns = data_columns,
       total_group_val = total_group_val,
@@ -584,6 +601,7 @@ summtab_html_table <- function(summtab_list, var_labels, on_cell_click = NULL) {
   group_vars <- summtab_list[["meta"]][["group_vars"]]
   row_vars <- summtab_list[["meta"]][["row_vars"]]
   pop_flag_vars <- summtab_list[["meta"]][["pop_flag_vars"]]
+  flagged_row_vars <- summtab_list[["meta"]][["flagged_row_vars"]]
   flag_columns <- summtab_list[["meta"]][["flag_columns"]]
   data_columns <- summtab_list[["meta"]][["data_columns"]]
   total_group_val <- summtab_list[["meta"]][["total_group_val"]]
@@ -664,8 +682,17 @@ summtab_html_table <- function(summtab_list, var_labels, on_cell_click = NULL) {
     ifelse(is.null(denom), "", paste("; % denominator:", denom))
   )
 
+  flagged_rows_note <- if (length(flagged_row_vars) > 0L) {
+    shiny::p(paste(
+      "Note: Additional categories added for analysis flag variables -",
+      paste(unlist(var_labels[flagged_row_vars], use.names = FALSE), collapse = ", ")
+    ))
+  } else {
+    NULL
+  }
+
   aggregate_note <- if (aggregate_flag) {
-    shiny::p(paste("Note: Multiple results per subject per group, aggregated by", aggregate_func_name))
+    shiny::p(paste("Note: Multiple results per participant per group, aggregated by", aggregate_func_name))
   } else {
     NULL
   }
@@ -739,6 +766,7 @@ summtab_html_table <- function(summtab_list, var_labels, on_cell_click = NULL) {
 
   html_table <- shiny::div(
     shiny::p(title),
+    flagged_rows_note,
     aggregate_note,
     table(
       class = "table event-count",
@@ -790,6 +818,131 @@ process_pop_flag_vars <- function(pop_df, pop_flag_vars) {
   return(pop_df)
 }
 
+#' Process flagged rows in the analysis data creating additional categories
+#'
+#' @param filtered_df `[data.frame]` A data frame containing the filtered analysis data.
+#' @param pop_df `[data.frame]` A data frame containing the filtered population data.
+#' @param unfiltered_df `[data.frame | NULL]` A data frame containing the unfiltered analysis data.
+#' @param flagged_row_processing `[list(1+) | NULL]` A list of lists defining the processing and categorization of flagged rows.
+#' @param group_vars `[character(1+)]` A vector of names of population grouping variables.
+#' @param row_vars `[character(0+)]` A vector of names of row categorization variables.
+#' @param subjid_var `[character(1)]` A string representing the subject identifier column.
+#'
+#' @return Analysis data frame with additional rows added corresponding to flagged rows. Flagged row variable
+#' names are added to the attribute named `flagged_row_vars`.
+#'
+#' @keywords internal
+process_flagged_rows <- function(filtered_df,
+                                 pop_df,
+                                 unfiltered_df,
+                                 flagged_row_processing,
+                                 group_vars,
+                                 row_vars,
+                                 subjid_var) {
+
+  # Keep track of variables that flag rows
+  flagged_row_vars <- character()
+
+  if (is.null(flagged_row_processing) || is.null(unfiltered_df)) {
+    attr(filtered_df, "flagged_row_vars") <- flagged_row_vars
+    return(filtered_df)
+  }
+
+  # Get the names of the variables to be assigned that appear in the `row_vars`
+  var_assign_names <- lapply(flagged_row_processing, \(x) names(x[["var_assignments"]])) |>
+    unlist() |>
+    unique() |>
+    intersect(row_vars)
+
+  if (length(var_assign_names) == 0) {
+    attr(filtered_df, "flagged_row_vars") <- flagged_row_vars
+    return(filtered_df)
+  }
+
+  summarized_rows_list <- lapply(flagged_row_processing, \(row_proc) {
+    var_assignments <- row_proc[["var_assignments"]]
+
+    # Identify row vars whose values are re-assigned for flagged rows
+    target_row_vars <- intersect(row_vars, names(var_assignments))
+    if (length(target_row_vars) == 0) return(NULL)
+
+    # Identify population group vars that occur in table data frame
+    common_group_vars <- intersect(group_vars, names(filtered_df))
+
+    # Get filtered join values based on filtered population data from [dv.manager]
+    filtered_pop_join_df <- pop_df |>
+      dplyr::select(dplyr::all_of(c(subjid_var, common_group_vars))) |>
+      dplyr::distinct()
+
+    # Identify row vars whose values are not re-assigned for flagged rows
+    untargetted_row_vars <- setdiff(row_vars, target_row_vars)
+
+    # Ensure that target row variables are not included in dependent variables
+    dependent_vars <- setdiff(row_proc[["dependent_vars"]], target_row_vars)
+
+    # Get filtered join values of dependent/untargetted row vars based on filtered analysis data from [dv.manager]
+    filtered_tbl_join_df <- filtered_df |>
+      dplyr::select(dplyr::all_of(union(dependent_vars, untargetted_row_vars))) |>
+      dplyr::distinct()
+
+    flag_var <- row_proc[["flag_var"]]
+
+    # Subset unfiltered data on flag variable then subset according to filtered data from [dv.manager]
+    row_proc_df <- unfiltered_df |>
+      dplyr::filter(.data[[flag_var]] == "Y") |>
+      dplyr::inner_join(filtered_pop_join_df, by = names(filtered_pop_join_df)) |>
+      dplyr::inner_join(filtered_tbl_join_df, by = names(filtered_tbl_join_df))
+
+    # Reduce factor levels of common group variables to match any applied global filtering
+    for (cgv in common_group_vars) {
+      row_proc_df[[cgv]] <- factor(row_proc_df[[cgv]], levels(pop_df[[cgv]]))
+    }
+
+    # Reduce factor levels of untargetted row variables to match any applied global filtering
+    for (urv in untargetted_row_vars) {
+      row_proc_df[[urv]] <- factor(row_proc_df[[urv]], levels(filtered_df[[urv]]))
+    }
+
+    flagged_row_vars <<- c(flagged_row_vars, flag_var)
+
+    for (i in seq_along(var_assignments)) {
+      var_assign_name <- names(var_assignments[i])
+
+      if (var_assign_name %in% row_vars) {
+        var_assign_val <- var_assignments[i][[1]]
+
+        if (nrow(row_proc_df) > 0) {
+          row_proc_df[[var_assign_name]] <- if (is.factor(unfiltered_df[[var_assign_name]])) {
+            as.factor(var_assign_val)
+          } else {
+            var_assign_val
+          }
+        } else {
+          if (is.factor(unfiltered_df[[var_assign_name]])) {
+            # Temporarily add row to preserve new factor level
+            row_proc_df[[var_assign_name]] <- factor(row_proc_df[[var_assign_name]], levels = var_assign_val)
+            row_proc_df[1, var_assign_name] <- as.factor(var_assign_val)
+          }
+        }
+      }
+    }
+
+    return(row_proc_df)
+  })
+
+  if (length(flagged_row_vars) > 0) {
+    # Combine filtered data with summarized rows (new factor levels will automatically be added)
+    filtered_df <- do.call(rbind, c(list(filtered_df), summarized_rows_list))
+
+    # Drop any temporary rows
+    filtered_df <- dplyr::filter(filtered_df, !is.na(.data[[subjid_var]]))
+  }
+
+  attr(filtered_df, "flagged_row_vars") <- flagged_row_vars
+
+  return(filtered_df)
+}
+
 
 #' UI for the summary table module
 #'
@@ -818,14 +971,15 @@ summary_table_ui <- function(module_id,
                              default_show_category_n = TRUE,
                              default_denom = "N",
                              default_stats = NULL,
+                             choices_stats = NULL,
                              default_aggregate_method = NULL,
-                             choices_aggregate_method = NULL,
-                             choices_stats = NULL) {
+                             choices_aggregate_method = NULL) {
 
   ns <- shiny::NS(module_id)
 
   # Initialize optional selections
   pop_flags <- NULL
+  flagged_rows_checkbox <- NULL
   aggregate_radio_buttons <- NULL
 
   if (show_pop_flag_selection) {
@@ -927,11 +1081,19 @@ summary_table_ui <- function(module_id,
 #'
 #' @param on_sbj_click_fun `[function]`
 #'
-#' Function to invoke when a subject is clicked.
+#' Function to invoke when a participant identifier is clicked.
+#'
+#' @param table_dataset_unfiltered `[data.frame | NULL]`
+#'
+#' A reactive dataset containing the unfiltered analysis data, used for flagged row processing.
+#'
+#' @param table_dataset_unfiltered `[data.frame | NULL]`
+#'
+#' A reactive dataset containing the unfiltered analysis data, used for flagged row processing.
 #'
 #' @inheritParams mod_summary_table
 #'
-#' @return A reactive value containing the list of subjects in the clicked cell, if applicable.
+#' @return A reactive value containing the list of participant identifiers in the clicked cell, if applicable.
 #'
 #' @keywords main
 #'
@@ -951,15 +1113,18 @@ summary_table_server <- function(module_id,
                                  stats_replace = NULL,
 
                                  default_summarize_on = NULL,
-                                 default_group_by = NULL,
-                                 default_row_by = NULL,
-                                 default_pop_flags = NULL,
                                  choices_summarize_on = NULL,
+                                 default_group_by = NULL,
                                  choices_group_by = NULL,
+                                 default_row_by = NULL,
                                  choices_row_by = NULL,
+                                 default_pop_flags = NULL,
                                  choices_pop_flags = NULL,
-                                 total_group_val = "Total",
-                                 allow_aggregation = FALSE) {
+
+                                 flagged_row_processing = NULL,
+                                 table_dataset_unfiltered = NULL,
+
+                                 total_group_val = "Total") {
 
   mod <- function(input, output, session) {
 
@@ -1062,6 +1227,11 @@ summary_table_server <- function(module_id,
 
       pop_df <- pop_dataset()
       tbl_df <- table_dataset()
+      unfiltered_tbl_df <- if (!is.null(table_dataset_unfiltered)) {
+        table_dataset_unfiltered()
+      } else {
+        NULL
+      }
 
       # Store variable labels for information display in final HTML
       combined_labels <- c(get_lbls_robust(pop_df), get_lbls_robust(tbl_df))
@@ -1121,8 +1291,20 @@ summary_table_server <- function(module_id,
           SUMMTAB$VALIDATE$POP_GROUP_DUP
         ),
         shiny::need(
-          all(sapply(pop_df[group_vars], \(x) !any(x == "", na.rm = TRUE))),
+          all(sapply(pop_df_orig[group_vars_orig], \(x) !any(x == "", na.rm = TRUE))),
           SUMMTAB$VALIDATE$EMPTY_GROUP_VAL
+        ),
+        shiny::need(
+          all(sapply(tbl_df[anl_vars], \(x) any(!is.na(x)))),
+          SUMMTAB$VALIDATE$ALL_NA_ANL_VAR
+        ),
+        shiny::need(
+          !drop_na || all(sapply(pop_df_orig[group_vars_orig], \(x) any(!is.na(x)))),
+          SUMMTAB$VALIDATE$ALL_NA_GROUP_VAR
+        ),
+        shiny::need(
+          !drop_na || all(sapply(tbl_df[row_vars], \(x) any(!is.na(x)))),
+          SUMMTAB$VALIDATE$ALL_NA_ROW_VAR
         )
       )
 
@@ -1145,12 +1327,24 @@ summary_table_server <- function(module_id,
       on.exit(p$close())
       p$set(message = "1) Processing data", value = 0.50)
 
+      # Duplicate and process flagged rows on the unfiltered analysis dataset
+      tbl_df <- process_flagged_rows(tbl_df,
+                                     pop_df,
+                                     unfiltered_tbl_df,
+                                     flagged_row_processing = flagged_row_processing,
+                                     group_vars = group_vars,
+                                     row_vars = row_vars,
+                                     subjid_var = subjid_var)
+
+      flagged_row_vars <- attr(tbl_df, "flagged_row_vars")
+
       summary_table <- summtab_compute(tbl_df,
                                        pop_df,
                                        anl_vars = anl_vars,
                                        group_vars = group_vars,
                                        row_vars = row_vars,
                                        pop_flag_vars = pop_flag_vars,
+                                       flagged_row_vars = flagged_row_vars,
                                        subjid_var = subjid_var,
 
                                        stats_functions = stats_functions_subset,
@@ -1234,7 +1428,7 @@ summary_table_server <- function(module_id,
           d <- shiny::modalDialog(
             shiny::div(
               id = ns("sbj_list"),
-              shiny::h3("Subjects"),
+              shiny::h3("Participants"),
               do.call(shiny::p, id_elements),
               onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
             )
@@ -1279,14 +1473,15 @@ summary_table_server <- function(module_id,
 #'
 #' @param pop_dataset_name `[character(1)]`
 #'
-#' The name of the population dataset. Typically this will have one row per subject, but multiple rows per subject is
-#' also valid for summarizing data where a subject may appear in more than one grouping, e.g. for crossover trials
-#' where a subject can take different treatments in different phases, or for population flag summaries (pre-processing
-#' of CDISC subject-level data would be required to transpose the flags to a grouping column).
+#' The name of the population dataset. Typically this will have one row per participant, but multiple rows per
+#' participant is also valid for summarizing data where a participant may appear in more than one grouping, e.g. for
+#' crossover trials where a participant can take different treatments in different phases, or for population flag
+#' summaries (pre-processing of CDISC participant-level data would be required to transpose the flags to a grouping
+#' column).
 #'
 #' @param subjid_var `[character(1)]`
 #'
-#' A string representing the subject identifier column in both datasets.
+#' A string representing the participant identifier column in both datasets.
 #'
 #' @param show_pop_flag_selection `[logical(1)]`
 #'
@@ -1295,13 +1490,13 @@ summary_table_server <- function(module_id,
 #'
 #' @param show_aggregate_method `[logical(1)]`
 #'
-#' A flag to indicate whether to show (and apply) aggregate methods. If more than one row per subject exists after
+#' A flag to indicate whether to show (and apply) aggregate methods. If more than one row per participant exists after
 #' population grouping and row categorization has been applied then aggreation of those rows can be applied using a
 #' selected method. Other associated arguments are `default_aggregate_method` and `choices_aggregate_method`.
 #'
 #' @param show_modal_on_click `[logical(1)]`
 #'
-#' A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.
+#' A flag to indicate whether clicking a table cell should display a modal dialog with the participant IDs.
 #'
 #' @param stats_functions `[list(1+) | NULL]`
 #'
@@ -1325,7 +1520,7 @@ summary_table_server <- function(module_id,
 #' Any results from functions given in `stats_functions` that do not appear in the formatting will be automatically
 #' formatted as character.
 #'
-#' @param stats_labels `[list(1+) | NULL]`
+#' @param stats_labels `[character(1+) | NULL]`
 #'
 #' A named vector of statistics labels that should be used in the summary table. The names correspond to the names
 #' assigned in the `stats_formats` list, or otherwise the names in the `stats_functions` list.
@@ -1390,8 +1585,7 @@ summary_table_server <- function(module_id,
 #'
 #' @param default_drop_empty_cols `[logical(1)]`
 #'
-#' A flag specifying the default value for the checkbox that determines whether to remove cols with no subject data.
-#' analysis results.
+#' A flag specifying the default value for the checkbox that determines whether to remove cols with no participant data.
 #'
 #' @param default_show_category_n `[logical(1)]`
 #'
@@ -1401,9 +1595,9 @@ summary_table_server <- function(module_id,
 #' @param default_denom `["N" | "n"]`
 #'
 #' A string, either "N" or "n", indicating the default of whether the denominator for categorical data should be taken
-#' as the number of subjects from the population grouping ("N") or the number of subjects from the 'row by' grouping for
-#' each population grouping ("n"). If the user selects to drop `NA` values then those values will be excluded from
-#' determining the "n" denominator.
+#' as the number of participants from the population grouping ("N") or the number of participants from the 'row by'
+#' grouping for each population grouping ("n"). If the user selects to drop `NA` values then those values will be
+#' excluded from determining the "n" denominator.
 #'
 #' @param default_stats `[character(1+) | NULL]`
 #'
@@ -1414,13 +1608,13 @@ summary_table_server <- function(module_id,
 #'
 #' A string indicating the function name defined in `choices_aggregate_method` to use as the default for aggregating
 #' rows when `show_aggregate_method = TRUE`. The function is applied to the analysis variable when more than one row per
-#' subject exists after population grouping and row categorization has been applied. The double colon (`::`) namespace
-#' resolution operator can be used to specify a function from a specific package, e.g., `"dplyr::first"`.
+#' participant exists after population grouping and row categorization has been applied. The double colon (`::`)
+#' namespace resolution operator can be used to specify a function from a specific package, e.g., `"dplyr::first"`.
 #'
 #' @param choices_aggregate_method `[character(1+) | NULL]`
 #'
 #' A vector of named strings indicating the functions that can be used for aggregating rows when
-#' `show_aggregate_method = TRUE`. The functions apply to the analysis variable when more than one row per subject
+#' `show_aggregate_method = TRUE`. The functions apply to the analysis variable when more than one row per participant
 #' exists after population grouping and row categorization has been applied. The double colon (`::`) namespace
 #' resolution operator can be used to specify functions from specific packages, e.g., `"dplyr::first"`. The names
 #' associated to the vector elements are displayed in the UI radio button selections.
@@ -1430,7 +1624,7 @@ summary_table_server <- function(module_id,
 #' A vector of variable names from the population dataset, used as the default for selected population flag variables
 #' (optional).
 #'
-#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#' Participants are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' @param choices_pop_flags `[character(1+) | NULL]`
 #'
@@ -1438,12 +1632,26 @@ summary_table_server <- function(module_id,
 #' variables (optional). If it is not specified then all `FL` suffixed factor and character variables from the
 #' population dataset will be used.
 #'
-#' Subjects are identified as being within a population when the value of the flag variable is `"Y"`.
+#' Participants are identified as being within a population when the value of the flag variable is `"Y"`.
 #'
 #' @param default_pop_flags_after_groups `[logical(1)]`
 #'
 #' A flag specifying the default value for the checkbox that determines whether to show the population flags after the
 #' group variables.
+#'
+#' @param flagged_row_processing `[list(1+) | NULL]`
+#'
+#' A list of lists defining the processing and categorization of flagged rows. If NULL then flagged rows will not
+#' be processed. Each sub-list corresponds to a single flag variable, and has the following elements:
+#' - `flag_var`: String naming the flag variable to evaluate (e.g. `"LVOTFL"`).
+#' - `dependent_vars`: A vector of variable names from the analysis dataset, indicating the variables that the flag
+#'   variable is grouped by (e.g. `c("USUBJID", "PARAM")`). This ensures global filtering on the analysis dataset is
+#'   applied to the flagged rows for these dependent variables.
+#' - `var_assignments`: A named list of variable assignments, where names correspond to target dataset columns and
+#'   values represent the replacement values, e.g. if creating last value on treatment visits, then an example
+#'   assignment would be `AVISIT = "Last value on treatment"`.
+#'
+#' Each flagged row is duplicated with the specified variable assignments applied.
 #'
 #' @param total_group_val `[character(1)]`
 #'
@@ -1451,8 +1659,8 @@ summary_table_server <- function(module_id,
 #'
 #' @param receiver_id `[character(1) | NULL]`
 #'
-#' Unique identifier for the module receiving the selected subject ID in the data listing. This ID must be present in
-#' the app or be NULL.
+#' Unique identifier for the module receiving the selected participant ID in the data listing. This ID must be present
+#' in the app or be NULL.
 #'
 #' @usage
 #' mod_summary_table(
@@ -1535,6 +1743,7 @@ summary_table_server <- function(module_id,
 #'   default_pop_flags = NULL,
 #'   choices_pop_flags = NULL,
 #'   default_pop_flags_after_groups = FALSE,
+#'   flagged_row_processing = NULL,
 #'   total_group_val = "Total",
 #'   receiver_id = NULL
 #' )
@@ -1628,6 +1837,7 @@ mod_summary_table <- function(
     default_pop_flags = NULL,
     choices_pop_flags = NULL,
     default_pop_flags_after_groups = FALSE,
+    flagged_row_processing = NULL,
     total_group_val = "Total",
     receiver_id = NULL
 ) {
@@ -1649,6 +1859,7 @@ mod_summary_table <- function(
   checkmate::assert_character(default_stats, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::assert_string(default_aggregate_method, min.chars = 1L, null.ok = TRUE, add = ac)
   checkmate::assert_logical(default_pop_flags_after_groups, add = ac)
+  checkmate::assert_list(flagged_row_processing, types = "list", null.ok = TRUE, add = ac)
   checkmate::assert_character(choices_aggregate_method, min.chars = 1L, any.missing = FALSE, names = "unique", null.ok = TRUE, add = ac)
   checkmate::assert_subset(default_aggregate_method, choices_aggregate_method, add = ac)
   checkmate::assert_string(total_group_val, add = ac)
@@ -1707,8 +1918,8 @@ mod_summary_table <- function(
                        default_drop_empty_cols = default_drop_empty_cols,
                        default_show_category_n = default_show_category_n,
                        default_denom = default_denom,
-                       default_aggregate_method = default_aggregate_method,
                        default_stats = default_stats,
+                       default_aggregate_method = default_aggregate_method,
                        choices_aggregate_method = choices_aggregate_method,
                        choices_stats = choices_stats)
     },
@@ -1737,16 +1948,38 @@ mod_summary_table <- function(
                            stats_replace = stats_replace,
 
                            default_summarize_on = default_summarize_on,
-                           default_group_by = default_group_by,
-                           default_row_by = default_row_by,
-                           default_pop_flags = default_pop_flags,
                            choices_summarize_on = choices_summarize_on,
+                           default_group_by = default_group_by,
                            choices_group_by = choices_group_by,
+                           default_row_by = default_row_by,
                            choices_row_by = choices_row_by,
+                           default_pop_flags = default_pop_flags,
                            choices_pop_flags = choices_pop_flags,
+
+                           flagged_row_processing = flagged_row_processing,
+                           table_dataset_unfiltered = shiny::reactive(afmm[["unfiltered_dataset_list"]]()[[table_dataset_name]]),
+
                            total_group_val = total_group_val)
     },
-    module_id = module_id
+    module_id = module_id,
+    meta = list(
+      dataset_info = list(
+        all = unique(c(table_dataset_name, pop_dataset_name)),
+        subjet_level = ifelse(length(pop_dataset_name) == 0, character(0),  pop_dataset_name)
+        ),
+      check_mod_fn = function(afmm, datasets) {
+        check_mod_summary_table(
+          afmm, datasets,
+          module_id, table_dataset_name, pop_dataset_name, subjid_var, show_pop_flag_selection, show_aggregate_method, show_modal_on_click,
+          stats_functions, stats_formats, stats_labels, stats_replace,
+          default_summarize_on, choices_summarize_on, default_group_by, choices_group_by, default_row_by, choices_row_by,
+          default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
+          default_show_category_n, default_denom, default_stats, default_aggregate_method, choices_aggregate_method,
+          default_pop_flags, choices_pop_flags, default_pop_flags_after_groups, flagged_row_processing,
+          total_group_val, receiver_id
+        )
+      }
+    )
   )
 
   return(mod)
@@ -1787,6 +2020,7 @@ mod_summary_table_API_docs <- list(
   default_pop_flags = "",
   choices_pop_flags = "",
   default_pop_flags_after_groups = "",
+  flagged_row_processing = "",
   total_group_val = "",
   receiver_id = ""
 )
@@ -1829,6 +2063,7 @@ mod_summary_table_API_spec <- TC$group(
   choices_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   default_pop_flags_after_groups = TC$logical(),
+  flagged_row_processing = TC$character() |> TC$flag("ignore"),
   total_group_val = TC$character(),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_summary_table_API_docs)
@@ -1840,7 +2075,7 @@ check_mod_summary_table <- function(
     default_summarize_on, choices_summarize_on, default_group_by, choices_group_by, default_row_by, choices_row_by,
     default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, choices_aggregate_method,
-    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups,
+    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups, flagged_row_processing,
     total_group_val, receiver_id
 ) {
   err <- CM$container()
@@ -1855,178 +2090,11 @@ check_mod_summary_table <- function(
     default_summarize_on, choices_summarize_on, default_group_by, choices_group_by, default_row_by, choices_row_by,
     default_total, default_drop_na, default_drop_empty_rows, default_drop_empty_cols,
     default_show_category_n, default_denom, default_stats, default_aggregate_method, choices_aggregate_method,
-    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups,
+    default_pop_flags, choices_pop_flags, default_pop_flags_after_groups, flagged_row_processing,
     total_group_val, receiver_id,
     err
   )
 
-  res <- list(errors = err[["messages"]])
+  res <- err[["messages"]]
   return(res)
-}
-
-dataset_info_summary_table <- function(table_dataset_name, pop_dataset_name, ...) {
-  # TODO: Replace this function with a generic one that builds the list based on mod_boxplot_API_spec.
-  # Something along the lines of CM$dataset_info(mod_hierarchical_count_table_API_spec, args = match.call())
-  all <- unique(c(table_dataset_name, pop_dataset_name))
-  subject_level <- pop_dataset_name
-  if (length(subject_level) == 0) subject_level <- character(0)
-
-  return(list(all = all, subject_level = subject_level))
-}
-
-mod_summary_table <- CM$module(mod_summary_table, check_mod_summary_table, dataset_info_summary_table)
-
-
-# Summary table mock apps ----
-
-#' Mock summary table app
-#'
-#' @param dry_run Return parameters used in the call
-#' @param update_query_string automatically update query string with app state
-#' @param ui_defaults,srv_defaults a list of values passed to the ui/server function
-#'
-#' @keywords mock
-#' @export
-mock_app_summary_table <- function(dry_run = FALSE,
-                                   update_query_string = TRUE,
-                                   srv_defaults = list(),
-                                   ui_defaults = list()) {
-
-  if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
-
-  table_dataset <- shiny::reactive({
-    pharmaverseadam::adlb |>
-      dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
-                    .data[["AVISITN"]] %in% c(0, 4, 5, 7)) |>
-      chr2factor()
-  })
-
-  pop_dataset <- shiny::reactive({
-    pharmaverseadam::adsl |> chr2factor()
-  })
-
-  ui_params <- c(
-    list(
-      module_id = "mod"
-    ),
-    ui_defaults
-  )
-
-  srv_params <- c(
-    list(
-      module_id = "mod",
-      table_dataset = table_dataset,
-      pop_dataset = pop_dataset,
-      subjid_var = "USUBJID"
-    ),
-    srv_defaults
-  )
-
-  if (dry_run) {
-    return(list(ui = ui_params, srv = srv_params))
-  }
-
-  mock_app_wrap(
-    update_query_string = update_query_string,
-    ui = function() do.call(summary_table_ui, ui_params),
-    server = function() do.call(summary_table_server, srv_params)
-  )
-}
-
-#' Mock summary table app integrated in the `{dv.manager}` module manager framework
-#'
-#' @keywords mock
-#' @export
-mock_app_summary_table_mm <- function() {
-
-  if (!requireNamespace("dv.manager")) stop("Install dv.manager")
-  if (!requireNamespace("dv.papo")) stop("Install dv.papo")
-  if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
-
-  adsl <- pharmaverseadam::adsl |>
-    dplyr::mutate(ENRLFL = "Y",
-                  TRTFL = ifelse(is.na(TRTSDT), "N", "Y"),
-                  RANDFL = ifelse(is.na(RANDDT), "N", "Y"),
-                  DISCFL = ifelse(EOSSTT == "DISCONTINUED", "Y", "N"))
-
-  adsl[["COUNTRY"]] <- ifelse(as.numeric(adsl[["SITEID"]]) < 715, adsl[["COUNTRY"]], "Canada")
-
-  attr(adsl, "meta") <- base::file.info("NEWS.md")
-  attr(adsl[["ENRLFL"]], "label") <- "Enrolled Flag"
-  attr(adsl[["RANDFL"]], "label") <- "Randomized Flag"
-  attr(adsl[["TRTFL"]], "label") <- "Treated Flag"
-  attr(adsl[["DISCFL"]], "label") <- "Discontinued Flag"
-
-  adlb <- pharmaverseadam::adlb |>
-    dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
-                  .data[["AVISITN"]] %in% c(0, 4, 5, 7))
-
-  attr(adlb, "meta") <- base::file.info("NEWS.md")
-
-  dv.manager::run_app(
-    data = list(
-      pharmaverseadam = list(adsl = adsl, adlb = adlb)
-    ),
-    module_list = list(
-      "Demography Summary" = mod_summary_table(
-        module_id = "dm_summtab",
-        table_dataset_name = "adsl",
-        pop_dataset_name = "adsl",
-        default_summarize_on = c("AGE", "SEX", "RACE"),
-        default_group_by = c("TRT01P"),
-        default_row_by = NULL,
-        choices_aggregate_method = NULL,
-        receiver_id = "papo"
-      ),
-      "Disposition Summary" = mod_summary_table(
-        module_id = "ds_summtab",
-        table_dataset_name = "adsl",
-        pop_dataset_name = "adsl",
-        default_summarize_on = c("EOSSTT", "DTHCAUS", "SAFFL"),
-        default_group_by = c("TRT01P"),
-        default_row_by = NULL,
-        default_drop_na = TRUE,
-        receiver_id = "papo"
-      ),
-      "Lab Summary" = mod_summary_table(
-        module_id = "lb_summtab",
-        table_dataset_name = "adlb",
-        pop_dataset_name = "adsl",
-        show_aggregate_method = TRUE,
-        default_summarize_on = c("AVAL", "CHG", "ATOXGR"),
-        default_group_by = c("TRT01P", "SEX"),
-        default_row_by = c("PARAM", "AVISIT"),
-        default_denom = "n",
-        receiver_id = "papo"
-      ),
-      "Population Summary" = mod_summary_table(
-        module_id = "pop_summtab",
-        show_pop_flag_selection = TRUE,
-        table_dataset_name = "adsl",
-        pop_dataset_name = "adsl",
-        default_summarize_on = c("SITEID"),
-        default_group_by = NULL,
-        default_row_by = c("COUNTRY"),
-        default_total = FALSE,
-        default_drop_na = TRUE,
-        default_drop_empty_rows = TRUE,
-        default_show_category_n = FALSE,
-        default_pop_flags = c("ENRLFL", "RANDFL", "TRTFL", "DISCFL"),
-        default_pop_flags_after_groups = FALSE,
-        receiver_id = "papo"
-      ),
-      "Patient Profile" = dv.papo::mod_patient_profile(
-        module_id = "papo",
-        subject_level_dataset_name = "adsl",
-        subjid_var = "USUBJID",
-        sender_ids = c("dm_summtab", "ds_summtab", "lb_summtab", "pop_summtab"),
-        summary = list(vars = c("AGE", "SEX", "RACE", "ETHNIC", "ARM"),
-                       column_count = 1)
-      )
-    ),
-    filter_dataset_name = "adsl",
-    filter_key = "USUBJID",
-    enableBookmarking = "url"
-  )
-
 }

@@ -3,14 +3,14 @@
 \name{get_lbls}
 \alias{get_lbls}
 \alias{get_lbls_robust}
-\title{Get all labels from a dataframe}
+\title{Get all labels from a data frame}
 \usage{
 get_lbls(df)
 
 get_lbls_robust(df)
 }
 \arguments{
-\item{df}{a dataframe.}
+\item{df}{a data frame.}
 }
 \value{
 A named list in which name is the name of the df column and value is the label of the column.

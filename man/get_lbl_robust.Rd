@@ -2,19 +2,19 @@
 % Please edit documentation in R/utils-label.R
 \name{get_lbl_robust}
 \alias{get_lbl_robust}
-\title{Robust getter for dataframe labels}
+\title{Robust getter for data frame labels}
 \usage{
 get_lbl_robust(df, var)
 }
 \arguments{
-\item{df}{a dataframe.}
+\item{df}{a data frame.}
 
-\item{var}{a column of the dataframe}
+\item{var}{a column of the data frame}
 }
 \value{
 The label attribute or the name of the column if the label attribute is NULL.
 }
 \description{
-It returns the label of the column of a dataframe if it is not NULL. Otherwise it returns the name of the column.
+It returns the label of the column of a data frame if it is not NULL. Otherwise it returns the name of the column.
 }
 \keyword{internal}
