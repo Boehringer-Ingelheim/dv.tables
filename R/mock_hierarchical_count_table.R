@@ -58,7 +58,7 @@ mock_app_hierarchical_count_table_mm <- function() {
   if (!requireNamespace("dv.papo")) stop("Install dv.papo")
   if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
 
-  adsl <- pharmaverseadam::adsl |>
+  adsl <- pharmaverseadam::adsl |> chr2factor() |>
     dplyr::filter(!is.na(.data[["RANDDT"]]))
 
   adae <- pharmaverseadam::adae |>
