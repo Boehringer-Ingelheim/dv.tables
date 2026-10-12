@@ -2230,70 +2230,32 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   module_id = TC$mod_ID(),
   table_dataset_name = TC$dataset_name(),
   pop_dataset_name = TC$dataset_name(),
-  subjid_var = TC$col("pop_dataset_name", TC$factor()) |> TC$flag("subjid_var"),
+  subjid_var = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("subjid_var"),
   show_pop_flag_selection = TC$logical(),
   show_event_group_by = TC$logical(),
   show_time_at_risk_options = TC$logical(),
   show_modal_on_click = TC$logical(),
   default_hierarchy = TC$character() |> TC$flag("manual_check", "optional"),
-  hierarchy_choices = TC$col(
-    "table_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("zero_or_more", "optional"),
-  default_group = TC$col(
-    "pop_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("optional"),
-  group_choices = TC$col(
-    "pop_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("zero_or_more", "optional"),
+  hierarchy_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
+  default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  group_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
   default_total = TC$logical(),
   default_min_percent = TC$numeric(min = 0, max = 100),
   default_remove_rows_under_min_percent = TC$logical(),
-  default_pop_flags = TC$col(
-    "pop_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("zero_or_more", "optional"),
-  pop_flag_choices = TC$col(
-    "pop_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("zero_or_more", "optional"),
+  default_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
+  pop_flag_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
   default_pop_flags_after_groups = TC$logical(),
-  default_event_group = TC$col(
-    "table_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("optional"),
-  event_group_choices = TC$col(
-    "table_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("zero_or_more", "optional"),
-  default_event_date = TC$col("table_dataset_name", TC$date()) |>
-    TC$flag("optional"),
-  event_date_choices = TC$col("table_dataset_name", TC$date()) |>
-    TC$flag("zero_or_more", "optional"),
-  default_origin_date = TC$col("pop_dataset_name", TC$date()) |>
-    TC$flag("optional"),
-  origin_date_choices = TC$col("pop_dataset_name", TC$date()) |>
-    TC$flag("zero_or_more", "optional"),
-  default_censor_date = TC$col("pop_dataset_name", TC$date()) |>
-    TC$flag("optional"),
-  censor_date_choices = TC$col("pop_dataset_name", TC$date()) |>
-    TC$flag("zero_or_more", "optional"),
+  default_event_group = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
+  event_group_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
+  default_event_date = TC$col("table_dataset_name", TC$date()) |> TC$flag("optional"),
+  event_date_choices = TC$col("table_dataset_name", TC$date()) |> TC$flag("zero_or_more", "optional"),
+  default_origin_date = TC$col("pop_dataset_name", TC$date()) |> TC$flag("optional"),
+  origin_date_choices = TC$col("pop_dataset_name", TC$date()) |> TC$flag("zero_or_more", "optional"),
+  default_censor_date = TC$col("pop_dataset_name", TC$date()) |> TC$flag("optional"),
+  censor_date_choices = TC$col("pop_dataset_name", TC$date()) |> TC$flag("zero_or_more", "optional"),
   default_risk = TC$logical(),
   smq_name = TC$character() |> TC$flag("optional"),
-  smq_vars = TC$col(
-    "table_dataset_name",
-    TC$or(TC$character(), TC$factor())
-  ) |>
-    TC$flag("zero_or_more", "optional"),
+  smq_vars = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
   smq_na_label = TC$character() |> TC$flag("optional"),
   udaec_name = TC$character() |> TC$flag("optional"),
   udaec_list = TC$character() |> TC$flag("manual_check", "optional"),
