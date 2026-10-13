@@ -1,6 +1,6 @@
-# Get a single label from a dataframe
+# Get a single label from a data frame
 
-It will try to read the label attribute from one columns.
+It will try to read the label attribute from one column.
 
 ## Usage
 
@@ -12,7 +12,7 @@ get_lbl(df, var)
 
 - df:
 
-  a dataframe.
+  a data frame.
 
 - var:
 

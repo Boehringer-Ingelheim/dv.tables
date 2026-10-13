@@ -60,7 +60,7 @@ the values for these arguments as applicable.
     generate the listing. The names of the top-level list elements are
     used as identifiers for the outputs.
 
-- `subjid_var` Column corresponding to subject ID. Default value is
+- `subjid_var` Column corresponding to participant ID. Default value is
   ‘USUBJID’
 
 **(Optional) Arguments for listing customization**
@@ -157,12 +157,12 @@ my_tplyr_fun2 <- function(dm, ae) {
     Tplyr::set_pop_data(dm) |>
     Tplyr::set_pop_treat_var(ARM) |>
     Tplyr::add_layer(
-      Tplyr::group_count("All subjects") |>
+      Tplyr::group_count("All participants") |>
         Tplyr::set_distinct_by(USUBJID) |>
         Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
     ) |>
     Tplyr::add_layer(
-      Tplyr::group_count("Subjects with adverse events") |>
+      Tplyr::group_count("Participants with adverse events") |>
         Tplyr::set_distinct_by(USUBJID) |>
         Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
     ) |>
@@ -172,7 +172,7 @@ my_tplyr_fun2 <- function(dm, ae) {
         Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
     ) |>
     Tplyr::add_layer(
-      Tplyr::group_count("Subjects with serious AE", where = AESER == "Y") |>
+      Tplyr::group_count("Participants with serious AE", where = AESER == "Y") |>
         Tplyr::set_distinct_by(USUBJID) |>
         Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
     )

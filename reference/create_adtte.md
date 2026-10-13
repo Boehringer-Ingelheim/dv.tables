@@ -9,7 +9,7 @@ create_adtte(
   event_df,
   pop_df,
   hierarchy = character(),
-  group_var,
+  group_vars,
   subjid_var,
   event_group_var,
   origin_date_var,
@@ -36,11 +36,6 @@ create_adtte(
   `character(1+)` A character vector of column names from `event_df` to
   use as the hierarchy.
 
-- group_var:
-
-  `character(1)` A string representing the column name in `pop_df` used
-  for grouping the population data.
-
 - subjid_var:
 
   `character(1)` A string representing the subject identifier column
@@ -65,6 +60,11 @@ create_adtte(
 
   `character(1)` A string representing the column name in `event_df`
   holding the event date.
+
+- group_var:
+
+  `character(1)` A string representing the column name in `pop_df` used
+  for grouping the population data.
 
 ## Value
 

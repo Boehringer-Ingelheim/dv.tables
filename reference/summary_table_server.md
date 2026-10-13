@@ -19,15 +19,16 @@ summary_table_server(
   stats_labels = NULL,
   stats_replace = NULL,
   default_summarize_on = NULL,
-  default_group_by = NULL,
-  default_row_by = NULL,
-  default_pop_flags = NULL,
   choices_summarize_on = NULL,
+  default_group_by = NULL,
   choices_group_by = NULL,
+  default_row_by = NULL,
   choices_row_by = NULL,
+  default_pop_flags = NULL,
   choices_pop_flags = NULL,
-  total_group_val = "Total",
-  allow_aggregation = FALSE
+  flagged_row_processing = NULL,
+  table_dataset_unfiltered = NULL,
+  total_group_val = "Total"
 )
 ```
 
@@ -55,7 +56,8 @@ summary_table_server(
 
   `[character(1)]`
 
-  A string representing the subject identifier column in both datasets.
+  A string representing the participant identifier column in both
+  datasets.
 
 - show_pop_flag_selection:
 
@@ -70,9 +72,9 @@ summary_table_server(
   `[logical(1)]`
 
   A flag to indicate whether to show (and apply) aggregate methods. If
-  more than one row per subject exists after population grouping and row
-  categorization has been applied then aggreation of those rows can be
-  applied using a selected method. Other associated arguments are
+  more than one row per participant exists after population grouping and
+  row categorization has been applied then aggreation of those rows can
+  be applied using a selected method. Other associated arguments are
   `default_aggregate_method` and `choices_aggregate_method`.
 
 - show_modal_on_click:
@@ -80,13 +82,13 @@ summary_table_server(
   `[logical(1)]`
 
   A flag to indicate whether clicking a table cell should display a
-  modal dialog with the subject IDs.
+  modal dialog with the participant IDs.
 
 - on_sbj_click_fun:
 
   `[function]`
 
-  Function to invoke when a subject is clicked.
+  Function to invoke when a participant identifier is clicked.
 
 - stats_functions:
 
@@ -127,7 +129,7 @@ summary_table_server(
 
 - stats_labels:
 
-  `[list(1+) | NULL]`
+  `[character(1+) | NULL]`
 
   A named vector of statistics labels that should be used in the summary
   table. The names correspond to the names assigned in the
@@ -162,31 +164,6 @@ summary_table_server(
   A vector of variable names from the analysis dataset, used as the
   default for selected variables to summarize on (optional).
 
-- default_group_by:
-
-  `[character(1+) | NULL]`
-
-  A vector of variable names from the population dataset, used as the
-  default for selected variables to group by (optional).
-
-- default_row_by:
-
-  `[character(1+) | NULL]`
-
-  A vector of variable names from the dataset specified by
-  `table_dataset_name`, used as the default for selected variables to
-  categorize on (optional).
-
-- default_pop_flags:
-
-  `[character(1+) | NULL]`
-
-  A vector of variable names from the population dataset, used as the
-  default for selected population flag variables (optional).
-
-  Subjects are identified as being within a population when the value of
-  the flag variable is `"Y"`.
-
 - choices_summarize_on:
 
   `[character(1+) | NULL]`
@@ -195,6 +172,13 @@ summary_table_server(
   possible choices for the variables to summarize on (optional). If it
   is not specified then all variables from the analysis dataset,
   excluding `Date` and `POSIXt` class variables, will be used.
+
+- default_group_by:
+
+  `[character(1+) | NULL]`
+
+  A vector of variable names from the population dataset, used as the
+  default for selected variables to group by (optional).
 
 - choices_group_by:
 
@@ -205,6 +189,14 @@ summary_table_server(
   not specified then all factor and character variables from the
   population dataset will be used.
 
+- default_row_by:
+
+  `[character(1+) | NULL]`
+
+  A vector of variable names from the dataset specified by
+  `table_dataset_name`, used as the default for selected variables to
+  categorize on (optional).
+
 - choices_row_by:
 
   `[character(1+) | NULL]`
@@ -213,6 +205,16 @@ summary_table_server(
   possible choices for the variables to categorize on (optional). If it
   is not specified then all factor and character variables from the
   analysis dataset will be used.
+
+- default_pop_flags:
+
+  `[character(1+) | NULL]`
+
+  A vector of variable names from the population dataset, used as the
+  default for selected population flag variables (optional).
+
+  Participants are identified as being within a population when the
+  value of the flag variable is `"Y"`.
 
 - choices_pop_flags:
 
@@ -223,8 +225,41 @@ summary_table_server(
   is not specified then all `FL` suffixed factor and character variables
   from the population dataset will be used.
 
-  Subjects are identified as being within a population when the value of
-  the flag variable is `"Y"`.
+  Participants are identified as being within a population when the
+  value of the flag variable is `"Y"`.
+
+- flagged_row_processing:
+
+  `[list(1+) | NULL]`
+
+  A list of lists defining the processing and categorization of flagged
+  rows. If NULL then flagged rows will not be processed. Each sub-list
+  corresponds to a single flag variable, and has the following elements:
+
+  - `flag_var`: String naming the flag variable to evaluate (e.g.
+    `"LVOTFL"`).
+
+  - `dependent_vars`: A vector of variable names from the analysis
+    dataset, indicating the variables that the flag variable is grouped
+    by (e.g. `c("USUBJID", "PARAM")`). This ensures global filtering on
+    the analysis dataset is applied to the flagged rows for these
+    dependent variables.
+
+  - `var_assignments`: A named list of variable assignments, where names
+    correspond to target dataset columns and values represent the
+    replacement values, e.g. if creating last value on treatment visits,
+    then an example assignment would be
+    `AVISIT = "Last value on treatment"`.
+
+  Each flagged row is duplicated with the specified variable assignments
+  applied.
+
+- table_dataset_unfiltered:
+
+  `[data.frame | NULL]`
+
+  A reactive dataset containing the unfiltered analysis data, used for
+  flagged row processing.
 
 - total_group_val:
 
@@ -234,5 +269,5 @@ summary_table_server(
 
 ## Value
 
-A reactive value containing the list of subjects in the clicked cell, if
-applicable.
+A reactive value containing the list of participant identifiers in the
+clicked cell, if applicable.

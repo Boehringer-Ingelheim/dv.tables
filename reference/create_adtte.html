@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,7 @@
 <span>  <span class="va">event_df</span>,</span>
 <span>  <span class="va">pop_df</span>,</span>
 <span>  hierarchy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  <span class="va">group_var</span>,</span>
+<span>  <span class="va">group_vars</span>,</span>
 <span>  <span class="va">subjid_var</span>,</span>
 <span>  <span class="va">event_group_var</span>,</span>
 <span>  <span class="va">origin_date_var</span>,</span>
@@ -81,11 +81,6 @@ A data frame containing the population data. It must have columns corresponding 
 A character vector of column names from <code>event_df</code> to use as the hierarchy.</p></dd>
 
 
-<dt id="arg-group-var">group_var<a class="anchor" aria-label="anchor" href="#arg-group-var"></a></dt>
-<dd><p><code>character(1)</code>
-A string representing the column name in <code>pop_df</code> used for grouping the population data.</p></dd>
-
-
 <dt id="arg-subjid-var">subjid_var<a class="anchor" aria-label="anchor" href="#arg-subjid-var"></a></dt>
 <dd><p><code>character(1)</code>
 A string representing the subject identifier column name. This column must be present in both <code>event_df</code> and
@@ -110,6 +105,11 @@ A string representing the column name in <code>pop_df</code> holding the censor 
 <dt id="arg-event-date-var">event_date_var<a class="anchor" aria-label="anchor" href="#arg-event-date-var"></a></dt>
 <dd><p><code>character(1)</code>
 A string representing the column name in <code>event_df</code> holding the event date.</p></dd>
+
+
+<dt id="arg-group-var">group_var<a class="anchor" aria-label="anchor" href="#arg-group-var"></a></dt>
+<dd><p><code>character(1)</code>
+A string representing the column name in <code>pop_df</code> used for grouping the population data.</p></dd>
 
 </dl></div>
     <div class="section level2">

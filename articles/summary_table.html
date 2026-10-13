@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,10 +94,12 @@ more population flagging variables can also be used.</li>
 population grouping level.</li>
 <li>In addition to the top-level analysis variable sections, further
 levels of grouping by analysis dataset variables define the row
-hierarchy of the summary table.</li>
-<li>Optional aggregation of multiple subject results corresponding to a
-grouping (e.g. multiple lab results for a subject at a single visit) can
-be specified using an aggregation function.</li>
+hierarchy of the summary table. The application can also be set up to
+create new categories for grouping variables based on analysis dataset
+variable flags, e.g. last value on treatment category.</li>
+<li>Optional aggregation of multiple participant results corresponding
+to a grouping (e.g. multiple lab results for a participant at a single
+visit) can be specified using an aggregation function.</li>
 <li>Analysis variable sections and row groups can be individually
 collapsed/hidden.</li>
 <li>It supports bookmarking.</li>
@@ -123,9 +125,9 @@ contains the analysis variables to be summarized, e.g.,
 <li>
 <code>pop_dataset_name</code>: The name of the dataset that contains
 the population grouping variables. Typically this will be a
-one-record-per-subject dataset, e.g., <code>"ADSL"</code>, but may also
-be one-record-per-subject-per-group to accommodate crossover and summary
-population analyses.</li>
+one-record-per-participant dataset, e.g., <code>"ADSL"</code>, but may
+also be one-record-per-participant-per-group to accommodate crossover
+and summary population analyses.</li>
 </ul>
 <p>Please refer to <code><a href="../reference/mod_summary_table.html">dv.tables::mod_summary_table()</a></code> for the
 complete list of arguments and their description.</p>
@@ -192,27 +194,27 @@ but if a parameter is not assessed at certain visit then it does not
 make sense to display a row for that visit.</li>
 <li>
 <strong>Remove columns with no data</strong>: Checkbox that controls
-whether to hide columns that have no subject population data. Population
-groupings can result in many unwanted combinations, e.g. when grouped by
-population flags and treatment groups, by default all combinations of
-population flags and treatment groups are shown, but if a treatment
-group does not occur for a certain population flag then it does not make
-sense to display a column for that treatment group.</li>
+whether to hide columns that have no participant population data.
+Population groupings can result in many unwanted combinations, e.g. when
+grouped by population flags and treatment groups, by default all
+combinations of population flags and treatment groups are shown, but if
+a treatment group does not occur for a certain population flag then it
+does not make sense to display a column for that treatment group.</li>
 <li>
 <strong>Show categorical n</strong>: Checkbox that determines
 whether to show the ‘n’ category when summarizing categorical data.</li>
 <li>
 <strong>Denominator used for categorical %</strong>: Radio buttons
 that determine the denominator choice for categorical data, either the
-number of subjects from the population grouping (“N”) or the number of
-subjects from the ‘Row by’ grouping for each population grouping (“n”).
-If the user selects to drop <code>NA</code> values then those values
-will be excluded from determining the “n” denominator.</li>
+number of participants from the population grouping (“N”) or the number
+of participants from the ‘Row by’ grouping for each population grouping
+(“n”). If the user selects to drop <code>NA</code> values then those
+values will be excluded from determining the “n” denominator.</li>
 <li>
 <strong>Multi-value aggregation method</strong>: Radio buttons that
 determine the method to use for aggregating rows when more than one row
-per subject exists after population grouping and row categorization has
-been applied. The method is applied to the analysis variable. These
+per participant exists after population grouping and row categorization
+has been applied. The method is applied to the analysis variable. These
 buttons are shown only if the app creator has specifically enabled
 aggregation.</li>
 </ul>
@@ -223,8 +225,8 @@ aggregation.</li>
 <div class="section level3">
 <h3 id="demographic-summary-table">Demographic Summary table<a class="anchor" aria-label="anchor" href="#demographic-summary-table"></a>
 </h3>
-<p>A collapsible demographic analysis summary table. The subject-level
-population dataset name is passed to both the
+<p>A collapsible demographic analysis summary table. The
+participant-level population dataset name is passed to both the
 <code>table_dataset_name</code> and <code>pop_dataset_name</code>
 arguments.</p>
 <p><img src="images/summary_table.png" style="border: 2px solid gray;"></p>
@@ -233,9 +235,9 @@ arguments.</p>
 <h3 id="laboratory-summary-table">Laboratory Summary table<a class="anchor" aria-label="anchor" href="#laboratory-summary-table"></a>
 </h3>
 <p>A collapsible laboratory analysis summary table with rows grouped by
-parameter and visit. The subject-level population dataset name is passed
-to the <code>pop_dataset_name</code> argument and the laboratory results
-dataset name is passed to the <code>table_dataset_name</code>
+parameter and visit. The participant-level population dataset name is
+passed to the <code>pop_dataset_name</code> argument and the laboratory
+results dataset name is passed to the <code>table_dataset_name</code>
 argument.</p>
 <p><img src="images/summary_table_row_by.png" style="border: 2px solid gray;"></p>
 </div>
@@ -243,8 +245,8 @@ argument.</p>
 <h3 id="population-summary-table">Population Summary table<a class="anchor" aria-label="anchor" href="#population-summary-table"></a>
 </h3>
 <p>A collapsible population summary table with populations displayed
-across the top of the table. The subject-level population dataset name
-is passed to both the <code>table_dataset_name</code> and
+across the top of the table. The participant-level population dataset
+name is passed to both the <code>table_dataset_name</code> and
 <code>pop_dataset_name</code> arguments.</p>
 <p><img src="images/summary_table_pop.png" style="border: 2px solid gray;"></p>
 </div>
@@ -267,7 +269,7 @@ no default analysis, group or row variables specified:</p>
 <span>      pop_dataset_name <span class="op">=</span> <span class="st">"adsl"</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
 <span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -289,7 +291,7 @@ statistics and sex and race categories by planned treatment group:</p>
 <span>      default_stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n"</span>, <span class="st">"meansd"</span>, <span class="st">"meanci"</span>, <span class="st">"minmax"</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
 <span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -321,18 +323,18 @@ grouped by parameter and visit:</p>
 <span>      default_aggregate_method <span class="op">=</span> <span class="st">"max"</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
 <span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The aggregation functionality has been turned on
 (<code>show_aggregate_method = TRUE</code>) and the <code>max</code>
 function has been specified for the default aggregation method, so if a
-subject has more than one lab result for a specific parameter and visit,
-then the maximum value will be taken before it gets processed in the
-main statistical analysis. The app creator needs to decide on the most
-appropriate aggregation functions (which can be specified by
+participant has more than one lab result for a specific parameter and
+visit, then the maximum value will be taken before it gets processed in
+the main statistical analysis. The app creator needs to decide on the
+most appropriate aggregation functions (which can be specified by
 <code>choices_aggregate_method</code>), but only a single aggregation
-function can be applied atv a time; it is not possible to handle cases
+function can be applied at a time; it is not possible to handle cases
 where the aggregation method varies between parameters - in this case
 the data would need to be pre-processed/aggregated before being passed
 to the app.</p>
@@ -390,9 +392,106 @@ enabled:</p>
 <span>                     column_count <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  filter_data <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
 <span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="example-5">Example 5<a class="anchor" aria-label="anchor" href="#example-5"></a>
+</h3>
+<p>The following code shows and example of how to create new categories
+for the <code>VISIT</code> and <code>AVISIT</code> grouping variables
+based on analysis dataset variable flags <code>LVOTFL</code> (Last Value
+On Treatment Record Flag), <code>MINTRFL</code> (Minimum On Treatment
+Flag), and <code>MAXTRFL</code> (Maximum On Treatment Flag):</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">adsl</span> <span class="op">&lt;-</span> <span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adsl.html" class="external-link">adsl</a></span></span>
+<span></span>
+<span><span class="va">adlb</span> <span class="op">&lt;-</span> <span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adlb.html" class="external-link">adlb</a></span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.data</span><span class="op">[[</span><span class="st">"LBTESTCD"</span><span class="op">]</span><span class="op">]</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ALP"</span>, <span class="st">"ALT"</span>, <span class="st">"AST"</span>, <span class="st">"BILI"</span><span class="op">)</span>,</span>
+<span>                <span class="va">.data</span><span class="op">[[</span><span class="st">"AVISITN"</span><span class="op">]</span><span class="op">]</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Last value on treatment</span></span>
+<span><span class="va">adlb</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">adlb</span>, <span class="op">-</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">any_of</a></span><span class="op">(</span><span class="st">"LVOTFL"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">adlb</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
+<span>  <span class="va">adlb</span>,</span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adlb</span>,</span>
+<span>                <span class="va">.data</span><span class="op">[[</span><span class="st">"ANL01FL"</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="st">"Y"</span>,</span>
+<span>                <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">.data</span><span class="op">[[</span><span class="st">"ADT"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pick.html" class="external-link">pick</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PARAMCD"</span>, <span class="st">"ADT"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pick.html" class="external-link">pick</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PARAMCD"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_tail</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>LVOTFL <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span>,</span>
+<span>  by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">adlb</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Minimum on treatment</span></span>
+<span><span class="va">adlb</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
+<span>  <span class="va">adlb</span>,</span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adlb</span>,</span>
+<span>                <span class="va">.data</span><span class="op">[[</span><span class="st">"ANL01FL"</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="st">"Y"</span>,</span>
+<span>                <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">.data</span><span class="op">[[</span><span class="st">"ADT"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pick.html" class="external-link">pick</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PARAMCD"</span>, <span class="st">"ADT"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pick.html" class="external-link">pick</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PARAMCD"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_min</a></span><span class="op">(</span>order_by <span class="op">=</span> <span class="va">.data</span><span class="op">[[</span><span class="st">"AVAL"</span><span class="op">]</span><span class="op">]</span>, n <span class="op">=</span> <span class="fl">1</span>, with_ties <span class="op">=</span> <span class="cn">FALSE</span>, na_rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>MINTRFL <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span>,</span>
+<span>  by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">adlb</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Maximum on treatment</span></span>
+<span><span class="va">adlb</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
+<span>  <span class="va">adlb</span>,</span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adlb</span>,</span>
+<span>                <span class="va">.data</span><span class="op">[[</span><span class="st">"ANL01FL"</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="st">"Y"</span>,</span>
+<span>                <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">.data</span><span class="op">[[</span><span class="st">"ADT"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pick.html" class="external-link">pick</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PARAMCD"</span>, <span class="st">"ADT"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pick.html" class="external-link">pick</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PARAMCD"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span>order_by <span class="op">=</span> <span class="va">.data</span><span class="op">[[</span><span class="st">"AVAL"</span><span class="op">]</span><span class="op">]</span>, n <span class="op">=</span> <span class="fl">1</span>, with_ties <span class="op">=</span> <span class="cn">FALSE</span>, na_rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>MAXTRFL <span class="op">=</span> <span class="st">"Y"</span><span class="op">)</span>,</span>
+<span>  by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">adlb</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">adlb</span><span class="op">[[</span><span class="st">"LVOTFL"</span><span class="op">]</span><span class="op">]</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Last Value On Treatment Record Flag"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">adlb</span><span class="op">[[</span><span class="st">"MINTRFL"</span><span class="op">]</span><span class="op">]</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Minimum On Treatment Flag"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">adlb</span><span class="op">[[</span><span class="st">"MAXTRFL"</span><span class="op">]</span><span class="op">]</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Maximum On Treatment Flag"</span></span>
+<span></span>
+<span><span class="va">flagged_row_processing</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flag_var <span class="op">=</span> <span class="st">"MINTRFL"</span>,</span>
+<span>       dependent_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PARAM"</span><span class="op">)</span>,</span>
+<span>       var_assignments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>VISIT <span class="op">=</span> <span class="st">"MIN ON TRT"</span>,</span>
+<span>                              AVISIT <span class="op">=</span> <span class="st">"Minimum on treatment"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flag_var <span class="op">=</span> <span class="st">"MAXTRFL"</span>,</span>
+<span>       dependent_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PARAM"</span><span class="op">)</span>,</span>
+<span>       var_assignments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>VISIT <span class="op">=</span> <span class="st">"MAX ON TRT"</span>,</span>
+<span>                              AVISIT <span class="op">=</span> <span class="st">"Maximum on treatment"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flag_var <span class="op">=</span> <span class="st">"LVOTFL"</span>,</span>
+<span>       dependent_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PARAM"</span><span class="op">)</span>,</span>
+<span>       var_assignments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>VISIT <span class="op">=</span> <span class="st">"LAST VAL ON TRT"</span>,</span>
+<span>                              AVISIT <span class="op">=</span> <span class="st">"Last value on treatment"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">dv.manager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dv.manager/man/run_app.html" class="external-link">run_app</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>pharmaverseadam <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>adsl <span class="op">=</span> <span class="va">adsl</span>, adlb <span class="op">=</span> <span class="va">adlb</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  module_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="st">"ADLB Summary Table"</span> <span class="op">=</span> <span class="fu">dv.tables</span><span class="fu">::</span><span class="fu"><a href="../reference/mod_summary_table.html">mod_summary_table</a></span><span class="op">(</span></span>
+<span>      module_id <span class="op">=</span> <span class="st">"summary_table"</span>,</span>
+<span>      table_dataset_name <span class="op">=</span> <span class="st">"adlb"</span>,</span>
+<span>      pop_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>      default_summarize_on <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AVAL"</span>, <span class="st">"CHG"</span><span class="op">)</span>,</span>
+<span>      default_group_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TRT01P"</span><span class="op">)</span>,</span>
+<span>      default_row_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PARAM"</span>, <span class="st">"AVISIT"</span><span class="op">)</span>,</span>
+<span>      default_denom <span class="op">=</span> <span class="st">"n"</span>,</span>
+<span>      flagged_row_processing <span class="op">=</span> <span class="va">flagged_row_processing</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  filter_dataset_name <span class="op">=</span> <span class="st">"adsl"</span>,</span>
+<span>  filter_key <span class="op">=</span> <span class="st">"USUBJID"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>New categories will only be created when the user selects row by
+variables</p>
 </div>
 <div class="section level3">
 <h3 id="user-defined-statistics-for-numerical-analysis">User-defined statistics for numerical analysis<a class="anchor" aria-label="anchor" href="#user-defined-statistics-for-numerical-analysis"></a>
@@ -556,9 +655,10 @@ value, <code>"\u2014"</code>, can also be directly used.</p>
 <div class="section level2">
 <h2 id="drill-down-functionality">Drill down functionality<a class="anchor" aria-label="anchor" href="#drill-down-functionality"></a>
 </h2>
-<p>When a cell is clicked the set of subjects in the cell is shown. Each
-of the ids is clickable and it allows exploring that participant in an
-additional module, for example <code>dv.papo</code>.</p>
+<p>When a cell is clicked the set of participants contributing to the
+cell is shown. Each of the identifiers is clickable and it allows
+exploring that participant in an additional module, for example
+<code>dv.papo</code>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

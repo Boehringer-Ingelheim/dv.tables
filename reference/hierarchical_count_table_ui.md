@@ -7,8 +7,10 @@ UI for the event count module
 ``` r
 hierarchical_count_table_ui(
   id,
+  show_pop_flag_selection = FALSE,
   show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
+  default_pop_flags_after_groups = FALSE,
   default_total = TRUE,
   default_risk = FALSE,
   default_min_percent = 0,
@@ -24,6 +26,14 @@ hierarchical_count_table_ui(
   `[character(0)]`
 
   The ID for the event count module instance.
+
+- show_pop_flag_selection:
+
+  `[logical(1)]`
+
+  A flag to indicate whether to show the population flag selection.
+  Other associated arguments are `default_pop_flags` and
+  `pop_flag_choices`.
 
 - show_event_group_by:
 
@@ -41,6 +51,15 @@ hierarchical_count_table_ui(
   selections (event/origin/censor date selections, and time at risk
   checkbox). This is ignored when `show_event_group_by` is `TRUE`, both
   cannot be shown together.
+
+- default_pop_flags_after_groups:
+
+  `[logical(1)]`
+
+  A flag specifying the default value for the checkbox that determines
+  whether to show the population flags after the group variables.
+
+  Not applicable when `show_pop_flag_selection` is `FALSE`.
 
 - default_total:
 

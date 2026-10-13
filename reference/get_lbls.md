@@ -1,4 +1,4 @@
-# Get all labels from a dataframe
+# Get all labels from a data frame
 
 It will try to read the label attribute from each of the columns.
 
@@ -14,7 +14,7 @@ get_lbls_robust(df)
 
 - df:
 
-  a dataframe.
+  a data frame.
 
 ## Value
 

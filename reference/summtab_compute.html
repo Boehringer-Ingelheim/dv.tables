@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <span>  group_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  row_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pop_flag_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  flagged_row_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  subjid_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stats_functions <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stats_formats <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -97,6 +98,10 @@
 
 <dt id="arg-pop-flag-vars">pop_flag_vars<a class="anchor" aria-label="anchor" href="#arg-pop-flag-vars"></a></dt>
 <dd><p>A vector of names of population flag variables from <code>pop_df</code>.</p></dd>
+
+
+<dt id="arg-flagged-row-vars">flagged_row_vars<a class="anchor" aria-label="anchor" href="#arg-flagged-row-vars"></a></dt>
+<dd><p>A vector of names of flagged row variables from <code>tbl_df</code>.</p></dd>
 
 
 <dt id="arg-subjid-var">subjid_var<a class="anchor" aria-label="anchor" href="#arg-subjid-var"></a></dt>
@@ -164,6 +169,8 @@ population group combination, ".first" flags for rendering.</p></li>
 <li><p><code>meta</code>: A list of metadata:</p><ul><li><p><code>anl_var</code>: A vector of analysis variable names.</p></li>
 <li><p><code>group_vars</code>: A vector of group variable names.</p></li>
 <li><p><code>row_vars</code>: A vector of row variable names.</p></li>
+<li><p><code>pop_flag_vars</code>: A vector of population flag variable names.</p></li>
+<li><p><code>flagged_row_vars</code>: A vector of flagged row variable names.</p></li>
 <li><p><code>flag_columns</code>: A vector of names of columns holding the ".first" flags for rendering.</p></li>
 <li><p><code>data_columns</code>: A vector of names of columns holding the statistics for each population group combination.</p></li>
 <li><p><code>total_group_val</code>: A string indicating the label for the total group column.</p></li>

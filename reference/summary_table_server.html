@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,15 +62,16 @@
 <span>  stats_labels <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stats_replace <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  default_summarize_on <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  default_group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  default_row_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  default_pop_flags <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  choices_summarize_on <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  default_group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  choices_group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  default_row_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  choices_row_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  default_pop_flags <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  choices_pop_flags <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  total_group_val <span class="op">=</span> <span class="st">"Total"</span>,</span>
-<span>  allow_aggregation <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  flagged_row_processing <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  table_dataset_unfiltered <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  total_group_val <span class="op">=</span> <span class="st">"Total"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -95,7 +96,7 @@
 
 <dt id="arg-subjid-var">subjid_var<a class="anchor" aria-label="anchor" href="#arg-subjid-var"></a></dt>
 <dd><p><code>[character(1)]</code></p>
-<p>A string representing the subject identifier column in both datasets.</p></dd>
+<p>A string representing the participant identifier column in both datasets.</p></dd>
 
 
 <dt id="arg-show-pop-flag-selection">show_pop_flag_selection<a class="anchor" aria-label="anchor" href="#arg-show-pop-flag-selection"></a></dt>
@@ -106,19 +107,19 @@ and <code>choices_pop_flags</code>.</p></dd>
 
 <dt id="arg-show-aggregate-method">show_aggregate_method<a class="anchor" aria-label="anchor" href="#arg-show-aggregate-method"></a></dt>
 <dd><p><code>[logical(1)]</code></p>
-<p>A flag to indicate whether to show (and apply) aggregate methods. If more than one row per subject exists after
+<p>A flag to indicate whether to show (and apply) aggregate methods. If more than one row per participant exists after
 population grouping and row categorization has been applied then aggreation of those rows can be applied using a
 selected method. Other associated arguments are <code>default_aggregate_method</code> and <code>choices_aggregate_method</code>.</p></dd>
 
 
 <dt id="arg-show-modal-on-click">show_modal_on_click<a class="anchor" aria-label="anchor" href="#arg-show-modal-on-click"></a></dt>
 <dd><p><code>[logical(1)]</code></p>
-<p>A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.</p></dd>
+<p>A flag to indicate whether clicking a table cell should display a modal dialog with the participant IDs.</p></dd>
 
 
 <dt id="arg-on-sbj-click-fun">on_sbj_click_fun<a class="anchor" aria-label="anchor" href="#arg-on-sbj-click-fun"></a></dt>
 <dd><p><code>[function]</code></p>
-<p>Function to invoke when a subject is clicked.</p></dd>
+<p>Function to invoke when a participant identifier is clicked.</p></dd>
 
 
 <dt id="arg-stats-functions">stats_functions<a class="anchor" aria-label="anchor" href="#arg-stats-functions"></a></dt>
@@ -145,7 +146,7 @@ formatted as character.</p></dd>
 
 
 <dt id="arg-stats-labels">stats_labels<a class="anchor" aria-label="anchor" href="#arg-stats-labels"></a></dt>
-<dd><p><code>[list(1+) | NULL]</code></p>
+<dd><p><code>[character(1+) | NULL]</code></p>
 <p>A named vector of statistics labels that should be used in the summary table. The names correspond to the names
 assigned in the <code>stats_formats</code> list, or otherwise the names in the <code>stats_functions</code> list.</p>
 <p>Labels apply to UI statistics checkbox labels and table statistics labels. Note that if a function defined in
@@ -169,30 +170,17 @@ names of the list elements in <code>stats_formats</code>.</p></dd>
 (optional).</p></dd>
 
 
-<dt id="arg-default-group-by">default_group_by<a class="anchor" aria-label="anchor" href="#arg-default-group-by"></a></dt>
-<dd><p><code>[character(1+) | NULL]</code></p>
-<p>A vector of variable names from the population dataset, used as the default for selected variables to group by
-(optional).</p></dd>
-
-
-<dt id="arg-default-row-by">default_row_by<a class="anchor" aria-label="anchor" href="#arg-default-row-by"></a></dt>
-<dd><p><code>[character(1+) | NULL]</code></p>
-<p>A vector of variable names from the dataset specified by <code>table_dataset_name</code>, used as the default for selected
-variables to categorize on (optional).</p></dd>
-
-
-<dt id="arg-default-pop-flags">default_pop_flags<a class="anchor" aria-label="anchor" href="#arg-default-pop-flags"></a></dt>
-<dd><p><code>[character(1+) | NULL]</code></p>
-<p>A vector of variable names from the population dataset, used as the default for selected population flag variables
-(optional).</p>
-<p>Subjects are identified as being within a population when the value of the flag variable is <code>"Y"</code>.</p></dd>
-
-
 <dt id="arg-choices-summarize-on">choices_summarize_on<a class="anchor" aria-label="anchor" href="#arg-choices-summarize-on"></a></dt>
 <dd><p><code>[character(1+) | NULL]</code></p>
 <p>A vector of variable names from the analysis dataset, specifying the possible choices for the variables to summarize
 on (optional). If it is not specified then all variables from the analysis dataset, excluding <code>Date</code> and <code>POSIXt</code>
 class variables, will be used.</p></dd>
+
+
+<dt id="arg-default-group-by">default_group_by<a class="anchor" aria-label="anchor" href="#arg-default-group-by"></a></dt>
+<dd><p><code>[character(1+) | NULL]</code></p>
+<p>A vector of variable names from the population dataset, used as the default for selected variables to group by
+(optional).</p></dd>
 
 
 <dt id="arg-choices-group-by">choices_group_by<a class="anchor" aria-label="anchor" href="#arg-choices-group-by"></a></dt>
@@ -201,10 +189,23 @@ class variables, will be used.</p></dd>
 (optional). If it is not specified then all factor and character variables from the population dataset will be used.</p></dd>
 
 
+<dt id="arg-default-row-by">default_row_by<a class="anchor" aria-label="anchor" href="#arg-default-row-by"></a></dt>
+<dd><p><code>[character(1+) | NULL]</code></p>
+<p>A vector of variable names from the dataset specified by <code>table_dataset_name</code>, used as the default for selected
+variables to categorize on (optional).</p></dd>
+
+
 <dt id="arg-choices-row-by">choices_row_by<a class="anchor" aria-label="anchor" href="#arg-choices-row-by"></a></dt>
 <dd><p><code>[character(1+) | NULL]</code></p>
 <p>A vector of variable names from the analysis dataset, specifying the possible choices for the variables to categorize
 on (optional). If it is not specified then all factor and character variables from the analysis dataset will be used.</p></dd>
+
+
+<dt id="arg-default-pop-flags">default_pop_flags<a class="anchor" aria-label="anchor" href="#arg-default-pop-flags"></a></dt>
+<dd><p><code>[character(1+) | NULL]</code></p>
+<p>A vector of variable names from the population dataset, used as the default for selected population flag variables
+(optional).</p>
+<p>Participants are identified as being within a population when the value of the flag variable is <code>"Y"</code>.</p></dd>
 
 
 <dt id="arg-choices-pop-flags">choices_pop_flags<a class="anchor" aria-label="anchor" href="#arg-choices-pop-flags"></a></dt>
@@ -212,7 +213,25 @@ on (optional). If it is not specified then all factor and character variables fr
 <p>A vector of variable names from the population dataset, specifying the possible choices for the population flag
 variables (optional). If it is not specified then all <code>FL</code> suffixed factor and character variables from the
 population dataset will be used.</p>
-<p>Subjects are identified as being within a population when the value of the flag variable is <code>"Y"</code>.</p></dd>
+<p>Participants are identified as being within a population when the value of the flag variable is <code>"Y"</code>.</p></dd>
+
+
+<dt id="arg-flagged-row-processing">flagged_row_processing<a class="anchor" aria-label="anchor" href="#arg-flagged-row-processing"></a></dt>
+<dd><p><code>[list(1+) | NULL]</code></p>
+<p>A list of lists defining the processing and categorization of flagged rows. If NULL then flagged rows will not
+be processed. Each sub-list corresponds to a single flag variable, and has the following elements:</p><ul><li><p><code>flag_var</code>: String naming the flag variable to evaluate (e.g. <code>"LVOTFL"</code>).</p></li>
+<li><p><code>dependent_vars</code>: A vector of variable names from the analysis dataset, indicating the variables that the flag
+variable is grouped by (e.g. <code>c("USUBJID", "PARAM")</code>). This ensures global filtering on the analysis dataset is
+applied to the flagged rows for these dependent variables.</p></li>
+<li><p><code>var_assignments</code>: A named list of variable assignments, where names correspond to target dataset columns and
+values represent the replacement values, e.g. if creating last value on treatment visits, then an example
+assignment would be <code>AVISIT = "Last value on treatment"</code>.</p></li>
+</ul><p>Each flagged row is duplicated with the specified variable assignments applied.</p></dd>
+
+
+<dt id="arg-table-dataset-unfiltered">table_dataset_unfiltered<a class="anchor" aria-label="anchor" href="#arg-table-dataset-unfiltered"></a></dt>
+<dd><p><code>[data.frame | NULL]</code></p>
+<p>A reactive dataset containing the unfiltered analysis data, used for flagged row processing.</p></dd>
 
 
 <dt id="arg-total-group-val">total_group_val<a class="anchor" aria-label="anchor" href="#arg-total-group-val"></a></dt>
@@ -222,7 +241,7 @@ population dataset will be used.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A reactive value containing the list of subjects in the clicked cell, if applicable.</p>
+    <p>A reactive value containing the list of participant identifiers in the clicked cell, if applicable.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

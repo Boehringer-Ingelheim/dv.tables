@@ -10,6 +10,7 @@ hierarchical_count_table_server(
   table_dataset,
   pop_dataset,
   subjid_var,
+  show_pop_flag_selection = FALSE,
   show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
@@ -18,6 +19,8 @@ hierarchical_count_table_server(
   hierarchy_choices = NULL,
   default_group = NULL,
   group_choices = NULL,
+  default_pop_flags = NULL,
+  pop_flag_choices = NULL,
   default_event_group = NULL,
   event_group_choices = NULL,
   default_event_date = NULL,
@@ -26,13 +29,14 @@ hierarchical_count_table_server(
   origin_date_choices = NULL,
   default_censor_date = NULL,
   censor_date_choices = NULL,
-  intended_use_label = NULL,
   smq_name = NULL,
   smq_vars = NULL,
   smq_na_label = "Other",
   udaec_name = NULL,
   udaec_list = NULL,
-  udaec_na_label = "Other"
+  udaec_na_label = "Other",
+  any_event_text = "Participants with any event",
+  intended_use_label = NULL
 )
 ```
 
@@ -60,7 +64,16 @@ hierarchical_count_table_server(
 
   `[character(1)]`
 
-  A string representing the subject identifier column in both datasets.
+  A string representing the participant identifier column in both
+  datasets.
+
+- show_pop_flag_selection:
+
+  `[logical(1)]`
+
+  A flag to indicate whether to show the population flag selection.
+  Other associated arguments are `default_pop_flags` and
+  `pop_flag_choices`.
 
 - show_event_group_by:
 
@@ -84,13 +97,13 @@ hierarchical_count_table_server(
   `[logical(1)]`
 
   A flag to indicate whether clicking a table cell should display a
-  modal dialog with the subject IDs.
+  modal dialog with the participant IDs.
 
 - on_sbj_click_fun:
 
   `[function]`
 
-  Function to invoke when a subject is clicked
+  Function to invoke when a participant identifier is clicked
 
 - default_hierarchy:
 
@@ -111,17 +124,43 @@ hierarchical_count_table_server(
 
 - default_group:
 
-  `[character(1)|NULL]`
+  `[character(1|2)|NULL]`
 
-  A default value for the group variable selection (optional).
+  A default value for the group variables selection (optional).
 
 - group_choices:
 
   `[character(1+)|NULL]`
 
   A character vector specifying the possible choices for the group
-  variable selection (optional). If it is not specified then all factor
+  variables selection (optional). If it is not specified then all factor
   and character variables from the population data will be used.
+
+- default_pop_flags:
+
+  `[character(1+) | NULL]`
+
+  A vector of variable names from the population dataset, used as the
+  default for selected population flag variables (optional).
+
+  Participants are identified as being within a population when the
+  value of the flag variable is `"Y"`.
+
+  Not applicable when `show_pop_flag_selection` is `FALSE`.
+
+- pop_flag_choices:
+
+  `[character(1+) | NULL]`
+
+  A vector of variable names from the population dataset, specifying the
+  possible choices for the population flag variables (optional). If it
+  is not specified then all `FL` suffixed factor and character variables
+  from the population dataset will be used.
+
+  Participants are identified as being within a population when the
+  value of the flag variable is `"Y"`.
+
+  Not applicable when `show_pop_flag_selection` is `FALSE`.
 
 - default_event_group:
 
@@ -185,14 +224,6 @@ hierarchical_count_table_server(
   variables of class "Date" from the population data will be used. Not
   applicable when `show_time_at_risk_options` is `FALSE`.
 
-- intended_use_label:
-
-  `[character(1)|NULL]`
-
-  Either a string indicating the intended use for export, or NULL. The
-  provided label will be displayed prior to the download and will also
-  be included in the exported file.
-
 - smq_name:
 
   `[character(1)]`
@@ -214,7 +245,7 @@ hierarchical_count_table_server(
   `[character(1)]`
 
   Label used for the derived SMQ hierarchy variable (`smq_name`) when
-  the source values in `smq_vars` are missing/`NA` for a subject.
+  the source values in `smq_vars` are missing/`NA` for a participant.
   Defaults to `"Other"`.
 
 - udaec_name:
@@ -266,10 +297,26 @@ hierarchical_count_table_server(
   `[character(1)]`
 
   Label used for the derived UDAEC hierarchy variable (`udaec_name`) for
-  subjects that do not match any of the categories defined in
+  participants that do not match any of the categories defined in
   `udaec_list`. Defaults to `"Other"`.
+
+- any_event_text:
+
+  `[character(1)]`
+
+  A string specifying the text to be displayed in the table row for
+  participants with any event. Defaults to
+  `"Participants with any event"`.
+
+- intended_use_label:
+
+  `[character(1)|NULL]`
+
+  Either a string indicating the intended use for export, or NULL. The
+  provided label will be displayed prior to the download and will also
+  be included in the exported file.
 
 ## Value
 
-A reactive value containing the list of subjects in the clicked cell, if
-applicable.
+A reactive value containing the list of participant identifiers in the
+clicked cell, if applicable.

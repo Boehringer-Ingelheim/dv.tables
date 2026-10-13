@@ -10,6 +10,7 @@ mod_hierarchical_count_table(
   table_dataset_name,
   pop_dataset_name,
   subjid_var = "USUBJID",
+  show_pop_flag_selection = FALSE,
   show_event_group_by = FALSE,
   show_time_at_risk_options = FALSE,
   show_modal_on_click = TRUE,
@@ -20,6 +21,9 @@ mod_hierarchical_count_table(
   default_total = TRUE,
   default_min_percent = 0,
   default_remove_rows_under_min_percent = FALSE,
+  default_pop_flags = NULL,
+  pop_flag_choices = NULL,
+  default_pop_flags_after_groups = FALSE,
   default_event_group = NULL,
   event_group_choices = NULL,
   default_event_date = NULL,
@@ -35,6 +39,7 @@ mod_hierarchical_count_table(
   udaec_name = "UDAEC",
   udaec_list = NULL,
   udaec_na_label = "Other",
+  any_event_text = "Participants with any event",
   intended_use_label =
     "Use only for internal review and monitoring during the conduct of clinical trials.",
   receiver_id = NULL
@@ -65,7 +70,16 @@ mod_hierarchical_count_table(
 
   `[character(1)]`
 
-  A string representing the subject identifier column in both datasets.
+  A string representing the participant identifier column in both
+  datasets.
+
+- show_pop_flag_selection:
+
+  `[logical(1)]`
+
+  A flag to indicate whether to show the population flag selection.
+  Other associated arguments are `default_pop_flags` and
+  `pop_flag_choices`.
 
 - show_event_group_by:
 
@@ -89,7 +103,7 @@ mod_hierarchical_count_table(
   `[logical(1)]`
 
   A flag to indicate whether clicking a table cell should display a
-  modal dialog with the subject IDs.
+  modal dialog with the participant IDs.
 
 - default_hierarchy:
 
@@ -110,16 +124,16 @@ mod_hierarchical_count_table(
 
 - default_group:
 
-  `[character(1)|NULL]`
+  `[character(1|2)|NULL]`
 
-  A default value for the group variable selection (optional).
+  A default value for the group variables selection (optional).
 
 - group_choices:
 
   `[character(1+)|NULL]`
 
   A character vector specifying the possible choices for the group
-  variable selection (optional). If it is not specified then all factor
+  variables selection (optional). If it is not specified then all factor
   and character variables from the population data will be used.
 
 - default_total:
@@ -146,6 +160,41 @@ mod_hierarchical_count_table(
   no displayed group cell meets `default_min_percent`. When `FALSE`, the
   rows remain visible and only cells below the threshold are replaced by
   a dash.
+
+- default_pop_flags:
+
+  `[character(1+) | NULL]`
+
+  A vector of variable names from the population dataset, used as the
+  default for selected population flag variables (optional).
+
+  Participants are identified as being within a population when the
+  value of the flag variable is `"Y"`.
+
+  Not applicable when `show_pop_flag_selection` is `FALSE`.
+
+- pop_flag_choices:
+
+  `[character(1+) | NULL]`
+
+  A vector of variable names from the population dataset, specifying the
+  possible choices for the population flag variables (optional). If it
+  is not specified then all `FL` suffixed factor and character variables
+  from the population dataset will be used.
+
+  Participants are identified as being within a population when the
+  value of the flag variable is `"Y"`.
+
+  Not applicable when `show_pop_flag_selection` is `FALSE`.
+
+- default_pop_flags_after_groups:
+
+  `[logical(1)]`
+
+  A flag specifying the default value for the checkbox that determines
+  whether to show the population flags after the group variables.
+
+  Not applicable when `show_pop_flag_selection` is `FALSE`.
 
 - default_event_group:
 
@@ -237,7 +286,7 @@ mod_hierarchical_count_table(
   `[character(1)]`
 
   Label used for the derived SMQ hierarchy variable (`smq_name`) when
-  the source values in `smq_vars` are missing/`NA` for a subject.
+  the source values in `smq_vars` are missing/`NA` for a participant.
   Defaults to `"Other"`.
 
 - udaec_name:
@@ -289,8 +338,16 @@ mod_hierarchical_count_table(
   `[character(1)]`
 
   Label used for the derived UDAEC hierarchy variable (`udaec_name`) for
-  subjects that do not match any of the categories defined in
+  participants that do not match any of the categories defined in
   `udaec_list`. Defaults to `"Other"`.
+
+- any_event_text:
+
+  `[character(1)]`
+
+  A string specifying the text to be displayed in the table row for
+  participants with any event. Defaults to
+  `"Participants with any event"`.
 
 - intended_use_label:
 
@@ -304,5 +361,5 @@ mod_hierarchical_count_table(
 
   `[character(1)|NULL]`
 
-  Shiny ID of the module receiving the selected subject ID in the data
-  listing. This ID must be present in the app or be NULL.
+  Unique identifier for the module receiving the selected participant ID
+  in the data listing. This ID must be present in the app or be NULL.

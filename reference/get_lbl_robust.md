@@ -1,6 +1,6 @@
-# Robust getter for dataframe labels
+# Robust getter for data frame labels
 
-It returns the label of the column of a dataframe if it is not NULL.
+It returns the label of the column of a data frame if it is not NULL.
 Otherwise it returns the name of the column.
 
 ## Usage
@@ -13,11 +13,11 @@ get_lbl_robust(df, var)
 
 - df:
 
-  a dataframe.
+  a data frame.
 
 - var:
 
-  a column of the dataframe
+  a column of the data frame
 
 ## Value
 

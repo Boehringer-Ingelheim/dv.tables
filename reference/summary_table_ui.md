@@ -17,9 +17,9 @@ summary_table_ui(
   default_show_category_n = TRUE,
   default_denom = "N",
   default_stats = NULL,
+  choices_stats = NULL,
   default_aggregate_method = NULL,
-  choices_aggregate_method = NULL,
-  choices_stats = NULL
+  choices_aggregate_method = NULL
 )
 ```
 
@@ -44,9 +44,9 @@ summary_table_ui(
   `[logical(1)]`
 
   A flag to indicate whether to show (and apply) aggregate methods. If
-  more than one row per subject exists after population grouping and row
-  categorization has been applied then aggreation of those rows can be
-  applied using a selected method. Other associated arguments are
+  more than one row per participant exists after population grouping and
+  row categorization has been applied then aggreation of those rows can
+  be applied using a selected method. Other associated arguments are
   `default_aggregate_method` and `choices_aggregate_method`.
 
 - default_pop_flags_after_groups:
@@ -83,7 +83,7 @@ summary_table_ui(
   `[logical(1)]`
 
   A flag specifying the default value for the checkbox that determines
-  whether to remove cols with no subject data. analysis results.
+  whether to remove cols with no participant data.
 
 - default_show_category_n:
 
@@ -98,10 +98,10 @@ summary_table_ui(
 
   A string, either "N" or "n", indicating the default of whether the
   denominator for categorical data should be taken as the number of
-  subjects from the population grouping ("N") or the number of subjects
-  from the 'row by' grouping for each population grouping ("n"). If the
-  user selects to drop `NA` values then those values will be excluded
-  from determining the "n" denominator.
+  participants from the population grouping ("N") or the number of
+  participants from the 'row by' grouping for each population grouping
+  ("n"). If the user selects to drop `NA` values then those values will
+  be excluded from determining the "n" denominator.
 
 - default_stats:
 
@@ -111,6 +111,15 @@ summary_table_ui(
   `stats_formats` or `stats_functions`, used as the default selection of
   statistics for summarizing numerical data.
 
+- choices_stats:
+
+  `[character(1+) | NULL]`
+
+  A vector of strings from the names of the list elements from
+  [`summary_table_server()`](https://boehringer-ingelheim.github.io/dv.tables/reference/summary_table_server.md)
+  arguments, `stats_formats` and `stats_functions`, used as the choice
+  of statistics for summarizing numerical data.
+
 - default_aggregate_method:
 
   `[character(1) | NULL]`
@@ -118,7 +127,7 @@ summary_table_ui(
   A string indicating the function name defined in
   `choices_aggregate_method` to use as the default for aggregating rows
   when `show_aggregate_method = TRUE`. The function is applied to the
-  analysis variable when more than one row per subject exists after
+  analysis variable when more than one row per participant exists after
   population grouping and row categorization has been applied. The
   double colon (`::`) namespace resolution operator can be used to
   specify a function from a specific package, e.g., `"dplyr::first"`.
@@ -130,20 +139,11 @@ summary_table_ui(
   A vector of named strings indicating the functions that can be used
   for aggregating rows when `show_aggregate_method = TRUE`. The
   functions apply to the analysis variable when more than one row per
-  subject exists after population grouping and row categorization has
-  been applied. The double colon (`::`) namespace resolution operator
-  can be used to specify functions from specific packages, e.g.,
-  `"dplyr::first"`. The names associated to the vector elements are
-  displayed in the UI radio button selections.
-
-- choices_stats:
-
-  `[character(1+) | NULL]`
-
-  A vector of strings from the names of the list elements from
-  [`summary_table_server()`](https://boehringer-ingelheim.github.io/dv.tables/reference/summary_table_server.md)
-  arguments, `stats_formats` and `stats_functions`, used as the choice
-  of statistics for summarizing numerical data.
+  participant exists after population grouping and row categorization
+  has been applied. The double colon (`::`) namespace resolution
+  operator can be used to specify functions from specific packages,
+  e.g., `"dplyr::first"`. The names associated to the vector elements
+  are displayed in the UI radio button selections.
 
 ## Value
 

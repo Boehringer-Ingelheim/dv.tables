@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +53,7 @@
 <span>  <span class="va">table_dataset_name</span>,</span>
 <span>  <span class="va">pop_dataset_name</span>,</span>
 <span>  subjid_var <span class="op">=</span> <span class="st">"USUBJID"</span>,</span>
+<span>  show_pop_flag_selection <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_event_group_by <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_time_at_risk_options <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_modal_on_click <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -63,6 +64,9 @@
 <span>  default_total <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  default_min_percent <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  default_remove_rows_under_min_percent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  default_pop_flags <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pop_flag_choices <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  default_pop_flags_after_groups <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  default_event_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  event_group_choices <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  default_event_date <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -78,6 +82,7 @@
 <span>  udaec_name <span class="op">=</span> <span class="st">"UDAEC"</span>,</span>
 <span>  udaec_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  udaec_na_label <span class="op">=</span> <span class="st">"Other"</span>,</span>
+<span>  any_event_text <span class="op">=</span> <span class="st">"Participants with any event"</span>,</span>
 <span>  intended_use_label <span class="op">=</span></span>
 <span>    <span class="st">"Use only for internal review and monitoring during the conduct of clinical trials."</span>,</span>
 <span>  receiver_id <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -105,7 +110,13 @@
 
 <dt id="arg-subjid-var">subjid_var<a class="anchor" aria-label="anchor" href="#arg-subjid-var"></a></dt>
 <dd><p><code>[character(1)]</code></p>
-<p>A string representing the subject identifier column in both datasets.</p></dd>
+<p>A string representing the participant identifier column in both datasets.</p></dd>
+
+
+<dt id="arg-show-pop-flag-selection">show_pop_flag_selection<a class="anchor" aria-label="anchor" href="#arg-show-pop-flag-selection"></a></dt>
+<dd><p><code>[logical(1)]</code></p>
+<p>A flag to indicate whether to show the population flag selection. Other associated arguments are <code>default_pop_flags</code>
+and <code>pop_flag_choices</code>.</p></dd>
 
 
 <dt id="arg-show-event-group-by">show_event_group_by<a class="anchor" aria-label="anchor" href="#arg-show-event-group-by"></a></dt>
@@ -123,7 +134,7 @@ both cannot be shown together.</p></dd>
 
 <dt id="arg-show-modal-on-click">show_modal_on_click<a class="anchor" aria-label="anchor" href="#arg-show-modal-on-click"></a></dt>
 <dd><p><code>[logical(1)]</code></p>
-<p>A flag to indicate whether clicking a table cell should display a modal dialog with the subject IDs.</p></dd>
+<p>A flag to indicate whether clicking a table cell should display a modal dialog with the participant IDs.</p></dd>
 
 
 <dt id="arg-default-hierarchy">default_hierarchy<a class="anchor" aria-label="anchor" href="#arg-default-hierarchy"></a></dt>
@@ -140,13 +151,13 @@ If it is not specified then all factor and character variables from the event da
 
 
 <dt id="arg-default-group">default_group<a class="anchor" aria-label="anchor" href="#arg-default-group"></a></dt>
-<dd><p><code>[character(1)|NULL]</code></p>
-<p>A default value for the group variable selection (optional).</p></dd>
+<dd><p><code>[character(1|2)|NULL]</code></p>
+<p>A default value for the group variables selection (optional).</p></dd>
 
 
 <dt id="arg-group-choices">group_choices<a class="anchor" aria-label="anchor" href="#arg-group-choices"></a></dt>
 <dd><p><code>[character(1+)|NULL]</code></p>
-<p>A character vector specifying the possible choices for the group variable selection (optional).
+<p>A character vector specifying the possible choices for the group variables selection (optional).
 If it is not specified then all factor and character variables from the population data will be used.</p></dd>
 
 
@@ -167,6 +178,30 @@ show a dash instead of their count and percentage. The default is <code>0</code>
 <p>Initial setting controlling whether to remove hierarchy rows for which no
 displayed group cell meets <code>default_min_percent</code>. When <code>FALSE</code>, the rows
 remain visible and only cells below the threshold are replaced by a dash.</p></dd>
+
+
+<dt id="arg-default-pop-flags">default_pop_flags<a class="anchor" aria-label="anchor" href="#arg-default-pop-flags"></a></dt>
+<dd><p><code>[character(1+) | NULL]</code></p>
+<p>A vector of variable names from the population dataset, used as the default for selected population flag variables
+(optional).</p>
+<p>Participants are identified as being within a population when the value of the flag variable is <code>"Y"</code>.</p>
+<p>Not applicable when <code>show_pop_flag_selection</code> is <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-pop-flag-choices">pop_flag_choices<a class="anchor" aria-label="anchor" href="#arg-pop-flag-choices"></a></dt>
+<dd><p><code>[character(1+) | NULL]</code></p>
+<p>A vector of variable names from the population dataset, specifying the possible choices for the population flag
+variables (optional). If it is not specified then all <code>FL</code> suffixed factor and character variables from the
+population dataset will be used.</p>
+<p>Participants are identified as being within a population when the value of the flag variable is <code>"Y"</code>.</p>
+<p>Not applicable when <code>show_pop_flag_selection</code> is <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-default-pop-flags-after-groups">default_pop_flags_after_groups<a class="anchor" aria-label="anchor" href="#arg-default-pop-flags-after-groups"></a></dt>
+<dd><p><code>[logical(1)]</code></p>
+<p>A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+group variables.</p>
+<p>Not applicable when <code>show_pop_flag_selection</code> is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-default-event-group">default_event_group<a class="anchor" aria-label="anchor" href="#arg-default-event-group"></a></dt>
@@ -242,7 +277,7 @@ no SMQ hierarchy is created.</p></dd>
 <dt id="arg-smq-na-label">smq_na_label<a class="anchor" aria-label="anchor" href="#arg-smq-na-label"></a></dt>
 <dd><p><code>[character(1)]</code></p>
 <p>Label used for the derived SMQ hierarchy variable (<code>smq_name</code>) when the
-source values in <code>smq_vars</code> are missing/<code>NA</code> for a subject. Defaults to
+source values in <code>smq_vars</code> are missing/<code>NA</code> for a participant. Defaults to
 <code>"Other"</code>.</p></dd>
 
 
@@ -284,8 +319,14 @@ selection and its categories can be filtered in the module UI.</p></dd>
 <dt id="arg-udaec-na-label">udaec_na_label<a class="anchor" aria-label="anchor" href="#arg-udaec-na-label"></a></dt>
 <dd><p><code>[character(1)]</code></p>
 <p>Label used for the derived UDAEC hierarchy variable (<code>udaec_name</code>) for
-subjects that do not match any of the categories defined in <code>udaec_list</code>.
+participants that do not match any of the categories defined in <code>udaec_list</code>.
 Defaults to <code>"Other"</code>.</p></dd>
+
+
+<dt id="arg-any-event-text">any_event_text<a class="anchor" aria-label="anchor" href="#arg-any-event-text"></a></dt>
+<dd><p><code>[character(1)]</code></p>
+<p>A string specifying the text to be displayed in the table row for participants with any event.
+Defaults to <code>"Participants with any event"</code>.</p></dd>
 
 
 <dt id="arg-intended-use-label">intended_use_label<a class="anchor" aria-label="anchor" href="#arg-intended-use-label"></a></dt>
@@ -296,8 +337,8 @@ prior to the download and will also be included in the exported file.</p></dd>
 
 <dt id="arg-receiver-id">receiver_id<a class="anchor" aria-label="anchor" href="#arg-receiver-id"></a></dt>
 <dd><p><code>[character(1)|NULL]</code></p>
-<p>Shiny ID of the module receiving the selected subject ID in the data listing. This ID must be present in the app
-or be NULL.</p></dd>
+<p>Unique identifier for the module receiving the selected participant ID in the data listing. This ID must be present
+in the app or be NULL.</p></dd>
 
 </dl></div>
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,15 +52,17 @@
 <span>  <span class="va">event_df</span>,</span>
 <span>  <span class="va">pop_df</span>,</span>
 <span>  hierarchy <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  group_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  group_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  subjid_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pop_flag_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  event_group_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  origin_date_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  censor_date_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  event_date_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  total <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  total_group_val <span class="op">=</span> <span class="st">"Total"</span>,</span>
-<span>  compute_risk <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  compute_risk <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  any_event_text <span class="op">=</span> <span class="st">"Participants with any event"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -84,15 +86,19 @@ A data frame containing the population data. It must have columns corresponding 
 A character vector of column names from <code>event_df</code> to use as the hierarchy.</p></dd>
 
 
-<dt id="arg-group-var">group_var<a class="anchor" aria-label="anchor" href="#arg-group-var"></a></dt>
+<dt id="arg-group-vars">group_vars<a class="anchor" aria-label="anchor" href="#arg-group-vars"></a></dt>
 <dd><p><code>character(1)</code>
-A string representing the column name in <code>pop_df</code> used for grouping the population data.</p></dd>
+A character vector of column names from <code>pop_df</code> used for grouping the population data.</p></dd>
 
 
 <dt id="arg-subjid-var">subjid_var<a class="anchor" aria-label="anchor" href="#arg-subjid-var"></a></dt>
 <dd><p><code>character(1)</code>
 A string representing the subject identifier column name. This column must be present in both <code>event_df</code> and
 <code>pop_df</code>.</p></dd>
+
+
+<dt id="arg-pop-flag-vars">pop_flag_vars<a class="anchor" aria-label="anchor" href="#arg-pop-flag-vars"></a></dt>
+<dd><p>A vector of names of population flag variables from <code>pop_df</code>.</p></dd>
 
 
 <dt id="arg-event-group-var">event_group_var<a class="anchor" aria-label="anchor" href="#arg-event-group-var"></a></dt>
@@ -134,6 +140,18 @@ A logical indicating whether to calculate time at risk and incidence rate.</p></
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list containing:</p><ul><li><p><code>df</code>: A data frame with the processed event data, including counts and percentages.</p></li>
 <li><p><code>meta</code>: A list containing metadata related to the hierarchy, group variable, and subject counts.</p></li>
+<li><p><code>meta</code>: A list of metadata:</p><ul><li><p><code>hierarchy</code>: A vector of hierarchy variable names.</p></li>
+<li><p><code>group_var</code>: A string indicating the group variable name.</p></li>
+<li><p><code>event_group_var</code>: A string indicating the event group variable name.</p></li>
+<li><p><code>event_group_vals</code>: A vector of event group values.</p></li>
+<li><p><code>pop_flag_vars</code>: A vector of population flag variable names.</p></li>
+<li><p><code>total_vars</code>: A vector of variable names that will have a total column displayed in the table.</p></li>
+<li><p><code>total_group_val</code>: A string indicating the label for the total group column.</p></li>
+<li><p><code>denom_df</code>: A data frame of population group denominator data.</p></li>
+<li><p><code>table_type</code>: A string, either "frequency" or "time_at_risk", indicating the table type.</p></li>
+<li><p><code>any_event_text</code>: A string specifying the text to be displayed in the table row for participants with any event.</p></li>
+<li><p><code>warning_message</code>: A string indicating a warning message to be raised by shiny::validate.</p></li>
+</ul></li>
 </ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

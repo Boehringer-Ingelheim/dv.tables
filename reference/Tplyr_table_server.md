@@ -81,8 +81,8 @@ Tplyr_table_server(
 
 - subjid_var:
 
-  `[character(1) | NULL]` Column corresponding to subject ID. Default
-  value is 'USUBJID'.
+  `[character(1) | NULL]` Column corresponding to participant ID.
+  Default value is 'USUBJID'.
 
 - default_vars:
 

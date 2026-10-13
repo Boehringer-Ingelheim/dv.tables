@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,14 +83,17 @@ risk and incidence rates.</p>
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
 <ul>
-<li>One to four levels of hierarchy, and a top-level summary of subjects
-with any event.</li>
-<li>Second level of hierarchy can be collapsed to only show the first
-level.</li>
-<li>First level of hierarchy can be collapsed to only show the subjects
-with any event.</li>
-<li>Grouping with group population size (N) displayed across columns of
-the table, with an optional “Total” column.</li>
+<li>Up to four levels of hierarchy, and a top-level summary of
+participants with any event.</li>
+<li>Hierarchy levels can be collapsed to only show higher levels. If the
+highest hierarchy level is collapsed then only the participants with any
+event top-level summary is shown.</li>
+<li>Up to two levels of grouping by population dataset variables define
+the columns of the summary table, with group population size (N)
+displayed for each column. A special grouping level derived from one or
+more population flagging variables can also be used.</li>
+<li>An optional “Total” group can be derived and displayed for the last
+population grouping level.</li>
 <li>Optionally apply sub-grouping by a variable from the events data
 (e.g. event severity).</li>
 <li>Event counts and percentages are displayed, and optionally time at
@@ -119,9 +122,9 @@ the module in the app.</li>
 contains the events per row, e.g., <code>"ADAE"</code>.</li>
 <li>
 <code>pop_dataset_name</code>: The name of the dataset that contains
-one row per subject in the total population, e.g., <code>"ADSL"</code>.
-It expects a one-record-per-subject dataset at least containing
-<code>subjid_var</code>, with a structure similar to <a href="https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806" class="external-link uri">https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806</a>
+one row per participant in the total population, e.g.,
+<code>"ADSL"</code>. It expects a one-record-per-participant dataset at
+least containing <code>subjid_var</code>, with a structure similar to <a href="https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806" class="external-link uri">https://www.cdisc.org/kb/examples/adam-subject-level-analysis-adsl-dataset-80283806</a>
 </li>
 </ul>
 <p>Please refer to
@@ -140,23 +143,74 @@ down the left side of the table, e.g. <code>AEBODSYS</code>,
 <code>AEDECOD</code>.</li>
 <li>
 <strong>Group by</strong>: Selection of a grouping variable from the
-subject-level population dataset, to be displayed across the top of the
-table, e.g. <code>TRT01P</code>.</li>
+participant-level population dataset, to be displayed across the top of
+the table, e.g. <code>TRT01P</code>.</li>
 <li>
 <strong>Minimum %</strong>: The minimum percentage threshold for
-filtering events. Each displayed group cell whose percentage of subjects
-is below this threshold has its event count and percentage replaced with
-a dash (—). Defaults to <code>0</code>.</li>
+filtering events. Each displayed group cell whose percentage of
+participants is below this threshold has its event count and percentage
+replaced with a dash (—). Defaults to <code>0</code>.</li>
 <li>
 <strong>Remove rows under minimum %</strong>: Checkbox that controls
 whether to remove entire rows (across all hierarchy levels) for which
-every group’s percentage of subjects falls below the <strong>Minimum
+every group’s percentage of participants falls below the <strong>Minimum
 %</strong> threshold, instead of just showing a dash for those
 cells.</li>
 <li>
 <strong>Total</strong>: Checkbox that controls whether or not to
 display a “Total” column totalling data from all group categories.</li>
 </ul>
+<p>The following input will also be available in the “Options” menu when
+the <code>show_pop_flag_selection</code> module argument is set to
+<code>TRUE</code>:</p>
+<ul>
+<li><p><strong>Population flags</strong>: Selection of one or more
+flagging variables from the population dataset, to be displayed across
+the top of the table. The flags are subsetting on <code>"Y"</code>
+values.</p></li>
+<li>
+<p><strong>Move after grouping variables</strong>: Checkbox that
+controls whether the flags should be moved to after (below) the grouping
+variables. Otherwise, they will appear before (above) the grouping
+variables.</p>
+<p>The following input will also be available in the “Options” menu when
+the <code>show_event_group_by</code> module argument is set to
+<code>TRUE</code>:</p>
+</li>
+<li><p><strong>Event group by</strong>: Selection of a sub-grouping
+variable from the table (events) dataset, to be displayed across the top
+of the table under the main grouping, e.g. <code>AESEV</code>.</p></li>
+</ul>
+<p>The following inputs will also be available in the “Options” menu
+when the <code>show_time_at_risk_options</code> module argument is set
+to <code>TRUE</code>:</p>
+<ul>
+<li>
+<strong>Event Date</strong>: A “Date” class
+(e.g. <code>ASTDT</code>) from the table events dataset. Events with
+missing dates will be excluded from the analysis.</li>
+<li>
+<strong>Origin Date</strong>: A “Date” class
+(e.g. <code>RANDDT</code>) from the participant-level population
+dataset. Events occurring before origin date will be excluded from the
+analysis.</li>
+<li>
+<strong>Censor Date</strong>: A “Date” class
+(e.g. <code>EOSDT</code>) from the participant-level population dataset.
+Events occurring after censor date will be excluded from the
+analysis.</li>
+<li>
+<strong>Time at Risk</strong>: Checkbox that controls whether or not
+to display time at risk and incidence rate columns. If a participant has
+a missing origin or censor date, time at risk cannot be calculated and
+the participant will be excluded from the population count. Note that
+even if the checkbox is unchecked, events will still be selected based
+on event, origin and censor dates, but population count will not be
+affected.</li>
+</ul>
+<p>Note that if event group-by has been specified
+(<code>show_event_group_by</code> module argument set to TRUE) then
+time-at-risk options are not available.</p>
 <p>When <code>smq_vars</code> is supplied, the module derives an SMQ
 hierarchy from those columns. If <code>udaec_list</code> is also
 supplied, it can derive UDAEC categories from SMQ variables and
@@ -226,44 +280,6 @@ preferred terms. The preferred-term column, such as
 <code>AEDECOD</code>, must exist in the event dataset. Once
 <code>SMQ</code> or <code>UDAEC</code> is selected as a hierarchy, the
 module displays an additional category filter in the Options menu.</p>
-<p>The following input will also be available in the “Options” menu when
-the <code>show_event_group_by</code> module argument is set to
-<code>TRUE</code>:</p>
-<ul>
-<li>
-<strong>Event group by</strong>: Selection of a sub-grouping
-variable from the table (events) dataset, to be displayed across the top
-of the table under the main grouping, e.g. <code>AESEV</code>.</li>
-</ul>
-<p>The following inputs will also be available in the “Options” menu
-when the <code>show_time_at_risk_options</code> module argument is set
-to <code>TRUE</code>:</p>
-<ul>
-<li>
-<strong>Event Date</strong>: A “Date” class
-(e.g. <code>ASTDT</code>) from the table events dataset. Events with
-missing dates will be excluded from the analysis.</li>
-<li>
-<strong>Origin Date</strong>: A “Date” class
-(e.g. <code>RANDDT</code>) from the subject-level population dataset.
-Events occurring before origin date will be excluded from the
-analysis.</li>
-<li>
-<strong>Censor Date</strong>: A “Date” class
-(e.g. <code>EOSDT</code>) from the subject-level population dataset.
-Events occurring after censor date will be excluded from the
-analysis.</li>
-<li>
-<strong>Time at Risk</strong>: Checkbox that controls whether or not
-to display time at risk and incidence rate columns. If a subject has a
-missing origin or censor date, time at risk cannot be calculated and the
-subject will be excluded from the population count. Note that even if
-the checkbox is unchecked, events will still be selected based on event,
-origin and censor dates, but population count will not be affected.</li>
-</ul>
-<p>Note that if event group-by has been specified
-(<code>show_event_group_by</code> module argument set to TRUE) then
-time-at-risk options are not available.</p>
 </div>
 </div>
 <div class="section level2">
@@ -288,6 +304,13 @@ table events dataset.</p>
 <p>A collapsible hierarchy table displaying time at risk and incidence
 rate.</p>
 <p><img src="images/hierarchical_count_table_time_at_risk.png" style="border: 2px solid gray;"></p>
+</div>
+<div class="section level3">
+<h3 id="hierarchical-event-count-table-grouped-by-population-flags">Hierarchical Event Count table grouped by population flags<a class="anchor" aria-label="anchor" href="#hierarchical-event-count-table-grouped-by-population-flags"></a>
+</h3>
+<p>A collapsible hierarchy table grouped by flags from the population
+dataset.</p>
+<p><img src="images/hierarchical_count_table_pop_flag.png" style="border: 2px solid gray;"></p>
 </div>
 </div>
 <div class="section level2">
@@ -385,9 +408,9 @@ analysis:</p>
 </h2>
 <p>This module allows downloading the table as Excel (.xlsx) or Word
 (.rtf).</p>
-<p>In the downloaded table, overall number of patients (<code>N =</code>
-seen in the selected group’s column header) is shown in the first row
-below the column names.</p>
+<p>In the downloaded table, overall number of participants
+(<code>N =</code> seen in the selected group’s column header) is shown
+in the first row below the column names.</p>
 <p>Additionally, if the option to split count and percent into separate
 columns is selected, then selected group variable’s metrics is split
 into two columns for every group item, <code>{group item} [N]</code> to
@@ -397,9 +420,10 @@ percentage.</p>
 <div class="section level2">
 <h2 id="drill-down-functionality">Drill down functionality<a class="anchor" aria-label="anchor" href="#drill-down-functionality"></a>
 </h2>
-<p>When a cell is clicked the set of subjects in the cell is shown. Each
-of the ids is clickable and it allows exploring that participant in an
-additional module, for example <code>dv.papo</code>.</p>
+<p>When a cell is clicked the set of participants contributing to the
+cell is shown. Each of the identifiers is clickable and it allows
+exploring that participant in an additional module, for example
+<code>dv.papo</code>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

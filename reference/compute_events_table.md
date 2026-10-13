@@ -9,15 +9,17 @@ compute_events_table(
   event_df,
   pop_df,
   hierarchy = NULL,
-  group_var = NULL,
+  group_vars = NULL,
   subjid_var = NULL,
+  pop_flag_vars = NULL,
   event_group_var = NULL,
   origin_date_var = NULL,
   censor_date_var = NULL,
   event_date_var = NULL,
   total = TRUE,
   total_group_val = "Total",
-  compute_risk = FALSE
+  compute_risk = FALSE,
+  any_event_text = "Participants with any event"
 )
 ```
 
@@ -39,15 +41,19 @@ compute_events_table(
   `character(1+)` A character vector of column names from `event_df` to
   use as the hierarchy.
 
-- group_var:
+- group_vars:
 
-  `character(1)` A string representing the column name in `pop_df` used
+  `character(1)` A character vector of column names from `pop_df` used
   for grouping the population data.
 
 - subjid_var:
 
   `character(1)` A string representing the subject identifier column
   name. This column must be present in both `event_df` and `pop_df`.
+
+- pop_flag_vars:
+
+  A vector of names of population flag variables from `pop_df`.
 
 - event_group_var:
 
@@ -92,3 +98,33 @@ A list containing:
 
 - `meta`: A list containing metadata related to the hierarchy, group
   variable, and subject counts.
+
+- `meta`: A list of metadata:
+
+  - `hierarchy`: A vector of hierarchy variable names.
+
+  - `group_var`: A string indicating the group variable name.
+
+  - `event_group_var`: A string indicating the event group variable
+    name.
+
+  - `event_group_vals`: A vector of event group values.
+
+  - `pop_flag_vars`: A vector of population flag variable names.
+
+  - `total_vars`: A vector of variable names that will have a total
+    column displayed in the table.
+
+  - `total_group_val`: A string indicating the label for the total group
+    column.
+
+  - `denom_df`: A data frame of population group denominator data.
+
+  - `table_type`: A string, either "frequency" or "time_at_risk",
+    indicating the table type.
+
+  - `any_event_text`: A string specifying the text to be displayed in
+    the table row for participants with any event.
+
+  - `warning_message`: A string indicating a warning message to be
+    raised by shiny::validate.

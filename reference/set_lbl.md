@@ -12,11 +12,11 @@ set_lbl(df, var, lbl)
 
 - df:
 
-  a dataframe.
+  a data frame.
 
 - var:
 
-  a column of the dataframe
+  a column of the data frame
 
 - lbl:
 
@@ -24,4 +24,4 @@ set_lbl(df, var, lbl)
 
 ## Value
 
-the dataframe with the replaced label
+the data frame with the replaced label

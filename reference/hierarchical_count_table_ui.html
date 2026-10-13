@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dv.tables</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,8 +50,10 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">hierarchical_count_table_ui</span><span class="op">(</span></span>
 <span>  <span class="va">id</span>,</span>
+<span>  show_pop_flag_selection <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_event_group_by <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_time_at_risk_options <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  default_pop_flags_after_groups <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  default_total <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  default_risk <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  default_min_percent <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -69,6 +71,12 @@
 <p>The ID for the event count module instance.</p></dd>
 
 
+<dt id="arg-show-pop-flag-selection">show_pop_flag_selection<a class="anchor" aria-label="anchor" href="#arg-show-pop-flag-selection"></a></dt>
+<dd><p><code>[logical(1)]</code></p>
+<p>A flag to indicate whether to show the population flag selection. Other associated arguments are <code>default_pop_flags</code>
+and <code>pop_flag_choices</code>.</p></dd>
+
+
 <dt id="arg-show-event-group-by">show_event_group_by<a class="anchor" aria-label="anchor" href="#arg-show-event-group-by"></a></dt>
 <dd><p><code>[logical(1)]</code></p>
 <p>A flag to indicate whether to show the event by-group selection. This takes precedence over
@@ -80,6 +88,13 @@
 <p>A flag to indicate whether to show the time at risk related user selections (event/origin/censor
 date selections, and time at risk checkbox). This is ignored when <code>show_event_group_by</code> is <code>TRUE</code>,
 both cannot be shown together.</p></dd>
+
+
+<dt id="arg-default-pop-flags-after-groups">default_pop_flags_after_groups<a class="anchor" aria-label="anchor" href="#arg-default-pop-flags-after-groups"></a></dt>
+<dd><p><code>[logical(1)]</code></p>
+<p>A flag specifying the default value for the checkbox that determines whether to show the population flags after the
+group variables.</p>
+<p>Not applicable when <code>show_pop_flag_selection</code> is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-default-total">default_total<a class="anchor" aria-label="anchor" href="#arg-default-total"></a></dt>

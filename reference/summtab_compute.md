@@ -12,6 +12,7 @@ summtab_compute(
   group_vars = NULL,
   row_vars = NULL,
   pop_flag_vars = NULL,
+  flagged_row_vars = NULL,
   subjid_var = NULL,
   stats_functions = NULL,
   stats_formats = NULL,
@@ -53,6 +54,10 @@ summtab_compute(
 - pop_flag_vars:
 
   A vector of names of population flag variables from `pop_df`.
+
+- flagged_row_vars:
+
+  A vector of names of flagged row variables from `tbl_df`.
 
 - subjid_var:
 
@@ -135,6 +140,10 @@ A list containing:
   - `group_vars`: A vector of group variable names.
 
   - `row_vars`: A vector of row variable names.
+
+  - `pop_flag_vars`: A vector of population flag variable names.
+
+  - `flagged_row_vars`: A vector of flagged row variable names.
 
   - `flag_columns`: A vector of names of columns holding the ".first"
     flags for rendering.

@@ -1,6 +1,6 @@
-# Set several labels in a dataframe
+# Set several labels in a data frame
 
-Set several labels in a dataframe
+Set several labels in a data frame
 
 ## Usage
 
@@ -12,7 +12,7 @@ possibly_set_lbls(df, lbls)
 
 - df:
 
-  a dataframe.
+  a data frame.
 
 - lbls:
 
@@ -22,4 +22,4 @@ possibly_set_lbls(df, lbls)
 
 ## Value
 
-A dataframe with the set labels
+A data frame with the set labels

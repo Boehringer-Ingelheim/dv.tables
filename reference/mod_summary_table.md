@@ -84,6 +84,7 @@ Summary Table Module
       default_pop_flags = NULL,
       choices_pop_flags = NULL,
       default_pop_flags_after_groups = FALSE,
+      flagged_row_processing = NULL,
       total_group_val = "Total",
       receiver_id = NULL
     )
@@ -108,18 +109,19 @@ Summary Table Module
   `[character(1)]`
 
   The name of the population dataset. Typically this will have one row
-  per subject, but multiple rows per subject is also valid for
-  summarizing data where a subject may appear in more than one grouping,
-  e.g. for crossover trials where a subject can take different
-  treatments in different phases, or for population flag summaries
-  (pre-processing of CDISC subject-level data would be required to
-  transpose the flags to a grouping column).
+  per participant, but multiple rows per participant is also valid for
+  summarizing data where a participant may appear in more than one
+  grouping, e.g. for crossover trials where a participant can take
+  different treatments in different phases, or for population flag
+  summaries (pre-processing of CDISC participant-level data would be
+  required to transpose the flags to a grouping column).
 
 - subjid_var:
 
   `[character(1)]`
 
-  A string representing the subject identifier column in both datasets.
+  A string representing the participant identifier column in both
+  datasets.
 
 - show_pop_flag_selection:
 
@@ -134,9 +136,9 @@ Summary Table Module
   `[logical(1)]`
 
   A flag to indicate whether to show (and apply) aggregate methods. If
-  more than one row per subject exists after population grouping and row
-  categorization has been applied then aggreation of those rows can be
-  applied using a selected method. Other associated arguments are
+  more than one row per participant exists after population grouping and
+  row categorization has been applied then aggreation of those rows can
+  be applied using a selected method. Other associated arguments are
   `default_aggregate_method` and `choices_aggregate_method`.
 
 - show_modal_on_click:
@@ -144,7 +146,7 @@ Summary Table Module
   `[logical(1)]`
 
   A flag to indicate whether clicking a table cell should display a
-  modal dialog with the subject IDs.
+  modal dialog with the participant IDs.
 
 - stats_functions:
 
@@ -185,7 +187,7 @@ Summary Table Module
 
 - stats_labels:
 
-  `[list(1+) | NULL]`
+  `[character(1+) | NULL]`
 
   A named vector of statistics labels that should be used in the summary
   table. The names correspond to the names assigned in the
@@ -289,7 +291,7 @@ Summary Table Module
   `[logical(1)]`
 
   A flag specifying the default value for the checkbox that determines
-  whether to remove cols with no subject data. analysis results.
+  whether to remove cols with no participant data.
 
 - default_show_category_n:
 
@@ -304,10 +306,10 @@ Summary Table Module
 
   A string, either "N" or "n", indicating the default of whether the
   denominator for categorical data should be taken as the number of
-  subjects from the population grouping ("N") or the number of subjects
-  from the 'row by' grouping for each population grouping ("n"). If the
-  user selects to drop `NA` values then those values will be excluded
-  from determining the "n" denominator.
+  participants from the population grouping ("N") or the number of
+  participants from the 'row by' grouping for each population grouping
+  ("n"). If the user selects to drop `NA` values then those values will
+  be excluded from determining the "n" denominator.
 
 - default_stats:
 
@@ -324,7 +326,7 @@ Summary Table Module
   A string indicating the function name defined in
   `choices_aggregate_method` to use as the default for aggregating rows
   when `show_aggregate_method = TRUE`. The function is applied to the
-  analysis variable when more than one row per subject exists after
+  analysis variable when more than one row per participant exists after
   population grouping and row categorization has been applied. The
   double colon (`::`) namespace resolution operator can be used to
   specify a function from a specific package, e.g., `"dplyr::first"`.
@@ -336,11 +338,11 @@ Summary Table Module
   A vector of named strings indicating the functions that can be used
   for aggregating rows when `show_aggregate_method = TRUE`. The
   functions apply to the analysis variable when more than one row per
-  subject exists after population grouping and row categorization has
-  been applied. The double colon (`::`) namespace resolution operator
-  can be used to specify functions from specific packages, e.g.,
-  `"dplyr::first"`. The names associated to the vector elements are
-  displayed in the UI radio button selections.
+  participant exists after population grouping and row categorization
+  has been applied. The double colon (`::`) namespace resolution
+  operator can be used to specify functions from specific packages,
+  e.g., `"dplyr::first"`. The names associated to the vector elements
+  are displayed in the UI radio button selections.
 
 - default_pop_flags:
 
@@ -349,8 +351,8 @@ Summary Table Module
   A vector of variable names from the population dataset, used as the
   default for selected population flag variables (optional).
 
-  Subjects are identified as being within a population when the value of
-  the flag variable is `"Y"`.
+  Participants are identified as being within a population when the
+  value of the flag variable is `"Y"`.
 
 - choices_pop_flags:
 
@@ -361,8 +363,8 @@ Summary Table Module
   is not specified then all `FL` suffixed factor and character variables
   from the population dataset will be used.
 
-  Subjects are identified as being within a population when the value of
-  the flag variable is `"Y"`.
+  Participants are identified as being within a population when the
+  value of the flag variable is `"Y"`.
 
 - default_pop_flags_after_groups:
 
@@ -370,6 +372,32 @@ Summary Table Module
 
   A flag specifying the default value for the checkbox that determines
   whether to show the population flags after the group variables.
+
+- flagged_row_processing:
+
+  `[list(1+) | NULL]`
+
+  A list of lists defining the processing and categorization of flagged
+  rows. If NULL then flagged rows will not be processed. Each sub-list
+  corresponds to a single flag variable, and has the following elements:
+
+  - `flag_var`: String naming the flag variable to evaluate (e.g.
+    `"LVOTFL"`).
+
+  - `dependent_vars`: A vector of variable names from the analysis
+    dataset, indicating the variables that the flag variable is grouped
+    by (e.g. `c("USUBJID", "PARAM")`). This ensures global filtering on
+    the analysis dataset is applied to the flagged rows for these
+    dependent variables.
+
+  - `var_assignments`: A named list of variable assignments, where names
+    correspond to target dataset columns and values represent the
+    replacement values, e.g. if creating last value on treatment visits,
+    then an example assignment would be
+    `AVISIT = "Last value on treatment"`.
+
+  Each flagged row is duplicated with the specified variable assignments
+  applied.
 
 - total_group_val:
 
@@ -381,8 +409,8 @@ Summary Table Module
 
   `[character(1) | NULL]`
 
-  Unique identifier for the module receiving the selected subject ID in
-  the data listing. This ID must be present in the app or be NULL.
+  Unique identifier for the module receiving the selected participant ID
+  in the data listing. This ID must be present in the app or be NULL.
 
 ## Value
 
