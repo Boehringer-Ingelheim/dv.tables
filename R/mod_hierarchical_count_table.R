@@ -1351,7 +1351,7 @@ hierarchical_count_table_server <- function(
           if (!is.null(smq_input) && all(smq_input %in% choices)) {
             selected <- smq_input
           } else {
-            selected <- choices[[1]]
+            selected <- utils::head(choices, 1)
           }
 
           shiny::div(
