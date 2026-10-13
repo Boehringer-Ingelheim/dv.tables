@@ -24,7 +24,7 @@ local({
     event_df = event_df,
     pop_df = pop_df,
     hierarchy = c("lvl1", "lvl2"),
-    group_var = "group",
+    group_vars = "group",
     subjid_var = "subj"
   )
 
@@ -149,7 +149,7 @@ local({
     app$set_inputs(!!ID$INPUT$GRP := "STUDYID") # nolint
     expect_identical(
       app$get_values(output = TRUE)[["output"]][["mod-table"]]$message,
-      "Group selection cannot be used in hierarchy"
+      "Variable has been selected in more than one selection"
       )
   })
 

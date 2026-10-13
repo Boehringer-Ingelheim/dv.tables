@@ -70,7 +70,7 @@ mod_export_counttable_server <- function(module_id, dataset,
             !all(c("df", "meta") %in% names(dataset())) |
             !is.data.frame(dataset()[["df"]]) |
             nrow(dataset()[["df"]]) == 0 |
-            !all(c("n_denominator", "hierarchy", "hier_lvl_col") %in% names(dataset()[["meta"]]))) {
+            !all(c("denom_df", "hierarchy", "hier_lvl_col") %in% names(dataset()[["meta"]]))) {
 
           shiny::showNotification(
             "The dataset is not in the expected format or is missing necessary metadata. Please check the data and try again.",
@@ -111,7 +111,7 @@ mod_export_counttable_server <- function(module_id, dataset,
                   class = "ms-auto",
                   shinyjs::disabled(shiny::downloadButton(ns(EXP$ID$DOWNLOAD_BUTTON))),
                   shiny::modalButton("Cancel")
-                )                
+                )
               ),
               easyClose = TRUE
             )

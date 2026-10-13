@@ -2,20 +2,20 @@
 % Please edit documentation in R/utils-label.R
 \name{set_lbls}
 \alias{set_lbls}
-\title{Set several labels in a dataframe}
+\title{Set several labels in a data frame}
 \usage{
 set_lbls(df, lbls)
 }
 \arguments{
-\item{df}{a dataframe.}
+\item{df}{a data frame.}
 
 \item{lbls}{a named list. Each entry will have as name the name of a given column in df and as value the expected
 label of the given column.}
 }
 \value{
-A dataframe with the set labels
+A data frame with the set labels
 }
 \description{
-Set several labels in a dataframe
+Set several labels in a data frame
 }
 \keyword{internal}

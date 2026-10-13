@@ -2,12 +2,12 @@
 % Please edit documentation in R/utils-label.R
 \name{get_lbl}
 \alias{get_lbl}
-\title{Get a single label from a dataframe}
+\title{Get a single label from a data frame}
 \usage{
 get_lbl(df, var)
 }
 \arguments{
-\item{df}{a dataframe.}
+\item{df}{a data frame.}
 
 \item{var}{from which column do we want the label}
 }
@@ -15,6 +15,6 @@ get_lbl(df, var)
 A string with the label name
 }
 \description{
-It will try to read the label attribute from one columns.
+It will try to read the label attribute from one column.
 }
 \keyword{internal}

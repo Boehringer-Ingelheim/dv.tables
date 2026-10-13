@@ -55,7 +55,7 @@ specifying the earliest and latest modification date in the dataset.
 Usually obtained from the module manager.}
 
 \item{subjid_var}{\verb{[character(1) | NULL]}
-Column corresponding to subject ID. Default value is 'USUBJID'.}
+Column corresponding to participant ID. Default value is 'USUBJID'.}
 
 \item{default_vars}{An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.}
 

@@ -81,7 +81,7 @@ Tplyr_table_UI <- function(module_id, output_list) {
 #' Usually obtained from the module manager.
 #'
 #' @param subjid_var `[character(1) | NULL]`
-#' Column corresponding to subject ID. Default value is 'USUBJID'.
+#' Column corresponding to participant ID. Default value is 'USUBJID'.
 #'
 #' @param default_vars An argument of \href{https://boehringer-ingelheim.github.io/dv.listings/reference/listings_UI.html}{listings_server} of \code{\{dv.listings\}} will be passed through.
 #'
@@ -585,12 +585,12 @@ Tplyr_table_server <- function(
 #'     Tplyr::set_pop_data(dm) |>
 #'     Tplyr::set_pop_treat_var(ARM) |>
 #'     Tplyr::add_layer(
-#'       Tplyr::group_count("All subjects") |>
+#'       Tplyr::group_count("All participants") |>
 #'         Tplyr::set_distinct_by(USUBJID) |>
 #'         Tplyr::set_format_strings(Tplyr::f_str("xx", distinct_total))
 #'     ) |>
 #'     Tplyr::add_layer(
-#'       Tplyr::group_count("Subjects with adverse events") |>
+#'       Tplyr::group_count("Participants with adverse events") |>
 #'         Tplyr::set_distinct_by(USUBJID) |>
 #'         Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
 #'     ) |>
@@ -600,7 +600,7 @@ Tplyr_table_server <- function(
 #'         Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
 #'     ) |>
 #'     Tplyr::add_layer(
-#'       Tplyr::group_count("Subjects with serious AE", where = AESER == "Y") |>
+#'       Tplyr::group_count("Participants with serious AE", where = AESER == "Y") |>
 #'         Tplyr::set_distinct_by(USUBJID) |>
 #'         Tplyr::set_format_strings(Tplyr::f_str("xx (xx %)", distinct_n, distinct_pct))
 #'     )
@@ -807,7 +807,16 @@ mod_Tplyr_table <- function(
         exclude_var_names_from_column_headings = exclude_var_names_from_column_headings
       )
     },
-    module_id = module_id
+    module_id = module_id,
+    meta = list(
+      dataset_info = dataset_info_Tplyr_table(output_list),
+      check_mod_fn = function(afmm, datasets) {
+        check_mod_Tplyr_table(
+    afmm, datasets, module_id, output_list, subjid_var, default_vars,
+    pagination, listing_pagination, table_pagination, intended_use_label,
+    receiver_id, review, title_layout, footers, exclude_var_names_from_column_headings)
+      }
+    )
   )
   return(mod)
 }
@@ -857,10 +866,6 @@ check_mod_Tplyr_table <- function(
 
   do.call(dv.listings::check_review_parameter, check_review_parameter_args)
 
-  res <- list(errors = err[["messages"]])
+  res <- err[["messages"]]
   return(res)
 }
-
-mod_Tplyr_table <- CM$module(
-  mod_Tplyr_table, check_mod_Tplyr_table, dataset_info_Tplyr_table
-)

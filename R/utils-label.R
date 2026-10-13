@@ -1,8 +1,8 @@
-#' Get all labels from a dataframe
+#' Get all labels from a data frame
 #'
 #' It will try to read the label attribute from each of the columns.
 #'
-#' @param df a dataframe.
+#' @param df a data frame.
 #'
 #' @return A named list in which name is the name of the df column and value is the label of the column.
 #' Non-labelled columns will return NULL. In the robust version NULL is replaced by the name of the column.
@@ -16,11 +16,11 @@ get_lbls_robust <- function(df) {
   rpl_nulls_name(get_lbls(df))
 }
 
-#' Get a single label from a dataframe
+#' Get a single label from a data frame
 #'
-#' It will try to read the label attribute from one columns.
+#' It will try to read the label attribute from one column.
 #'
-#' @param df a dataframe.
+#' @param df a data frame.
 #'
 #' @param var from which column do we want the label
 #'
@@ -31,12 +31,12 @@ get_lbl <- function(df, var) {
   purrr::attr_getter("label")(df[[var]])
 }
 
-#' Robust getter for dataframe labels
+#' Robust getter for data frame labels
 #'
-#' It returns the label of the column of a dataframe if it is not NULL. Otherwise it returns the name of the column.
+#' It returns the label of the column of a data frame if it is not NULL. Otherwise it returns the name of the column.
 #'
-#' @param df a dataframe.
-#' @param var a column of the dataframe
+#' @param df a data frame.
+#' @param var a column of the data frame
 #'
 #' @return The label attribute or the name of the column if the label attribute is NULL.
 #'
@@ -85,11 +85,11 @@ swap_val_names <- function(l) {
 #' Set the label attribute of a column in a data frame
 #'
 #'
-#' @param df a dataframe.
-#' @param var a column of the dataframe
+#' @param df a data frame.
+#' @param var a column of the data frame
 #' @param lbl the label
 #'
-#' @return the dataframe with the replaced label
+#' @return the data frame with the replaced label
 #'
 #' @keywords internal
 set_lbl <- function(df, var, lbl) {
@@ -97,14 +97,14 @@ set_lbl <- function(df, var, lbl) {
   df
 }
 
-#' Set several labels in a dataframe
+#' Set several labels in a data frame
 #'
 #'
-#' @param df a dataframe.
+#' @param df a data frame.
 #' @param lbls a named list. Each entry will have as name the name of a given column in df and as value the expected
 #'  label of the given column.
 #'
-#' @return A dataframe with the set labels
+#' @return A data frame with the set labels
 #' @keywords internal
 set_lbls <- function(df, lbls) {
   if (length(lbls) < 1) {
@@ -119,14 +119,14 @@ set_lbls <- function(df, lbls) {
   df
 }
 
-#' Set several labels in a dataframe
+#' Set several labels in a data frame
 #'
 #'
-#' @param df a dataframe.
+#' @param df a data frame.
 #' @param lbls a named list. Each entry will have as name the name of a given column in df and as value the expected
 #'  label of the given column. If df has no column with the name of the entry, the entry is ignored.
 #'
-#' @return A dataframe with the set labels
+#' @return A data frame with the set labels
 #' @keywords internal
 
 possibly_set_lbls <- function(df, lbls) {

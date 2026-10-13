@@ -11,6 +11,7 @@ summtab_compute(
   group_vars = NULL,
   row_vars = NULL,
   pop_flag_vars = NULL,
+  flagged_row_vars = NULL,
   subjid_var = NULL,
   stats_functions = NULL,
   stats_formats = NULL,
@@ -38,6 +39,8 @@ summtab_compute(
 \item{row_vars}{A vector of names of row categorization variables from \code{tbl_df}.}
 
 \item{pop_flag_vars}{A vector of names of population flag variables from \code{pop_df}.}
+
+\item{flagged_row_vars}{A vector of names of flagged row variables from \code{tbl_df}.}
 
 \item{subjid_var}{A string representing the subject identifier column in both datasets.}
 
@@ -81,6 +84,8 @@ population group combination, ".first" flags for rendering.
 \item \code{anl_var}: A vector of analysis variable names.
 \item \code{group_vars}: A vector of group variable names.
 \item \code{row_vars}: A vector of row variable names.
+\item \code{pop_flag_vars}: A vector of population flag variable names.
+\item \code{flagged_row_vars}: A vector of flagged row variable names.
 \item \code{flag_columns}: A vector of names of columns holding the ".first" flags for rendering.
 \item \code{data_columns}: A vector of names of columns holding the statistics for each population group combination.
 \item \code{total_group_val}: A string indicating the label for the total group column.

@@ -30,9 +30,10 @@ grouped by variables from the population and analysis datasets.
   variables can also be used.
 - An optional "Total" group can be derived and displayed for the first population grouping level.
 - In addition to the top-level analysis variable sections, further levels of grouping by analysis dataset variables
-  define the row hierarchy of the summary table.
-- Optional aggregation of multiple subject results corresponding to a grouping (e.g. multiple lab results for a subject
-  at a single visit) can be specified using an aggregation function.
+  define the row hierarchy of the summary table. The application can also be set up to create new categories for
+  grouping variables based on analysis dataset variable flags, e.g. last value on treatment category.
+- Optional aggregation of multiple participant results corresponding to a grouping (e.g. multiple lab results for a
+  participant at a single visit) can be specified using an aggregation function.
 - Analysis variable sections and row groups can be individually collapsed/hidden.
 - It supports bookmarking.
 
@@ -47,8 +48,8 @@ for any other arguments as applicable.
 - `module_id` : A unique identifier of type character for the module in the app.
 - `table_dataset_name`: The name of the dataset that contains the analysis variables to be summarized, e.g., `"ADLB"`.
 - `pop_dataset_name`: The name of the dataset that contains the population grouping variables. Typically this will be a
-  one-record-per-subject dataset, e.g., `"ADSL"`, but may also be one-record-per-subject-per-group to accommodate
-  crossover and summary population analyses.
+  one-record-per-participant dataset, e.g., `"ADSL"`, but may also be one-record-per-participant-per-group to
+  accommodate crossover and summary population analyses.
 
 Please refer to `dv.tables::mod_summary_table()` for the complete list of arguments and their description.
 
@@ -75,8 +76,8 @@ A drop-down "Statistics" menu provides the following inputs:
 
 A drop-down "Table Options" menu provides the following inputs:
 
-- **Show a total column**: Checkbox that controls whether or not to display a "Total" column totalling data from all group
-  categories for the first population grouping level.
+- **Show a total column**: Checkbox that controls whether or not to display a "Total" column totalling data from all
+  group categories for the first population grouping level.
 - **Drop NA values from groupings/categories**: Checkbox that controls whether or not to exclude rows from population
   and analysis datasets when any 'Group by' or 'Row by' variable value is missing (`NA`), and exclude rows from the
   analysis dataset when a categorical analysis variable value is missing. Note that rows are always excluded from the
@@ -85,17 +86,18 @@ A drop-down "Table Options" menu provides the following inputs:
   can result in many unwanted combinations, e.g. when grouped by parameter and visit, by default all combinations of
   parameters and visits are shown, but if a parameter is not assessed at certain visit then it does not make sense to
   display a row for that visit.
-- **Remove columns with no data**: Checkbox that controls whether to hide columns that have no subject population data.
-  Population groupings can result in many unwanted combinations, e.g. when grouped by population flags and treatment
-  groups, by default all combinations of population flags and treatment groups are shown, but if a treatment group
-  does not occur for a certain population flag then it does not make sense to display a column for that treatment group.
+- **Remove columns with no data**: Checkbox that controls whether to hide columns that have no participant population
+  data. Population groupings can result in many unwanted combinations, e.g. when grouped by population flags and
+  treatment groups, by default all combinations of population flags and treatment groups are shown, but if a treatment
+  group does not occur for a certain population flag then it does not make sense to display a column for that treatment
+  group.
 - **Show categorical n**: Checkbox that determines whether to show the 'n' category when summarizing categorical data.
 - **Denominator used for categorical %**: Radio buttons that determine the denominator choice for categorical
-  data, either the number of subjects from the population grouping ("N") or the number of subjects from the 'Row by'
-  grouping for each population grouping ("n"). If the user selects to drop `NA` values then those values will be
-  excluded from determining the "n" denominator.
+  data, either the number of participants from the population grouping ("N") or the number of participants from the
+  'Row by' grouping for each population grouping ("n"). If the user selects to drop `NA` values then those values will
+  be excluded from determining the "n" denominator.
 - **Multi-value aggregation method**: Radio buttons that determine the method to use for aggregating rows
-  when more than one row per subject exists after population grouping and row categorization has been applied. The
+  when more than one row per participant exists after population grouping and row categorization has been applied. The
   method is applied to the analysis variable. These buttons are shown only if the app creator has specifically enabled
   aggregation.
 
@@ -103,22 +105,22 @@ A drop-down "Table Options" menu provides the following inputs:
 
 ## Demographic Summary table
 
-A collapsible demographic analysis summary table. The subject-level population dataset name is passed to both the
+A collapsible demographic analysis summary table. The participant-level population dataset name is passed to both the
 `table_dataset_name` and `pop_dataset_name` arguments.
 
 ![](images/summary_table.png){style="border: 2px solid gray;"}
 
 ## Laboratory Summary table
 
-A collapsible laboratory analysis summary table with rows grouped by parameter and visit. The subject-level population
-dataset name is passed to the `pop_dataset_name` argument and the laboratory results dataset name is passed to the
-`table_dataset_name` argument.
+A collapsible laboratory analysis summary table with rows grouped by parameter and visit. The participant-level
+population dataset name is passed to the `pop_dataset_name` argument and the laboratory results dataset name is passed
+to the `table_dataset_name` argument.
 
 ![](images/summary_table_row_by.png){style="border: 2px solid gray;"}
 
 ## Population Summary table
 
-A collapsible population summary table with populations displayed across the top of the table. The subject-level
+A collapsible population summary table with populations displayed across the top of the table. The participant-level
 population dataset name is passed to both the `table_dataset_name` and `pop_dataset_name` arguments.
 
 ![](images/summary_table_pop.png){style="border: 2px solid gray;"}
@@ -140,7 +142,7 @@ dv.manager::run_app(
       pop_dataset_name = "adsl"
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
@@ -163,7 +165,7 @@ dv.manager::run_app(
       default_stats = c("n", "meansd", "meanci", "minmax")
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
@@ -194,18 +196,18 @@ dv.manager::run_app(
       default_aggregate_method = "max"
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
 
 The aggregation functionality has been turned on (`show_aggregate_method = TRUE`) and the `max` function has been
-specified for the default aggregation method, so if a subject has more than one lab result for a specific parameter and
-visit, then the maximum value will be taken before it gets processed in the main statistical analysis. The app creator
-needs to decide on the most appropriate aggregation functions (which can be specified by `choices_aggregate_method`),
-but only a single aggregation function can be applied atv a time; it is not possible to handle cases where the
-aggregation method varies between parameters - in this case the data would need to be pre-processed/aggregated before
-being passed to the app.
+specified for the default aggregation method, so if a participant has more than one lab result for a specific parameter
+and visit, then the maximum value will be taken before it gets processed in the main statistical analysis. The app
+creator needs to decide on the most appropriate aggregation functions (which can be specified by
+`choices_aggregate_method`), but only a single aggregation function can be applied at a time; it is not possible to
+handle cases where the aggregation method varies between parameters - in this case the data would need to be
+pre-processed/aggregated before being passed to the app.
 
 Note: Summarizing large datasets with more than one grouping can take a long time to process so pre-subsetting on the
 values of interest is recommended. If subsetting was not applied to the above example, then it would take around 15
@@ -258,10 +260,106 @@ dv.manager::run_app(
                      column_count = 1)
     )
   ),
-  filter_data = "adsl",
+  filter_dataset_name = "adsl",
   filter_key = "USUBJID"
 )
 ```
+
+## Example 5
+
+The following code shows and example of how to create new categories for the `VISIT` and `AVISIT` grouping variables
+based on analysis dataset variable flags `LVOTFL` (Last Value On Treatment Record Flag), `MINTRFL` (Minimum On
+Treatment Flag), and `MAXTRFL` (Maximum On Treatment Flag):
+
+```{r, eval=FALSE}
+adsl <- pharmaverseadam::adsl
+
+adlb <- pharmaverseadam::adlb |>
+  dplyr::filter(.data[["LBTESTCD"]] %in% c("ALP", "ALT", "AST", "BILI"),
+                .data[["AVISITN"]] %in% c(0, 4, 5, 7))
+
+# Last value on treatment
+adlb <- dplyr::select(adlb, -dplyr::any_of("LVOTFL"))
+adlb <- dplyr::left_join(
+  adlb,
+  dplyr::filter(adlb,
+                .data[["ANL01FL"]] == "Y",
+                !is.na(.data[["ADT"]])) |>
+    dplyr::arrange(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD", "ADT")))) |>
+    dplyr::group_by(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD")))) |>
+    dplyr::slice_tail(n = 1) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(LVOTFL = "Y"),
+  by = names(adlb)
+)
+
+# Minimum on treatment
+adlb <- dplyr::left_join(
+  adlb,
+  dplyr::filter(adlb,
+                .data[["ANL01FL"]] == "Y",
+                !is.na(.data[["ADT"]])) |>
+    dplyr::arrange(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD", "ADT")))) |>
+    dplyr::group_by(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD")))) |>
+    dplyr::slice_min(order_by = .data[["AVAL"]], n = 1, with_ties = FALSE, na_rm = TRUE) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(MINTRFL = "Y"),
+  by = names(adlb)
+)
+
+# Maximum on treatment
+adlb <- dplyr::left_join(
+  adlb,
+  dplyr::filter(adlb,
+                .data[["ANL01FL"]] == "Y",
+                !is.na(.data[["ADT"]])) |>
+    dplyr::arrange(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD", "ADT")))) |>
+    dplyr::group_by(dplyr::pick(dplyr::all_of(c("USUBJID", "PARAMCD")))) |>
+    dplyr::slice_max(order_by = .data[["AVAL"]], n = 1, with_ties = FALSE, na_rm = TRUE) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(MAXTRFL = "Y"),
+  by = names(adlb)
+)
+
+attr(adlb[["LVOTFL"]], "label") <- "Last Value On Treatment Record Flag"
+attr(adlb[["MINTRFL"]], "label") <- "Minimum On Treatment Flag"
+attr(adlb[["MAXTRFL"]], "label") <- "Maximum On Treatment Flag"
+
+flagged_row_processing <- list(
+  list(flag_var = "MINTRFL",
+       dependent_vars = c("USUBJID", "PARAM"),
+       var_assignments = list(VISIT = "MIN ON TRT",
+                              AVISIT = "Minimum on treatment")),
+  list(flag_var = "MAXTRFL",
+       dependent_vars = c("USUBJID", "PARAM"),
+       var_assignments = list(VISIT = "MAX ON TRT",
+                              AVISIT = "Maximum on treatment")),
+  list(flag_var = "LVOTFL",
+       dependent_vars = c("USUBJID", "PARAM"),
+       var_assignments = list(VISIT = "LAST VAL ON TRT",
+                              AVISIT = "Last value on treatment"))
+)
+
+dv.manager::run_app(
+  data = list(pharmaverseadam = list(adsl = adsl, adlb = adlb)),
+  module_list = list(
+    "ADLB Summary Table" = dv.tables::mod_summary_table(
+      module_id = "summary_table",
+      table_dataset_name = "adlb",
+      pop_dataset_name = "adsl",
+      default_summarize_on = c("AVAL", "CHG"),
+      default_group_by = c("TRT01P"),
+      default_row_by = c("PARAM", "AVISIT"),
+      default_denom = "n",
+      flagged_row_processing = flagged_row_processing
+    )
+  ),
+  filter_dataset_name = "adsl",
+  filter_key = "USUBJID"
+)
+```
+
+New categories will only be created when the user selects row by variables
 
 ## User-defined statistics for numerical analysis
 
@@ -418,5 +516,5 @@ This module currently does not allow downloading the table as Excel (.xlsx) or W
 
 # Drill down functionality
 
-When a cell is clicked the set of subjects in the cell is shown. Each of the ids is clickable and it allows
-exploring that participant in an additional module, for example `dv.papo`.
+When a cell is clicked the set of participants contributing to the cell is shown. Each of the identifiers is clickable
+and it allows exploring that participant in an additional module, for example `dv.papo`.
