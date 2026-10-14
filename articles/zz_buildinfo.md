@@ -1,6 +1,6 @@
 # Build Info
 
-Build date: 2026-10-13 09:32:47
+Build date: 2026-10-14 08:58:38
 
 ``` r
 sessionInfo()
@@ -42,7 +42,7 @@ knitr::kable(as.data.frame(installed.packages(), row.names = FALSE)[c("Package",
 
 | Package               | Version    |
 |:----------------------|:-----------|
-| dv.tables             | 0.6.0      |
+| dv.tables             | 0.6.1      |
 | abind                 | 1.4-8      |
 | admiraldev            | 1.4.0      |
 | askpass               | 1.2.1      |
@@ -115,7 +115,7 @@ knitr::kable(as.data.frame(installed.packages(), row.names = FALSE)[c("Package",
 | dplyr                 | 1.2.0      |
 | DT                    | 0.34.0     |
 | dv.listings           | 4.3.5      |
-| dv.manager            | 3.2.0      |
+| dv.manager            | 3.2.1      |
 | dv.papo               | 2.2.4      |
 | dygraphs              | 1.1.1.6    |
 | ellipsis              | 0.3.2      |

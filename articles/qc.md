@@ -1,8 +1,8 @@
 # Quality Control
 
-### ✅ dv.tables 0.6.0
+### ✅ dv.tables 0.6.1
 
-Date: 2026-Oct-13 09:32:37
+Date: 2026-Oct-14 08:58:30
 
 This document provides the Quality Control (QC) report for the R package
 to confirm that it fulfills the criteria required for a “released”
@@ -59,7 +59,7 @@ test execution.
     #>  collate  en_US.UTF-8
     #>  ctype    en_US.UTF-8
     #>  tz       Etc/UTC
-    #>  date     2026-10-13
+    #>  date     2026-10-14
     #>  pandoc   3.6.3 @ /usr/bin/ (via rmarkdown)
     #>  quarto   1.8.26 @ /usr/local/bin/quarto
     #> 
@@ -104,7 +104,7 @@ test execution.
     #>  xfun          0.57    2026-03-20 [2] RSPM
     #>  yaml          2.3.12  2025-12-10 [2] RSPM
     #> 
-    #>  [1] /tmp/Rtmpzhjvik/temp_libpath2d75ce28464
+    #>  [1] /tmp/Rtmp4t6RPI/temp_libpath2d919b5c389
     #>  [2] /usr/local/lib/R/site-library
     #>  [3] /usr/local/lib/R/library
     #> 

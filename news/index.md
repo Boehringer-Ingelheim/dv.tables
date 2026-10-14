@@ -1,5 +1,10 @@
 # Changelog
 
+## dv.tables 0.6.1
+
+- `mod_Tplyr_table`:
+- update check if metadata was set in build function
+
 ## dv.tables 0.6.0
 
 - `mod_summary_table`:

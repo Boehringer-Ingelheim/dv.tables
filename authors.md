@@ -17,7 +17,7 @@ Source:
 [`DESCRIPTION`](https://github.com/boehringer-ingelheim/dv.tables/blob/main/DESCRIPTION)
 
 Moris Fernandez L, Luff M, Matthias K (2026). *dv.tables: Table
-Modules*. R package version 0.6.0,
+Modules*. R package version 0.6.1,
 <https://boehringer-ingelheim.github.io/dv.tables>.
 
     @Manual{,
@@ -25,6 +25,6 @@ Modules*. R package version 0.6.0,
       author = {Luis {Moris
             Fernandez} and Mark Luff and Korbinian Matthias},
       year = {2026},
-      note = {R package version 0.6.0},
+      note = {R package version 0.6.1},
       url = {https://boehringer-ingelheim.github.io/dv.tables},
     }
