@@ -167,6 +167,11 @@ Tplyr_table_server <- function(
         checkmate::check_function(output[["build_fun"]], nargs = 1),
         combine = "and"
       )
+      if (!grepl("metadata\\s*=\\s*TRUE", paste(deparse(body(output[["build_fun"]])), collapse = " "))) {
+        warning(
+          "The build_fun for one of the outputs does not have metadata = TRUE in the Tplyr::build() call. Drill down will not be working for this output."
+        )
+      }
     } else {
       message("output_list entry has too many elements")
     }
@@ -445,19 +450,13 @@ Tplyr_table_server <- function(
         shinyjs::show(id = TPLYR_TBL$LISTINGS_DIV_ID)
         shinyjs::hide(id = TPLYR_TBL$TABLE_ID)
       } else if (!"row_id" %in% names(l_tplyr_tab_build)) { # Metatada not configured
-        shiny::showNotification(
-          "Drill down is not working for this Table. Contact your app creator for more information.",
-          type = "error",
-          duration = 10
-        )
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
 
-        contents <- shiny::tags$text("Listing not available")
+        contents <- shiny::tags$text("Listing not available.")
       } else {
         shinyjs::show(id = TPLYR_TBL$TABLE_ID)
         shinyjs::hide(id = TPLYR_TBL$LISTINGS_DIV_ID)
-
         contents <- shiny::tags$text("Click on a cell with numbers to display corresponding listing")
       }
       click_info_contents(contents)
