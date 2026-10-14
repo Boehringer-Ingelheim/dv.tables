@@ -1,4 +1,4 @@
-# dv.tables 0.6.0-9000
+# dv.tables 0.6.1
 * `mod_Tplyr_table`:
  * update check if metadata was set in build function
 
