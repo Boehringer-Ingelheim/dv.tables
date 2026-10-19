@@ -129,7 +129,6 @@ create_adtte <- function(event_df,
                          group_vars,
                          subjid_var,
                          event_group_var,
-                         #event_group_total_val,
                          worst_event_group,
                          origin_date_var,
                          censor_date_var,
@@ -152,14 +151,6 @@ create_adtte <- function(event_df,
   # Expand population data with event group if specified
   if (has_event_group) {
     evt_grp_levels <- levels(event_df[[event_group_var]])
-
-    # if (!is.null(event_group_total_val)) {
-    #   # Add total value to event group levels
-    #   evt_grp_levels <- c(evt_grp_levels, event_group_total_val)
-    #
-    #   # Create factor for total value - used later in the loop over hierarchy levels
-    #   total_egv_fct <- factor(event_group_total_val, levels = evt_grp_levels)
-    # }
 
     evt_grp_df <- stats::setNames(as.data.frame(as.factor(evt_grp_levels)), event_group_var)
     pop_df <- merge(pop_df, evt_grp_df, by = NULL)
@@ -195,20 +186,6 @@ create_adtte <- function(event_df,
         dplyr::slice(1L) |>
         dplyr::ungroup()
     }
-
-    # # Duplicate rows for event group total column
-    # if (has_event_group && !is.null(event_group_total_val)) {
-    #   subset_event_df[[event_group_var]] <- factor(subset_event_df[[event_group_var]], levels = evt_grp_levels)
-    #
-    #   total_rows <- subset_event_df |>
-    #     dplyr::mutate(!!event_group_var := total_egv_fct) |>
-    #     dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, hierarchy_cols)))) |>
-    #     dplyr::slice(1L) |>
-    #     dplyr::ungroup()
-    #
-    #   subset_event_df <- subset_event_df |>
-    #     rbind(total_rows)
-    # }
 
     # Identify records with events before merging onto all hierarchy combinations
     subset_event_df[[censor_col]] <- FALSE
@@ -443,7 +420,6 @@ compute_events_table <- function(event_df,
                         group_vars = group_vars,
                         subjid_var = subjid_var,
                         event_group_var = event_group_var,
-                        #event_group_total_val = event_group_total_val,
                         worst_event_group = worst_event_group,
                         origin_date_var = origin_date_var,
                         censor_date_var = censor_date_var,
