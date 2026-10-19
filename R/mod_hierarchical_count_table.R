@@ -103,6 +103,13 @@ EC <- poc(
 #' @param event_group_var `character(1)`
 #' A string representing the column name in `event_df` used for grouping the event data.
 #'
+#' @param event_group_total_val `character(1)`
+#' A string indicating the label for the event group total column. If not `NULL` then rows will be duplicated for the
+#' total column, with `event_group_total_val` assigned to `event_group_var`.
+#'
+#' @param worst_event_group `logical(1)`
+#' A logical indicating whether to take the worst value of the event group.
+#'
 #' @param origin_date_var `character(1)`
 #' A string representing the column name in `pop_df` holding the origin date.
 #'
@@ -122,6 +129,8 @@ create_adtte <- function(event_df,
                          group_vars,
                          subjid_var,
                          event_group_var,
+                         #event_group_total_val,
+                         worst_event_group,
                          origin_date_var,
                          censor_date_var,
                          event_date_var) {
@@ -143,6 +152,15 @@ create_adtte <- function(event_df,
   # Expand population data with event group if specified
   if (has_event_group) {
     evt_grp_levels <- levels(event_df[[event_group_var]])
+
+    # if (!is.null(event_group_total_val)) {
+    #   # Add total value to event group levels
+    #   evt_grp_levels <- c(evt_grp_levels, event_group_total_val)
+    #
+    #   # Create factor for total value - used later in the loop over hierarchy levels
+    #   total_egv_fct <- factor(event_group_total_val, levels = evt_grp_levels)
+    # }
+
     evt_grp_df <- stats::setNames(as.data.frame(as.factor(evt_grp_levels)), event_group_var)
     pop_df <- merge(pop_df, evt_grp_df, by = NULL)
 
@@ -162,7 +180,12 @@ create_adtte <- function(event_df,
     subset_event_df <- event_df[stats::complete.cases(event_df[, hierarchy_cols]), ]
 
     # For each hierarchy group, only keep first event occurrence
-    if (has_event_dt && nrow(subset_event_df) > 0L) {
+    if (worst_event_group) {
+      subset_event_df <- subset_event_df |>
+        dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, hierarchy_cols)))) |>
+        dplyr::slice_max(order_by = .data[[event_group_var]], n = 1, with_ties = FALSE) |>
+        dplyr::ungroup()
+    } else if (has_event_dt && nrow(subset_event_df) > 0L) {
       subset_event_df <- subset_event_df |>
         dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, hierarchy_cols, event_group_var)))) |>
         dplyr::summarise(!!event_date_var := min(.data[[event_date_var]]), .groups = "drop")
@@ -172,6 +195,20 @@ create_adtte <- function(event_df,
         dplyr::slice(1L) |>
         dplyr::ungroup()
     }
+
+    # # Duplicate rows for event group total column
+    # if (has_event_group && !is.null(event_group_total_val)) {
+    #   subset_event_df[[event_group_var]] <- factor(subset_event_df[[event_group_var]], levels = evt_grp_levels)
+    #
+    #   total_rows <- subset_event_df |>
+    #     dplyr::mutate(!!event_group_var := total_egv_fct) |>
+    #     dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, hierarchy_cols)))) |>
+    #     dplyr::slice(1L) |>
+    #     dplyr::ungroup()
+    #
+    #   subset_event_df <- subset_event_df |>
+    #     rbind(total_rows)
+    # }
 
     # Identify records with events before merging onto all hierarchy combinations
     subset_event_df[[censor_col]] <- FALSE
@@ -256,11 +293,17 @@ create_adtte <- function(event_df,
 #' @param total `logical(1)`
 #' A logical indicating whether to add a total group column.
 #'
-#' @param total_group_val `character(0|1)`
+#' @param total_group_val `character(1)`
 #' A string representing the value to assign to the `group_var` column for totals.
+#'
+#' @param event_group_total_val `character(1)`
+#' A string representing the value to assign to the `event_group_var` column for totals.
 #'
 #' @param compute_risk `logical(1)`
 #' A logical indicating whether to calculate time at risk and incidence rate.
+#'
+#' @param any_event_text `character(1)`
+#' A string specifying the text to be displayed in the table row for participants with any event.
 #'
 #' @return A list containing:
 #' - `df`: A data frame with the processed event data, including counts and percentages.
@@ -273,6 +316,7 @@ create_adtte <- function(event_df,
 #'   - `pop_flag_vars`: A vector of population flag variable names.
 #'   - `total_vars`: A vector of variable names that will have a total column displayed in the table.
 #'   - `total_group_val`: A string indicating the label for the total group column.
+#'   - `event_group_total_val`: A string indicating the label for the event group total column.
 #'   - `denom_df`: A data frame of population group denominator data.
 #'   - `table_type`: A string, either "frequency" or "time_at_risk", indicating the table type.
 #'   - `any_event_text`: A string specifying the text to be displayed in the table row for participants with any event.
@@ -286,11 +330,13 @@ compute_events_table <- function(event_df,
                                  subjid_var = NULL,
                                  pop_flag_vars = NULL,
                                  event_group_var = NULL,
+                                 worst_event_group_vars = c("AETOXGR", "AESEV"),
                                  origin_date_var = NULL,
                                  censor_date_var = NULL,
                                  event_date_var = NULL,
                                  total = TRUE,
                                  total_group_val = "Total",
+                                 event_group_total_val = NULL,
                                  compute_risk = FALSE,
                                  any_event_text = "Participants with any event") {
 
@@ -318,6 +364,9 @@ compute_events_table <- function(event_df,
   # Check that total group value is a string (required even if total not requested)
   checkmate::assert_string(total_group_val, min.chars = 1)
 
+  # Check that event group total value is a string or NULL
+  checkmate::assert_string(event_group_total_val, min.chars = 1, null.ok = TRUE)
+
   # Flag when event group has been specified
   has_event_group <- !is.null(event_group_var) && length(event_group_var) > 0
 
@@ -342,13 +391,18 @@ compute_events_table <- function(event_df,
 
   subset_event_df <- event_df[, c(subjid_var, hierarchy, event_group_var, event_date_var)]
 
-  # Determine the set of event group values
+  # Determine the set of event group values and flag if worst value of event group should be derived
   if (has_event_group) {
     # Replace NA values in event group var factor with "<NA>" and add associated level
     subset_event_df[[event_group_var]] <- add_na_factor_level(subset_event_df[[event_group_var]])
+
     event_group_vals <- levels(subset_event_df[[event_group_var]])
+    if (!is.null(event_group_total_val)) event_group_vals <- c(event_group_vals, event_group_total_val)
+
+    worst_event_group <- event_group_var %in% worst_event_group_vars
   } else {
     event_group_vals <- character()
+    worst_event_group <- FALSE
   }
 
   # Raise warning when origin date is after non-missing censor date (bad data!)
@@ -389,6 +443,8 @@ compute_events_table <- function(event_df,
                         group_vars = group_vars,
                         subjid_var = subjid_var,
                         event_group_var = event_group_var,
+                        #event_group_total_val = event_group_total_val,
+                        worst_event_group = worst_event_group,
                         origin_date_var = origin_date_var,
                         censor_date_var = censor_date_var,
                         event_date_var = event_date_var)
@@ -505,6 +561,8 @@ compute_events_table <- function(event_df,
   } else {
     character()
   }
+  # Include event group variable if it has an associated total value
+  if (has_event_group && !is.null(event_group_total_val)) total_vars <- c(total_vars, event_group_var)
 
   # Return from function ----
 
@@ -1248,7 +1306,7 @@ hierarchical_count_table_ui <- function(id,
 #'
 #' @param on_sbj_click_fun `[function]`
 #'
-#' Function to invoke when a participant identifier is clicked
+#' Function to invoke when a participant identifier is clicked.
 #'
 #' @inheritParams mod_hierarchical_count_table
 #'
@@ -1272,22 +1330,29 @@ hierarchical_count_table_server <- function(
     hierarchy_choices = NULL,
     default_group = NULL,
     group_choices = NULL,
+
     default_pop_flags = NULL,
     pop_flag_choices = NULL,
+
     default_event_group = NULL,
     event_group_choices = NULL,
+    event_group_totals = NULL,
+    worst_event_group_vars = NULL,
+
     default_event_date = NULL,
     event_date_choices = NULL,
     default_origin_date = NULL,
     origin_date_choices = NULL,
     default_censor_date = NULL,
     censor_date_choices = NULL,
+
     smq_name = NULL,
     smq_vars = NULL,
     smq_na_label = "Other",
     udaec_name = NULL,
     udaec_list = NULL,
     udaec_na_label = "Other",
+
     any_event_text = "Participants with any event",
     intended_use_label = NULL
 ) {
@@ -1575,6 +1640,7 @@ hierarchical_count_table_server <- function(
       total <- inputs[[EC$ID$TOTAL_FLAG]]()
 
       event_group_var <- NULL
+      event_group_total_val <- NULL
       event_date_var <- NULL
       origin_date_var <- NULL
       censor_date_var <- NULL
@@ -1582,6 +1648,11 @@ hierarchical_count_table_server <- function(
 
       if (show_event_group_by) {
         event_group_var <- inputs[[EC$ID$EVENT_GROUP]]()
+        if (!is.null(event_group_totals) &&
+            length(event_group_var) == 1 &&
+            event_group_var %in% names(event_group_totals)) {
+           event_group_total_val <- event_group_totals[[event_group_var]]
+        }
       } else if (show_time_at_risk_options) {
         event_date_var <- inputs[[EC$ID$EVENT_DATE]]()
         origin_date_var <- inputs[[EC$ID$ORIGIN_DATE]]()
@@ -1686,11 +1757,13 @@ hierarchical_count_table_server <- function(
                                                subjid_var = subjid_var,
                                                pop_flag_vars = pop_flag_vars,
                                                event_group_var = event_group_var,
+                                               worst_event_group_vars = worst_event_group_vars,
                                                origin_date_var = origin_date_var,
                                                censor_date_var = censor_date_var,
                                                event_date_var = event_date_var,
                                                total = total,
                                                total_group_val = "Total",
+                                               event_group_total_val = event_group_total_val,
                                                compute_risk = compute_risk,
                                                any_event_text = any_event_text)
 
@@ -1867,22 +1940,22 @@ hierarchical_count_table_server <- function(
 #'
 #' A flag to indicate whether clicking a table cell should display a modal dialog with the participant IDs.
 #'
-#' @param default_hierarchy `[character(1:4)|NULL]`
+#' @param default_hierarchy `[character(1:4) | NULL]`
 #'
 #' Optional character vector specifying the default hierarchy variables.
 #' Variables must be columns in `table_dataset_name`. Up to four variables
 #' can be selected, and their order determines the nesting order in the table.
 #'
-#' @param hierarchy_choices `[character(1+)|NULL]`
+#' @param hierarchy_choices `[character(1+) | NULL]`
 #'
 #' A character vector specifying the possible choices for the hierarchy variables selection (optional).
 #' If it is not specified then all factor and character variables from the event data will be used.
 #'
-#' @param default_group `[character(1|2)|NULL]`
+#' @param default_group `[character(1|2) | NULL]`
 #'
 #' A default value for the group variables selection (optional).
 #'
-#' @param group_choices `[character(1+)|NULL]`
+#' @param group_choices `[character(1+) | NULL]`
 #'
 #' A character vector specifying the possible choices for the group variables selection (optional).
 #' If it is not specified then all factor and character variables from the population data will be used.
@@ -1929,43 +2002,55 @@ hierarchical_count_table_server <- function(
 #'
 #' Not applicable when `show_pop_flag_selection` is `FALSE`.
 #'
-#' @param default_event_group `[character(1)|NULL]`
+#' @param default_event_group `[character(1) | NULL]`
 #'
 #' A default value for the event group variable selection.
 #'
-#' @param event_group_choices `[character(1+)|NULL]`
+#' @param event_group_choices `[character(1+) | NULL]`
 #'
 #' A character vector specifying the possible choices for the event group variable selection (optional).
 #' If it is not specified then all factor and character variables from the event data will be used.
 #'
-#' @param default_event_date `[character(1)|NULL]`
+#' @param event_group_totals `[character(1+) | NULL]`
+#'
+#' A named vector of totals column header text to be used for event group variables (e.g.
+#' `c(ATOXGR = "All Grades", ASEV = "Any Severity")`). The names correspond to the event group variable names. An event
+#' group totals column will only be displayed for those event group variables that have been specified here.
+#'
+#' @param worst_event_group_vars `[character(1+) | NULL]`
+#'
+#' A character vector specifying those event group variables for which worst value should be considered (optional).
+#' Worst value is interpreted as the highest value in the underlying integer representation of the event group variable
+#' as a factor.
+#'
+#' @param default_event_date `[character(1) | NULL]`
 #'
 #' A default value for the event date variable selection (optional). Not applicable when
 #' `show_time_at_risk_options` is `FALSE`.
 #'
-#' @param event_date_choices `[character(1+)|NULL]`
+#' @param event_date_choices `[character(1+) | NULL]`
 #'
 #' A character vector specifying the possible choices for the event date variable selection (optional).
 #' If it is not specified then all variables of class "Date" from the event data will be used.
 #' Not applicable when `show_time_at_risk_options` is `FALSE`.
 #'
-#' @param default_origin_date `[character(1)|NULL]`
+#' @param default_origin_date `[character(1) | NULL]`
 #'
 #' A default value for the origin date variable selection (optional). Not applicable when
 #' `show_time_at_risk_options` is `FALSE`.
 #'
-#' @param origin_date_choices `[character(1+)|NULL]`
+#' @param origin_date_choices `[character(1+) | NULL]`
 #'
 #' A character vector specifying the possible choices for the origin date variable selection (optional).
 #' If it is not specified then all variables of class "Date" from the population data will be used.
 #' Not applicable when `show_time_at_risk_options` is `FALSE`.
 #'
-#' @param default_censor_date `[character(1)|NULL]`
+#' @param default_censor_date `[character(1) | NULL]`
 #'
 #' A default value for the censor date variable selection (optional). Not applicable when
 #' `show_time_at_risk_options` is `FALSE`.
 #'
-#' @param censor_date_choices `[character(1+)|NULL]`
+#' @param censor_date_choices `[character(1+) | NULL]`
 #'
 #' A character vector specifying the possible choices for the censor date variable selection (optional).
 #' If it is not specified then all variables of class "Date" from the population data will be used.
@@ -1981,7 +2066,7 @@ hierarchical_count_table_server <- function(
 #' Name of the derived SMQ hierarchy variable. The variable is created from
 #' the columns listed in `smq_vars`. Defaults to `"SMQ"`.
 #'
-#' @param smq_vars `[character(1+)|NULL]`
+#' @param smq_vars `[character(1+) | NULL]`
 #'
 #' Optional character vector of columns in `table_dataset_name` containing
 #' SMQ indicators or categories. When supplied together with `smq_name`, an
@@ -1999,7 +2084,7 @@ hierarchical_count_table_server <- function(
 #' Name of the derived UDAEC hierarchy variable. Defaults to `"UDAEC"`.
 #' This argument is used together with `udaec_list`.
 #'
-#' @param udaec_list `[list|NULL]`
+#' @param udaec_list `[list | NULL]`
 #'
 #' Optional named list defining UDAEC categories. The names of the list are the
 #' UDAEC category labels, and must be unique and non-empty. Each element must
@@ -2044,12 +2129,12 @@ hierarchical_count_table_server <- function(
 #' A string specifying the text to be displayed in the table row for participants with any event.
 #' Defaults to `"Participants with any event"`.
 #'
-#' @param intended_use_label `[character(1)|NULL]`
+#' @param intended_use_label `[character(1) | NULL]`
 #'
 #' Either a string indicating the intended use for export, or NULL. The provided label will be displayed
 #' prior to the download and will also be included in the exported file.
 #'
-#' @param receiver_id `[character(1)|NULL]`
+#' @param receiver_id `[character(1) | NULL]`
 #'
 #' Unique identifier for the module receiving the selected participant ID in the data listing. This ID must be present
 #' in the app or be NULL.
@@ -2074,11 +2159,16 @@ mod_hierarchical_count_table <- function(
     default_total = TRUE,
     default_min_percent = 0,
     default_remove_rows_under_min_percent = FALSE,
+
     default_pop_flags = NULL,
     pop_flag_choices = NULL,
     default_pop_flags_after_groups = FALSE,
+
     default_event_group = NULL,
     event_group_choices = NULL,
+    event_group_totals = NULL,
+    worst_event_group_vars = NULL,
+
     default_event_date = NULL,
     event_date_choices = NULL,
     default_origin_date = NULL,
@@ -2141,22 +2231,29 @@ mod_hierarchical_count_table <- function(
         hierarchy_choices = hierarchy_choices,
         default_group = default_group,
         group_choices = group_choices,
+
         default_pop_flags = default_pop_flags,
         pop_flag_choices = pop_flag_choices,
+
         default_event_group = default_event_group,
         event_group_choices = event_group_choices,
+        event_group_totals = event_group_totals,
+        worst_event_group_vars = worst_event_group_vars,
+
         default_event_date = default_event_date,
         event_date_choices = event_date_choices,
         default_origin_date = default_origin_date,
         origin_date_choices = origin_date_choices,
         default_censor_date = default_censor_date,
         censor_date_choices = censor_date_choices,
+
         smq_name = smq_name,
         smq_vars = smq_vars,
         smq_na_label = smq_na_label,
         udaec_name = udaec_name,
         udaec_list = udaec_list,
         udaec_na_label = udaec_na_label,
+
         any_event_text = any_event_text,
         intended_use_label = intended_use_label
       )
@@ -2173,8 +2270,9 @@ mod_hierarchical_count_table <- function(
           show_pop_flag_selection, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
           default_hierarchy, hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
           default_remove_rows_under_min_percent, default_pop_flags, pop_flag_choices, default_pop_flags_after_groups,
-          default_event_group, event_group_choices, default_event_date, event_date_choices,
-          default_origin_date, origin_date_choices, default_censor_date, censor_date_choices, default_risk,
+          default_event_group, event_group_choices, event_group_totals, worst_event_group_vars,
+          default_event_date, event_date_choices, default_origin_date, origin_date_choices,
+          default_censor_date, censor_date_choices, default_risk,
           smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label,
           any_event_text, intended_use_label, receiver_id
         )
@@ -2208,6 +2306,8 @@ mod_hierarchical_count_table_API_docs <- list(
   default_pop_flags_after_groups = "",
   default_event_group = "",
   event_group_choices = "",
+  event_group_totals = "",
+  worst_event_group_vars = "",
   default_event_date = "",
   event_date_choices = "",
   default_origin_date = "",
@@ -2247,6 +2347,8 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   default_pop_flags_after_groups = TC$logical(),
   default_event_group = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
   event_group_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
+  event_group_totals = TC$character() |> TC$flag("one_or_more", "optional"),
+  worst_event_group_vars = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
   default_event_date = TC$col("table_dataset_name", TC$date()) |> TC$flag("optional"),
   event_date_choices = TC$col("table_dataset_name", TC$date()) |> TC$flag("zero_or_more", "optional"),
   default_origin_date = TC$col("pop_dataset_name", TC$date()) |> TC$flag("optional"),
@@ -2340,8 +2442,9 @@ check_mod_hierarchical_count_table <- function(
     show_pop_flag_selection, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
     default_hierarchy, hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
     default_remove_rows_under_min_percent, default_pop_flags, pop_flag_choices, default_pop_flags_after_groups,
-    default_event_group, event_group_choices, default_event_date, event_date_choices,
-    default_origin_date, origin_date_choices, default_censor_date, censor_date_choices, default_risk,
+    default_event_group, event_group_choices, event_group_totals, worst_event_group_vars,
+    default_event_date, event_date_choices, default_origin_date, origin_date_choices,
+    default_censor_date, censor_date_choices, default_risk,
     smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label,
     any_event_text, intended_use_label, receiver_id
 ) {
@@ -2355,8 +2458,9 @@ check_mod_hierarchical_count_table <- function(
     show_pop_flag_selection, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
     default_hierarchy, hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
     default_remove_rows_under_min_percent, default_pop_flags, pop_flag_choices, default_pop_flags_after_groups,
-    default_event_group, event_group_choices, default_event_date, event_date_choices,
-    default_origin_date, origin_date_choices, default_censor_date, censor_date_choices, default_risk,
+    default_event_group, event_group_choices, event_group_totals, worst_event_group_vars,
+    default_event_date, event_date_choices, default_origin_date, origin_date_choices,
+    default_censor_date, censor_date_choices, default_risk,
     smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label,
     any_event_text, intended_use_label, receiver_id, err
   )
