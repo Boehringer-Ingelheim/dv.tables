@@ -12,11 +12,13 @@ compute_events_table(
   subjid_var = NULL,
   pop_flag_vars = NULL,
   event_group_var = NULL,
+  worst_event_group_vars = c("AETOXGR", "AESEV"),
   origin_date_var = NULL,
   censor_date_var = NULL,
   event_date_var = NULL,
   total = TRUE,
   total_group_val = "Total",
+  event_group_total_val = NULL,
   compute_risk = FALSE,
   any_event_text = "Participants with any event"
 )
@@ -56,26 +58,32 @@ A string representing the column name in \code{event_df} holding the event date.
 \item{total}{\code{logical(1)}
 A logical indicating whether to add a total group column.}
 
-\item{total_group_val}{\code{character(0|1)}
+\item{total_group_val}{\code{character(1)}
 A string representing the value to assign to the \code{group_var} column for totals.}
+
+\item{event_group_total_val}{\code{character(1)}
+A string representing the value to assign to the \code{event_group_var} column for totals.}
 
 \item{compute_risk}{\code{logical(1)}
 A logical indicating whether to calculate time at risk and incidence rate.}
+
+\item{any_event_text}{\code{character(1)}
+A string specifying the text to be displayed in the table row for participants with any event.}
 }
 \value{
 A list containing:
 \itemize{
 \item \code{df}: A data frame with the processed event data, including counts and percentages.
-\item \code{meta}: A list containing metadata related to the hierarchy, group variable, and subject counts.
 \item \code{meta}: A list of metadata:
 \itemize{
 \item \code{hierarchy}: A vector of hierarchy variable names.
-\item \code{group_var}: A string indicating the group variable name.
+\item \code{group_vars}: A vector of group variable names.
+\item \code{pop_flag_vars}: A vector of population flag variable names.
 \item \code{event_group_var}: A string indicating the event group variable name.
 \item \code{event_group_vals}: A vector of event group values.
-\item \code{pop_flag_vars}: A vector of population flag variable names.
 \item \code{total_vars}: A vector of variable names that will have a total column displayed in the table.
 \item \code{total_group_val}: A string indicating the label for the total group column.
+\item \code{event_group_total_val}: A string indicating the label for the event group total column.
 \item \code{denom_df}: A data frame of population group denominator data.
 \item \code{table_type}: A string, either "frequency" or "time_at_risk", indicating the table type.
 \item \code{any_event_text}: A string specifying the text to be displayed in the table row for participants with any event.
