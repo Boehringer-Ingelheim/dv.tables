@@ -32,9 +32,8 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
                          null.ok = TRUE,
                          names = "named")
 
-  checkmate::assert_subset(names(count_table), c("df", "meta"))
-  checkmate::assert_subset(c("denom_df",
-                             "hierarchy"),
+  checkmate::assert_subset(c("df", "meta"), names(count_table))
+  checkmate::assert_subset(c("denom_df", "hierarchy", "event_group_vals", "total_group_val", "event_group_total_val"),
                            names(count_table[["meta"]]))
 
   # At least one row is required to download the table
@@ -45,20 +44,21 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
   checkmate::assert_logical(split_columns)
 
-  # Get data frame
+  # Get data frame and metadata
   df_prep <- count_table[["df"]]
+  meta <- count_table[["meta"]]
 
   # Get group subject totals (named by group) and extract group names
-  denom_df <- count_table[["meta"]]$denom_df
+  denom_df <- meta[["denom_df"]]
   total_colname <- stats::setNames(denom_df[[".N"]], denom_df[[".lookup"]])
   group_names <- intersect(names(df_prep), names(total_colname))
 
   # Get event variables
-  event_vars <- count_table[["meta"]]$hierarchy
+  event_vars <- meta[["hierarchy"]]
   event_var_labels <- attr(event_vars, "labels")
 
   # Get event group values (empty vector if no event group specified)
-  event_group_vals <- count_table[["meta"]]$event_group_vals
+  event_group_vals <- meta[["event_group_vals"]]
 
   # Flag when event group has been specified
   has_event_group <- length(event_group_vals) > 0
@@ -229,6 +229,10 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
     dplyr::bind_cols(df_prep, new_cols),
     -dplyr::all_of(group_names)
   )
+
+  # Replace totals placeholders in group column names
+  names(df_prep) <- gsub(EC$VAL$TOTAL, meta[["total_group_val"]], names(df_prep), fixed = TRUE)
+  names(df_prep) <- gsub(EC$VAL$EVT_TOTAL, meta[["event_group_total_val"]], names(df_prep), fixed = TRUE)
 
   # Replace special separator characters in group column names with display-friendly "/"
   names(df_prep) <- gsub(EC$VAL$SPECIAL_CHAR, "/", names(df_prep), fixed = TRUE)

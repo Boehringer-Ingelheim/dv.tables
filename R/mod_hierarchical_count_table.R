@@ -74,7 +74,9 @@ EC <- poc(
     )
   ),
   VAL = poc(
-    SPECIAL_CHAR = "\u001D" # For naming and processing hierarchy levels
+    SPECIAL_CHAR = "\u001D", # For naming and processing hierarchy levels
+    TOTAL = "__TOTAL__",
+    EVT_TOTAL = "__EVT_TOTAL__"
   ),
   CONST = poc(
     MAX_HIERARCHY = 4
@@ -284,13 +286,12 @@ create_adtte <- function(event_df,
 #'
 #' @return A list containing:
 #' - `df`: A data frame with the processed event data, including counts and percentages.
-#' - `meta`: A list containing metadata related to the hierarchy, group variable, and subject counts.
 #' - `meta`: A list of metadata:
 #'   - `hierarchy`: A vector of hierarchy variable names.
-#'   - `group_var`: A string indicating the group variable name.
+#'   - `group_vars`: A vector of group variable names.
+#'   - `pop_flag_vars`: A vector of population flag variable names.
 #'   - `event_group_var`: A string indicating the event group variable name.
 #'   - `event_group_vals`: A vector of event group values.
-#'   - `pop_flag_vars`: A vector of population flag variable names.
 #'   - `total_vars`: A vector of variable names that will have a total column displayed in the table.
 #'   - `total_group_val`: A string indicating the label for the total group column.
 #'   - `event_group_total_val`: A string indicating the label for the event group total column.
@@ -438,10 +439,11 @@ compute_events_table <- function(event_df,
   # Add rows for group totals (required for ordering) ----
 
   for (gv in c(group_vars, event_group_var)) {
-    gv_fct_levels <- c(levels(adtte[[gv]]), total_group_val)
+    total_val <- if (gv %in% event_group_var) EC$VAL$EVT_TOTAL else EC$VAL$TOTAL
+    gv_fct_levels <- c(levels(adtte[[gv]]), total_val)
 
     adtte[[gv]] <- factor(adtte[[gv]], levels = gv_fct_levels)
-    total_grp_fct <- factor(total_group_val, levels = c(levels(adtte[[gv]])))
+    total_grp_fct <- factor(total_val, levels = c(levels(adtte[[gv]])))
     total_rows <- adtte
     total_rows[[as.character(gv)]] <- total_grp_fct
     total_rows <- dplyr::distinct(total_rows)
@@ -546,13 +548,13 @@ compute_events_table <- function(event_df,
     df = calc_stats,
     meta = list(
       hierarchy = hierarchy,
-      hier_lvl_col = hier_lvl_col,
       group_vars = group_vars,
       pop_flag_vars = pop_flag_vars,
       event_group_var = event_group_var,
       event_group_vals = event_group_vals,
       total_vars = total_vars,
       total_group_val = total_group_val,
+      event_group_total_val = event_group_total_val,
       denom_df = denom_df,
       table_type = table_type,
       any_event_text = any_event_text,
@@ -579,7 +581,6 @@ compute_order_events_table <- function(d) {
   hierarchy <- d[["meta"]][["hierarchy"]]
   group_vars <- d[["meta"]][["group_vars"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
-  total_group_val <- d[["meta"]][["total_group_val"]]
 
   results_df <- d[["df"]]
 
@@ -588,7 +589,8 @@ compute_order_events_table <- function(d) {
 
   # Only keep rows with the total across all groups
   hierarchy_grid <- results_df |>
-    dplyr::filter(dplyr::if_all(dplyr::all_of(c(group_vars, event_group_var)), \(x) x == total_group_val)) |>
+    dplyr::filter(dplyr::if_all(dplyr::all_of(c(group_vars, event_group_var)),
+                                \(x) x %in% c(EC$VAL$TOTAL, EC$VAL$EVT_TOTAL))) |>
     dplyr::select(dplyr::all_of(c(hierarchy, hier_lvl_col, "n")))
 
   # Assign totals from each hierarchy level onto lower hierarchy levels
@@ -652,7 +654,6 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
   group_vars <- d[["meta"]][["group_vars"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
   total_vars <- d[["meta"]][["total_vars"]]
-  total_group_val <- d[["meta"]][["total_group_val"]]
   table_type <- d[["meta"]][["table_type"]]
   df <- d[["df"]]
 
@@ -663,7 +664,8 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
 
   # Remove unwanted total rows
   unwanted_total_vars <- setdiff(c(group_vars, event_group_var), total_vars)
-  df <- dplyr::filter(df, dplyr::if_all(dplyr::all_of(unwanted_total_vars), \(x) x != total_group_val))
+  df <- dplyr::filter(df, dplyr::if_all(dplyr::all_of(unwanted_total_vars),
+                                        \(x) !x %in% c(EC$VAL$TOTAL, EC$VAL$EVT_TOTAL)))
 
   pct_below_min <- df[["pct"]] < min_percent
   zero_count <- df[["n"]] == 0
@@ -776,9 +778,9 @@ sort_wider_formatter_events_table <- function(event_d, sort_df) { # nolint
   checkmate::assert_data_frame(sort_df) # DP
 
   hierarchy <- event_d[["meta"]][["hierarchy"]]
-  hier_lvl_col <- event_d[["meta"]][["hier_lvl_col"]]
   event_df <- event_d[["df"]]
 
+  hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
   rank_col <- paste0(EC$VAL$SPECIAL_CHAR, "rank")
 
   sort_event_df <- sort_df[, c(hierarchy, hier_lvl_col, rank_col)] |>
@@ -811,11 +813,11 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   checkmate::assert_list(d[["meta"]]) # DP
 
   hierarchy <- d[["meta"]][["hierarchy"]]
-  hier_lvl_col <- d[["meta"]][["hier_lvl_col"]]
   group_vars <- d[["meta"]][["group_vars"]]
   pop_flag_vars <- d[["meta"]][["pop_flag_vars"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
   event_group_vals <- d[["meta"]][["event_group_vals"]]
+  total_group_val <- d[["meta"]][["total_group_val"]]
   denom_df <- d[["meta"]][["denom_df"]]
   table_type <- d[["meta"]][["table_type"]]
   min_percent <- d[["meta"]][["min_percent"]]
@@ -825,6 +827,7 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   # Flag when event group has been specified
   has_event_group <- length(event_group_vals) > 0
 
+  hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
   entry_name_col <- paste0(EC$VAL$SPECIAL_CHAR, "entry_name")
 
   table <- shiny::tags[["table"]]
@@ -877,6 +880,7 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
       thc_data_columns <- purrr::map2(data_headers, rle_level_path[["lengths"]], ~ thc(.x, colspan = .y * n_cols))
     } else {
       extracted_headers <- sub(paste0(".*", EC$VAL$SPECIAL_CHAR), "", data_columns)
+      extracted_headers[extracted_headers == EC$VAL$TOTAL] <- total_group_val
       data_headers <- purrr::map2(extracted_headers,
                                   paste0("(N", "\u00A0", "=", "\u00A0", n_denominator[data_columns], ")"),
                                   ~ shiny::span(.x, shiny::br(), .y))
