@@ -5,26 +5,23 @@
     Output
       $df
       # A tibble: 112 x 9
-         lvl1     lvl2     `\035lvl` group evtgrp    .N     n subjid      pct
-         <fct>    <fct>        <int> <fct> <fct>  <int> <int> <list>    <dbl>
-       1 "\u001d" "\u001d"         0 GA    EG1        1     1 <fct [1]>   100
-       2 "\u001d" "\u001d"         0 GB    EG1        2     1 <fct [1]>    50
-       3 "\u001d" "\u001d"         0 GC    EG1        1     0 <fct [0]>     0
-       4 "\u001d" "\u001d"         0 Total EG1        4     2 <fct [2]>    50
-       5 "\u001d" "\u001d"         0 GA    EG2        1     1 <fct [1]>   100
-       6 "\u001d" "\u001d"         0 GB    EG2        2     1 <fct [1]>    50
-       7 "\u001d" "\u001d"         0 GC    EG2        1     0 <fct [0]>     0
-       8 "\u001d" "\u001d"         0 Total EG2        4     2 <fct [2]>    50
-       9 "\u001d" "\u001d"         0 GA    EG3        1     1 <fct [1]>   100
-      10 "\u001d" "\u001d"         0 GB    EG3        2     2 <fct [2]>   100
+         lvl1     lvl2     `\035lvl` group     evtgrp    .N     n subjid      pct
+         <fct>    <fct>        <int> <fct>     <fct>  <int> <int> <list>    <dbl>
+       1 "\u001d" "\u001d"         0 GA        EG1        1     1 <fct [1]>   100
+       2 "\u001d" "\u001d"         0 GB        EG1        2     1 <fct [1]>    50
+       3 "\u001d" "\u001d"         0 GC        EG1        1     0 <fct [0]>     0
+       4 "\u001d" "\u001d"         0 __TOTAL__ EG1        4     2 <fct [2]>    50
+       5 "\u001d" "\u001d"         0 GA        EG2        1     1 <fct [1]>   100
+       6 "\u001d" "\u001d"         0 GB        EG2        2     1 <fct [1]>    50
+       7 "\u001d" "\u001d"         0 GC        EG2        1     0 <fct [0]>     0
+       8 "\u001d" "\u001d"         0 __TOTAL__ EG2        4     2 <fct [2]>    50
+       9 "\u001d" "\u001d"         0 GA        EG3        1     1 <fct [1]>   100
+      10 "\u001d" "\u001d"         0 GB        EG3        2     2 <fct [2]>   100
       # i 102 more rows
       
       $meta
       $meta$hierarchy
       [1] "lvl1" "lvl2"
-      
-      $meta$hier_lvl_col
-      [1] "\035lvl"
       
       $meta$group_vars
       [1] "group"
@@ -44,16 +41,19 @@
       $meta$total_group_val
       [1] "Total"
       
+      $meta$event_group_total_val
+      NULL
+      
       $meta$denom_df
       # A tibble: 6 x 3
-           .N group .lookup
-        <int> <fct> <chr>  
-      1     1 GA    GA     
-      2     2 GB    GB     
-      3     1 GC    GC     
-      4     4 Total Total  
-      5     3 GB    GB     
-      6     5 Total Total  
+           .N group     .lookup  
+        <int> <fct>     <chr>    
+      1     1 GA        GA       
+      2     2 GB        GB       
+      3     1 GC        GC       
+      4     4 __TOTAL__ __TOTAL__
+      5     3 GB        GB       
+      6     5 __TOTAL__ __TOTAL__
       
       $meta$table_type
       [1] "frequency"
@@ -98,14 +98,11 @@
       5 "B1"     "\u001d"         1          5 <named list> <named list> <named list>
       6 "B1"     "B2"             2          6 <named list> <named list> <named list>
       7 "B1"     "A2"             2          7 <named list> <named list> <named list>
-      # i 1 more variable: Total <list>
+      # i 1 more variable: `__TOTAL__` <list>
       
       $meta
       $meta$hierarchy
       [1] "lvl1" "lvl2"
-      
-      $meta$hier_lvl_col
-      [1] "\035lvl"
       
       $meta$group_vars
       [1] "group"
@@ -125,16 +122,19 @@
       $meta$total_group_val
       [1] "Total"
       
+      $meta$event_group_total_val
+      NULL
+      
       $meta$denom_df
       # A tibble: 6 x 3
-           .N group .lookup
-        <int> <fct> <chr>  
-      1     1 GA    GA     
-      2     2 GB    GB     
-      3     1 GC    GC     
-      4     4 Total Total  
-      5     3 GB    GB     
-      6     5 Total Total  
+           .N group     .lookup  
+        <int> <fct>     <chr>    
+      1     1 GA        GA       
+      2     2 GB        GB       
+      3     1 GC        GC       
+      4     4 __TOTAL__ __TOTAL__
+      5     3 GB        GB       
+      6     5 __TOTAL__ __TOTAL__
       
       $meta$table_type
       [1] "frequency"
@@ -251,9 +251,9 @@
             <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG1" style="white-space: nowrap;">2 ( 50.00 %)</td>
-            <td class="text-center" column="TotalEG2" style="white-space: nowrap;">2 ( 50.00 %)</td>
-            <td class="text-center" column="TotalEG3" style="white-space: nowrap;">3 ( 75.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">2 ( 50.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">2 ( 50.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">3 ( 75.00 %)</td>
           </tr>
           <tr row-id="2" class="indent-1 bg-gray" indent="1">
             <td>
@@ -271,9 +271,9 @@
             <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG1" style="white-space: nowrap;">2 ( 50.00 %)</td>
-            <td class="text-center" column="TotalEG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="TotalEG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">2 ( 50.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
           </tr>
           <tr row-id="3" class="indent-2" indent="2">
             <td>
@@ -288,9 +288,9 @@
             <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG1" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="TotalEG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="TotalEG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">1 ( 25.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
           </tr>
           <tr row-id="4" class="indent-2" indent="2">
             <td>
@@ -305,9 +305,9 @@
             <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG1" style="white-space: nowrap;">2 ( 50.00 %)</td>
-            <td class="text-center" column="TotalEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG3" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">2 ( 50.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">0</td>
           </tr>
           <tr row-id="5" class="indent-1 bg-gray" indent="1">
             <td>
@@ -325,9 +325,9 @@
             <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="TotalEG3" style="white-space: nowrap;">2 ( 50.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">2 ( 50.00 %)</td>
           </tr>
           <tr row-id="6" class="indent-2" indent="2">
             <td>
@@ -342,9 +342,9 @@
             <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="TotalEG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
           </tr>
           <tr row-id="7" class="indent-2" indent="2">
             <td>
@@ -359,9 +359,9 @@
             <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
             <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="TotalEG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
+            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">0</td>
+            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
           </tr>
         </table>
       </div>
