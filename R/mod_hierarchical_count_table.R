@@ -105,10 +105,6 @@ EC <- poc(
 #' @param event_group_var `character(1)`
 #' A string representing the column name in `event_df` used for grouping the event data.
 #'
-#' @param event_group_total_val `character(1)`
-#' A string indicating the label for the event group total column. If not `NULL` then rows will be duplicated for the
-#' total column, with `event_group_total_val` assigned to `event_group_var`.
-#'
 #' @param worst_event_group `logical(1)`
 #' A logical indicating whether to take the worst value of the event group.
 #'
