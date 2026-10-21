@@ -288,6 +288,7 @@ create_adtte <- function(event_df,
 #'   - `pop_flag_vars`: A vector of population flag variable names.
 #'   - `event_group_var`: A string indicating the event group variable name.
 #'   - `event_group_vals`: A vector of event group values.
+#'   - `worst_event_group`: A logical indicating whether the worst value of the event group is taken.
 #'   - `total_vars`: A vector of variable names that will have a total column displayed in the table.
 #'   - `total_group_val`: A string indicating the label for the total group column.
 #'   - `event_group_total_val`: A string indicating the label for the event group total column.
@@ -304,7 +305,7 @@ compute_events_table <- function(event_df,
                                  subjid_var = NULL,
                                  pop_flag_vars = NULL,
                                  event_group_var = NULL,
-                                 worst_event_group_vars = c("AETOXGR", "AESEV"),
+                                 worst_event_group_vars = NULL,
                                  origin_date_var = NULL,
                                  censor_date_var = NULL,
                                  event_date_var = NULL,
@@ -320,16 +321,17 @@ compute_events_table <- function(event_df,
   checkmate::assert_character(group_vars, min.chars = 1, min.len = 1)
   checkmate::assert_string(subjid_var, min.chars = 1)
 
+  checkmate::assert_character(pop_flag_vars, min.chars = 1, null.ok = TRUE)
+  checkmate::assert_character(event_group_var, min.chars = 1, max.len = 1, null.ok = TRUE)
+  checkmate::assert_character(worst_event_group_vars, min.chars = 1, null.ok = TRUE)
+
   checkmate::assert_names(names(event_df), must.include = c(hierarchy, event_group_var, subjid_var))
   checkmate::assert_names(names(pop_df), must.include = c(group_vars, subjid_var))
-
-  checkmate::assert_character(pop_flag_vars, min.chars = 1, null.ok = TRUE)
 
   lapply(group_vars, function(v) checkmate::assert_factor(pop_df[[v]]))
   lapply(hierarchy, function(v) checkmate::assert_factor(event_df[[v]]))
   checkmate::assert_factor(event_df[[subjid_var]])
   checkmate::assert_factor(pop_df[[subjid_var]])
-  checkmate::assert_character(event_group_var, min.chars = 1, max.len = 1, null.ok = TRUE)
 
   # Time at risk dates, if specified, must be on population and event data frames
   checkmate::assert_names(names(pop_df), must.include = c(origin_date_var, censor_date_var))
@@ -548,6 +550,7 @@ compute_events_table <- function(event_df,
       pop_flag_vars = pop_flag_vars,
       event_group_var = event_group_var,
       event_group_vals = event_group_vals,
+      worst_event_group = worst_event_group,
       total_vars = total_vars,
       total_group_val = total_group_val,
       event_group_total_val = event_group_total_val,
@@ -813,6 +816,7 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   pop_flag_vars <- d[["meta"]][["pop_flag_vars"]]
   event_group_var <- d[["meta"]][["event_group_var"]]
   event_group_vals <- d[["meta"]][["event_group_vals"]]
+  worst_event_group <- d[["meta"]][["worst_event_group"]]
   total_group_val <- d[["meta"]][["total_group_val"]]
   denom_df <- d[["meta"]][["denom_df"]]
   table_type <- d[["meta"]][["table_type"]]
@@ -939,7 +943,9 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
     ifelse(length(pop_flag_vars) == 0L, "",
            paste("; flag by", paste(unlist(var_labels[pop_flag_vars], use.names = FALSE), collapse = ", "))),
     ifelse(length(event_group_var) == 0L, "",
-           paste("; event group by", paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", "))),
+           paste(paste0("; event group by",
+                        ifelse(worst_event_group, " (worst)", "")),
+                 paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", "))),
     ifelse(min_percent == 0, "",
            sprintf("; minimum %.2f%%", min_percent))
   )
@@ -1373,7 +1379,6 @@ hierarchical_count_table_server <- function(
         include_none = FALSE,
         options = list(maxItems = EC$CONST$MAX_HIERARCHY, plugins = list("drag_drop"))
       )
-
 
       output[[EC$ID$SMQ_UI]] <- shiny::renderUI({
 

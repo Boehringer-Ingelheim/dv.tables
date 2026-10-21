@@ -1,11 +1,13 @@
 # dv.tables 0.6.1-9000
+
 * `mod_hierarchical_count_table`:
   * Implement worst value processing on event group variable.
   * Allow total to be displayed for event group variable.
 
 # dv.tables 0.6.1
+
 * `mod_Tplyr_table`:
- * update check if metadata was set in build function
+  * update check if metadata was set in build function
 
 # dv.tables 0.6.0
 
