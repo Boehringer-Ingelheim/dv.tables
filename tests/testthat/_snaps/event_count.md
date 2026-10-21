@@ -35,6 +35,9 @@
       $meta$event_group_vals
       character(0)
       
+      $meta$worst_event_group
+      [1] FALSE
+      
       $meta$total_vars
       [1] "group"
       
@@ -113,6 +116,9 @@
       
       $meta$event_group_vals
       character(0)
+      
+      $meta$worst_event_group
+      [1] FALSE
       
       $meta$total_vars
       [1] "group"
@@ -313,6 +319,9 @@
       
       $meta$event_group_vals
       character(0)
+      
+      $meta$worst_event_group
+      [1] FALSE
       
       $meta$total_vars
       [1] "group"

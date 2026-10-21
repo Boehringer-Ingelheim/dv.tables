@@ -35,6 +35,9 @@
       $meta$event_group_vals
       [1] "EG1" "EG2" "EG3"
       
+      $meta$worst_event_group
+      [1] FALSE
+      
       $meta$total_vars
       [1] "group"
       
@@ -115,6 +118,9 @@
       
       $meta$event_group_vals
       [1] "EG1" "EG2" "EG3"
+      
+      $meta$worst_event_group
+      [1] FALSE
       
       $meta$total_vars
       [1] "group"
