@@ -11,6 +11,7 @@ create_adtte(
   group_vars,
   subjid_var,
   event_group_var,
+  worst_event_group,
   origin_date_var,
   censor_date_var,
   event_date_var
@@ -33,6 +34,9 @@ A string representing the subject identifier column name. This column must be pr
 
 \item{event_group_var}{\code{character(1)}
 A string representing the column name in \code{event_df} used for grouping the event data.}
+
+\item{worst_event_group}{\code{logical(1)}
+A logical indicating whether to take the worst value of the event group.}
 
 \item{origin_date_var}{\code{character(1)}
 A string representing the column name in \code{pop_df} holding the origin date.}

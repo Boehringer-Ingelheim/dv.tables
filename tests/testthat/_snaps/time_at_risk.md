@@ -10,11 +10,11 @@
        1 "\u001d" "\u0~         0 GA        1     1 <fct>       0.00274         36525 
        2 "\u001d" "\u0~         0 GB        2     2 <fct>       0.0520           3845.
        3 "\u001d" "\u0~         0 GC        1     0 <fct>       0.0575              0 
-       4 "\u001d" "\u0~         0 Total     4     3 <fct>       0.112            2673.
+       4 "\u001d" "\u0~         0 __TO~     4     3 <fct>       0.112            2673.
        5 "A1"     "\u0~         1 GA        1     1 <fct>       0.00274         36525 
        6 "A1"     "\u0~         1 GB        2     2 <fct>       0.0520           3845.
        7 "A1"     "\u0~         1 GC        1     0 <fct>       0.0575              0 
-       8 "A1"     "\u0~         1 Total     4     3 <fct>       0.112            2673.
+       8 "A1"     "\u0~         1 __TO~     4     3 <fct>       0.112            2673.
        9 "A1"     "A2"          2 GA        1     0 <fct>       0.0274              0 
       10 "A1"     "A2"          2 GB        2     2 <fct>       0.0520           3845.
       # i 14 more rows
@@ -23,9 +23,6 @@
       $meta
       $meta$hierarchy
       [1] "lvl1" "lvl2"
-      
-      $meta$hier_lvl_col
-      [1] "\035lvl"
       
       $meta$group_vars
       [1] "group"
@@ -39,20 +36,26 @@
       $meta$event_group_vals
       character(0)
       
+      $meta$worst_event_group
+      [1] FALSE
+      
       $meta$total_vars
       character(0)
       
       $meta$total_group_val
       [1] "Total"
       
+      $meta$event_group_total_val
+      NULL
+      
       $meta$denom_df
       # A tibble: 4 x 3
-           .N group .lookup
-        <int> <fct> <chr>  
-      1     1 GA    GA     
-      2     2 GB    GB     
-      3     1 GC    GC     
-      4     4 Total Total  
+           .N group     .lookup  
+        <int> <fct>     <chr>    
+      1     1 GA        GA       
+      2     2 GB        GB       
+      3     1 GC        GC       
+      4     4 __TOTAL__ __TOTAL__
       
       $meta$table_type
       [1] "time_at_risk"
@@ -100,9 +103,6 @@
       $meta$hierarchy
       [1] "lvl1" "lvl2"
       
-      $meta$hier_lvl_col
-      [1] "\035lvl"
-      
       $meta$group_vars
       [1] "group"
       
@@ -115,20 +115,26 @@
       $meta$event_group_vals
       character(0)
       
+      $meta$worst_event_group
+      [1] FALSE
+      
       $meta$total_vars
       character(0)
       
       $meta$total_group_val
       [1] "Total"
       
+      $meta$event_group_total_val
+      NULL
+      
       $meta$denom_df
       # A tibble: 4 x 3
-           .N group .lookup
-        <int> <fct> <chr>  
-      1     1 GA    GA     
-      2     2 GB    GB     
-      3     1 GC    GC     
-      4     4 Total Total  
+           .N group     .lookup  
+        <int> <fct>     <chr>    
+      1     1 GA        GA       
+      2     2 GB        GB       
+      3     1 GC        GC       
+      4     4 __TOTAL__ __TOTAL__
       
       $meta$table_type
       [1] "time_at_risk"

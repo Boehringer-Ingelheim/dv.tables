@@ -123,6 +123,8 @@ mock_app_hierarchical_count_table_mm <- function() {
         default_group = "TRT01P",
         default_total = FALSE,
         default_event_group = "AESEV",
+        worst_event_group_vars = c("AESEV"),
+        event_group_totals = c(AESEV = "Any Severity", SEX = "Total"),
         receiver_id = "papo"
       ),
       "UDAEC/SMQ Hierarchy Table" = mod_hierarchical_count_table(

@@ -7,10 +7,10 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     subjid_var, show_pop_flag_selection, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
     default_hierarchy, hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
     default_remove_rows_under_min_percent, default_pop_flags, pop_flag_choices, default_pop_flags_after_groups,
-    default_event_group, event_group_choices, default_event_date, event_date_choices, default_origin_date,
-    origin_date_choices, default_censor_date, censor_date_choices, default_risk, smq_name, smq_vars,
-    smq_na_label, udaec_name, udaec_list, udaec_na_label, any_event_text, intended_use_label, receiver_id,
-    err) {
+    default_event_group, event_group_choices, event_group_totals, worst_event_group_vars, default_event_date,
+    event_date_choices, default_origin_date, origin_date_choices, default_censor_date, censor_date_choices,
+    default_risk, smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label, any_event_text,
+    intended_use_label, receiver_id, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
     OK[["module_id"]] <- CM$check_module_id("module_id", module_id, err)
@@ -78,6 +78,13 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     flags <- list(zero_or_more = TRUE, optional = TRUE)
     OK[["event_group_choices"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("event_group_choices",
         event_group_choices, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], err)
+    flags <- list(one_or_more = TRUE, optional = TRUE)
+    OK[["event_group_totals"]] <- CM$check_type("event_group_totals", event_group_totals, "character",
+        flags, err)
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(zero_or_more = TRUE, optional = TRUE)
+    OK[["worst_event_group_vars"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("worst_event_group_vars",
+        worst_event_group_vars, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], err)
     subkind <- list(kind = "date")
     flags <- list(optional = TRUE)
     OK[["default_event_date"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("default_event_date",

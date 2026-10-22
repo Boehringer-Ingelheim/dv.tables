@@ -30,7 +30,8 @@ showing time at risk and incidence rates.
   population size (N) displayed for each column. A special grouping level derived from one or more population flagging
   variables can also be used.
 - An optional "Total" group can be derived and displayed for the last population grouping level.
-- Optionally apply sub-grouping by a variable from the events data (e.g. event severity).
+- Optionally apply sub-grouping by a variable from the events data (e.g. event severity). Such event group variables
+  can be pre-specified to show worst value cases only. An optional event group total can also be derived.
 - Event counts and percentages are displayed, and optionally time at risk and incidence rates can be displayed.
 - Events within the hierarchy ordered by descending event count (totalled across all groups).
 - Tables can be downloaded as Excel (.xlsx) or Word (.rtf).
@@ -240,7 +241,9 @@ dv.manager::run_app(
       default_group = "TRT01P",
       default_event_group = "AESEV",
       default_total = FALSE,
-      event_group_choices = c("AESEV", "AETOXGR")
+      event_group_choices = c("AESEV", "SEX"),
+      event_group_totals = c(AESEV = "Any Severity", SEX = "Total"),
+      worst_event_group_vars = c("AESEV")
     )
   ),
   filter_dataset_name = "adsl",
