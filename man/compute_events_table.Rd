@@ -12,7 +12,7 @@ compute_events_table(
   subjid_var = NULL,
   pop_flag_vars = NULL,
   event_group_var = NULL,
-  worst_event_group_vars = c("AETOXGR", "AESEV"),
+  worst_event_group_vars = NULL,
   origin_date_var = NULL,
   censor_date_var = NULL,
   event_date_var = NULL,
@@ -81,6 +81,7 @@ A list containing:
 \item \code{pop_flag_vars}: A vector of population flag variable names.
 \item \code{event_group_var}: A string indicating the event group variable name.
 \item \code{event_group_vals}: A vector of event group values.
+\item \code{worst_event_group}: A logical indicating whether the worst value of the event group is taken.
 \item \code{total_vars}: A vector of variable names that will have a total column displayed in the table.
 \item \code{total_group_val}: A string indicating the label for the total group column.
 \item \code{event_group_total_val}: A string indicating the label for the event group total column.

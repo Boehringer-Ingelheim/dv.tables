@@ -444,7 +444,17 @@ compute_events_table <- function(event_df,
     total_grp_fct <- factor(total_val, levels = c(levels(adtte[[gv]])))
     total_rows <- adtte
     total_rows[[as.character(gv)]] <- total_grp_fct
-    total_rows <- dplyr::distinct(total_rows)
+
+    if (gv %in% event_group_var) {
+      # Event group processing can lead to censored and uncensored rows. Ensure uncensored rows take precedence over
+      # censored rows (dplyr::slice_min will take FALSE value before TRUE value).
+      total_rows <- total_rows |>
+        dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, group_vars, hierarchy)))) |>
+        dplyr::slice_min(order_by = .data[[censor_col]], n = 1, with_ties = FALSE) |>
+        dplyr::ungroup()
+    } else {
+      total_rows <- dplyr::distinct(total_rows)
+    }
 
     adtte <- adtte |>
       rbind(total_rows)
