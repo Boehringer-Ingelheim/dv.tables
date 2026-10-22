@@ -48,15 +48,13 @@
       NULL
       
       $meta$denom_df
-      # A tibble: 6 x 3
+      # A tibble: 4 x 3
            .N group     .lookup  
         <int> <fct>     <chr>    
       1     1 GA        GA       
       2     2 GB        GB       
       3     1 GC        GC       
       4     4 __TOTAL__ __TOTAL__
-      5     3 GB        GB       
-      6     5 __TOTAL__ __TOTAL__
       
       $meta$table_type
       [1] "frequency"
@@ -132,15 +130,13 @@
       NULL
       
       $meta$denom_df
-      # A tibble: 6 x 3
+      # A tibble: 4 x 3
            .N group     .lookup  
         <int> <fct>     <chr>    
       1     1 GA        GA       
       2     2 GB        GB       
       3     1 GC        GC       
       4     4 __TOTAL__ __TOTAL__
-      5     3 GB        GB       
-      6     5 __TOTAL__ __TOTAL__
       
       $meta$table_type
       [1] "frequency"
