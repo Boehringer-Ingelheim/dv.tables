@@ -70,7 +70,7 @@ local({
   )
 
   test_that(vdoc[["add_spec"]](
-    "worst event group by is correct, sorting, against (snapshot)",
+    "worst event group by computation is correct (snapshot)",
     c(
       specs$hierarchical_count_table$event_count,
       specs$hierarchical_count_table$event_group_by_display
