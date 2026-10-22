@@ -31,13 +31,13 @@ local({
     event_group_var = "evtgrp"
   )
 
-  s1 <- compute_order_events_table(x)
+  s1 <- compute_order_events_table(x1)
 
-  w1 <- pivot_wide_format_events_table(x, 0)
+  w1 <- pivot_wide_format_events_table(x1, 0)
 
-  sw1 <- sort_wider_formatter_events_table(w, s)
+  sw1 <- sort_wider_formatter_events_table(w1, s1)
 
-  html1 <- sort_wide_format_event_table_to_HTML(sw, var_labels)
+  html1 <- sort_wide_format_event_table_to_HTML(sw1, var_labels)
 
   # We will test against snapshots that we have checked is correct
 
