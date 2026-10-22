@@ -64,7 +64,7 @@ mock_app_summary_table_mm <- function() {
   if (!requireNamespace("dv.papo")) stop("Install dv.papo")
   if (!requireNamespace("pharmaverseadam")) stop("Install pharmaverseadam")
 
-  adsl <- pharmaverseadam::adsl |>
+  adsl <- pharmaverseadam::adsl |> chr2factor() |>
     dplyr::mutate(ENRLFL = "Y",
                   TRTFL = ifelse(is.na(TRTSDT), "N", "Y"),
                   RANDFL = ifelse(is.na(RANDDT), "N", "Y"),
