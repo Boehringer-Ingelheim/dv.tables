@@ -2506,46 +2506,50 @@ check_mod_hierarchical_count_table <- function(
   check_optional_string("smq_name", smq_name)
   check_optional_string("udaec_name", udaec_name)
 
-  CM$assert(
-    err,
-    is.null(event_group_totals) || all(names(event_group_totals) %in% names(datasets[[table_dataset_name]])),
-    "`event_group_totals` contains named elements whose names are not variables in the event dataset."
-  )
-
-  event_data <- if (
-    is.character(table_dataset_name) &&
-      length(table_dataset_name) == 1L &&
-      table_dataset_name %in% names(datasets)
-  ) {
-    datasets[[table_dataset_name]]
-  } else {
-    NULL
+  if (OK[["table_dataset_name"]]) {
+    CM$assert(
+      err,
+      is.null(event_group_totals) || all(names(event_group_totals) %in% names(datasets[[table_dataset_name]])),
+      "`event_group_totals` contains named elements whose names are not variables in the event dataset."
+    )
   }
 
-  udaec_validation_error <- tryCatch(
-    {
-      validate_smq_udaec_args(
-        smq_name = smq_name,
-        smq_vars = smq_vars,
-        udaec_name = udaec_name,
-        udaec_list = udaec_list,
-        event_data = event_data
-      )
-    },
-    error = function(error) conditionMessage(error)
-  )
-  CM$assert(
-    err,
-    is.null(udaec_validation_error),
-    sprintf("`udaec_list` and related SMQ/UDAEC parameters are inconsistent: %s",
-            udaec_validation_error)
-  )
+  if (all(OK[c("table_dataset_name", "smq_name", "smq_vars", "udaec_name")])) {
+    event_data <- if (
+      is.character(table_dataset_name) &&
+      length(table_dataset_name) == 1L &&
+      table_dataset_name %in% names(datasets)
+    ) {
+      datasets[[table_dataset_name]]
+    } else {
+      NULL
+    }
 
-  CM$assert(
-    err,
-    is.null(default_hierarchy) || all(default_hierarchy %in% c(names(datasets[[table_dataset_name]]), smq_name, udaec_name)),
-    "`default_hierarchy` contains variables not present in the event dataset or derived SMQ/UDAEC variables."
-  )
+    udaec_validation_error <- tryCatch(
+      {
+        validate_smq_udaec_args(
+          smq_name = smq_name,
+          smq_vars = smq_vars,
+          udaec_name = udaec_name,
+          udaec_list = udaec_list,
+          event_data = event_data
+        )
+      },
+      error = function(error) conditionMessage(error)
+    )
+    CM$assert(
+      err,
+      is.null(udaec_validation_error),
+      sprintf("`udaec_list` and related SMQ/UDAEC parameters are inconsistent: %s",
+              udaec_validation_error)
+    )
+
+    CM$assert(
+      err,
+      is.null(default_hierarchy) || all(default_hierarchy %in% c(names(datasets[[table_dataset_name]]), smq_name, udaec_name)),
+      "`default_hierarchy` contains variables not present in the event dataset or derived SMQ/UDAEC variables."
+    )
+  }
 
   res <- err[["messages"]]
   return(res)
