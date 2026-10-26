@@ -447,11 +447,11 @@ compute_events_table <- function(event_df,
 
     if (gv %in% event_group_var) {
       # Event group processing can lead to censored and uncensored rows. Ensure uncensored rows take precedence over
-      # censored rows (dplyr::slice_min will take FALSE value before TRUE value).
+      # censored rows (dplyr::arrange will take FALSE value before TRUE value).
       total_rows <- total_rows |>
-        dplyr::group_by(dplyr::across(dplyr::all_of(c(subjid_var, group_vars, hierarchy)))) |>
-        dplyr::slice_min(order_by = .data[[censor_col]], n = 1, with_ties = FALSE) |>
-        dplyr::ungroup()
+        dplyr::arrange(.data[[censor_col]]) |>
+        dplyr::distinct(dplyr::across(dplyr::all_of(c(subjid_var, group_vars, hierarchy, hier_lvl_col))),
+                        .keep_all = TRUE)
     } else {
       total_rows <- dplyr::distinct(total_rows)
     }
@@ -886,6 +886,7 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
       rle_level_path <- rle(level_path)
       rle_values <- rle_level_path[["values"]]
       extracted_headers <- sub(paste0(".*", EC$VAL$SPECIAL_CHAR), "", rle_values)
+      extracted_headers[extracted_headers == EC$VAL$TOTAL] <- total_group_val
       data_headers <- purrr::map(extracted_headers, ~ shiny::span(.x))
       thc_data_columns <- purrr::map2(data_headers, rle_level_path[["lengths"]], ~ thc(.x, colspan = .y * n_cols))
     } else {
@@ -2338,7 +2339,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   default_pop_flags_after_groups = TC$logical(),
   default_event_group = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
   event_group_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
-  event_group_totals = TC$character() |> TC$flag("one_or_more", "optional"),
+  event_group_totals = TC$character() |> TC$flag("one_or_more", "optional", "named"),
   worst_event_group_vars = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
   default_event_date = TC$col("table_dataset_name", TC$date()) |> TC$flag("optional"),
   event_date_choices = TC$col("table_dataset_name", TC$date()) |> TC$flag("zero_or_more", "optional"),
@@ -2505,6 +2506,12 @@ check_mod_hierarchical_count_table <- function(
   check_optional_string("smq_name", smq_name)
   check_optional_string("udaec_name", udaec_name)
 
+  CM$assert(
+    err,
+    is.null(event_group_totals) || all(names(event_group_totals) %in% names(datasets[[table_dataset_name]])),
+    "`event_group_totals` contains named elements whose names are not variables in the event dataset."
+  )
+
   event_data <- if (
     is.character(table_dataset_name) &&
       length(table_dataset_name) == 1L &&
@@ -2536,9 +2543,9 @@ check_mod_hierarchical_count_table <- function(
 
   CM$assert(
     err,
-    is.null(default_hierarchy) || all(default_hierarchy %in%  c(names(datasets[[table_dataset_name]]), smq_name, udaec_name)),
+    is.null(default_hierarchy) || all(default_hierarchy %in% c(names(datasets[[table_dataset_name]]), smq_name, udaec_name)),
     "`default_hierarchy` contains variables not present in the event dataset or derived SMQ/UDAEC variables."
-    )
+  )
 
   res <- err[["messages"]]
   return(res)

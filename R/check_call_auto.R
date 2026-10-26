@@ -78,7 +78,7 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     flags <- list(zero_or_more = TRUE, optional = TRUE)
     OK[["event_group_choices"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("event_group_choices",
         event_group_choices, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], err)
-    flags <- list(one_or_more = TRUE, optional = TRUE)
+    flags <- list(one_or_more = TRUE, optional = TRUE, named = TRUE)
     OK[["event_group_totals"]] <- CM$check_type("event_group_totals", event_group_totals, "character",
         flags, err)
     subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))

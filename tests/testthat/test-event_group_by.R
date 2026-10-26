@@ -72,6 +72,7 @@ local({
   test_that(vdoc[["add_spec"]](
     "worst event group by computation is correct (snapshot)",
     c(
+      specs$hierarchical_count_table$event_group_worst_severity,
       specs$hierarchical_count_table$event_count,
       specs$hierarchical_count_table$event_group_by_display
     )
