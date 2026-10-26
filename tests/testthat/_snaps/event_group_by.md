@@ -468,7 +468,7 @@
         </table>
       </div>
 
-# worst event group by computation is correct (snapshot)__spec_ids{hierarchical_count_table$event_count;hierarchical_count_table$event_group_by_display}
+# worst event group by computation is correct (snapshot)__spec_ids{hierarchical_count_table$event_group_worst_severity;hierarchical_count_table$event_count;hierarchical_count_table$event_group_by_display}
 
     Code
       options(width = 250)

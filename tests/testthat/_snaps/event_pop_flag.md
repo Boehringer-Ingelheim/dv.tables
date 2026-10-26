@@ -1,4 +1,4 @@
-# event group by is correct, sorting, against (snapshot)__spec_ids{hierarchical_count_table$event_count;hierarchical_count_table$event_group_by_display}
+# population flag grouping is correct, sorting, against (snapshot)__spec_ids{hierarchical_count_table$event_count;hierarchical_count_table$population_flag_vars}
 
     Code
       x
