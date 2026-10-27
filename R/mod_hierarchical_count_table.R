@@ -2311,13 +2311,14 @@ mod_hierarchical_count_table_API_docs <- list(
   smq_vars = "",
   smq_na_label = "",
   udaec_name = "",
-  udaec_list = "",
+  udaec_list = list(""),
   udaec_na_label = "",
   any_event_text = "",
   intended_use_label = "",
   receiver_id = ""
 )
 
+# Note: When manual check flag is set, then checks related to other flags are not processed
 mod_hierarchical_count_table_API_spec <- TC$group(
   module_id = TC$mod_ID(),
   table_dataset_name = TC$dataset_name(),
@@ -2327,7 +2328,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   show_event_group_by = TC$logical(),
   show_time_at_risk_options = TC$logical(),
   show_modal_on_click = TC$logical(),
-  default_hierarchy = TC$character() |> TC$flag("manual_check", "optional"),
+  default_hierarchy = TC$character() |> TC$flag("zero_or_more", "optional"),
   hierarchy_choices = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
   default_group = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("optional"),
   group_choices = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
@@ -2352,7 +2353,7 @@ mod_hierarchical_count_table_API_spec <- TC$group(
   smq_vars = TC$col("table_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("zero_or_more", "optional"),
   smq_na_label = TC$character() |> TC$flag("optional"),
   udaec_name = TC$character() |> TC$flag("optional"),
-  udaec_list = TC$character() |> TC$flag("manual_check", "optional"),
+  udaec_list = TC$group() |> TC$flag("manual_check", "one_or_more", "optional", "named"),
   udaec_na_label = TC$character() |> TC$flag("optional"),
   any_event_text = TC$character() |> TC$flag("manual_check"),
   intended_use_label = TC$character() |> TC$flag("optional"),
@@ -2506,6 +2507,7 @@ check_mod_hierarchical_count_table <- function(
   check_optional_string("smq_name", smq_name)
   check_optional_string("udaec_name", udaec_name)
 
+  # Event group totals argument - manual checks
   if (OK[["table_dataset_name"]]) {
     CM$assert(
       err,
@@ -2514,6 +2516,7 @@ check_mod_hierarchical_count_table <- function(
     )
   }
 
+  # SMQ and UDAEC related arguments - manual checks
   if (all(OK[c("table_dataset_name", "smq_name", "smq_vars", "udaec_name")])) {
     event_data <- if (
       is.character(table_dataset_name) &&

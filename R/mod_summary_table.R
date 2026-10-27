@@ -2025,6 +2025,7 @@ mod_summary_table_API_docs <- list(
   receiver_id = ""
 )
 
+# Note: When manual check flag is set, then checks related to other flags are not processed
 mod_summary_table_API_spec <- TC$group(
   module_id = TC$mod_ID(),
   table_dataset_name = TC$dataset_name(),
@@ -2034,9 +2035,9 @@ mod_summary_table_API_spec <- TC$group(
   show_aggregate_method = TC$logical(),
   show_modal_on_click = TC$logical(),
   stats_functions = TC$group() |> TC$flag("zero_or_more", "manual_check"),
-  stats_formats = TC$group() |> TC$flag("zero_or_more", "ignore"),
+  stats_formats = TC$group() |> TC$flag("zero_or_more", "manual_check"),
   stats_labels = TC$character() |> TC$flag("zero_or_more"),
-  stats_replace = TC$group() |> TC$flag("zero_or_more", "ignore"),
+  stats_replace = TC$group() |> TC$flag("zero_or_more", "manual_check"),
   default_summarize_on = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
     TC$flag("one_or_more", "optional"),
   choices_summarize_on = TC$col("table_dataset_name", TC$or(TC$numeric(), TC$integer(), TC$character(), TC$factor())) |>
@@ -2057,7 +2058,7 @@ mod_summary_table_API_spec <- TC$group(
   default_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("one_or_more", "optional"),
   choices_pop_flags = TC$col("pop_dataset_name", TC$or(TC$character(), TC$factor())) |> TC$flag("one_or_more", "optional"),
   default_pop_flags_after_groups = TC$logical(),
-  flagged_row_processing = TC$group() |> TC$flag("zero_or_more", "ignore"),
+  flagged_row_processing = TC$group() |> TC$flag("zero_or_more", "manual_check"),
   total_group_val = TC$character(),
   receiver_id = TC$character() |> TC$flag("optional")
 ) |> TC$attach_docs(mod_summary_table_API_docs)
@@ -2088,6 +2089,8 @@ check_mod_summary_table <- function(
     total_group_val, receiver_id,
     err
   )
+
+  # TBD: Manual checks for `stats_functions`, `stats_formats`, `stats_replace`, `flagged_row_processing`
 
   res <- err[["messages"]]
   return(res)
