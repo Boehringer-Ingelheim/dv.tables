@@ -139,7 +139,11 @@ group totals column will only be displayed for those event group variables that 
 
 A character vector specifying those event group variables for which worst value should be considered (optional).
 Worst value is interpreted as the highest value in the underlying integer representation of the event group variable
-as a factor.}
+as a factor. Missing values (\code{NA}) will be considered as worst case; if this is not the desired functionality then
+the event data should be pre-processed to re-code \code{NA} as a value with the appropriate factor level.
+
+Note that the worst value for a participant can change depending on the hierarchy level since more events are
+considered the higher up the hierarchy level you go.}
 
 \item{default_event_date}{\verb{[character(1) | NULL]}
 
