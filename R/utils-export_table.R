@@ -1,28 +1,28 @@
-#' Preprocess table for download as Excel (.xlsx) or Word (.rtf)
+#' Preprocess table for download as Excel (.xlsx) or Word (.rtf), or build it as a gt table
 #'
 #' @details
-#' Each entry in the group columns of the `count_table` data frame is a 2-element list of `count`
-#' (formatted as count and percent) and `subjid` - the count and percent information is extracted
-#' into the processed data.
+#' Each entry in the group columns of the `count_table` data frame is a list of statistics, as returned
+#' by `pivot_wide_format_events_table()`. The statistics are formatted as in the HTML table with
+#' `format_count_cells()`, into one column per group, event group value and statistic.
 #'
-#' Overall patient numbers are extracted from the metadata and added as a separate line at the
-#' beginning.
+#' For Excel and Word, overall patient numbers are extracted from the metadata and added as a separate
+#' line at the beginning. For gt tables they are shown in the group column spanners instead.
 #'
 #' If the option to split count and percentage into separate columns is selected, then the column
 #' with the count will be suffixed with `" [N]"` and the column with the percentage will be suffixed
 #' with `" [%]"`.
 #'
-#' When processing data for Word, dual event columns are merged into an indented hierarchy of event
-#' values.
+#' For Excel, each event column is kept and labelled. For Word and gt tables, event columns are merged
+#' into a single column with the event value at the hierarchy level of each row, indented by level.
 #'
 #' @param count_table A reactive list containing dataset containing the event data
 #'   and other metadata.
-#' @param download_type A string specifying the download type as a file extension, either
-#'   `.xlsx` for Excel or `.rtf` for Word.
+#' @param download_type A string specifying the download type, either `.xlsx` for Excel, `.rtf` for
+#'   Word or `gt` for a gt table.
 #' @param split_columns A logical indicating if count and percent should be split into separate
 #'   columns.
 #'
-#' @return Processed data frame.
+#' @return Processed data frame, or a `gt_tbl` object if `download_type` is `gt`.
 #'
 #' @keywords internal
 preprocess_download_table <- function(count_table, download_type, split_columns) {
@@ -33,215 +33,221 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
                          names = "named")
 
   checkmate::assert_subset(c("df", "meta"), names(count_table))
-  checkmate::assert_subset(c("denom_df", "hierarchy", "event_group_vals", "total_group_val", "event_group_total_val"),
+  checkmate::assert_subset(c("denom_df", "hierarchy", "event_group_vals", "total_group_val", "event_group_total_val",
+                             "table_type", "min_percent"),
                            names(count_table[["meta"]]))
 
-  # At least one row is required to download the table
+  # At least one row is required to download the table, and the hierarchy level of each row to merge event columns
   checkmate::assert_data_frame(count_table[["df"]], min.rows = 1)
+  checkmate::assert_names(names(count_table[["df"]]), must.include = paste0(EC$VAL$SPECIAL_CHAR, "lvl"))
 
   checkmate::assert_string(download_type)
-  checkmate::assert_choice(download_type, c(".xlsx", ".rtf"))
+  checkmate::assert_choice(download_type, c(".xlsx", ".rtf", "gt"))
 
-  checkmate::assert_logical(split_columns)
+  checkmate::assert_flag(split_columns)
 
-  # Get data frame
-  df_prep <- count_table[["df"]]
-
-  # Get metadata
+  df <- count_table[["df"]]
   meta <- count_table[["meta"]]
-  denom_df <- meta[["denom_df"]]
+  cols <- get_stat_columns(df, meta, split_columns)
+
+  switch(download_type,
+    ".xlsx" = build_xlsx_table(df, meta, cols),
+    ".rtf" = build_rtf_table(df, meta, cols),
+    "gt" = build_gt_table(df, meta, cols),
+    stop(paste("Unsupported download type:", download_type))
+  )
+}
+
+build_xlsx_table <- function(df, meta, cols) {
   hierarchy <- meta[["hierarchy"]]
-  event_group_vals <- meta[["event_group_vals"]] # empty vector if no event group specified
-  total_group_val <- meta[["total_group_val"]] # non-empty vector always expected
-  event_group_total_val <- meta[["event_group_total_val"]] # NULL if event group total not specified
-
-  # Get group subject totals (named by group) and extract group names
-  total_colname <- stats::setNames(denom_df[[".N"]], denom_df[[".lookup"]])
-  group_names <- intersect(names(df_prep), names(total_colname))
-
-  # Get event variables
   hierarchy_labels <- attr(hierarchy, "labels")
+  
+  overall_label <- c("Overall No. of Patients", rep(NA_character_, length(hierarchy) - 1L))
+  event_cols <- purrr::map2(df[hierarchy], overall_label,
+                            \(x, label) c(label, sub(EC$VAL$SPECIAL_CHAR, "Total", as.character(x))))
+  names(event_cols) <- ifelse(hierarchy_labels != hierarchy,
+                              paste0(hierarchy, " [", hierarchy_labels, "]"),
+                              hierarchy)
 
-  # Flag when event group has been specified
-  has_event_group <- length(event_group_vals) > 0
+  stat_cols <- format_stat_columns(df, cols, meta[["min_percent"]], count_format = "%d ( %.2f %%)") |>
+    prepend_overall_n(cols) |>    
+    purrr::map2(cols[["stat"]], \(x, stat) {
+      x <- sub("—", "", x)
+      if (stat == "count") x else as.numeric(x)
+    })
+  names(stat_cols) <- paste0(display_group_name(cols[["group_col"]], meta), " [", cols[["stat_label"]], "]")
 
-  # For event group data, expand groups into columns for each event group value
+  as.data.frame(c(event_cols, stat_cols), check.names = FALSE)
+}
+
+build_rtf_table <- function(df, meta, cols) {
+  browser()
+
+  hierarchy <- meta[["hierarchy"]]
+  hierarchy_labels <- attr(hierarchy, "labels")
+  hier_lvl <- df[[paste0(EC$VAL$SPECIAL_CHAR, "lvl")]]
+
+  event_col <- c(
+    "Overall No. of Patients",
+    paste0(
+      strrep("  ", pmax(hier_lvl - 1L, 0L)),
+      get_row_label_by_hierarchy_level(df, hierarchy, hier_lvl)
+    )
+  )
+  # Line break code <br> will be replaced by RTF \line after RTF string is generated
+  event_col_name <- paste0(
+    strrep("  ", seq_along(hierarchy_labels) - 1L),
+    hierarchy_labels,
+    collapse = "<br>"
+  )
+
+  stat_cols <- format_stat_columns(
+    df,
+    cols,
+    meta[["min_percent"]],
+    count_format = "%d (%.2f)"
+  ) |>
+    prepend_overall_n(cols)
+  names(stat_cols) <- paste0(
+    display_group_name(cols[["group_col"]], meta),
+    "<br>",
+    cols[["stat_label"]]
+  )
+
+  as.data.frame(
+    c(stats::setNames(list(event_col), event_col_name), stat_cols),
+    check.names = FALSE
+  )
+}
+
+build_gt_table <- function(df, meta, cols) {
+  hierarchy <- meta[["hierarchy"]]
+  hierarchy_labels <- attr(hierarchy, "labels")
+  hier_lvl <- df[[paste0(EC$VAL$SPECIAL_CHAR, "lvl")]]
+  has_event_group <- length(meta[["event_group_vals"]]) > 0
+
+  stat_cols <- format_stat_columns(df, cols, meta[["min_percent"]], count_format = "%d ( %.2f %%)")
+  # Names are set later
+  names(stat_cols) <- paste0(cols[["group_col"]], EC$VAL$SPECIAL_CHAR, cols[["stat"]])
+  # gt has special labels that are hard coded to be similar to HTML
+  stat_labels <- c(count = "n (%)", n = "n", pct = "%", time_at_risk = "Time at risk", incidence_rate = "Rate/100")
+
+  df_prep <- as.data.frame(c(list(row_label = get_row_label_by_hierarchy_level(df, hierarchy, hier_lvl)), stat_cols),
+                           check.names = FALSE)
+
+  tbl <- gt::gt(df_prep, rowname_col = "row_label") |>
+    gt::tab_stubhead(
+      label = paste(
+        paste(hierarchy_labels, collapse = "/"),
+        "by",
+        paste(c(meta[["group_vars"]], meta[["event_group_var"]]), collapse = ", ")
+      )
+    ) |>
+    gt::cols_label(.list = as.list(stats::setNames(stat_labels[cols[["stat"]]], names(stat_cols))))
+
+  # Event group spanners, nested below the group spanners
   if (has_event_group) {
-    old_names <- names(df_prep)
-    df_prep <- df_prep |> tidyr::unnest_wider(col = tidyr::all_of(group_names), names_sep = EC$VAL$SPECIAL_CHAR)
-    group_names <- setdiff(names(df_prep), old_names)
-  }
-
-  # Names of statistical results in each cell list
-  stat_names <- intersect(names(df_prep[1, ][[group_names[1]]][[1]]),
-                          c("count", "time_at_risk", "incidence_rate"))
-
-  df_prep <- df_prep |>
-    dplyr::select(dplyr::all_of(hierarchy), dplyr::all_of(group_names)) |>
-
-    # Subset on the statistical results in each cell list (dropping subjid)
-    dplyr::mutate(dplyr::across(dplyr::all_of(group_names),
-                                ~ purrr::map(.x, ~ .x[stat_names]))) |>
-
-    # Remove factors from event columns
-    dplyr::mutate(dplyr::across(dplyr::all_of(hierarchy), as.character)) |>
-
-    # Convert special chars to "Total"
-    dplyr::mutate(dplyr::across(dplyr::all_of(hierarchy),
-                                ~ sub(EC$VAL$SPECIAL_CHAR, "Total", .x)))
-
-  if (download_type == ".rtf") {
-
-    if (length(hierarchy) > 1L) {
-      # Create indented hierarchy of event values for multi-event columns
-
-      indent_fun <- function(hierarchy_df) {
-        for (i in ncol(hierarchy_df):2L) {
-          hierarchy_df[[i - 1]] <- ifelse(hierarchy_df[[i]] != "Total",
-                                          paste0("  ", hierarchy_df[[i]]),
-                                          hierarchy_df[[i - 1]])
-        }
-        return(hierarchy_df[[1]])
-      }
-
-      # Modify first event column with indented values from other event columns
-      df_prep[[hierarchy[1]]] <- indent_fun(df_prep[hierarchy])
-      for (i in 2L:length(hierarchy_labels)) {
-        # Line break code <br> will be replaced by RTF \line after RTF string is generated
-        hierarchy_labels[i] <- paste0("<br>", strrep("  ", i - 1), hierarchy_labels[i])
-      }
-      names(df_prep)[names(df_prep) == hierarchy[1]] <- paste(hierarchy_labels, collapse = "")
-
-      # Remove redundant event columns
-      drop_vars <- setdiff(hierarchy, hierarchy[1])
-      df_prep[drop_vars] <- NULL
-    } else {
-
-      # Single event column - rename with label only
-      df_prep <- df_prep |>
-        dplyr::rename_with(~ hierarchy_labels[[1]], dplyr::all_of(hierarchy[1]))
-    }
-
-  } else if (download_type == ".xlsx") {
-
-    df_prep <- df_prep |>
-
-      # Replace the Em Dash character with empty string
-      dplyr::mutate(dplyr::across(dplyr::all_of(group_names),
-                                  ~ purrr::map(.x, function(lst) purrr::map(lst, ~ sub("\u2014", "", .x))))) |>
-
-
-      # Add label in square-brackets after variable name
-      dplyr::rename_with(~ ifelse(hierarchy_labels != hierarchy,
-                                  paste0(hierarchy, " [", hierarchy_labels, "]"),
-                                  hierarchy), dplyr::all_of(hierarchy))
-  }
-
-  # Add new row with overall number of patients ----
-
-  new_row <- stats::setNames(
-    data.frame(matrix(ncol = ncol(df_prep), nrow = 1)),
-    names(df_prep)
-  )
-
-  new_row[[1, 1]] <- "Overall No. of Patients"
-
-  empty_stat_list <- stats::setNames(as.list(rep("", length(stat_names))), stat_names)
-
-  for (col in group_names) {
-    new_row[[col]] <- list(empty_stat_list)
-
-    if (has_event_group) {
-      # Strip off event group then look up total
-      group_val <- sub(paste0(".[^", EC$VAL$SPECIAL_CHAR, "]*$"), "", col)
-      new_row[[col]][[1]][["count"]] <- as.character(total_colname[group_val])
-    } else {
-      new_row[[col]][[1]][["count"]] <- as.character(total_colname[col])
+    for (group_col in unique(cols[["group_col"]])) {
+      is_col <- cols[["group_col"]] == group_col
+      tbl <- tbl |>
+        gt::tab_spanner(
+          label = display_group_name(cols[["event_group"]][is_col][[1]], meta),
+          columns = dplyr::all_of(names(stat_cols)[is_col]),
+          id = group_col
+        )
     }
   }
 
-  df_prep <- rbind(new_row, df_prep)
-
-  # ----
-
-  if (split_columns) {
-    df_prep <- df_prep |>
-      dplyr::mutate(dplyr::across(dplyr::all_of(group_names),
-                                  ~ purrr::map(.x, function(lst) {
-                                    n_pct <- unlist(strsplit(lst[["count"]], "[()]"))
-                                    if (length(n_pct) == 0) n_pct <- ""
-
-                                    n <- trimws(n_pct[1])
-                                    pct <- trimws(n_pct[2])
-                                    pct <- ifelse(is.na(pct), "", gsub("[ %]", "", pct))
-
-                                    lst[["count"]] <- NULL
-                                    c(list(n = n, pct = pct), lst)
-                                  })))
-
-    # Update statistical result names replacing "count" with "n" and "pct"
-    stat_names <- unlist(ifelse(stat_names == "count", list(c("n", "pct")), stat_names))
-
-  } else if (download_type == ".rtf") {
-    df_prep <- df_prep |>
-
-      # Convert `XX ( XX.XX %)` format to `XX (XX.XX)`
-      dplyr::mutate(dplyr::across(dplyr::all_of(group_names), ~ purrr::map(.x, function(lst) {
-        lst[["count"]] <- sub("([0-9]+)[ (]+([0-9.]+)[ %)]+)", "\\1 (\\2)", lst[["count"]])
-        lst
-      })))
+  for (group in unique(cols[["group"]])) {
+    is_col <- cols[["group"]] == group
+    tbl <- tbl |>
+      gt::tab_spanner(
+        label = paste0(display_group_name(group, meta), " (N = ", cols[["group_n"]][is_col][[1]], ")"),
+        columns = dplyr::all_of(names(stat_cols)[is_col]),
+        id = group
+      )
   }
 
-  # For Excel, convert any single element statistics to numeric
-  if (download_type == ".xlsx") {
-    numeric_stats <- intersect(stat_names, c("n", "pct", "time_at_risk", "incidence_rate"))
-
-    df_prep <- df_prep |>
-      dplyr::mutate(dplyr::across(dplyr::all_of(group_names), ~ purrr::map(.x, function(lst) {
-        lst[numeric_stats] <- lapply(lst[numeric_stats], as.numeric)
-        lst
-      })))
+  # gt indents rows by hierarchy level with cell styles
+  for (lvl in setdiff(unique(hier_lvl), 0L)) {
+    tbl <- tbl |>
+      gt::tab_style(
+        style = gt::cell_text(indent = gt::px(20 * lvl)),
+        locations = gt::cells_stub(rows = which(hier_lvl == lvl))
+      )
   }
 
-  # Split group columns into columns for their individual statistics ----
+  # The latex.header_repeat workaround belongs to the latex conversion, which is
+  # done downstream, so a gt table is returned here
+  tbl |>
+    gt::tab_options(
+      heading.align = "left",
+      latex.use_longtable = TRUE,
+      table.font.size = gt::px(9),
+      data_row.padding = gt::px(3)
+    )
+}
 
-  stats_lookup <- list()
+# Based on the table type get a description of the stat columns that will be included in the table
+get_stat_columns <- function(df, meta, split_columns) {
+  group_n <- stats::setNames(meta[["denom_df"]][[".N"]], meta[["denom_df"]][[".lookup"]])
+  groups <- intersect(names(df), names(group_n))
+  has_event_group <- length(meta[["event_group_vals"]]) > 0
 
-  stats_lookup[[".xlsx"]] <- c(count = " [N (%)]",
-                               n = " [N]",
-                               pct = " [%]",
-                               time_at_risk = " [Time at Risk]",
-                               incidence_rate = " [Incidence Rate]")
-
-  stats_lookup[[".rtf"]] <- c(count = "<br>N (%)",
-                              n = "<br>N",
-                              pct = "<br>%",
-                              time_at_risk = "<br>Time at Risk",
-                              incidence_rate = "<br>Incidence Rate")
-
-  # Extract stat columns from each group, naming with prefix
-  new_cols <- purrr::map(group_names, function(col) {
-    purrr::map_dfr(df_prep[[col]],
-                   ~ purrr::set_names(.x[stat_names],
-                                      paste0(col, stats_lookup[[download_type]][stat_names])))
-  })
-
-  # Bind side-by-side
-  df_prep <- dplyr::select(
-    dplyr::bind_cols(df_prep, new_cols),
-    -dplyr::all_of(group_names)
+  event_groups <- if (has_event_group) names(df[[groups[[1]]]][[1]]) else NA_character_
+  stats <- c(
+    if (split_columns) c("n", "pct") else "count",
+    if (meta[["table_type"]] == "time_at_risk") c("time_at_risk", "incidence_rate")
   )
+  stat_labels <- c(count = "N (%)", n = "N", pct = "%",
+                   time_at_risk = "Time at Risk", incidence_rate = "Incidence Rate")
 
-  # Replace totals placeholders in group column names
-  names(df_prep) <- gsub(EC$VAL$TOTAL, total_group_val, names(df_prep), fixed = TRUE)
+  cols <- expand.grid(
+    stat = stats, event_group = event_groups, group = groups,
+    KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE
+  )
+  cols[["stat_label"]] <- unname(stat_labels[cols[["stat"]]])
+  cols[["group_col"]] <- cols[["group"]]
+  if (has_event_group) cols[["group_col"]] <- paste0(cols[["group"]], EC$VAL$SPECIAL_CHAR, cols[["event_group"]])
+  cols[["group_n"]] <- unname(group_n[cols[["group"]]])
 
-  # Replace totals placeholders in event group column names
-  if (!is.null(event_group_total_val)) {
-    names(df_prep) <- gsub(EC$VAL$EVT_TOTAL, event_group_total_val, names(df_prep), fixed = TRUE)
+  cols
+}
+
+# Formats the statistic of each column described by `stat_columns()` as in the HTML table
+format_stat_columns <- function(df, cols, min_percent, count_format) {
+  stat_cols <- vector("list", nrow(cols))  
+  for (i in seq_len(nrow(cols))) {
+    curr_grp <- cols[["group"]][[i]]
+    cells <- df[[curr_grp]]
+    event_group <- cols[["event_group"]][[i]]
+    # Unwrap list of statistics
+    if (!is.na(event_group)) cells <- lapply(cells, \(x) x[[event_group]])
+    stat_cols[[i]] <- format_count_cells(cells, cols[["stat"]][[i]], min_percent, count_format)
   }
+  stat_cols
+}
 
-  # Replace special separator characters in group column names with display-friendly "/"
-  names(df_prep) <- gsub(EC$VAL$SPECIAL_CHAR, "/", names(df_prep), fixed = TRUE)
+# Adds the overall number of patients of the group as a first row of the count statistic columns, empty for the rest
+prepend_overall_n <- function(stat_cols, cols) {
+  overall_n <- ifelse(cols[["stat"]] %in% c("count", "n"), as.character(cols[["group_n"]]), "")
+  purrr::map2(stat_cols, overall_n, \(x, n) c(n, x))
+}
 
-  return(df_prep)
+# Merges event columns into the event value at the hierarchy level of each row, "Total" for the overall row
+get_row_label_by_hierarchy_level <- function(df, hierarchy, hier_lvl) {  
+  row_label <- rep("Total", nrow(df))
+  for (lvl in setdiff(unique(hier_lvl), 0L)) {
+    row_label[hier_lvl == lvl] <- as.character(df[[hierarchy[[lvl]]]][hier_lvl == lvl])
+  }
+  row_label
+}
+
+# Replaces totals placeholders and special separator characters in group names
+display_group_name <- function(x, meta) {
+  x <- gsub(EC$VAL$TOTAL, meta[["total_group_val"]], x, fixed = TRUE)
+  if (!is.null(meta[["event_group_total_val"]])) {
+    x <- gsub(EC$VAL$EVT_TOTAL, meta[["event_group_total_val"]], x, fixed = TRUE)
+  }
+  gsub(EC$VAL$SPECIAL_CHAR, "/", x, fixed = TRUE)
 }

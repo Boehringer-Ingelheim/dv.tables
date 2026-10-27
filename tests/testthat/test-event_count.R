@@ -54,7 +54,7 @@ local({
     # Focus on the ranking for the totals
     total_ranking <- sw$df |>
       dplyr::select(-dplyr::all_of(c("GA", "GB", "GC"))) |>
-      dplyr::mutate(`__TOTAL__` = purrr::map_chr(.data[["__TOTAL__"]], "count"))
+      dplyr::mutate(`__TOTAL__` = format_count_cells(.data[["__TOTAL__"]], "count", 0))
     expect_snapshot(total_ranking)
 
     expect_snapshot(html)

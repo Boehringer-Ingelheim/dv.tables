@@ -74,4 +74,16 @@ local({
     expect_true(all(grepl("<br>N \\(%\\)", group_cols)))
     expect_true(all(grepl("^[0-9]+ \\([0-9.]+\\)$", tail(exp_tab[[2]], nrow(exp_tab) - 1))))
   })
+
+  # Build gt table ----
+  exp_tab <- preprocess_download_table(sw, "gt", FALSE)
+
+  test_that("Build gt table" |>
+    vdoc[["add_spec"]](c(specs$export_count_table$export_gt_table)), {
+    expect_s3_class(exp_tab, "gt_tbl")
+    expect_true(all(c("Total", "A1", "B1", "A2", "B2") %in% exp_tab[["_data"]][["row_label"]]))
+    expect_equal(unlist(exp_tab[["_spanners"]][["spanner_label"]]),
+                 c("GA (N = 1)", "GB (N = 1)", "GC (N = 2)", "Total (N = 4)"))
+    expect_no_error(gt::as_raw_html(exp_tab))
+  })
 })

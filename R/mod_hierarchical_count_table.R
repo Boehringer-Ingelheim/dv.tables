@@ -643,15 +643,17 @@ compute_order_events_table <- function(d) {
 #' A list returned from `compute_events_table()` containing the event data and metadata.
 #'
 #' @param min_percent `numeric`
-#' The minimum percentage threshold for filtering events. Rows where the percentage of subjects is below this threshold
-#' will have their cell values replaced with a dash instead of being shown.
+#' The minimum percentage threshold for filtering events. Cells where the percentage of subjects is below this
+#' threshold are shown as a dash by `format_count_cells()`.
 #'
 #' @param remove_rows_under_min_pct `logical(1)`
 #' Whether to remove entire rows (across all groups) for which every group's percentage of subjects falls below
-#' `min_percent`, instead of just replacing the cell values for those rows with a dash.
+#' `min_percent`, instead of just showing the cell values for those rows as a dash.
 #'
 #' @return A list containing:
-#' - `df`: A wide-format data frame with the event counts and percentages for each group and hierarchy level.
+#' - `df`: A wide-format data frame with the event statistics for each group and hierarchy level. Each cell is a list
+#'   of `n`, `pct`, `subjid` and, for time at risk tables, `time_at_risk` and `incidence_rate`. For event group tables,
+#'   each cell is a list of those named by event group value.
 #' - `meta`: A list of metadata related to the event table.
 #'
 #' @keywords internal
@@ -677,43 +679,16 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
                                         \(x) !x %in% c(EC$VAL$TOTAL, EC$VAL$EVT_TOTAL)))
 
   pct_below_min <- df[["pct"]] < min_percent
-  zero_count <- df[["n"]] == 0
 
-  count <- ifelse(
-    pct_below_min,
-    "\u2014",
-    ifelse(
-      zero_count,
-      "0",
-      sprintf("%d ( %.2f %%)", df[["n"]], df[["pct"]])
-    )
+  cells <- list(
+    n = df[["n"]],
+    pct = df[["pct"]],
+    subjid = purrr::map(df[["subjid"]], as.character)
   )
-  subjid <- purrr::map(df[["subjid"]], as.character)
 
   if (table_type == "time_at_risk") {
-    time_at_risk <- ifelse(
-      pct_below_min | is.na(df[["time_at_risk"]]),
-      "\u2014",
-      sprintf("%.2f", df[["time_at_risk"]])
-    )
-    incidence_rate <- ifelse(
-      pct_below_min | is.na(df[["incidence_rate"]]),
-      "\u2014",
-      sprintf("%.2f", df[["incidence_rate"]])
-    )
-
-    cells <- list(
-      count = count,
-      subjid = subjid,
-      time_at_risk = time_at_risk,
-      incidence_rate = incidence_rate
-    )
-
-  } else {
-    cells <- list(
-      count = count,
-      subjid = subjid
-    )
+    cells[["time_at_risk"]] <- df[["time_at_risk"]]
+    cells[["incidence_rate"]] <- df[["incidence_rate"]]
   }
 
   df[[cell_col]] <- local({
@@ -766,6 +741,44 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
   )
 
   res
+}
+
+#' Formats event table cells for display
+#'
+#' @param cells `list`
+#' Cells of a column of the table returned by `pivot_wide_format_events_table()`, each a list of statistics.
+#'
+#' @param stat `character(1)`
+#' Statistic to format, one of `count` (count and percentage), `n`, `pct`, `time_at_risk` or `incidence_rate`.
+#'
+#' @param min_percent `numeric(1)`
+#' Cells where the percentage of subjects is below this threshold are shown as a dash.
+#'
+#' @param count_format `character(1)`
+#' `sprintf()` format of the count and percentage.
+#'
+#' @return A character vector with the formatted statistic of each cell.
+#'
+#' @keywords internal
+format_count_cells <- function(cells, stat, min_percent, count_format = "%d ( %.2f %%)") {
+  checkmate::assert_choice(stat, c("count", "n", "pct", "time_at_risk", "incidence_rate"))
+
+  get_stat <- function(name) vapply(cells, \(cell) cell[[name]], numeric(1))
+  n <- get_stat("n")
+  pct <- get_stat("pct")
+  pct_below_min <- pct < min_percent
+
+  # Rates are also shown as a dash when missing
+  format_rate <- function(x) replace(sprintf("%.2f", x), pct_below_min | is.na(x), "\u2014")
+
+  switch(stat,
+    count = replace(ifelse(n == 0, "0", sprintf(count_format, n, pct)), pct_below_min, "\u2014"),
+    n = replace(sprintf("%d", n), pct_below_min, "\u2014"),
+    pct = replace(sprintf("%.2f", pct), pct_below_min | n == 0, ""),
+    time_at_risk = format_rate(get_stat("time_at_risk")),
+    incidence_rate = format_rate(get_stat("incidence_rate")),
+    stop(paste("Unsupported statistic:", stat))
+  )
 }
 
 #' Sorts the wide-format event table by the overall subject count ranking
@@ -980,21 +993,38 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
                                  curr_row[[entry_name_col]],
                                  class = "truncate",
                                  title = curr_row[[entry_name_col]]))
-
+    
     data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
-      if (table_type == "time_at_risk") {
+      if (table_type == "time_at_risk") {    
         data_list <- .col[[1]]
-        purrr::map(setdiff(names(data_list), c("subjid")),
-                   ~ tdc(data_list[[.x]], column = .col_id, onclick = on_cell_click, style = "white-space: nowrap;"))
+        purrr::map(
+          c("count", "time_at_risk", "incidence_rate"),
+          ~ tdc(
+            format_count_cells(.col, .x, min_percent)[[1]],
+            column = .col_id,
+            onclick = on_cell_click,
+            style = "white-space: nowrap;"
+          )
+        )
       } else if (has_event_group) {
         event_group_list <- .col[[1]]
         purrr::imap(event_group_list, function(.grp, .grp_id) {
           # Use special char as separator between column levels
-          .col_id2 <- paste0(.col_id, EC$VAL$SPECIAL_CHAR, .grp_id)
-          tdc(.grp[["count"]], column = .col_id2, onclick = on_cell_click, style = "white-space: nowrap;")
+          .col_id2 <- paste0(.col_id, EC$VAL$SPECIAL_CHAR, .grp_id)          
+          tdc(
+            format_count_cells(list(.grp), "count", min_percent)[[1]],
+            column = .col_id2,
+            onclick = on_cell_click,
+            style = "white-space: nowrap;"
+          )
         })
       } else {
-        tdc(.col[[1]][["count"]], column = .col_id, onclick = on_cell_click, style = "white-space: nowrap;")
+        tdc(
+          format_count_cells(.col, "count", min_percent)[[1]],
+          column = .col_id,
+          onclick = on_cell_click,
+          style = "white-space: nowrap;"
+        )
       }
     })
 
@@ -1353,33 +1383,44 @@ hierarchical_count_table_server <- function(
   mod <- function(input, output, session) {
     ns <- session[["ns"]]
 
+    # Args are lazy promises: shinymeta records the active reactive domain when each
+    # metaReactive is created and uses it to prefix ODG variable names. Forcing them here
+    # binds them to this module's domain; otherwise a nested selector module could
+    # evaluate them first and they would get its namespace instead.
+    force(table_dataset)
+    force(pop_dataset)
+
     inputs <- list()
 
     enable_smq <- if (!is.null(smq_vars) && !is.null(smq_name)) TRUE else FALSE
 
     if (enable_smq) {
+      table_dataset_smq <- sm_mr(
+        {
+          dv.tables:::derive_smq_dataset(
+            base_data = ..(table_dataset()),
+            smq_vars = ..(smq_vars),
+            smq_name = ..(smq_name),
+            smq_na_label = ..(smq_na_label),
+            udaec_name = ..(udaec_name),
+            udaec_list = ..(udaec_list),
+            udaec_na_label = ..(udaec_na_label)
+          )
+        },
+        varname = "table_dataset_smq"
+      )
 
-      table_dataset_smq <- shiny::reactive({
-        base_data <- table_dataset()
-
-       derive_smq_dataset(
-          base_data = base_data,
-          smq_vars = smq_vars,
-          smq_name = smq_name,
-          smq_na_label = smq_na_label,
-          udaec_name = udaec_name,
-          udaec_list = udaec_list,
-          udaec_na_label = udaec_na_label
-        )
-      })
-
-      if (!is.null(hierarchy_choices)) hierarchy_choices <- c(hierarchy_choices, smq_name, udaec_name)
+      if (!is.null(hierarchy_choices)) {
+        hierarchy_choices <- c(hierarchy_choices, smq_name, udaec_name)
+      }
 
       inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
-        id = EC$ID$HIERARCHY, data = table_dataset_smq,
-        label = shiny::span(EC$LBL$HIERARCHY,
-                            shiny::icon("circle-info",
-                                        title = EC$INFO$HIERARCHY)),
+        id = EC$ID$HIERARCHY,
+        data = table_dataset_smq,
+        label = shiny::span(
+          EC$LBL$HIERARCHY,
+          shiny::icon("circle-info", title = EC$INFO$HIERARCHY)
+        ),
         include_func = function(var, var_name) {
           (is.factor(var) || is.character(var)) &&
             var_name != subjid_var &&
@@ -1388,14 +1429,19 @@ hierarchical_count_table_server <- function(
         default = default_hierarchy,
         multiple = TRUE,
         include_none = FALSE,
-        options = list(maxItems = EC$CONST$MAX_HIERARCHY, plugins = list("drag_drop"))
+        options = list(
+          maxItems = EC$CONST$MAX_HIERARCHY,
+          plugins = list("drag_drop")
+        )
       )
 
       output[[EC$ID$SMQ_UI]] <- shiny::renderUI({
-
         input_hierarchy <- inputs[[EC$ID$HIERARCHY]]()
 
-        if (!is.null(input_hierarchy) && (smq_name %in% input_hierarchy | udaec_name %in% input_hierarchy)) {
+        if (
+          !is.null(input_hierarchy) &&
+            (smq_name %in% input_hierarchy | udaec_name %in% input_hierarchy)
+        ) {
           if (udaec_name %in% input_hierarchy) {
             choices <- unique(table_dataset_smq()[[udaec_name]])
             label <- paste(udaec_name, "categories:")
@@ -1417,14 +1463,18 @@ hierarchical_count_table_server <- function(
 
             shiny::tagList(
               shiny::tags$style(
-                shiny::HTML(sprintf("
+                shiny::HTML(sprintf(
+                  "
                 #%s .vscomp-option.selected .checkbox-icon::after,
                 #%s .vscomp-toggle-all-checkbox.checked::after {
                 border-color: #08312A !important;
                 border-left-color: transparent !important;
                 border-top-color: transparent !important;
                 }
-                ", ns(EC$ID$SMQ_DIV), ns(EC$ID$SMQ_DIV)))
+                ",
+                  ns(EC$ID$SMQ_DIV),
+                  ns(EC$ID$SMQ_DIV)
+                ))
               ),
               shinyWidgets::virtualSelectInput(
                 inputId = ns(EC$ID$SMQ),
@@ -1437,32 +1487,38 @@ hierarchical_count_table_server <- function(
                 search = TRUE
               )
             )
-
           )
         }
-
       })
 
       shiny::outputOptions(output, EC$ID$SMQ_UI, suspendWhenHidden = FALSE)
 
-      filtered_table_dataset_smq <- shiny::reactive({
-        if (udaec_name %in% inputs[[EC$ID$HIERARCHY]]()) {
-          table_dataset_smq() |>
-            dplyr::filter(get(udaec_name) %in% input[[EC$ID$SMQ]])
-        } else if (smq_name %in% inputs[[EC$ID$HIERARCHY]]()) {
-          table_dataset_smq() |>
-            dplyr::filter(get(smq_name) %in% input[[EC$ID$SMQ]])
-        } else {
-          table_dataset_smq()
-        }
-      })
-
+      filtered_table_dataset_smq <- sm_mr2(
+        {
+          if (udaec_name %in% inputs[[EC$ID$HIERARCHY]]()) {
+            sm_me(
+              ..(table_dataset_smq()) |>
+                dplyr::filter(get(..(udaec_name)) %in% ..(input[[EC$ID$SMQ]]))
+            )
+          } else if (smq_name %in% inputs[[EC$ID$HIERARCHY]]()) {
+            sm_me(
+              ..(table_dataset_smq()) |>
+                dplyr::filter(get(..(smq_name)) %in% ..(input[[EC$ID$SMQ]]))
+            )
+          } else {
+            sm_me(..(table_dataset_smq()))
+          }
+        },
+        varname = "filtered_table_dataset_smq"
+      )
     } else {
       inputs[[EC$ID$HIERARCHY]] <- col_menu_server(
-        id = EC$ID$HIERARCHY, data = table_dataset,
-        label = shiny::span(EC$LBL$HIERARCHY,
-                            shiny::icon("circle-info",
-                                        title = EC$INFO$HIERARCHY)),
+        id = EC$ID$HIERARCHY,
+        data = table_dataset,
+        label = shiny::span(
+          EC$LBL$HIERARCHY,
+          shiny::icon("circle-info", title = EC$INFO$HIERARCHY)
+        ),
         include_func = function(var, var_name) {
           (is.factor(var) || is.character(var)) &&
             var_name != subjid_var &&
@@ -1471,15 +1527,20 @@ hierarchical_count_table_server <- function(
         default = default_hierarchy,
         multiple = TRUE,
         include_none = FALSE,
-        options = list(maxItems = EC$CONST$MAX_HIERARCHY, plugins = list("drag_drop"))
+        options = list(
+          maxItems = EC$CONST$MAX_HIERARCHY,
+          plugins = list("drag_drop")
+        )
       )
     }
 
     inputs[[EC$ID$GRP]] <- col_menu_server(
-      id = EC$ID$GRP, data = pop_dataset,
-      label = shiny::span(EC$LBL$GRP,
-                          shiny::icon("circle-info",
-                                      title = EC$INFO$GRP)),
+      id = EC$ID$GRP,
+      data = pop_dataset,
+      label = shiny::span(
+        EC$LBL$GRP,
+        shiny::icon("circle-info", title = EC$INFO$GRP)
+      ),
       include_func = function(var, var_name) {
         (is.factor(var) || is.character(var)) &&
           var_name != subjid_var &&
@@ -1511,7 +1572,8 @@ hierarchical_count_table_server <- function(
         include_func = function(var, var_name) {
           (is.factor(var) || is.character(var)) &&
             var_name != subjid_var &&
-            ((is.null(pop_flag_choices) && grepl("FL([0-9]*)?$", var_name)) || var_name %in% pop_flag_choices)
+            ((is.null(pop_flag_choices) && grepl("FL([0-9]*)?$", var_name)) ||
+              var_name %in% pop_flag_choices)
         },
         default = default_pop_flags,
         multiple = TRUE,
@@ -1519,15 +1581,19 @@ hierarchical_count_table_server <- function(
         options = list(plugins = list("drag_drop"))
       )
 
-      inputs[[EC$ID$POP_FLAGS_AFTER_GROUPS]] <- shiny::reactive(input[[EC$ID$POP_FLAGS_AFTER_GROUPS]])
+      inputs[[EC$ID$POP_FLAGS_AFTER_GROUPS]] <- shiny::reactive(input[[
+        EC$ID$POP_FLAGS_AFTER_GROUPS
+      ]])
     }
 
     if (show_event_group_by) {
       inputs[[EC$ID$EVENT_GROUP]] <- col_menu_server(
-        id = EC$ID$EVENT_GROUP, data = table_dataset,
-        label = shiny::span(EC$LBL$EVENT_GROUP,
-                            shiny::icon("circle-info",
-                                        title = EC$INFO$EVENT_GROUP)),
+        id = EC$ID$EVENT_GROUP,
+        data = table_dataset,
+        label = shiny::span(
+          EC$LBL$EVENT_GROUP,
+          shiny::icon("circle-info", title = EC$INFO$EVENT_GROUP)
+        ),
         include_func = function(var, var_name) {
           (is.factor(var) || is.character(var)) &&
             var_name != subjid_var &&
@@ -1538,7 +1604,8 @@ hierarchical_count_table_server <- function(
       )
     } else if (show_time_at_risk_options) {
       inputs[[EC$ID$EVENT_DATE]] <- col_menu_server(
-        id = EC$ID$EVENT_DATE, data = table_dataset,
+        id = EC$ID$EVENT_DATE,
+        data = table_dataset,
         label = shiny::uiOutput(ns(EC$ID$EVENT_DATE_LBL)),
         include_func = function(var, var_name) {
           inherits(var, "Date") &&
@@ -1549,7 +1616,8 @@ hierarchical_count_table_server <- function(
       )
 
       inputs[[EC$ID$ORIGIN_DATE]] <- col_menu_server(
-        id = EC$ID$ORIGIN_DATE, data = pop_dataset,
+        id = EC$ID$ORIGIN_DATE,
+        data = pop_dataset,
         label = shiny::uiOutput(ns(EC$ID$ORIGIN_DATE_LBL)),
         include_func = function(var, var_name) {
           inherits(var, "Date") &&
@@ -1560,7 +1628,8 @@ hierarchical_count_table_server <- function(
       )
 
       inputs[[EC$ID$CENSOR_DATE]] <- col_menu_server(
-        id = EC$ID$CENSOR_DATE, data = pop_dataset,
+        id = EC$ID$CENSOR_DATE,
+        data = pop_dataset,
         label = shiny::uiOutput(ns(EC$ID$CENSOR_DATE_LBL)),
         include_func = function(var, var_name) {
           inherits(var, "Date") &&
@@ -1576,227 +1645,311 @@ hierarchical_count_table_server <- function(
 
         shiny::span(
           if (isTRUE(flag) && date_empty) {
-            shiny::icon("triangle-exclamation",
-                        title = EC$WARN$REQ_TIME_AT_RISK,
-                        style = "color: orange; margin-right: 5px;")
+            shiny::icon(
+              "triangle-exclamation",
+              title = EC$WARN$REQ_TIME_AT_RISK,
+              style = "color: orange; margin-right: 5px;"
+            )
           },
           label_text,
-          shiny::icon("circle-info",
-                      title = label_info)
+          shiny::icon("circle-info", title = label_info)
         )
       }
 
       # Apply event date span label
       output[[EC$ID$EVENT_DATE_LBL]] <- shiny::renderUI({
-        date_label_span(flag = input[[EC$ID$RISK_FLAG]],
-                        date = inputs[[EC$ID$EVENT_DATE]](),
-                        label_text = EC$LBL$EVENT_DATE,
-                        label_info = EC$INFO$EVENT_DATE)
+        date_label_span(
+          flag = input[[EC$ID$RISK_FLAG]],
+          date = inputs[[EC$ID$EVENT_DATE]](),
+          label_text = EC$LBL$EVENT_DATE,
+          label_info = EC$INFO$EVENT_DATE
+        )
       })
 
       # Apply origin date span label
       output[[EC$ID$ORIGIN_DATE_LBL]] <- shiny::renderUI({
-        date_label_span(flag = input[[EC$ID$RISK_FLAG]],
-                        date = inputs[[EC$ID$ORIGIN_DATE]](),
-                        label_text = EC$LBL$ORIGIN_DATE,
-                        label_info = EC$INFO$ORIGIN_DATE)
+        date_label_span(
+          flag = input[[EC$ID$RISK_FLAG]],
+          date = inputs[[EC$ID$ORIGIN_DATE]](),
+          label_text = EC$LBL$ORIGIN_DATE,
+          label_info = EC$INFO$ORIGIN_DATE
+        )
       })
 
       # Apply censor date span label
       output[[EC$ID$CENSOR_DATE_LBL]] <- shiny::renderUI({
-        date_label_span(flag = input[[EC$ID$RISK_FLAG]],
-                        date = inputs[[EC$ID$CENSOR_DATE]](),
-                        label_text = EC$LBL$CENSOR_DATE,
-                        label_info = EC$INFO$CENSOR_DATE)
+        date_label_span(
+          flag = input[[EC$ID$RISK_FLAG]],
+          date = inputs[[EC$ID$CENSOR_DATE]](),
+          label_text = EC$LBL$CENSOR_DATE,
+          label_info = EC$INFO$CENSOR_DATE
+        )
       })
 
       inputs[[EC$ID$RISK_FLAG]] <- shiny::reactive({
         input[[EC$ID$RISK_FLAG]]
       })
-
     }
 
     # Initialize variable labels reactive value
     var_labels <- shiny::reactiveVal(list())
 
-    et <- shiny::reactive({
-      if (enable_smq) {
-        d <- filtered_table_dataset_smq()
-      } else {
-        d <- table_dataset()
-      }
-      pd <- pop_dataset()
-      group_vars <- inputs[[EC$ID$GRP]]()
-      hierarchy <- inputs[[EC$ID$HIERARCHY]]()
-      min_percent <- inputs[[EC$ID$MIN_PERCENT]]()
-      total <- inputs[[EC$ID$TOTAL_FLAG]]()
+    event_dataset <- if (enable_smq) {
+      filtered_table_dataset_smq
+    } else {
+      table_dataset
+    }
 
-      event_group_var <- NULL
-      event_group_total_val <- NULL
-      event_date_var <- NULL
-      origin_date_var <- NULL
-      censor_date_var <- NULL
-      compute_risk <- FALSE
-
-      if (show_event_group_by) {
-        event_group_var <- inputs[[EC$ID$EVENT_GROUP]]()
-        if (!is.null(event_group_totals) &&
-            length(event_group_var) == 1 &&
-            event_group_var %in% names(event_group_totals)) {
-           event_group_total_val <- event_group_totals[[event_group_var]]
+    # Population dataset, pivoted to long format by the selected population flags (if any)
+    flagged_pop_dataset <- sm_mr2(
+      {
+        pop_flag_vars <- if (show_pop_flag_selection) {
+          inputs[[EC$ID$POP_FLAG_VARS]]()
+        } else {
+          NULL
         }
-      } else if (show_time_at_risk_options) {
-        event_date_var <- inputs[[EC$ID$EVENT_DATE]]()
-        origin_date_var <- inputs[[EC$ID$ORIGIN_DATE]]()
-        censor_date_var <- inputs[[EC$ID$CENSOR_DATE]]()
-        compute_risk <- inputs[[EC$ID$RISK_FLAG]]()
-      }
-
-      # Store variable labels for information display in final HTML
-      combined_labels <- c(get_lbls_robust(d), get_lbls_robust(pd))
-      var_labels(combined_labels[!duplicated(names(combined_labels))])
-
-      selected_vars <- c(hierarchy, group_vars, event_group_var)
-      pop_flag_vars <- NULL
-
-      if (show_pop_flag_selection) {
-        pop_flag_vars <- inputs[[EC$ID$POP_FLAG_VARS]]()
-        pop_flags_after_groups <- inputs[[EC$ID$POP_FLAGS_AFTER_GROUPS]]()
 
         if (!is.null(pop_flag_vars) && length(pop_flag_vars) > 0) {
-          pd <- process_pop_flag_vars(pd, pop_flag_vars)
-
-          group_vars <- if (pop_flags_after_groups) c(group_vars, ".pop_group") else c(".pop_group", group_vars)
-          selected_vars <- c(selected_vars, pop_flag_vars)
+          sm_me(dv.tables:::process_pop_flag_vars(
+            ..(pop_dataset()),
+            ..(pop_flag_vars)
+          ))
+        } else {
+          sm_me(..(pop_dataset()))
         }
-      }
+      },
+      varname = "flagged_pop_dataset"
+    )
 
-      # Helper: checks whether a value is actually "provided"
-      is_provided <- function(x) {
-        checkmate::test_string(x, min.chars = 1)
-      }
+    events_table_raw <- sm_mr2(
+      {
+        d <- event_dataset()
+        pd <- pop_dataset()
+        group_vars <- inputs[[EC$ID$GRP]]()
+        hierarchy <- inputs[[EC$ID$HIERARCHY]]()
+        total <- inputs[[EC$ID$TOTAL_FLAG]]()
 
-      shiny::validate(
-        shiny::need(
-          checkmate::test_data_frame(d, min.rows = 1),
-          EC$MSG$VALIDATE$NO_TABLE_ROWS
-        ),
-        shiny::need(
-          checkmate::test_data_frame(pd, min.rows = 1),
-          EC$MSG$VALIDATE$NO_POP_ROWS
-        ),
-        shiny::need(
-          checkmate::test_character(group_vars, min.chars = 1, min.len = 1, max.len = 3),
-          EC$MSG$VALIDATE$NO_GRP
-        ),
-        shiny::need(
-          checkmate::test_character(hierarchy, min.chars = 1, min.len = 1, max.len = 4),
-          EC$MSG$VALIDATE$NO_HIERARCHY
-        ),
-        shiny::need(
-          checkmate::test_number(min_percent, na.ok = FALSE, lower = 0, upper = 100),
-          EC$MSG$VALIDATE$NO_MIN_PERCENT
-        ),
-        shiny::need(
-          checkmate::test_set_equal(selected_vars, unique(selected_vars), ordered = TRUE),
-          EC$MSG$VALIDATE$VAR_OVERLAP
-        ),
-        shiny::need(
-          checkmate::test_disjunct(event_date_var, origin_date_var),
-          EC$MSG$VALIDATE$EVENT_ORIG_CLASH
-        ),
-        shiny::need(
-          checkmate::test_disjunct(event_date_var, censor_date_var),
-          EC$MSG$VALIDATE$EVENT_CENSOR_CLASH
-        ),
-        shiny::need(
-          checkmate::test_disjunct(origin_date_var, censor_date_var),
-          EC$MSG$VALIDATE$ORIG_CENSOR_CLASH
-        ),
-        shiny::need(
-          (!compute_risk || is_provided(event_date_var)) &&
-            (!(is_provided(origin_date_var) || is_provided(censor_date_var)) || is_provided(event_date_var)),
-          EC$MSG$VALIDATE$NO_EVENT_DATE
-        ),
-        shiny::need(
-          !compute_risk || is_provided(origin_date_var),
-          EC$MSG$VALIDATE$NO_ORIGIN_DATE
-        ),
-        shiny::need(
-          !compute_risk || is_provided(censor_date_var),
-          EC$MSG$VALIDATE$NO_CENSOR_DATE
-        ),
-        shiny::need(
-          !checkmate::test_choice(event_group_var, hierarchy, null.ok = FALSE),
-          EC$MSG$VALIDATE$EVENT_GRP_CLASH
+        event_group_var <- NULL
+        event_group_total_val <- NULL
+        event_date_var <- NULL
+        origin_date_var <- NULL
+        censor_date_var <- NULL
+        compute_risk <- FALSE
+
+        if (show_event_group_by) {
+          event_group_var <- inputs[[EC$ID$EVENT_GROUP]]()
+          if (
+            !is.null(event_group_totals) &&
+              length(event_group_var) == 1 &&
+              event_group_var %in% names(event_group_totals)
+          ) {
+            event_group_total_val <- event_group_totals[[event_group_var]]
+          }
+        } else if (show_time_at_risk_options) {
+          event_date_var <- inputs[[EC$ID$EVENT_DATE]]()
+          origin_date_var <- inputs[[EC$ID$ORIGIN_DATE]]()
+          censor_date_var <- inputs[[EC$ID$CENSOR_DATE]]()
+          compute_risk <- inputs[[EC$ID$RISK_FLAG]]()
+        }
+
+        # Store variable labels for information display in final HTML
+        combined_labels <- c(get_lbls_robust(d), get_lbls_robust(pd))
+        var_labels(combined_labels[!duplicated(names(combined_labels))])
+
+        selected_vars <- c(hierarchy, group_vars, event_group_var)
+        pop_flag_vars <- NULL
+
+        if (show_pop_flag_selection) {
+          pop_flag_vars <- inputs[[EC$ID$POP_FLAG_VARS]]()
+          pop_flags_after_groups <- inputs[[EC$ID$POP_FLAGS_AFTER_GROUPS]]()
+
+          if (!is.null(pop_flag_vars) && length(pop_flag_vars) > 0) {
+            pd <- flagged_pop_dataset()
+
+            group_vars <- if (pop_flags_after_groups) {
+              c(group_vars, ".pop_group")
+            } else {
+              c(".pop_group", group_vars)
+            }
+            selected_vars <- c(selected_vars, pop_flag_vars)
+          }
+        }
+
+        # Helper: checks whether a value is actually "provided"
+        is_provided <- function(x) {
+          checkmate::test_string(x, min.chars = 1)
+        }
+
+        shiny::validate(
+          shiny::need(
+            checkmate::test_data_frame(d, min.rows = 1),
+            EC$MSG$VALIDATE$NO_TABLE_ROWS
+          ),
+          shiny::need(
+            checkmate::test_data_frame(pd, min.rows = 1),
+            EC$MSG$VALIDATE$NO_POP_ROWS
+          ),
+          shiny::need(
+            checkmate::test_character(
+              group_vars,
+              min.chars = 1,
+              min.len = 1,
+              max.len = 3
+            ),
+            EC$MSG$VALIDATE$NO_GRP
+          ),
+          shiny::need(
+            checkmate::test_character(
+              hierarchy,
+              min.chars = 1,
+              min.len = 1,
+              max.len = 4
+            ),
+            EC$MSG$VALIDATE$NO_HIERARCHY
+          ),
+          shiny::need(
+            checkmate::test_set_equal(
+              selected_vars,
+              unique(selected_vars),
+              ordered = TRUE
+            ),
+            EC$MSG$VALIDATE$VAR_OVERLAP
+          ),
+          shiny::need(
+            checkmate::test_disjunct(event_date_var, origin_date_var),
+            EC$MSG$VALIDATE$EVENT_ORIG_CLASH
+          ),
+          shiny::need(
+            checkmate::test_disjunct(event_date_var, censor_date_var),
+            EC$MSG$VALIDATE$EVENT_CENSOR_CLASH
+          ),
+          shiny::need(
+            checkmate::test_disjunct(origin_date_var, censor_date_var),
+            EC$MSG$VALIDATE$ORIG_CENSOR_CLASH
+          ),
+          shiny::need(
+            (!compute_risk || is_provided(event_date_var)) &&
+              (!(is_provided(origin_date_var) ||
+                is_provided(censor_date_var)) ||
+                is_provided(event_date_var)),
+            EC$MSG$VALIDATE$NO_EVENT_DATE
+          ),
+          shiny::need(
+            !compute_risk || is_provided(origin_date_var),
+            EC$MSG$VALIDATE$NO_ORIGIN_DATE
+          ),
+          shiny::need(
+            !compute_risk || is_provided(censor_date_var),
+            EC$MSG$VALIDATE$NO_CENSOR_DATE
+          ),
+          shiny::need(
+            !checkmate::test_choice(
+              event_group_var,
+              hierarchy,
+              null.ok = FALSE
+            ),
+            EC$MSG$VALIDATE$EVENT_GRP_CLASH
+          )
         )
-      )
 
-      # Associate labels attribute to hierarchy column names
-      hierarchy_labels <- get_lbls_robust(d)[hierarchy]
-      attr(hierarchy, "labels") <- unlist(hierarchy_labels)
+        # Associate labels attribute to hierarchy column names
+        hierarchy_labels <- get_lbls_robust(d)[hierarchy]
+        attr(hierarchy, "labels") <- unlist(hierarchy_labels)
 
-      # Show a progress bar for the remainder of the execution of this reactive
-      # This bar does not really progress; it just disappears once we're through
-      p <- shiny::Progress$new(session = session)
-      on.exit(p$close())
-      p$set(message = "1) Processing data", value = 0.50)
-
-      events_table_raw <- compute_events_table(event_df = d,
-                                               pop_df = pd,
-                                               hierarchy = hierarchy,
-                                               group_vars = group_vars,
-                                               subjid_var = subjid_var,
-                                               pop_flag_vars = pop_flag_vars,
-                                               event_group_var = event_group_var,
-                                               worst_event_group_vars = worst_event_group_vars,
-                                               origin_date_var = origin_date_var,
-                                               censor_date_var = censor_date_var,
-                                               event_date_var = event_date_var,
-                                               total = total,
-                                               total_group_val = "Total",
-                                               event_group_total_val = event_group_total_val,
-                                               compute_risk = compute_risk,
-                                               any_event_text = any_event_text)
-
-      # Show warning when origin date is after non-missing censor date (bad data!)
-      shiny::validate(
-        shiny::need(
-          is.null(events_table_raw$meta$warning_message),
-          events_table_raw$meta$warning_message
+        sm_me(
+          dv.tables:::compute_events_table(
+            event_df = ..(event_dataset()),
+            pop_df = ..(flagged_pop_dataset()),
+            hierarchy = ..(hierarchy),
+            group_vars = ..(group_vars),
+            subjid_var = ..(subjid_var),
+            pop_flag_vars = ..(pop_flag_vars),
+            event_group_var = ..(event_group_var),
+            worst_event_group_vars = ..(worst_event_group_vars),
+            origin_date_var = ..(origin_date_var),
+            censor_date_var = ..(censor_date_var),
+            event_date_var = ..(event_date_var),
+            total = ..(total),
+            total_group_val = "Total",
+            event_group_total_val = ..(event_group_total_val),
+            compute_risk = ..(compute_risk),
+            any_event_text = ..(any_event_text)
+          )
         )
-      )
+      },
+      varname = "events_table_raw"
+    )
 
-      sorted_events_table <- compute_order_events_table(events_table_raw)
+    et <- sm_mr2(
+      {
+        # Show a progress bar for the remainder of the execution of this reactive
+        # This bar does not really progress; it just disappears once we're through
+        p <- shiny::Progress$new(session = session)
+        on.exit(p$close())
+        p$set(message = "1) Processing data", value = 0.50)
 
-      t <- pivot_wide_format_events_table(
-        events_table_raw,
-        min_percent,
-        inputs[[EC$ID$REMOVE_ROWS_UNDER_MIN_PERCENT]]()
-      ) |>
-        sort_wider_formatter_events_table(sorted_events_table)
+        warning_message <- events_table_raw()[["meta"]][["warning_message"]]
+        min_percent <- inputs[[EC$ID$MIN_PERCENT]]()
+        remove_rows_under_min_percent <- inputs[[
+          EC$ID$REMOVE_ROWS_UNDER_MIN_PERCENT
+        ]]()
 
-      t
-    })
+        shiny::validate(
+          shiny::need(
+            checkmate::test_number(
+              min_percent,
+              na.ok = FALSE,
+              lower = 0,
+              upper = 100
+            ),
+            EC$MSG$VALIDATE$NO_MIN_PERCENT
+          ),
+          # Show warning when origin date is after non-missing censor date (bad data!)
+          shiny::need(
+            is.null(warning_message),
+            warning_message
+          )
+        )
 
-    render_completion_callback <- shiny::tags$script(shiny::HTML(sprintf("
+        sm_me(
+          dv.tables:::pivot_wide_format_events_table(
+            ..(events_table_raw()),
+            ..(min_percent),
+            ..(remove_rows_under_min_percent)
+          ) |>
+            dv.tables:::sort_wider_formatter_events_table(
+              dv.tables:::compute_order_events_table(..(events_table_raw()))
+            )
+        )
+      },
+      varname = "events_table"
+    )
+
+    render_completion_callback <- shiny::tags$script(shiny::HTML(sprintf(
+      "
     requestAnimationFrame(() => { // repaint preceding the table render
       requestAnimationFrame(() => { // repaint following the table render
         Shiny.setInputValue('%s', 'done', {priority: 'event'});
       });
     });
-    ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))))
+    ",
+      ns(EC$ID$RENDER_COMPLETION_CALLBACK)
+    )))
 
     table_progress_bars <- list() # keep a list of progress bars to cope with trigger-happy users
 
     shiny::observeEvent(input[[EC$ID$RENDER_COMPLETION_CALLBACK]], {
-      for (p in table_progress_bars) p$close()
+      for (p in table_progress_bars) {
+        p$close()
+      }
       table_progress_bars <<- list()
     })
 
     output[[EC$ID$TABLE]] <- shiny::renderUI({
-
-      on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
+      on_cell_click <- sprintf(
+        "Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})",
+        ns("cell_click")
+      ) # nolint
 
       et <- et()
       var_labels <- var_labels()
@@ -1835,22 +1988,29 @@ hierarchical_count_table_server <- function(
 
         if (has_event_group) {
           nested_cols <- strsplit(col, EC$VAL$SPECIAL_CHAR, fixed = TRUE)[[1]]
-          subj_ids <- et()[["df"]][[nested_cols[1]]][[row]][[nested_cols[2]]][["subjid"]]
+          subj_ids <- et()[["df"]][[nested_cols[1]]][[row]][[nested_cols[2]]][[
+            "subjid"
+          ]]
         } else {
           subj_ids <- et()[["df"]][[col]][[row]][["subjid"]]
         }
 
         # Only run when subjects defined in the cell
         if (length(subj_ids) > 0) {
-
           # Ensure that non-breaking spaces are converted back to ordinary spaces
           subj_ids <- gsub("\u00A0", " ", subj_ids)
 
-          id_elements <- vector(mode = "list", length = (length(subj_ids) * 2) - 1)
+          id_elements <- vector(
+            mode = "list",
+            length = (length(subj_ids) * 2) - 1
+          )
           for (idx in seq_along(subj_ids)) {
             link_idx <- (idx * 2) - 1
             comma_idx <- link_idx + 1
-            id_elements[[link_idx]] <- shiny::a(subj_ids[[idx]], "data-id" = subj_ids[[idx]])
+            id_elements[[link_idx]] <- shiny::a(
+              subj_ids[[idx]],
+              "data-id" = subj_ids[[idx]]
+            )
             if (idx < length(subj_ids)) id_elements[[comma_idx]] <- ","
           }
 
@@ -1861,7 +2021,10 @@ hierarchical_count_table_server <- function(
               id = ns("sbj_list"),
               shiny::h3("Participants"),
               do.call(shiny::p, id_elements),
-              onclick = sprintf("(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)", input_id)
+              onclick = sprintf(
+                "(function(event){Shiny.setInputValue('%s', event.target.getAttribute('data-id'), {priority: 'event'});})(event)",
+                input_id
+              )
             )
           )
           shiny::showModal(d)
@@ -1871,19 +2034,49 @@ hierarchical_count_table_server <- function(
 
     # Jumping and communication
     shiny::observeEvent(input[["clicked_sbj"]], {
-      shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+      shiny::req(checkmate::test_string(
+        input[["clicked_sbj"]],
+        na.ok = FALSE,
+        min.chars = 1,
+        null.ok = FALSE
+      ))
       shiny::removeModal()
       on_sbj_click_fun()
     })
 
     res <- list(
       subj_id = shiny::reactive({
-        shiny::req(checkmate::test_string(input[["clicked_sbj"]], na.ok = FALSE, min.chars = 1, null.ok = FALSE))
+        shiny::req(checkmate::test_string(
+          input[["clicked_sbj"]],
+          na.ok = FALSE,
+          min.chars = 1,
+          null.ok = FALSE
+        ))
         input[["clicked_sbj"]]
-      })
+      }),
+      to_odg = list(
+        table = list(
+          label = "Table",
+          info = "table",
+          metareactive = list(
+            html = sm_mr(dv.tables:::preprocess_download_table(
+              ..(et()),
+              "gt",
+              FALSE
+            )),
+            pdf = sm_mr(dv.tables:::preprocess_download_table(
+              ..(et()),
+              "gt",
+              FALSE
+            ))
+          )
+        )
+      )
     )
 
-    if (isTRUE(getOption("shiny.testmode"))) do.call(shiny::exportTestValues, as.list(environment()))
+    if (isTRUE(getOption("shiny.testmode"))) {
+      do.call(shiny::exportTestValues, as.list(environment()))
+    }
 
     res
   }
@@ -2211,12 +2404,14 @@ mod_hierarchical_count_table <- function(
 
       hierarchical_count_table_server(
         id = module_id,
-        table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[
-          table_dataset_name
-        ]]),
-        pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[
-          pop_dataset_name
-        ]]),
+        table_dataset = sm_mr(
+          ..(afmm[["filtered_dataset_list"]]())[[..(table_dataset_name)]],
+          varname = "table_dataset"
+        ),
+        pop_dataset = sm_mr(
+          ..(afmm[["filtered_dataset_list"]]())[[..(pop_dataset_name)]],
+          varname = "pop_dataset"
+        ),
         subjid_var = subjid_var,
         show_pop_flag_selection = show_pop_flag_selection,
         show_event_group_by = show_event_group_by,

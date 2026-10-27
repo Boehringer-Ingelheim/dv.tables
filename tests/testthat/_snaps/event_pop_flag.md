@@ -99,13 +99,13 @@
       # A tibble: 7 x 22
         lvl1     lvl2     `\035lvl` `\035rank` `ITT\035G1A\035G2X` `ITT\035G1A\035G2Z`
         <fct>    <fct>        <int>      <int> <list>              <list>             
-      1 "\u001d" "\u001d"         0          1 <named list [2]>    <named list [2]>   
-      2 "A1"     "\u001d"         1          2 <named list [2]>    <named list [2]>   
-      3 "A1"     "A2"             2          3 <named list [2]>    <named list [2]>   
-      4 "A1"     "B2"             2          4 <named list [2]>    <named list [2]>   
-      5 "B1"     "\u001d"         1          5 <named list [2]>    <named list [2]>   
-      6 "B1"     "B2"             2          6 <named list [2]>    <named list [2]>   
-      7 "B1"     "A2"             2          7 <named list [2]>    <named list [2]>   
+      1 "\u001d" "\u001d"         0          1 <named list [3]>    <named list [3]>   
+      2 "A1"     "\u001d"         1          2 <named list [3]>    <named list [3]>   
+      3 "A1"     "A2"             2          3 <named list [3]>    <named list [3]>   
+      4 "A1"     "B2"             2          4 <named list [3]>    <named list [3]>   
+      5 "B1"     "\u001d"         1          5 <named list [3]>    <named list [3]>   
+      6 "B1"     "B2"             2          6 <named list [3]>    <named list [3]>   
+      7 "B1"     "A2"             2          7 <named list [3]>    <named list [3]>   
       # i 16 more variables: `ITT\035G1A\035__TOTAL__` <list>,
       #   `ITT\035G1B\035G2X` <list>, `ITT\035G1B\035G2Z` <list>,
       #   `ITT\035G1B\035__TOTAL__` <list>, `ITT\035G1C\035G2X` <list>,
