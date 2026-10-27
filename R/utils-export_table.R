@@ -72,7 +72,7 @@ build_xlsx_table <- function(df, meta, cols) {
   stat_cols <- format_stat_columns(df, cols, meta[["min_percent"]], count_format = "%d ( %.2f %%)") |>
     prepend_overall_n(cols) |>    
     purrr::map2(cols[["stat"]], \(x, stat) {
-      x <- sub("—", "", x)
+      x <- sub("\u2014", "", x)
       if (stat == "count") x else as.numeric(x)
     })
   names(stat_cols) <- paste0(display_group_name(cols[["group_col"]], meta), " [", cols[["stat_label"]], "]")
