@@ -32,9 +32,8 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
                          null.ok = TRUE,
                          names = "named")
 
-  checkmate::assert_subset(names(count_table), c("df", "meta"))
-  checkmate::assert_subset(c("denom_df",
-                             "hierarchy"),
+  checkmate::assert_subset(c("df", "meta"), names(count_table))
+  checkmate::assert_subset(c("denom_df", "hierarchy", "event_group_vals", "total_group_val", "event_group_total_val"),
                            names(count_table[["meta"]]))
 
   # At least one row is required to download the table
@@ -48,17 +47,20 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
   # Get data frame
   df_prep <- count_table[["df"]]
 
+  # Get metadata
+  meta <- count_table[["meta"]]
+  denom_df <- meta[["denom_df"]]
+  hierarchy <- meta[["hierarchy"]]
+  event_group_vals <- meta[["event_group_vals"]] # empty vector if no event group specified
+  total_group_val <- meta[["total_group_val"]] # non-empty vector always expected
+  event_group_total_val <- meta[["event_group_total_val"]] # NULL if event group total not specified
+
   # Get group subject totals (named by group) and extract group names
-  denom_df <- count_table[["meta"]]$denom_df
   total_colname <- stats::setNames(denom_df[[".N"]], denom_df[[".lookup"]])
   group_names <- intersect(names(df_prep), names(total_colname))
 
   # Get event variables
-  event_vars <- count_table[["meta"]]$hierarchy
-  event_var_labels <- attr(event_vars, "labels")
-
-  # Get event group values (empty vector if no event group specified)
-  event_group_vals <- count_table[["meta"]]$event_group_vals
+  hierarchy_labels <- attr(hierarchy, "labels")
 
   # Flag when event group has been specified
   has_event_group <- length(event_group_vals) > 0
@@ -75,49 +77,49 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
                           c("count", "time_at_risk", "incidence_rate"))
 
   df_prep <- df_prep |>
-    dplyr::select(dplyr::all_of(event_vars), dplyr::all_of(group_names)) |>
+    dplyr::select(dplyr::all_of(hierarchy), dplyr::all_of(group_names)) |>
 
     # Subset on the statistical results in each cell list (dropping subjid)
     dplyr::mutate(dplyr::across(dplyr::all_of(group_names),
                                 ~ purrr::map(.x, ~ .x[stat_names]))) |>
 
     # Remove factors from event columns
-    dplyr::mutate(dplyr::across(dplyr::all_of(event_vars), as.character)) |>
+    dplyr::mutate(dplyr::across(dplyr::all_of(hierarchy), as.character)) |>
 
     # Convert special chars to "Total"
-    dplyr::mutate(dplyr::across(dplyr::all_of(event_vars),
+    dplyr::mutate(dplyr::across(dplyr::all_of(hierarchy),
                                 ~ sub(EC$VAL$SPECIAL_CHAR, "Total", .x)))
 
   if (download_type == ".rtf") {
 
-    if (length(event_vars) > 1L) {
+    if (length(hierarchy) > 1L) {
       # Create indented hierarchy of event values for multi-event columns
 
-      indent_fun <- function(event_vars_df) {
-        for (i in ncol(event_vars_df):2L) {
-          event_vars_df[[i - 1]] <- ifelse(event_vars_df[[i]] != "Total",
-                                           paste0("  ", event_vars_df[[i]]),
-                                           event_vars_df[[i - 1]])
+      indent_fun <- function(hierarchy_df) {
+        for (i in ncol(hierarchy_df):2L) {
+          hierarchy_df[[i - 1]] <- ifelse(hierarchy_df[[i]] != "Total",
+                                          paste0("  ", hierarchy_df[[i]]),
+                                          hierarchy_df[[i - 1]])
         }
-        return(event_vars_df[[1]])
+        return(hierarchy_df[[1]])
       }
 
       # Modify first event column with indented values from other event columns
-      df_prep[[event_vars[1]]] <- indent_fun(df_prep[event_vars])
-      for (i in 2L:length(event_var_labels)) {
+      df_prep[[hierarchy[1]]] <- indent_fun(df_prep[hierarchy])
+      for (i in 2L:length(hierarchy_labels)) {
         # Line break code <br> will be replaced by RTF \line after RTF string is generated
-        event_var_labels[i] <- paste0("<br>", strrep("  ", i - 1), event_var_labels[i])
+        hierarchy_labels[i] <- paste0("<br>", strrep("  ", i - 1), hierarchy_labels[i])
       }
-      names(df_prep)[names(df_prep) == event_vars[1]] <- paste(event_var_labels, collapse = "")
+      names(df_prep)[names(df_prep) == hierarchy[1]] <- paste(hierarchy_labels, collapse = "")
 
       # Remove redundant event columns
-      drop_event_vars <- setdiff(event_vars, event_vars[1])
-      df_prep[drop_event_vars] <- NULL
+      drop_vars <- setdiff(hierarchy, hierarchy[1])
+      df_prep[drop_vars] <- NULL
     } else {
 
       # Single event column - rename with label only
       df_prep <- df_prep |>
-        dplyr::rename_with(~ event_var_labels[[1]], dplyr::all_of(event_vars[1]))
+        dplyr::rename_with(~ hierarchy_labels[[1]], dplyr::all_of(hierarchy[1]))
     }
 
   } else if (download_type == ".xlsx") {
@@ -130,9 +132,9 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
 
 
       # Add label in square-brackets after variable name
-      dplyr::rename_with(~ ifelse(event_var_labels != event_vars,
-                                  paste0(event_vars, " [", event_var_labels, "]"),
-                                  event_vars), dplyr::all_of(event_vars))
+      dplyr::rename_with(~ ifelse(hierarchy_labels != hierarchy,
+                                  paste0(hierarchy, " [", hierarchy_labels, "]"),
+                                  hierarchy), dplyr::all_of(hierarchy))
   }
 
   # Add new row with overall number of patients ----
@@ -229,6 +231,14 @@ preprocess_download_table <- function(count_table, download_type, split_columns)
     dplyr::bind_cols(df_prep, new_cols),
     -dplyr::all_of(group_names)
   )
+
+  # Replace totals placeholders in group column names
+  names(df_prep) <- gsub(EC$VAL$TOTAL, total_group_val, names(df_prep), fixed = TRUE)
+
+  # Replace totals placeholders in event group column names
+  if (!is.null(event_group_total_val)) {
+    names(df_prep) <- gsub(EC$VAL$EVT_TOTAL, event_group_total_val, names(df_prep), fixed = TRUE)
+  }
 
   # Replace special separator characters in group column names with display-friendly "/"
   names(df_prep) <- gsub(EC$VAL$SPECIAL_CHAR, "/", names(df_prep), fixed = TRUE)

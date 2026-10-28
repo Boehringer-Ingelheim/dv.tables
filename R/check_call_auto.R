@@ -7,10 +7,10 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     subjid_var, show_pop_flag_selection, show_event_group_by, show_time_at_risk_options, show_modal_on_click,
     default_hierarchy, hierarchy_choices, default_group, group_choices, default_total, default_min_percent,
     default_remove_rows_under_min_percent, default_pop_flags, pop_flag_choices, default_pop_flags_after_groups,
-    default_event_group, event_group_choices, default_event_date, event_date_choices, default_origin_date,
-    origin_date_choices, default_censor_date, censor_date_choices, default_risk, smq_name, smq_vars,
-    smq_na_label, udaec_name, udaec_list, udaec_na_label, any_event_text, intended_use_label, receiver_id,
-    err) {
+    default_event_group, event_group_choices, event_group_totals, worst_event_group_vars, default_event_date,
+    event_date_choices, default_origin_date, origin_date_choices, default_censor_date, censor_date_choices,
+    default_risk, smq_name, smq_vars, smq_na_label, udaec_name, udaec_list, udaec_na_label, any_event_text,
+    intended_use_label, receiver_id, err) {
     OK <- logical(0)
     used_dataset_names <- new.env(parent = emptyenv())
     OK[["module_id"]] <- CM$check_module_id("module_id", module_id, err)
@@ -36,9 +36,9 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     flags <- structure(list(), names = character(0))
     OK[["show_modal_on_click"]] <- CM$check_type("show_modal_on_click", show_modal_on_click, "logical",
         flags, err)
-    "NOTE: default_hierarchy (character) tagged as \"manual_check\""
-    "      The expectation is that it either does not require automated checks or that"
-    "      the caller of this function has written manual checks near the call site."
+    flags <- list(zero_or_more = TRUE, optional = TRUE)
+    OK[["default_hierarchy"]] <- CM$check_type("default_hierarchy", default_hierarchy, "character", flags,
+        err)
     subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
     flags <- list(zero_or_more = TRUE, optional = TRUE)
     OK[["hierarchy_choices"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("hierarchy_choices",
@@ -78,6 +78,13 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     flags <- list(zero_or_more = TRUE, optional = TRUE)
     OK[["event_group_choices"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("event_group_choices",
         event_group_choices, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], err)
+    flags <- list(one_or_more = TRUE, optional = TRUE, named = TRUE)
+    OK[["event_group_totals"]] <- CM$check_type("event_group_totals", event_group_totals, "character",
+        flags, err)
+    subkind <- list(kind = "or", options = list(list(kind = "character"), list(kind = "factor")))
+    flags <- list(zero_or_more = TRUE, optional = TRUE)
+    OK[["worst_event_group_vars"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("worst_event_group_vars",
+        worst_event_group_vars, subkind, flags, table_dataset_name, datasets[[table_dataset_name]], err)
     subkind <- list(kind = "date")
     flags <- list(optional = TRUE)
     OK[["default_event_date"]] <- OK[["table_dataset_name"]] && CM$check_dataset_colum_name("default_event_date",
@@ -114,7 +121,7 @@ check_mod_hierarchical_count_table_auto <- function(afmm, datasets, module_id, t
     OK[["smq_na_label"]] <- CM$check_type("smq_na_label", smq_na_label, "character", flags, err)
     flags <- list(optional = TRUE)
     OK[["udaec_name"]] <- CM$check_type("udaec_name", udaec_name, "character", flags, err)
-    "NOTE: udaec_list (character) tagged as \"manual_check\""
+    "NOTE: udaec_list (group) tagged as \"manual_check\""
     "      The expectation is that it either does not require automated checks or that"
     "      the caller of this function has written manual checks near the call site."
     flags <- list(optional = TRUE)
@@ -167,12 +174,12 @@ check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_datase
     "NOTE: stats_functions (group) tagged as \"manual_check\""
     "      The expectation is that it either does not require automated checks or that"
     "      the caller of this function has written manual checks near the call site."
-    "NOTE: stats_formats (group) unsupported as the check generator cannot handle nested elements yet"
+    "NOTE: stats_formats (group) tagged as \"manual_check\""
     "      The expectation is that it either does not require automated checks or that"
     "      the caller of this function has written manual checks near the call site."
     flags <- list(zero_or_more = TRUE)
     OK[["stats_labels"]] <- CM$check_type("stats_labels", stats_labels, "character", flags, err)
-    "NOTE: stats_replace (group) unsupported as the check generator cannot handle nested elements yet"
+    "NOTE: stats_replace (group) tagged as \"manual_check\""
     "      The expectation is that it either does not require automated checks or that"
     "      the caller of this function has written manual checks near the call site."
     subkind <- list(kind = "or", options = list(list(kind = "numeric", min = NA, max = NA), list(kind = "integer",
@@ -235,7 +242,7 @@ check_mod_summary_table_auto <- function(afmm, datasets, module_id, table_datase
     flags <- structure(list(), names = character(0))
     OK[["default_pop_flags_after_groups"]] <- CM$check_type("default_pop_flags_after_groups", default_pop_flags_after_groups,
         "logical", flags, err)
-    "NOTE: flagged_row_processing (group) unsupported as the check generator cannot handle nested elements yet"
+    "NOTE: flagged_row_processing (group) tagged as \"manual_check\""
     "      The expectation is that it either does not require automated checks or that"
     "      the caller of this function has written manual checks near the call site."
     flags <- structure(list(), names = character(0))

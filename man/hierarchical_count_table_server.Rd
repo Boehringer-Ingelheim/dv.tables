@@ -22,6 +22,8 @@ hierarchical_count_table_server(
   pop_flag_choices = NULL,
   default_event_group = NULL,
   event_group_choices = NULL,
+  event_group_totals = NULL,
+  worst_event_group_vars = NULL,
   default_event_date = NULL,
   event_date_choices = NULL,
   default_origin_date = NULL,
@@ -77,24 +79,24 @@ A flag to indicate whether clicking a table cell should display a modal dialog w
 
 \item{on_sbj_click_fun}{\verb{[function]}
 
-Function to invoke when a participant identifier is clicked}
+Function to invoke when a participant identifier is clicked.}
 
-\item{default_hierarchy}{\verb{[character(1:4)|NULL]}
+\item{default_hierarchy}{\verb{[character(1:4) | NULL]}
 
 Optional character vector specifying the default hierarchy variables.
 Variables must be columns in \code{table_dataset_name}. Up to four variables
 can be selected, and their order determines the nesting order in the table.}
 
-\item{hierarchy_choices}{\verb{[character(1+)|NULL]}
+\item{hierarchy_choices}{\verb{[character(1+) | NULL]}
 
 A character vector specifying the possible choices for the hierarchy variables selection (optional).
 If it is not specified then all factor and character variables from the event data will be used.}
 
-\item{default_group}{\verb{[character(1|2)|NULL]}
+\item{default_group}{\verb{[character(1|2) | NULL]}
 
 A default value for the group variables selection (optional).}
 
-\item{group_choices}{\verb{[character(1+)|NULL]}
+\item{group_choices}{\verb{[character(1+) | NULL]}
 
 A character vector specifying the possible choices for the group variables selection (optional).
 If it is not specified then all factor and character variables from the population data will be used.}
@@ -118,43 +120,59 @@ Participants are identified as being within a population when the value of the f
 
 Not applicable when \code{show_pop_flag_selection} is \code{FALSE}.}
 
-\item{default_event_group}{\verb{[character(1)|NULL]}
+\item{default_event_group}{\verb{[character(1) | NULL]}
 
 A default value for the event group variable selection.}
 
-\item{event_group_choices}{\verb{[character(1+)|NULL]}
+\item{event_group_choices}{\verb{[character(1+) | NULL]}
 
 A character vector specifying the possible choices for the event group variable selection (optional).
 If it is not specified then all factor and character variables from the event data will be used.}
 
-\item{default_event_date}{\verb{[character(1)|NULL]}
+\item{event_group_totals}{\verb{[character(1+) | NULL]}
+
+A named vector of totals column header text to be used for event group variables (e.g.
+\code{c(ATOXGR = "All Grades", ASEV = "Any Severity")}). The names correspond to the event group variable names. An event
+group totals column will only be displayed for those event group variables that have been specified here.}
+
+\item{worst_event_group_vars}{\verb{[character(1+) | NULL]}
+
+A character vector specifying those event group variables for which worst value should be considered (optional).
+Worst value is interpreted as the highest value in the underlying integer representation of the event group variable
+as a factor. Missing values (\code{NA}) will be considered as worst case; if this is not the desired functionality then
+the event data should be pre-processed to re-code \code{NA} as a value with the appropriate factor level.
+
+Note that the worst value for a participant can change depending on the hierarchy level since more events are
+considered the higher up the hierarchy level you go.}
+
+\item{default_event_date}{\verb{[character(1) | NULL]}
 
 A default value for the event date variable selection (optional). Not applicable when
 \code{show_time_at_risk_options} is \code{FALSE}.}
 
-\item{event_date_choices}{\verb{[character(1+)|NULL]}
+\item{event_date_choices}{\verb{[character(1+) | NULL]}
 
 A character vector specifying the possible choices for the event date variable selection (optional).
 If it is not specified then all variables of class "Date" from the event data will be used.
 Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
-\item{default_origin_date}{\verb{[character(1)|NULL]}
+\item{default_origin_date}{\verb{[character(1) | NULL]}
 
 A default value for the origin date variable selection (optional). Not applicable when
 \code{show_time_at_risk_options} is \code{FALSE}.}
 
-\item{origin_date_choices}{\verb{[character(1+)|NULL]}
+\item{origin_date_choices}{\verb{[character(1+) | NULL]}
 
 A character vector specifying the possible choices for the origin date variable selection (optional).
 If it is not specified then all variables of class "Date" from the population data will be used.
 Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 
-\item{default_censor_date}{\verb{[character(1)|NULL]}
+\item{default_censor_date}{\verb{[character(1) | NULL]}
 
 A default value for the censor date variable selection (optional). Not applicable when
 \code{show_time_at_risk_options} is \code{FALSE}.}
 
-\item{censor_date_choices}{\verb{[character(1+)|NULL]}
+\item{censor_date_choices}{\verb{[character(1+) | NULL]}
 
 A character vector specifying the possible choices for the censor date variable selection (optional).
 If it is not specified then all variables of class "Date" from the population data will be used.
@@ -165,7 +183,7 @@ Not applicable when \code{show_time_at_risk_options} is \code{FALSE}.}
 Name of the derived SMQ hierarchy variable. The variable is created from
 the columns listed in \code{smq_vars}. Defaults to \code{"SMQ"}.}
 
-\item{smq_vars}{\verb{[character(1+)|NULL]}
+\item{smq_vars}{\verb{[character(1+) | NULL]}
 
 Optional character vector of columns in \code{table_dataset_name} containing
 SMQ indicators or categories. When supplied together with \code{smq_name}, an
@@ -183,7 +201,7 @@ source values in \code{smq_vars} are missing/\code{NA} for a participant. Defaul
 Name of the derived UDAEC hierarchy variable. Defaults to \code{"UDAEC"}.
 This argument is used together with \code{udaec_list}.}
 
-\item{udaec_list}{\verb{[list|NULL]}
+\item{udaec_list}{\verb{[list | NULL]}
 
 Optional named list defining UDAEC categories. The names of the list are the
 UDAEC category labels, and must be unique and non-empty. Each element must
@@ -228,7 +246,7 @@ Defaults to \code{"Other"}.}
 A string specifying the text to be displayed in the table row for participants with any event.
 Defaults to \code{"Participants with any event"}.}
 
-\item{intended_use_label}{\verb{[character(1)|NULL]}
+\item{intended_use_label}{\verb{[character(1) | NULL]}
 
 Either a string indicating the intended use for export, or NULL. The provided label will be displayed
 prior to the download and will also be included in the exported file.}

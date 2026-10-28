@@ -66,9 +66,9 @@ mock_app_summary_table_mm <- function() {
 
   adsl <- pharmaverseadam::adsl |>
     dplyr::mutate(ENRLFL = "Y",
-                  TRTFL = ifelse(is.na(TRTSDT), "N", "Y"),
-                  RANDFL = ifelse(is.na(RANDDT), "N", "Y"),
-                  DISCFL = ifelse(EOSSTT == "DISCONTINUED", "Y", "N"))
+                  TRTFL = ifelse(is.na(.data[["TRTSDT"]]), "N", "Y"),
+                  RANDFL = ifelse(is.na(.data[["RANDDT"]]), "N", "Y"),
+                  DISCFL = ifelse(.data[["EOSSTT"]] == "DISCONTINUED", "Y", "N"))
 
   adsl[["COUNTRY"]] <- ifelse(as.numeric(adsl[["SITEID"]]) < 715, adsl[["COUNTRY"]], "Canada")
 

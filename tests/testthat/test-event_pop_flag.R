@@ -44,10 +44,10 @@ local({
   # We will test against snapshots that we have checked is correct
 
   test_that(vdoc[["add_spec"]](
-    "event group by is correct, sorting, against (snapshot)",
+    "population flag grouping is correct, sorting, against (snapshot)",
     c(
       specs$hierarchical_count_table$event_count,
-      specs$hierarchical_count_table$event_group_by_display
+      specs$hierarchical_count_table$population_flag_vars
     )
   ), {
     expect_snapshot(x)
