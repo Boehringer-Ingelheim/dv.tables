@@ -81,8 +81,6 @@ build_xlsx_table <- function(df, meta, cols) {
 }
 
 build_rtf_table <- function(df, meta, cols) {
-  browser()
-
   hierarchy <- meta[["hierarchy"]]
   hierarchy_labels <- attr(hierarchy, "labels")
   hier_lvl <- df[[paste0(EC$VAL$SPECIAL_CHAR, "lvl")]]
