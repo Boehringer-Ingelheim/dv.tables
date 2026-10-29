@@ -683,7 +683,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
   cells <- list(
     n = df[["n"]],
     pct = df[["pct"]],
-    subjid = purrr::map(df[["subjid"]], as.character)
+    subjid = as.character(df[["subjid"]])
   )
 
   if (table_type == "time_at_risk") {
