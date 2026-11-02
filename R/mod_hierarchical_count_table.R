@@ -955,6 +955,8 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
   } else {
     subheader_row <- NULL
   }
+  
+  collect(as.character(htmltools::tagList(subheader_row)))
 
   df[[entry_name_col]] <- local({
     purrr::pmap_chr(
@@ -999,7 +1001,7 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
 
     data_cells <- NULL    
     if (table_type == "time_at_risk") {
-      subcols_of_interest  <- setdiff(names(df[[data_columns[[1]]]][[1]]), 'subjid')
+      subcols_of_interest  <- setdiff(names(df[[data_columns[[1]]]][[1]]), "subjid")
       # NOTE(miguel): The nested structure under df[[data_col]][[r]] slows this down.
       #               It's a list, even though the `subcols_of_interest` are all scalar strings.
       #               It would be nice if it was a character vector instead, but the "subjid" column (which we don't
