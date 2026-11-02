@@ -930,6 +930,8 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
       thc_data_columns
     )
   }
+ 
+  collect(as.character(htmltools::tagList(header_rows)))
 
   if (table_type == "time_at_risk") {
     entry_subheader <- shiny::span("")
