@@ -372,10 +372,17 @@ compute_events_table <- function(event_df,
     # Replace NA values in event group var factor with "<NA>" and add associated level
     subset_event_df[[event_group_var]] <- add_na_factor_level(subset_event_df[[event_group_var]])
 
-    event_group_vals <- levels(subset_event_df[[event_group_var]])
-    if (!is.null(event_group_total_val)) event_group_vals <- c(event_group_vals, event_group_total_val)
-
     worst_event_group <- event_group_var %in% worst_event_group_vars
+
+    event_group_vals <- levels(subset_event_df[[event_group_var]])
+    if (!is.null(event_group_total_val)) {
+      # Worst event group totals should appear in first column
+      event_group_vals <- if (worst_event_group) {
+        c(event_group_total_val, event_group_vals)
+      } else {
+        c(event_group_vals, event_group_total_val)
+      }
+    }
   } else {
     event_group_vals <- character()
     worst_event_group <- FALSE
@@ -437,8 +444,18 @@ compute_events_table <- function(event_df,
   # Add rows for group totals (required for ordering) ----
 
   for (gv in c(group_vars, event_group_var)) {
-    total_val <- if (gv %in% event_group_var) EC$VAL$EVT_TOTAL else EC$VAL$TOTAL
-    gv_fct_levels <- c(levels(adtte[[gv]]), total_val)
+    if (gv %in% event_group_var) {
+      total_val <- EC$VAL$EVT_TOTAL
+      # Worst event group totals should appear in first column
+      gv_fct_levels <- if (worst_event_group) {
+        c(total_val, levels(adtte[[gv]]))
+      } else {
+        c(levels(adtte[[gv]]), total_val)
+      }
+    } else {
+      total_val <- EC$VAL$TOTAL
+      gv_fct_levels <- c(levels(adtte[[gv]]), total_val)
+    }
 
     adtte[[gv]] <- factor(adtte[[gv]], levels = gv_fct_levels)
     total_grp_fct <- factor(total_val, levels = c(levels(adtte[[gv]])))

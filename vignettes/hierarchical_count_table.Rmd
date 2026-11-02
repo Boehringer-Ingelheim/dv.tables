@@ -31,7 +31,8 @@ showing time at risk and incidence rates.
   variables can also be used.
 - An optional "Total" group can be derived and displayed for the last population grouping level.
 - Optionally apply sub-grouping by a variable from the events data (e.g. event severity). Such event group variables
-  can be pre-specified to show worst value cases only. An optional event group total can also be derived.
+  can be pre-specified to show worst value cases only. An optional event group total can also be derived. For a worst
+  value variable, the total is positioned in the first column, otherwise the total is positioned in the last column.
 - Event counts and percentages are displayed, and optionally time at risk and incidence rates can be displayed.
 - Events within the hierarchy ordered by descending event count (totalled across all groups).
 - Tables can be downloaded as Excel (.xlsx) or Word (.rtf).
