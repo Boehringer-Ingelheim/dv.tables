@@ -994,7 +994,7 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
   hierarchy_length <- length(hierarchy)
   
   # NOTE(miguel): Precompute constants that are independent from data
-  active_collapse_control <- as.character(shiny::icon("table", onclick = "ec_collapse(this)"))
+  active_collapse_control <- paste0(as.character(shiny::icon("table", onclick = "ec_collapse(this)")), ' ')
   ec_val_special_char <- EC$VAL$SPECIAL_CHAR
   
   on_click_string_can_be_null <- sprintf('onclick="%s" ', on_cell_click)
