@@ -875,7 +875,7 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
   }) |> collect()
   
   collect("</p>")
-  collect("<table class = 'table event-count'><tbody>")
+  collect("<table class='table event-count'><tbody>")
 
   # Flag when event group has been specified
   has_event_group <- length(event_group_vals) > 0
@@ -993,7 +993,14 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
 
   hierarchy_length <- length(hierarchy)
   
+  # NOTE(miguel): Precompute constants that are independent from data
   active_collapse_control <- as.character(shiny::icon("table", onclick = "ec_collapse(this)"))
+  ec_val_special_char <- EC$VAL$SPECIAL_CHAR
+  
+  on_click_string_can_be_null <- sprintf('onclick="%s" ', on_cell_click)
+  data_cell_format <- paste0(
+    '<td class="text-center" column="%s" ', on_click_string_can_be_null, 'style="white-space: nowrap;">%s</td>'
+  )
 
   # table body
   for (r in seq_len(nrow(df))) {
@@ -1018,36 +1025,33 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
                           df[[entry_name_col]][[r]], collapse_control, df[[entry_name_col]][[r]])
     collect(entry_cell)
 
-    data_cells <- NULL    
     if (table_type == "time_at_risk") {
       subcols_of_interest  <- setdiff(names(df[[data_columns[[1]]]][[1]]), "subjid")
-      # NOTE(miguel): The nested structure under df[[data_col]][[r]] slows this down.
+      # NOTE(miguel): The nested structure under df[[data_col]][[r]] slows us down.
       #               It's a list, even though the `subcols_of_interest` are all scalar strings.
       #               It would be nice if it was a character vector instead, but the "subjid" column (which we don't
       #               care about here) is a character vector and forces the container to be a list (see #ieghei)
       for (data_col in data_columns) {
         all_cols <- paste(
-          sprintf('<td class="text-center" column="%s" onclick="%s" style="%s">%s</td>',
-                  data_col, on_cell_click, "white-space: nowrap;", df[[data_col]][[r]][subcols_of_interest]),
+          sprintf(data_cell_format, data_col, df[[data_col]][[r]][subcols_of_interest]),
           collapse = "")
         collect(all_cols)
       }
     } else if (has_event_group) {
-      curr_row <- df[r, , drop = FALSE] # NOTE: Building a new `data.frame` is a very expensive operation
-      data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
-        event_group_list <- .col[[1]]
-        res <- purrr::imap(event_group_list, function(.grp, .grp_id) {
+      for (data_col in data_columns) {
+        event_group_list <- df[[data_col]][[r]]
+        for (event_group_id in names(event_group_list)) {
+          event_group <- event_group_list[[event_group_id]]
           # Use special char as separator between column levels
-          .col_id2 <- paste0(.col_id, EC$VAL$SPECIAL_CHAR, .grp_id)
-          tdc(.grp[["count"]], column = .col_id2, onclick = on_cell_click, style = "white-space: nowrap;")
-        })
-      })
-      collect(as.character(shiny::tagList(data_cells)))
+          data_col <- paste0(data_col, ec_val_special_char, event_group_id)
+          collect(sprintf(data_cell_format, data_col, event_group[["count"]]))
+        }
+      }
+      
     } else {
       for (data_col in data_columns) {
         col <- df[[data_col]][[r]]
-        collect(sprintf('<td class="text-center" column="%s" onclick="%s" style="%s">%s</td>',
-                        data_col, on_cell_click, "white-space: nowrap;", col[["count"]]))
+        collect(sprintf(data_cell_format, data_col, col[["count"]]))
       }
     }
     
