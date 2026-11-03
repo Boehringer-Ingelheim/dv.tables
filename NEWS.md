@@ -1,3 +1,8 @@
+# dv.tables 0.6.1-9001
+
+* `mod_hierarchical_count_table`:
+  * Total placed in first column position for worst value event group variable, otherwise last column position.
+
 # dv.tables 0.6.1-9000
 
 * `mod_hierarchical_count_table`:
