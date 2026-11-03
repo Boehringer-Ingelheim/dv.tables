@@ -258,214 +258,424 @@
 ---
 
     Code
-      html1
+      cat(html1)
     Output
+      
       <div>
-        <p>Event count by Level 1, Level 2; group by group; event group by Event Group</p>
-        <table class="table event-count">
-          <tr>
-            <th class="text-center">
-              <span></span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>
-                GA
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>
-                GB
-                <br/>
-                (N = 2)
-              </span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>
-                GC
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>
-                Total
-                <br/>
-                (N = 4)
-              </span>
-            </th>
-          </tr>
-          <tr>
-            <th class="text-center">
-              <span></span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG1</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG2</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG3</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG1</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG2</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG3</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG1</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG2</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG3</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG1</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG2</span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>EG3</span>
-            </th>
-          </tr>
-          <tr row-id="1" class="indent-0" indent="0">
-            <td>
-              <span class="truncate" title="Participants with any event">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                Participants with any event
-              </span>
-            </td>
-            <td class="text-center" column="GAEG1" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG2" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG3" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GBEG1" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GBEG2" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GBEG3" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">2 ( 50.00 %)</td>
-            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">2 ( 50.00 %)</td>
-            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">3 ( 75.00 %)</td>
-          </tr>
-          <tr row-id="2" class="indent-1 bg-gray" indent="1">
-            <td>
-              <span class="truncate" title="A1">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                A1
-              </span>
-            </td>
-            <td class="text-center" column="GAEG1" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GAEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG1" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GBEG2" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GBEG3" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">2 ( 50.00 %)</td>
-            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
-          </tr>
-          <tr row-id="3" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="A2">A2</span>
-            </td>
-            <td class="text-center" column="GAEG1" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GAEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG2" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GBEG3" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
-          </tr>
-          <tr row-id="4" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="B2">B2</span>
-            </td>
-            <td class="text-center" column="GAEG1" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GAEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG1" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GBEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">2 ( 50.00 %)</td>
-            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">0</td>
-          </tr>
-          <tr row-id="5" class="indent-1 bg-gray" indent="1">
-            <td>
-              <span class="truncate" title="B1">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                B1
-              </span>
-            </td>
-            <td class="text-center" column="GAEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GAEG2" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG3" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GBEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG3" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">2 ( 50.00 %)</td>
-          </tr>
-          <tr row-id="6" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="B2">B2</span>
-            </td>
-            <td class="text-center" column="GAEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GAEG2" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GAEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG3" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">1 ( 25.00 %)</td>
-            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
-          </tr>
-          <tr row-id="7" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="A2">A2</span>
-            </td>
-            <td class="text-center" column="GAEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GAEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GAEG3" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GBEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GBEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GCEG3" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">1 ( 25.00 %)</td>
-          </tr>
-        </table>
+      <p>
+      Event count by Level 1, Level 2; group by group; event group by Event Group
+      </p>
+      <table class="table event-count">
+      <tbody>
+      <tr>
+      <th class="text-center">
+      <span>
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      GA
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      GB
+      <br/>
+      (N = 2)
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      GC
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      Total
+      <br/>
+      (N = 4)
+      </span>
+      </th>
+      </tr>
+      <tr>
+      <th class="text-center">
+      <span>
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG1
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG2
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG3
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG1
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG2
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG3
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG1
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG2
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG3
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG1
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG2
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      EG3
+      </span>
+      </th>
+      </tr>
+      <tr row-id="1" class="indent-0" indent="0">
+      <td>
+      <span class="truncate" title="Participants with any event">
+      <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)">
+      </i>
+      Participants with any event
+      </span>
+      </td>
+      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      2 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      2 ( 50.00 %)
+      </td>
+      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      2 ( 50.00 %)
+      </td>
+      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      3 ( 75.00 %)
+      </td>
+      </tr>
+      <tr row-id="2" class="indent-1 bg-gray" indent="1">
+      <td>
+      <span class="truncate" title="A1">
+      <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)">
+      </i>
+      A1
+      </span>
+      </td>
+      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      2 ( 50.00 %)
+      </td>
+      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      1 ( 25.00 %)
+      </td>
+      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      1 ( 25.00 %)
+      </td>
+      </tr>
+      <tr row-id="3" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="A2">
+      A2
+      </span>
+      </td>
+      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      1 ( 25.00 %)
+      </td>
+      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      1 ( 25.00 %)
+      </td>
+      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      1 ( 25.00 %)
+      </td>
+      </tr>
+      <tr row-id="4" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="B2">
+      B2
+      </span>
+      </td>
+      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      2 ( 50.00 %)
+      </td>
+      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      0
+      </td>
+      </tr>
+      <tr row-id="5" class="indent-1 bg-gray" indent="1">
+      <td>
+      <span class="truncate" title="B1">
+      <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)">
+      </i>
+      B1
+      </span>
+      </td>
+      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      1 ( 25.00 %)
+      </td>
+      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      2 ( 50.00 %)
+      </td>
+      </tr>
+      <tr row-id="6" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="B2">
+      B2
+      </span>
+      </td>
+      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      1 ( 25.00 %)
+      </td>
+      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      1 ( 25.00 %)
+      </td>
+      </tr>
+      <tr row-id="7" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="A2">
+      A2
+      </span>
+      </td>
+      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      1 ( 25.00 %)
+      </td>
+      </tr>
+      </tbody>
+      </table>
       </div>
 
 # worst event group by computation is correct (snapshot)__spec_ids{hierarchical_count_table$event_group_worst_severity;hierarchical_count_table$event_count;hierarchical_count_table$event_group_by_display}

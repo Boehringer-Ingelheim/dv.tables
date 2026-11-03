@@ -178,346 +178,633 @@
 ---
 
     Code
-      html
+      cat(html)
     Output
+      
       <div>
-        <p>Event count by Level 1, Level 2; group by Group 1, Group 2; flag by </p>
-        <table class="table event-count">
-          <tr>
-            <th class="text-center">
-              <span></span>
-            </th>
-            <th class="text-center short-border" colspan="9">
-              <span>ITT</span>
-            </th>
-            <th class="text-center short-border" colspan="9">
-              <span>Safety</span>
-            </th>
-          </tr>
-          <tr>
-            <th class="text-center">
-              <span></span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>G1A</span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>G1B</span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>G1C</span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>G1A</span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>G1B</span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>G1C</span>
-            </th>
-          </tr>
-          <tr>
-            <th class="text-center">
-              <span></span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2X
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2Z
-                <br/>
-                (N = 0)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                Total
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2X
-                <br/>
-                (N = 2)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2Z
-                <br/>
-                (N = 0)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                Total
-                <br/>
-                (N = 2)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2X
-                <br/>
-                (N = 0)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2Z
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                Total
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2X
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2Z
-                <br/>
-                (N = 0)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                Total
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2X
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2Z
-                <br/>
-                (N = 0)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                Total
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2X
-                <br/>
-                (N = 0)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                G2Z
-                <br/>
-                (N = 0)
-              </span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">
-              <span>
-                Total
-                <br/>
-                (N = 0)
-              </span>
-            </th>
-          </tr>
-          <tr row-id="1" class="indent-0" indent="0">
-            <td>
-              <span class="truncate" title="Participants with any event">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                Participants with any event
-              </span>
-            </td>
-            <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">0</td>
-          </tr>
-          <tr row-id="2" class="indent-1 bg-gray" indent="1">
-            <td>
-              <span class="truncate" title="A1">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                A1
-              </span>
-            </td>
-            <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">0</td>
-          </tr>
-          <tr row-id="3" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="A2">A2</span>
-            </td>
-            <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">0</td>
-          </tr>
-          <tr row-id="4" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="B2">B2</span>
-            </td>
-            <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">0</td>
-          </tr>
-          <tr row-id="5" class="indent-1 bg-gray" indent="1">
-            <td>
-              <span class="truncate" title="B1">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                B1
-              </span>
-            </td>
-            <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">0</td>
-          </tr>
-          <tr row-id="6" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="B2">B2</span>
-            </td>
-            <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">0</td>
-          </tr>
-          <tr row-id="7" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="A2">A2</span>
-            </td>
-            <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">0</td>
-          </tr>
-        </table>
+      <p>
+      Event count by Level 1, Level 2; group by Group 1, Group 2; flag by
+      </p>
+      <table class="table event-count">
+      <tbody>
+      <tr>
+      <th class="text-center">
+      <span>
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="9">
+      <span>
+      ITT
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="9">
+      <span>
+      Safety
+      </span>
+      </th>
+      </tr>
+      <tr>
+      <th class="text-center">
+      <span>
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      G1A
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      G1B
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      G1C
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      G1A
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      G1B
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      G1C
+      </span>
+      </th>
+      </tr>
+      <tr>
+      <th class="text-center">
+      <span>
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2X
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2Z
+      <br/>
+      (N = 0)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      Total
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2X
+      <br/>
+      (N = 2)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2Z
+      <br/>
+      (N = 0)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      Total
+      <br/>
+      (N = 2)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2X
+      <br/>
+      (N = 0)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2Z
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      Total
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2X
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2Z
+      <br/>
+      (N = 0)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      Total
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2X
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2Z
+      <br/>
+      (N = 0)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      Total
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2X
+      <br/>
+      (N = 0)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      G2Z
+      <br/>
+      (N = 0)
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      <span>
+      Total
+      <br/>
+      (N = 0)
+      </span>
+      </th>
+      </tr>
+      <tr row-id="1" class="indent-0" indent="0">
+      <td>
+      <span class="truncate" title="Participants with any event">
+      <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)">
+      </i>
+      Participants with any event
+      </span>
+      </td>
+      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      2 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      2 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      </tr>
+      <tr row-id="2" class="indent-1 bg-gray" indent="1">
+      <td>
+      <span class="truncate" title="A1">
+      <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)">
+      </i>
+      A1
+      </span>
+      </td>
+      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      2 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      2 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      </tr>
+      <tr row-id="3" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="A2">
+      A2
+      </span>
+      </td>
+      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      2 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      2 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      </tr>
+      <tr row-id="4" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="B2">
+      B2
+      </span>
+      </td>
+      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      </tr>
+      <tr row-id="5" class="indent-1 bg-gray" indent="1">
+      <td>
+      <span class="truncate" title="B1">
+      <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)">
+      </i>
+      B1
+      </span>
+      </td>
+      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      </tr>
+      <tr row-id="6" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="B2">
+      B2
+      </span>
+      </td>
+      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      1 ( 50.00 %)
+      </td>
+      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      </tr>
+      <tr row-id="7" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="A2">
+      A2
+      </span>
+      </td>
+      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      1 ( 100.00 %)
+      </td>
+      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      0
+      </td>
+      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      0
+      </td>
+      </tr>
+      </tbody>
+      </table>
       </div>
 

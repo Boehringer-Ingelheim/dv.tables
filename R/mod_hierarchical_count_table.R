@@ -875,7 +875,7 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
   }) |> collect()
   
   collect("</p>")
-  collect("<table class='table event-count'><tbody>")
+  collect('<table class="table event-count"><tbody>')
 
   # Flag when event group has been specified
   has_event_group <- length(event_group_vals) > 0
@@ -1013,15 +1013,12 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
       data_cell_classes <- paste(data_cell_classes, "bg-gray")
     }
     
-    collect(sprintf("<tr row-id='%s' class='%s' indent='%d'>", r, data_cell_classes, indent))
+    collect(sprintf('<tr row-id="%s" class="%s" indent="%d">', r, data_cell_classes, indent))
 
-    if (curr_hier_lvl < hierarchy_length) {
-      collapse_control <- active_collapse_control
-    } else {
-      collapse_control <- ""
-    }
+    collapse_control <- ""
+    if (curr_hier_lvl < hierarchy_length) collapse_control <- active_collapse_control
 
-    entry_cell <- sprintf('<td><span class="truncate" title="%s">%s %s</span></td>', # FIXME: paste0 instead?
+    entry_cell <- sprintf('<td><span class="truncate" title="%s">%s%s</span></td>',
                           df[[entry_name_col]][[r]], collapse_control, df[[entry_name_col]][[r]])
     collect(entry_cell)
 
@@ -1043,8 +1040,8 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
         for (event_group_id in names(event_group_list)) {
           event_group <- event_group_list[[event_group_id]]
           # Use special char as separator between column levels
-          data_col <- paste0(data_col, ec_val_special_char, event_group_id)
-          collect(sprintf(data_cell_format, data_col, event_group[["count"]]))
+          column <- paste0(data_col, ec_val_special_char, event_group_id)
+          collect(sprintf(data_cell_format, column, event_group[["count"]]))
         }
       }
       
