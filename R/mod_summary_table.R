@@ -101,6 +101,7 @@ summtab_meta_env <- new.env()
 #' @param anl_var A string representing the name of the analysis variable to calculate the statistics on. For
 #'   categorical analysis it should be `.dummy`.
 #' @param stats_functions A named list defining the functions used for summarizing the data.
+#' @param stats_func_result_count A named integer vector providing the number of results for each stats function.
 #' @param aggregate_func_name A string representing the name of the function used to aggregate multiple rows per subject
 #'   into one.
 #' @param denom A string, either "N" or "n", indicating the denominator to use for percent (`pct`) calculation.
@@ -115,6 +116,7 @@ summtab_calc_stats <- function(analysis_df,
                                subjid_var,
                                anl_var,
                                stats_functions,
+                               stats_func_result_count,
                                aggregate_func_name,
                                denom = "N") {
 
@@ -154,7 +156,16 @@ summtab_calc_stats <- function(analysis_df,
     if (stat_name == "pct") {
       results_list[[stat_name]] <- f(x_vals, n = summtab_meta_env$n_denom)
     } else {
-      f_result <- f(x_vals)
+      # Handle warnings/errors from statistics function
+      f_result <- tryCatch({
+        f(x_vals)
+      }, warning = \(w) {
+        # e.g. confidence intervals from stats::wilcox.test when all values are the same
+        rep(NaN, max(stats_func_result_count[[stat_name]], 1L, na.rm = TRUE))
+      }, error = \(e) {
+        # e.g. confidence intervals from stats::t.test when all values are the same
+        rep(NaN, max(stats_func_result_count[[stat_name]], 1L, na.rm = TRUE))
+      })
       if (length(f_result) == 1L) {
         results_list[[stat_name]] <- f_result
       } else {
@@ -390,6 +401,14 @@ summtab_compute <- function(tbl_df,
     analysis_df[[gv]] <- factor(analysis_df[[gv]], levels(pop_df[[gv]]))
   }
 
+  # Create a lookup from stats function name to the result names
+  stats_func_result_count <- local({
+    result_names <- unlist(lapply(stats_formats, \(x) x[!(names(x) %in% "fmt")]), use.names = FALSE)
+    base_names <- sub("\\.\\d+$", "", result_names)
+    names_count <- c(table(base_names))
+    names_count
+  })
+
   # Initialise list to hold results for each analysis variable
   results_list <- list()
 
@@ -450,6 +469,7 @@ summtab_compute <- function(tbl_df,
         subjid_var = subjid_var,
         anl_var = av_mod,
         stats_functions = av_stats_funcs,
+        stats_func_result_count = stats_func_result_count,
         aggregate_func_name = aggregate_func_name,
         denom = denom
       ), .groups = "drop") |>
@@ -1709,13 +1729,19 @@ summary_table_server <- function(module_id,
 #'       list(pattern = "^NA \\(NA\\)$", replacement = "—"),
 #'       list(pattern = "\\(NA\\)$", replacement = sprintf("(\%s)", "—"))
 #'     ),
-#'     meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+#'     meanci = list(
+#'       list(pattern = "^\\(NA, NA\\)$", replacement = "—"),
+#'       list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+#'     ),
 #'     geomean = list(
 #'       list(pattern = "^NA$", replacement = "—"),
 #'       list(pattern = "^NaN$", replacement = "NE")
 #'     ),
 #'     median = list(list(pattern = "^NA$", replacement = "—")),
-#'     medianci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+#'     medianci = list(
+#'       list(pattern = "^\\(NA, NA\\)$", replacement = "—"),
+#'       list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+#'     ),
 #'     q1q3 = list(list(pattern = "^NA - NA$", replacement = "—")),
 #'     minmax = list(list(pattern = "^NA - NA$", replacement = "—"))
 #'   ),
@@ -1804,13 +1830,19 @@ mod_summary_table <- function(
         list(pattern = "^NA \\(NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
         list(pattern = "\\(NA\\)$", replacement = sprintf("(%s)", SUMMTAB$VAL$EM_DASH))
       ),
-      meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+      meanci = list(
+        list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
+        list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+      ),
       geomean = list(
         list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH),
         list(pattern = "^NaN$", replacement = "NE")
       ),
       median = list(list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH)),
-      medianci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+      medianci = list(
+        list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
+        list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+      ),
       q1q3 = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH)),
       minmax = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH))
     ),
