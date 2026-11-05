@@ -1001,6 +1001,15 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
   
   data_cell_format <- '<td column="%s">%s</td>' # TODO: Consider a numerical column id instead
 
+  subcols_of_interest_mask <- local({
+    res <- logical(0)
+    if (nrow(df) && length(data_columns)) {
+      all_columns <- names(df[[data_columns[[1]]]][[1]])
+      res <- (all_columns != "subjid")
+    }
+    return(res)
+  })
+  
   # table body
   for (r in seq_len(nrow(df))) {
     curr_hier_lvl <- df[[hier_lvl_col]][[r]]
@@ -1022,14 +1031,13 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
     collect(entry_cell)
 
     if (table_type == "time_at_risk") {
-      subcols_of_interest  <- setdiff(names(df[[data_columns[[1]]]][[1]]), "subjid")
       # NOTE(miguel): The nested structure under df[[data_col]][[r]] slows us down.
-      #               It's a list, even though the `subcols_of_interest` are all scalar strings.
-      #               It would be nice if it was a character vector instead, but the "subjid" column (which we don't
-      #               care about here) is a character vector and forces the container to be a list (see #ieghei)
+      #               It's a list and it would be nice if it was a character vector instead, but the "subjid" column 
+      #               (which we don't care about here) is a character vector and forces the container to be a list 
+      #               (see #ieghei)
       for (data_col in data_columns) {
         all_cols <- paste(
-          sprintf(data_cell_format, data_col, df[[data_col]][[r]][subcols_of_interest]),
+          sprintf(data_cell_format, data_col, df[[data_col]][[r]][subcols_of_interest_mask]),
           collapse = "")
         collect(all_cols)
       }
