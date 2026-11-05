@@ -395,6 +395,10 @@ meanci = function(x) {
 }
 ```
 
+Note that functions may also generate errors or warnings if the data is not suitable, e.g. `stats::t.test` will
+generate an error when all values in the grouping are equal. In those cases the warnings and errors are caught, and
+`NaN` values returned instead (Which may then be post-processed, e.g. by replacing with `"NE"`).
+
 When such functions return multiple values, those values can be referred to in `stats_formats`, `stats_labels`, and
 `stats_replace` by appending a dot followed by an incremented integer. So for the example of `meanci` which returns
 two values, those values can be referred to as `meanci.1` and `meanci.2` respectively.
