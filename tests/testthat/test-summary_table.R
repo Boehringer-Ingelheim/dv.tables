@@ -314,10 +314,12 @@ local({
   stats_functions <- list(
     mean = mean,
     meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
-    medianci = \(x) if (length(x) > 1L) stats::wilcox.test(x,
-                                                           exact = FALSE,
-                                                           conf.int = TRUE,
-                                                           conf.level = 0.95)$conf.int else rep(NA_real_, 2L)
+    medianci = \(x) {
+      if (length(x) > 1L) stats::wilcox.test(x,
+                                             exact = FALSE,
+                                             conf.int = TRUE,
+                                             conf.level = 0.95)$conf.int else rep(NA_real_, 2L)
+    }
   )
 
   results <- summtab_calc_stats(
