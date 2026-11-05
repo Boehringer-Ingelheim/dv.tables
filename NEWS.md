@@ -1,3 +1,8 @@
+# dv.tables 0.6.1-9002
+
+* `mod_hierarchical_count_table`:
+  * Faster table rendering.
+
 # dv.tables 0.6.1-9001
 
 * `mod_hierarchical_count_table`:

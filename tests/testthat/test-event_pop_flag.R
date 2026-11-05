@@ -39,7 +39,9 @@ local({
 
   sw <- sort_wider_formatter_events_table(w, s)
 
-  html <- sort_wide_format_event_table_to_HTML(sw, var_labels)
+  text_sink <- create_text_sink()
+  sort_wide_format_event_table_to_HTML(text_sink[["collect"]], sw, var_labels)
+  html <- text_sink[["output"]]()
 
   # We will test against snapshots that we have checked is correct
 
@@ -53,6 +55,6 @@ local({
     expect_snapshot(x)
     expect_snapshot(s)
     expect_snapshot(sw)
-    expect_snapshot(html)
+    expect_snapshot(cat(html))
   })
 })

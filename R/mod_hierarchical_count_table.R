@@ -738,7 +738,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
       "cell components must all have length nrow(df)" = lengths(cells) ==
         nrow(df)
     )
-    .mapply(list, cells, NULL)
+    .mapply(list, cells, NULL) # NOTE(miguel): It would be nice if this generated character vectors instead of nested lists (see #ieghei)
   })
 
   if (remove_rows_under_min_pct) {
@@ -834,7 +834,7 @@ sort_wider_formatter_events_table <- function(event_d, sort_df) { # nolint
 #' @return An HTML table generated using `shiny::tags` and formatted for interactive display.
 #'
 #' @keywords internal
-sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = NULL) { # nolint
+sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell_click = NULL) {
   checkmate::assert_data_frame(d[["df"]]) # DP
   checkmate::assert_list(d[["meta"]]) # DP
 
@@ -850,6 +850,34 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   min_percent <- d[["meta"]][["min_percent"]]
   any_event_text <- d[["meta"]][["any_event_text"]]
   df <- d[["df"]]
+  
+  collect("<div>")
+  collect("<p>")
+  
+  local({
+    mod_group_vars <- setdiff(group_vars, ".pop_group")
+    title <- sprintf(
+      "Event count by %s%s%s%s%s",
+      paste(unlist(var_labels[hierarchy], use.names = FALSE), collapse = ", "),
+      ifelse(length(mod_group_vars) == 0L, "",
+             paste("; group by", paste(unlist(var_labels[mod_group_vars], use.names = FALSE), collapse = ", "))),
+      ifelse(length(pop_flag_vars) == 0L, "",
+             paste("; flag by", paste(unlist(var_labels[pop_flag_vars], use.names = FALSE), collapse = ", "))),
+      ifelse(length(event_group_var) == 0L, "",
+             paste(paste0("; event group by",
+                          ifelse(worst_event_group, " (worst)", "")),
+                   paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", "))),
+      ifelse(min_percent == 0, "",
+             sprintf("; minimum %.2f%%", min_percent))
+    )
+    
+    title
+  }) |> collect()
+  
+  collect("</p>")
+
+  on_click_string_can_be_null <- sprintf(' onclick="%s"', on_cell_click)
+  collect(paste0('<table class="table event-count"', on_click_string_can_be_null, "><tbody>"))
 
   # Flag when event group has been specified
   has_event_group <- length(event_group_vals) > 0
@@ -857,7 +885,6 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
   entry_name_col <- paste0(EC$VAL$SPECIAL_CHAR, "entry_name")
 
-  table <- shiny::tags[["table"]]
   th <- shiny::tags[["th"]]
   thc <- function(..., colspan = 1L, entry = FALSE) {
     if (entry) {
@@ -922,6 +949,8 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
       thc_data_columns
     )
   }
+ 
+  collect(as.character(shiny::tagList(header_rows)))
 
   if (table_type == "time_at_risk") {
     entry_subheader <- shiny::span("")
@@ -947,6 +976,8 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   } else {
     subheader_row <- NULL
   }
+  
+  collect(as.character(shiny::tagList(subheader_row)))
 
   df[[entry_name_col]] <- local({
     purrr::pmap_chr(
@@ -962,86 +993,79 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
     )
   })
 
-  mod_group_vars <- setdiff(group_vars, ".pop_group")
-  title <- sprintf(
-    "Event count by %s%s%s%s%s",
-    paste(unlist(var_labels[hierarchy], use.names = FALSE), collapse = ", "),
-    ifelse(length(mod_group_vars) == 0L, "",
-           paste("; group by", paste(unlist(var_labels[mod_group_vars], use.names = FALSE), collapse = ", "))),
-    ifelse(length(pop_flag_vars) == 0L, "",
-           paste("; flag by", paste(unlist(var_labels[pop_flag_vars], use.names = FALSE), collapse = ", "))),
-    ifelse(length(event_group_var) == 0L, "",
-           paste(paste0("; event group by",
-                        ifelse(worst_event_group, " (worst)", "")),
-                 paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", "))),
-    ifelse(min_percent == 0, "",
-           sprintf("; minimum %.2f%%", min_percent))
-  )
-
   hierarchy_length <- length(hierarchy)
+  
+  # NOTE(miguel): Precompute constants that are independent from data
+  active_collapse_control <- paste0(as.character(shiny::icon("table", onclick = "ec_collapse(this)")), " ")
+  ec_val_special_char <- EC$VAL$SPECIAL_CHAR
+  
+  data_cell_format <- '<td column="%s">%s</td>' # TODO: Consider a numerical column id instead
 
-  body <- vector(mode = "list", length = nrow(df))
-  for (r in seq_len(nrow(df))) {
-    curr_row <- df[r, , drop = FALSE]
-    curr_hier_lvl <- curr_row[[hier_lvl_col]]
-
-    if (curr_hier_lvl < hierarchy_length) {
-      collapse_control <- shiny::icon("table", onclick = "ec_collapse(this)")
-    } else {
-      collapse_control <- NULL
+  subcols_of_interest_mask <- local({
+    res <- logical(0)
+    if (nrow(df) && length(data_columns)) {
+      all_columns <- names(df[[data_columns[[1]]]][[1]])
+      res <- (all_columns != "subjid")
     }
+    return(res)
+  })
+  
+  # table body
+  for (r in seq_len(nrow(df))) {
+    curr_hier_lvl <- df[[hier_lvl_col]][[r]]
 
     indent <- curr_hier_lvl
-    indent_class <- sprintf("indent-%d", indent)
-    entry_cell <- td(shiny::span(collapse_control,
-                                 curr_row[[entry_name_col]],
-                                 class = "truncate",
-                                 title = curr_row[[entry_name_col]]))
-
-    data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
-      if (table_type == "time_at_risk") {
-        data_list <- .col[[1]]
-        purrr::map(setdiff(names(data_list), c("subjid")),
-                   ~ tdc(data_list[[.x]], column = .col_id, onclick = on_cell_click, style = "white-space: nowrap;"))
-      } else if (has_event_group) {
-        event_group_list <- .col[[1]]
-        purrr::imap(event_group_list, function(.grp, .grp_id) {
-          # Use special char as separator between column levels
-          .col_id2 <- paste0(.col_id, EC$VAL$SPECIAL_CHAR, .grp_id)
-          tdc(.grp[["count"]], column = .col_id2, onclick = on_cell_click, style = "white-space: nowrap;")
-        })
-      } else {
-        tdc(.col[[1]][["count"]], column = .col_id, onclick = on_cell_click, style = "white-space: nowrap;")
-      }
-    })
-
-    data_cell_classes <- if (indent == 0L || is.null(collapse_control)) {
-      indent_class
-    } else {
-      c(indent_class, "bg-gray")
+    data_cell_classes <- sprintf("indent-%d", indent)
+    
+    if (indent != 0L && curr_hier_lvl < hierarchy_length) {
+      data_cell_classes <- paste(data_cell_classes, "bg-gray")
     }
+    
+    collect(sprintf('<tr row-id="%s" class="%s" indent="%d">', r, data_cell_classes, indent))
 
-    body[[r]] <- tr(
-      "row-id" = r,
-      class = data_cell_classes,
-      indent = indent,
-      entry_cell,
-      data_cells
-    )
+    collapse_control <- ""
+    if (curr_hier_lvl < hierarchy_length) collapse_control <- active_collapse_control
+
+    entry_cell <- sprintf('<td><span class="truncate" title="%s">%s%s</span></td>',
+                          df[[entry_name_col]][[r]], collapse_control, df[[entry_name_col]][[r]])
+    collect(entry_cell)
+
+    if (table_type == "time_at_risk") {
+      # NOTE(miguel): The nested structure under df[[data_col]][[r]] slows us down.
+      #               It's a list and it would be nice if it was a character vector instead, but the "subjid" column 
+      #               (which we don't care about here) is a character vector and forces the container to be a list 
+      #               (see #ieghei)
+      for (data_col in data_columns) {
+        all_cols <- paste(
+          sprintf(data_cell_format, data_col, df[[data_col]][[r]][subcols_of_interest_mask]),
+          collapse = "")
+        collect(all_cols)
+      }
+    } else if (has_event_group) {
+      for (data_col in data_columns) {
+        event_group_list <- df[[data_col]][[r]]
+        for (event_group_id in names(event_group_list)) {
+          event_group <- event_group_list[[event_group_id]]
+          # Use special char as separator between column levels
+          column <- paste0(data_col, ec_val_special_char, event_group_id)
+          collect(sprintf(data_cell_format, column, event_group[["count"]]))
+        }
+      }
+      
+    } else {
+      for (data_col in data_columns) {
+        col <- df[[data_col]][[r]]
+        collect(sprintf(data_cell_format, data_col, col[["count"]]))
+      }
+    }
+    
+    collect("</tr>")
   }
 
-  html_table <- shiny::div(
-    shiny::p(title),
-    table(
-      class = "table event-count",
-      hierarchical_count_table_dep(),
-      !!!header_rows,
-      subheader_row,
-      !!!body
-    )
-  )
-
-  return(html_table)
+  collect("</tbody></table>")
+  collect("</div>")
+  
+  return(NULL)
 }
 
 #' Derive SMQ and UDAEC hierarchy variables
@@ -1796,13 +1820,15 @@ hierarchical_count_table_server <- function(
       t
     })
 
-    render_completion_callback <- shiny::tags$script(shiny::HTML(sprintf("
+    render_completion_callback <- sprintf("
+    <script>
     requestAnimationFrame(() => { // repaint preceding the table render
       requestAnimationFrame(() => { // repaint following the table render
         Shiny.setInputValue('%s', 'done', {priority: 'event'});
       });
     });
-    ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))))
+    </script>
+    ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))
 
     table_progress_bars <- list() # keep a list of progress bars to cope with trigger-happy users
 
@@ -1812,9 +1838,15 @@ hierarchical_count_table_server <- function(
     })
 
     output[[EC$ID$TABLE]] <- shiny::renderUI({
-
-      on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
-
+      on_cell_click = sprintf("let cell = event.target.closest('td');
+if(cell){
+  let row_id = Number(cell.closest('tr').getAttribute('row-id'));
+  let col_name = cell.getAttribute('column');
+  if(row_id != null && col_name != null){
+    Shiny.setInputValue('%s', {row_id: row_id, column: col_name}, {priority: 'event'});
+  }
+}",  ns("cell_click"))
+      
       et <- et()
       var_labels <- var_labels()
 
@@ -1823,13 +1855,33 @@ hierarchical_count_table_server <- function(
       table_progress_bars[[length(table_progress_bars) + 1]] <<- p
       on.exit(p$inc(amount = 0.3))
       p$set(message = "2) Generating & Rendering Table", value = 0.2)
+      
+      text_sink <- local({
+        res <- character(0) 
+        return(
+          list(
+            collect = function(s) res[[length(res) + 1]] <<- s,
+            output = function() paste(res, collapse = "")
+          )
+        )
+      })
 
-      rendered_content <- sort_wide_format_event_table_to_HTML(
+      sort_wide_format_event_table_to_HTML(
+        text_sink[["collect"]],
         et,
         var_labels,
         on_cell_click
       )
-      shiny::tagList(rendered_content, render_completion_callback)
+
+      text_sink[["collect"]](render_completion_callback)
+
+      text_html <- text_sink[["output"]]()
+      
+      res <- shiny::HTML(text_html)
+      
+      res <- list(res, hierarchical_count_table_dep(), htmltools::htmlDependencies(shiny::icon("table")))
+  
+      return(res)
     })
 
     # Table download module
