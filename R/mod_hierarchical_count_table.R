@@ -1878,7 +1878,8 @@ if(cell){
       text_html <- text_sink[["output"]]()
       
       res <- shiny::HTML(text_html)
-      res <- list(res, hierarchical_count_table_dep())
+      
+      res <- list(res, hierarchical_count_table_dep(), htmltools::htmlDependencies(shiny::icon("table")))
   
       return(res)
     })
