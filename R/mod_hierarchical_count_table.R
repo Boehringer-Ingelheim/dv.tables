@@ -948,7 +948,7 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
     )
   }
  
-  collect(as.character(htmltools::tagList(header_rows)))
+  collect(as.character(shiny::tagList(header_rows)))
 
   if (table_type == "time_at_risk") {
     entry_subheader <- shiny::span("")
@@ -975,7 +975,7 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
     subheader_row <- NULL
   }
   
-  collect(as.character(htmltools::tagList(subheader_row)))
+  collect(as.character(shiny::tagList(subheader_row)))
 
   df[[entry_name_col]] <- local({
     purrr::pmap_chr(
@@ -994,7 +994,7 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
   hierarchy_length <- length(hierarchy)
   
   # NOTE(miguel): Precompute constants that are independent from data
-  active_collapse_control <- paste0(as.character(shiny::icon("table", onclick = "ec_collapse(this)")), ' ')
+  active_collapse_control <- paste0(as.character(shiny::icon("table", onclick = "ec_collapse(this)")), " ")
   ec_val_special_char <- EC$VAL$SPECIAL_CHAR
   
   on_click_string_can_be_null <- sprintf('onclick="%s" ', on_cell_click)
@@ -1861,8 +1861,11 @@ hierarchical_count_table_server <- function(
       )
 
       text_sink[["collect"]](render_completion_callback)
-      res <- shiny::HTML(text_sink[["output"]]())
-      res <- htmltools::attachDependencies(res, hierarchical_count_table_dep())
+
+      text_html <- text_sink[["output"]]()
+      
+      res <- shiny::HTML(text_html)
+      res <- list(res, hierarchical_count_table_dep())
   
       return(res)
     })

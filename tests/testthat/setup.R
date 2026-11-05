@@ -160,7 +160,6 @@ create_text_sink <- function() {
   return(
     list(
       collect = function(s) {
-        if (length(s) == 0) browser()
         res[[length(res) + 1]] <<- s
       },
       output = function() {
