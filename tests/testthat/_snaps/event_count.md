@@ -225,16 +225,16 @@
       Participants with any event
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 75.00 %)
       </td>
       </tr>
@@ -246,16 +246,16 @@
       A1
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 75.00 %)
       </td>
       </tr>
@@ -265,16 +265,16 @@
       A2
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 75.00 %)
       </td>
       </tr>
@@ -284,16 +284,16 @@
       B2
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 50.00 %)
       </td>
       </tr>
@@ -305,16 +305,16 @@
       B1
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 50.00 %)
       </td>
       </tr>
@@ -324,16 +324,16 @@
       B2
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 50.00 %)
       </td>
       </tr>
@@ -343,16 +343,16 @@
       A2
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       0
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 25.00 %)
       </td>
       </tr>
@@ -438,7 +438,14 @@
       <p>
       Event count by Body System or Organ Class, Reported Term for the Adverse Event; group by Sex
       </p>
-      <table class="table event-count">
+      <table class="table event-count" onclick="let cell = event.target.closest('td');
+      if(cell){
+      let row_id = Number(cell.closest('tr').getAttribute('row-id'));
+      let col_name = cell.getAttribute('column');
+      if(row_id != null && col_name != null){
+      Shiny.setInputValue('mod-cell_click', {row_id: row_id, column: col_name}, {priority: 'event'});
+      }
+      }">
       <tbody>
       <tr>
       <th class="text-center">
@@ -475,13 +482,13 @@
       Participants with any event
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       121 ( 67.60 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       104 ( 81.89 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       225 ( 73.53 %)
       </td>
       </tr>
@@ -493,13 +500,13 @@
       GENERAL DISORDERS AND ADMINISTRATION SITE CONDITIONS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       57 ( 31.84 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       51 ( 40.16 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       108 ( 35.29 %)
       </td>
       </tr>
@@ -509,13 +516,13 @@
       APPLICATION SITE PRURITUS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       26 ( 14.53 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       24 ( 18.90 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       50 ( 16.34 %)
       </td>
       </tr>
@@ -525,13 +532,13 @@
       APPLICATION SITE ERYTHEMA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       12 ( 6.70 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       18 ( 14.17 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       30 ( 9.80 %)
       </td>
       </tr>
@@ -541,13 +548,13 @@
       APPLICATION SITE DERMATITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       11 ( 6.15 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       10 ( 7.87 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       21 ( 6.86 %)
       </td>
       </tr>
@@ -557,13 +564,13 @@
       APPLICATION SITE IRRITATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       14 ( 7.82 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       7 ( 5.51 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       21 ( 6.86 %)
       </td>
       </tr>
@@ -573,13 +580,13 @@
       APPLICATION SITE VESICLES
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       4 ( 2.23 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       7 ( 5.51 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       11 ( 3.59 %)
       </td>
       </tr>
@@ -589,13 +596,13 @@
       FATIGUE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       6 ( 3.35 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       5 ( 3.94 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       11 ( 3.59 %)
       </td>
       </tr>
@@ -605,13 +612,13 @@
       OEDEMA PERIPHERAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       4 ( 2.23 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       5 ( 1.63 %)
       </td>
       </tr>
@@ -621,13 +628,13 @@
       APPLICATION SITE SWELLING
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -637,13 +644,13 @@
       APPLICATION SITE URTICARIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -653,13 +660,13 @@
       CHILLS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       3 ( 2.36 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -669,13 +676,13 @@
       MALAISE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       3 ( 2.36 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -685,13 +692,13 @@
       PYREXIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       3 ( 2.36 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -701,13 +708,13 @@
       APPLICATION SITE PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -717,13 +724,13 @@
       APPLICATION SITE PERSPIRATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -733,13 +740,13 @@
       APPLICATION SITE REACTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -749,13 +756,13 @@
       ASTHENIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -765,13 +772,13 @@
       CHEST DISCOMFORT
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -781,13 +788,13 @@
       CHEST PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -797,13 +804,13 @@
       OEDEMA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -813,13 +820,13 @@
       PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -829,13 +836,13 @@
       APPLICATION SITE BLEEDING
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -845,13 +852,13 @@
       APPLICATION SITE DESQUAMATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -861,13 +868,13 @@
       APPLICATION SITE DISCHARGE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -877,13 +884,13 @@
       APPLICATION SITE DISCOLOURATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -893,13 +900,13 @@
       APPLICATION SITE INDURATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -909,13 +916,13 @@
       APPLICATION SITE WARMTH
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -925,13 +932,13 @@
       CYST
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -941,13 +948,13 @@
       FEELING ABNORMAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -957,13 +964,13 @@
       FEELING COLD
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -973,13 +980,13 @@
       INFLAMMATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -989,13 +996,13 @@
       SECRETION DISCHARGE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1005,13 +1012,13 @@
       SUDDEN DEATH
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1021,13 +1028,13 @@
       SWELLING
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1037,13 +1044,13 @@
       ULCER
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1055,13 +1062,13 @@
       SKIN AND SUBCUTANEOUS TISSUE DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       51 ( 28.49 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       54 ( 42.52 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       105 ( 34.31 %)
       </td>
       </tr>
@@ -1071,13 +1078,13 @@
       PRURITUS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       30 ( 16.76 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       27 ( 21.26 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       57 ( 18.63 %)
       </td>
       </tr>
@@ -1087,13 +1094,13 @@
       ERYTHEMA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       22 ( 12.29 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       16 ( 12.60 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       38 ( 12.42 %)
       </td>
       </tr>
@@ -1103,13 +1110,13 @@
       RASH
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       13 ( 7.26 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       16 ( 12.60 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       29 ( 9.48 %)
       </td>
       </tr>
@@ -1119,13 +1126,13 @@
       HYPERHIDROSIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       5 ( 2.79 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       9 ( 7.09 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       14 ( 4.58 %)
       </td>
       </tr>
@@ -1135,13 +1142,13 @@
       SKIN IRRITATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       9 ( 5.03 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       5 ( 3.94 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       14 ( 4.58 %)
       </td>
       </tr>
@@ -1151,13 +1158,13 @@
       BLISTER
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       4 ( 3.15 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       6 ( 1.96 %)
       </td>
       </tr>
@@ -1167,13 +1174,13 @@
       RASH PRURITIC
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -1183,13 +1190,13 @@
       PRURITUS GENERALISED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -1199,13 +1206,13 @@
       RASH ERYTHEMATOUS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -1215,13 +1222,13 @@
       URTICARIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -1231,13 +1238,13 @@
       ACTINIC KERATOSIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1247,13 +1254,13 @@
       ALOPECIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1263,13 +1270,13 @@
       COLD SWEAT
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1279,13 +1286,13 @@
       DERMATITIS ATOPIC
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1295,13 +1302,13 @@
       DERMATITIS CONTACT
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1311,13 +1318,13 @@
       DRUG ERUPTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1327,13 +1334,13 @@
       RASH MACULO-PAPULAR
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1343,13 +1350,13 @@
       RASH PAPULAR
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1359,13 +1366,13 @@
       SKIN EXFOLIATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1375,13 +1382,13 @@
       SKIN ODOUR ABNORMAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1391,13 +1398,13 @@
       SKIN ULCER
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1409,13 +1416,13 @@
       NERVOUS SYSTEM DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       26 ( 14.53 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       33 ( 25.98 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       59 ( 19.28 %)
       </td>
       </tr>
@@ -1425,13 +1432,13 @@
       DIZZINESS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       9 ( 5.03 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       13 ( 10.24 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       22 ( 7.19 %)
       </td>
       </tr>
@@ -1441,13 +1448,13 @@
       HEADACHE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       8 ( 4.47 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       8 ( 6.30 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       16 ( 5.23 %)
       </td>
       </tr>
@@ -1457,13 +1464,13 @@
       SYNCOPE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       6 ( 3.35 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       7 ( 2.29 %)
       </td>
       </tr>
@@ -1473,13 +1480,13 @@
       SOMNOLENCE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       6 ( 4.72 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       6 ( 1.96 %)
       </td>
       </tr>
@@ -1489,13 +1496,13 @@
       TRANSIENT ISCHAEMIC ATTACK
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -1505,13 +1512,13 @@
       BURNING SENSATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -1521,13 +1528,13 @@
       LETHARGY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -1537,13 +1544,13 @@
       AMNESIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1553,13 +1560,13 @@
       BALANCE DISORDER
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1569,13 +1576,13 @@
       COGNITIVE DISORDER
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1585,13 +1592,13 @@
       COMPLEX PARTIAL SEIZURES
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1601,13 +1608,13 @@
       COORDINATION ABNORMAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1617,13 +1624,13 @@
       HEMIANOPIA HOMONYMOUS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1633,13 +1640,13 @@
       HYPERSOMNIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1649,13 +1656,13 @@
       PARAESTHESIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1665,13 +1672,13 @@
       PARAESTHESIA ORAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1681,13 +1688,13 @@
       PARKINSON'S DISEASE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1697,13 +1704,13 @@
       PAROSMIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1713,13 +1720,13 @@
       PARTIAL SEIZURES WITH SECONDARY GENERALISATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1729,13 +1736,13 @@
       PSYCHOMOTOR HYPERACTIVITY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1745,13 +1752,13 @@
       STUPOR
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1761,13 +1768,13 @@
       SYNCOPE VASOVAGAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1779,13 +1786,13 @@
       GASTROINTESTINAL DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       25 ( 13.97 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       28 ( 22.05 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       53 ( 17.32 %)
       </td>
       </tr>
@@ -1795,13 +1802,13 @@
       DIARRHOEA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       6 ( 3.35 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       12 ( 9.45 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       18 ( 5.88 %)
       </td>
       </tr>
@@ -1811,13 +1818,13 @@
       VOMITING
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       5 ( 2.79 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       8 ( 6.30 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       13 ( 4.25 %)
       </td>
       </tr>
@@ -1827,13 +1834,13 @@
       NAUSEA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       9 ( 5.03 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       3 ( 2.36 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       12 ( 3.92 %)
       </td>
       </tr>
@@ -1843,13 +1850,13 @@
       ABDOMINAL PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       4 ( 2.23 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       5 ( 1.63 %)
       </td>
       </tr>
@@ -1859,13 +1866,13 @@
       SALIVARY HYPERSECRETION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       3 ( 2.36 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       4 ( 1.31 %)
       </td>
       </tr>
@@ -1875,13 +1882,13 @@
       DYSPEPSIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -1891,13 +1898,13 @@
       ABDOMINAL DISCOMFORT
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1907,13 +1914,13 @@
       CONSTIPATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1923,13 +1930,13 @@
       DYSPHAGIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1939,13 +1946,13 @@
       FLATULENCE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1955,13 +1962,13 @@
       GASTROINTESTINAL HAEMORRHAGE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1971,13 +1978,13 @@
       GASTROOESOPHAGEAL REFLUX DISEASE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -1987,13 +1994,13 @@
       GLOSSITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2003,13 +2010,13 @@
       HIATUS HERNIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2019,13 +2026,13 @@
       RECTAL HAEMORRHAGE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2035,13 +2042,13 @@
       STOMACH DISCOMFORT
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2053,13 +2060,13 @@
       CARDIAC DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       22 ( 12.29 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       22 ( 17.32 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       44 ( 14.38 %)
       </td>
       </tr>
@@ -2069,13 +2076,13 @@
       SINUS BRADYCARDIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       7 ( 3.91 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       10 ( 7.87 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       17 ( 5.56 %)
       </td>
       </tr>
@@ -2085,13 +2092,13 @@
       MYOCARDIAL INFARCTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       7 ( 3.91 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       3 ( 2.36 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       10 ( 3.27 %)
       </td>
       </tr>
@@ -2101,13 +2108,13 @@
       ATRIAL FIBRILLATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       3 ( 1.68 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       5 ( 1.63 %)
       </td>
       </tr>
@@ -2117,13 +2124,13 @@
       ATRIOVENTRICULAR BLOCK SECOND DEGREE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       4 ( 3.15 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       5 ( 1.63 %)
       </td>
       </tr>
@@ -2133,13 +2140,13 @@
       SUPRAVENTRICULAR EXTRASYSTOLES
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       3 ( 1.68 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -2149,13 +2156,13 @@
       VENTRICULAR EXTRASYSTOLES
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -2165,13 +2172,13 @@
       ATRIAL FLUTTER
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -2181,13 +2188,13 @@
       ATRIOVENTRICULAR BLOCK FIRST DEGREE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -2197,13 +2204,13 @@
       BUNDLE BRANCH BLOCK RIGHT
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -2213,13 +2220,13 @@
       PALPITATIONS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -2229,13 +2236,13 @@
       ATRIAL HYPERTROPHY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2245,13 +2252,13 @@
       BRADYCARDIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2261,13 +2268,13 @@
       BUNDLE BRANCH BLOCK LEFT
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2277,13 +2284,13 @@
       CARDIAC DISORDER
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2293,13 +2300,13 @@
       CARDIAC FAILURE CONGESTIVE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2309,13 +2316,13 @@
       SINUS ARRHYTHMIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2325,13 +2332,13 @@
       SUPRAVENTRICULAR TACHYCARDIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2341,13 +2348,13 @@
       TACHYCARDIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2357,13 +2364,13 @@
       VENTRICULAR HYPERTROPHY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2373,13 +2380,13 @@
       WOLFF-PARKINSON-WHITE SYNDROME
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2391,13 +2398,13 @@
       INFECTIONS AND INFESTATIONS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       20 ( 11.17 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       19 ( 14.96 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       39 ( 12.75 %)
       </td>
       </tr>
@@ -2407,13 +2414,13 @@
       NASOPHARYNGITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       8 ( 4.47 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       4 ( 3.15 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       12 ( 3.92 %)
       </td>
       </tr>
@@ -2423,13 +2430,13 @@
       UPPER RESPIRATORY TRACT INFECTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       5 ( 2.79 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       5 ( 3.94 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       10 ( 3.27 %)
       </td>
       </tr>
@@ -2439,13 +2446,13 @@
       INFLUENZA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -2455,13 +2462,13 @@
       URINARY TRACT INFECTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -2471,13 +2478,13 @@
       CYSTITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -2487,13 +2494,13 @@
       EAR INFECTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -2503,13 +2510,13 @@
       LOCALISED INFECTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -2519,13 +2526,13 @@
       BRONCHITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2535,13 +2542,13 @@
       CELLULITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2551,13 +2558,13 @@
       CERVICITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2567,13 +2574,13 @@
       GASTROENTERITIS VIRAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2583,13 +2590,13 @@
       HORDEOLUM
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2599,13 +2606,13 @@
       LOWER RESPIRATORY TRACT INFECTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2615,13 +2622,13 @@
       ONYCHOMYCOSIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2631,13 +2638,13 @@
       PNEUMONIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2647,13 +2654,13 @@
       RHINITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2663,13 +2670,13 @@
       VAGINAL MYCOSIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2679,13 +2686,13 @@
       VIRAL INFECTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2697,13 +2704,13 @@
       RESPIRATORY, THORACIC AND MEDIASTINAL DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       11 ( 6.15 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       19 ( 14.96 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       30 ( 9.80 %)
       </td>
       </tr>
@@ -2713,13 +2720,13 @@
       COUGH
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       5 ( 2.79 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       9 ( 7.09 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       14 ( 4.58 %)
       </td>
       </tr>
@@ -2729,13 +2736,13 @@
       NASAL CONGESTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       6 ( 4.72 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       7 ( 2.29 %)
       </td>
       </tr>
@@ -2745,13 +2752,13 @@
       DYSPNOEA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -2761,13 +2768,13 @@
       EPISTAXIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -2777,13 +2784,13 @@
       PHARYNGOLARYNGEAL PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -2793,13 +2800,13 @@
       RHINORRHOEA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -2809,13 +2816,13 @@
       ALLERGIC GRANULOMATOUS ANGIITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2825,13 +2832,13 @@
       DYSPHONIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2841,13 +2848,13 @@
       EMPHYSEMA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2857,13 +2864,13 @@
       HAEMOPTYSIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2873,13 +2880,13 @@
       PHARYNGEAL ERYTHEMA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2889,13 +2896,13 @@
       POSTNASAL DRIP
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2905,13 +2912,13 @@
       PRODUCTIVE COUGH
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2921,13 +2928,13 @@
       RALES
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2937,13 +2944,13 @@
       RESPIRATORY TRACT CONGESTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -2955,13 +2962,13 @@
       PSYCHIATRIC DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       14 ( 7.82 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       15 ( 11.81 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       29 ( 9.48 %)
       </td>
       </tr>
@@ -2971,13 +2978,13 @@
       CONFUSIONAL STATE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       4 ( 3.15 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       6 ( 1.96 %)
       </td>
       </tr>
@@ -2987,13 +2994,13 @@
       AGITATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       5 ( 2.79 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       5 ( 1.63 %)
       </td>
       </tr>
@@ -3003,13 +3010,13 @@
       ANXIETY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       4 ( 2.23 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       4 ( 1.31 %)
       </td>
       </tr>
@@ -3019,13 +3026,13 @@
       INSOMNIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       4 ( 3.15 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       4 ( 1.31 %)
       </td>
       </tr>
@@ -3035,13 +3042,13 @@
       DELUSION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3051,13 +3058,13 @@
       DEPRESSED MOOD
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3067,13 +3074,13 @@
       IRRITABILITY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3083,13 +3090,13 @@
       COMPLETED SUICIDE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3099,13 +3106,13 @@
       DELIRIUM
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3115,13 +3122,13 @@
       DISORIENTATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3131,13 +3138,13 @@
       HALLUCINATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3147,13 +3154,13 @@
       HALLUCINATION, VISUAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3163,13 +3170,13 @@
       LIBIDO DECREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3179,13 +3186,13 @@
       LISTLESS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3195,13 +3202,13 @@
       NIGHTMARE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3211,13 +3218,13 @@
       RESTLESSNESS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3229,13 +3236,13 @@
       INVESTIGATIONS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       13 ( 7.26 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       10 ( 7.87 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       23 ( 7.52 %)
       </td>
       </tr>
@@ -3245,13 +3252,13 @@
       ELECTROCARDIOGRAM ST SEGMENT DEPRESSION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       5 ( 2.79 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       5 ( 1.63 %)
       </td>
       </tr>
@@ -3261,13 +3268,13 @@
       ELECTROCARDIOGRAM T WAVE INVERSION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       3 ( 1.68 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       4 ( 1.31 %)
       </td>
       </tr>
@@ -3277,13 +3284,13 @@
       BLOOD GLUCOSE INCREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3293,13 +3300,13 @@
       ELECTROCARDIOGRAM T WAVE AMPLITUDE DECREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3309,13 +3316,13 @@
       BIOPSY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3325,13 +3332,13 @@
       BIOPSY PROSTATE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3341,13 +3348,13 @@
       BLOOD ALKALINE PHOSPHATASE INCREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3357,13 +3364,13 @@
       BLOOD CHOLESTEROL INCREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3373,13 +3380,13 @@
       BLOOD CREATINE PHOSPHOKINASE INCREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3389,13 +3396,13 @@
       BLOOD URINE PRESENT
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3405,13 +3412,13 @@
       BODY TEMPERATURE INCREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3421,13 +3428,13 @@
       CYSTOSCOPY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3437,13 +3444,13 @@
       HEART RATE INCREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3453,13 +3460,13 @@
       HEART RATE IRREGULAR
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3469,13 +3476,13 @@
       NASAL MUCOSA BIOPSY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3485,13 +3492,13 @@
       NEUTROPHIL COUNT INCREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3501,13 +3508,13 @@
       URINE ANALYSIS ABNORMAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3517,13 +3524,13 @@
       WEIGHT DECREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3533,13 +3540,13 @@
       WHITE BLOOD CELL COUNT INCREASED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3551,13 +3558,13 @@
       MUSCULOSKELETAL AND CONNECTIVE TISSUE DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       10 ( 5.59 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       10 ( 7.87 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       20 ( 6.54 %)
       </td>
       </tr>
@@ -3567,13 +3574,13 @@
       BACK PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       3 ( 1.68 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       5 ( 1.63 %)
       </td>
       </tr>
@@ -3583,13 +3590,13 @@
       ARTHRALGIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       3 ( 2.36 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       4 ( 1.31 %)
       </td>
       </tr>
@@ -3599,13 +3606,13 @@
       SHOULDER PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -3615,13 +3622,13 @@
       ARTHRITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3631,13 +3638,13 @@
       FLANK PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3647,13 +3654,13 @@
       MUSCLE SPASMS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3663,13 +3670,13 @@
       MUSCULAR WEAKNESS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3679,13 +3686,13 @@
       MYALGIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3695,13 +3702,13 @@
       PAIN IN EXTREMITY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3713,13 +3720,13 @@
       INJURY, POISONING AND PROCEDURAL COMPLICATIONS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       9 ( 5.03 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       5 ( 3.94 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       14 ( 4.58 %)
       </td>
       </tr>
@@ -3729,13 +3736,13 @@
       CONTUSION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       3 ( 2.36 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       4 ( 1.31 %)
       </td>
       </tr>
@@ -3745,13 +3752,13 @@
       EXCORIATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       3 ( 1.68 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       4 ( 1.31 %)
       </td>
       </tr>
@@ -3761,13 +3768,13 @@
       FALL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       4 ( 1.31 %)
       </td>
       </tr>
@@ -3777,13 +3784,13 @@
       HIP FRACTURE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -3793,13 +3800,13 @@
       SKIN LACERATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -3809,13 +3816,13 @@
       FACIAL BONES FRACTURE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3825,13 +3832,13 @@
       JOINT DISLOCATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3841,13 +3848,13 @@
       WOUND
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3859,13 +3866,13 @@
       RENAL AND URINARY DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       5 ( 2.79 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       6 ( 4.72 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       11 ( 3.59 %)
       </td>
       </tr>
@@ -3875,13 +3882,13 @@
       MICTURITION URGENCY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -3891,13 +3898,13 @@
       DYSURIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3907,13 +3914,13 @@
       NEPHROLITHIASIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -3923,13 +3930,13 @@
       CALCULUS URETHRAL
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3939,13 +3946,13 @@
       ENURESIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3955,13 +3962,13 @@
       INCONTINENCE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3971,13 +3978,13 @@
       POLLAKIURIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -3989,13 +3996,13 @@
       METABOLISM AND NUTRITION DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       6 ( 3.35 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       4 ( 3.15 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       10 ( 3.27 %)
       </td>
       </tr>
@@ -4005,13 +4012,13 @@
       DECREASED APPETITE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -4021,13 +4028,13 @@
       FOOD CRAVING
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -4037,13 +4044,13 @@
       INCREASED APPETITE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -4053,13 +4060,13 @@
       DEHYDRATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4069,13 +4076,13 @@
       DIABETES MELLITUS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4085,13 +4092,13 @@
       HYPERCHOLESTEROLAEMIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4101,13 +4108,13 @@
       HYPONATRAEMIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4119,13 +4126,13 @@
       VASCULAR DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       5 ( 2.79 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       3 ( 2.36 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       8 ( 2.61 %)
       </td>
       </tr>
@@ -4135,13 +4142,13 @@
       HYPERTENSION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -4151,13 +4158,13 @@
       HYPOTENSION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -4167,13 +4174,13 @@
       HOT FLUSH
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4183,13 +4190,13 @@
       ORTHOSTATIC HYPOTENSION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4199,13 +4206,13 @@
       WOUND HAEMORRHAGE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4217,13 +4224,13 @@
       EYE DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       3 ( 1.68 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       4 ( 3.15 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       7 ( 2.29 %)
       </td>
       </tr>
@@ -4233,13 +4240,13 @@
       CONJUNCTIVITIS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -4249,13 +4256,13 @@
       VISION BLURRED
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -4265,13 +4272,13 @@
       CONJUNCTIVAL HAEMORRHAGE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4281,13 +4288,13 @@
       EYE ALLERGY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4297,13 +4304,13 @@
       EYE PRURITUS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4313,13 +4320,13 @@
       EYE SWELLING
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4329,13 +4336,13 @@
       GLAUCOMA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4347,13 +4354,13 @@
       SURGICAL AND MEDICAL PROCEDURES
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       4 ( 2.23 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       5 ( 1.63 %)
       </td>
       </tr>
@@ -4363,13 +4370,13 @@
       CATARACT OPERATION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -4379,13 +4386,13 @@
       ACROCHORDON EXCISION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4395,13 +4402,13 @@
       EYE LASER SURGERY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4411,13 +4418,13 @@
       SKIN LESION EXCISION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4429,13 +4436,13 @@
       EAR AND LABYRINTH DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       4 ( 2.23 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       4 ( 1.31 %)
       </td>
       </tr>
@@ -4445,13 +4452,13 @@
       VERTIGO
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -4461,13 +4468,13 @@
       CERUMEN IMPACTION
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4477,13 +4484,13 @@
       EAR PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4493,13 +4500,13 @@
       TINNITUS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4511,13 +4518,13 @@
       CONGENITAL, FAMILIAL AND GENETIC DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -4527,13 +4534,13 @@
       VENTRICULAR SEPTAL DEFECT
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -4545,13 +4552,13 @@
       NEOPLASMS BENIGN, MALIGNANT AND UNSPECIFIED (INCL CYSTS AND POLYPS)
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       2 ( 1.12 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -4561,13 +4568,13 @@
       COLON CANCER
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4577,13 +4584,13 @@
       MALIGNANT FIBROUS HISTIOCYTOMA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4593,13 +4600,13 @@
       PROSTATE CANCER
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4611,13 +4618,13 @@
       REPRODUCTIVE SYSTEM AND BREAST DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       3 ( 0.98 %)
       </td>
       </tr>
@@ -4627,13 +4634,13 @@
       BENIGN PROSTATIC HYPERPLASIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -4643,13 +4650,13 @@
       PELVIC PAIN
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4661,13 +4668,13 @@
       IMMUNE SYSTEM DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       2 ( 1.57 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       2 ( 0.65 %)
       </td>
       </tr>
@@ -4677,13 +4684,13 @@
       HYPERSENSITIVITY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4693,13 +4700,13 @@
       SEASONAL ALLERGY
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       0
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       1 ( 0.79 %)
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4711,13 +4718,13 @@
       HEPATOBILIARY DISORDERS
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4727,13 +4734,13 @@
       HYPERBILIRUBINAEMIA
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4745,13 +4752,13 @@
       SOCIAL CIRCUMSTANCES
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>
@@ -4761,13 +4768,13 @@
       ALCOHOL USE
       </span>
       </td>
-      <td class="text-center" column="F" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="F">
       1 ( 0.56 %)
       </td>
-      <td class="text-center" column="M" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="M">
       0
       </td>
-      <td class="text-center" column="__TOTAL__" onclick="Shiny.setInputValue('mod-cell_click', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})" style="white-space: nowrap;">
+      <td column="__TOTAL__">
       1 ( 0.33 %)
       </td>
       </tr>

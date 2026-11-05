@@ -245,31 +245,31 @@
       Participants with any event
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       0.00
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       36525.00
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       0.05
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       3844.74
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.06
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.00
       </td>
       </tr>
@@ -281,31 +281,31 @@
       A1
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       0.00
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       36525.00
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       0.05
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       3844.74
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.06
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.00
       </td>
       </tr>
@@ -315,31 +315,31 @@
       A2
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       0
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       0.03
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       0.00
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       0.05
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       3844.74
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.06
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.00
       </td>
       </tr>
@@ -349,31 +349,31 @@
       B2
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       0.00
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       36525.00
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       0
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       0.11
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       0.00
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.06
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.00
       </td>
       </tr>
@@ -385,31 +385,31 @@
       B1
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       0.03
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       3652.50
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       0.11
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       913.12
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.06
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.00
       </td>
       </tr>
@@ -419,31 +419,31 @@
       B2
       </span>
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       0.03
       </td>
-      <td class="text-center" column="GA" style="white-space: nowrap;">
+      <td column="GA">
       3652.50
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       0.11
       </td>
-      <td class="text-center" column="GB" style="white-space: nowrap;">
+      <td column="GB">
       913.12
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.06
       </td>
-      <td class="text-center" column="GC" style="white-space: nowrap;">
+      <td column="GC">
       0.00
       </td>
       </tr>

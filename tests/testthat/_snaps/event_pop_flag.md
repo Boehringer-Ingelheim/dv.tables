@@ -379,58 +379,58 @@
       Participants with any event
       </span>
       </td>
-      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      <td column="ITTG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      <td column="ITTG1AG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      <td column="ITTG1BG2X">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      <td column="ITTG1BG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1B__TOTAL__">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      <td column="ITTG1CG2X">
       0
       </td>
-      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      <td column="ITTG1CG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1C__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      <td column="SafetyG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1AG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      <td column="SafetyG1BG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1BG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1B__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      <td column="SafetyG1CG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1CG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1C__TOTAL__">
       0
       </td>
       </tr>
@@ -442,58 +442,58 @@
       A1
       </span>
       </td>
-      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      <td column="ITTG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      <td column="ITTG1AG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      <td column="ITTG1BG2X">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      <td column="ITTG1BG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1B__TOTAL__">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      <td column="ITTG1CG2X">
       0
       </td>
-      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      <td column="ITTG1CG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1C__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      <td column="SafetyG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1AG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      <td column="SafetyG1BG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1BG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1B__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      <td column="SafetyG1CG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1CG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1C__TOTAL__">
       0
       </td>
       </tr>
@@ -503,58 +503,58 @@
       A2
       </span>
       </td>
-      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      <td column="ITTG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      <td column="ITTG1AG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      <td column="ITTG1BG2X">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      <td column="ITTG1BG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1B__TOTAL__">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      <td column="ITTG1CG2X">
       0
       </td>
-      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      <td column="ITTG1CG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1C__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      <td column="SafetyG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1AG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      <td column="SafetyG1BG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1BG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1B__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      <td column="SafetyG1CG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1CG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1C__TOTAL__">
       0
       </td>
       </tr>
@@ -564,58 +564,58 @@
       B2
       </span>
       </td>
-      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      <td column="ITTG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      <td column="ITTG1AG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      <td column="ITTG1BG2X">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      <td column="ITTG1BG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1B__TOTAL__">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      <td column="ITTG1CG2X">
       0
       </td>
-      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      <td column="ITTG1CG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1C__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      <td column="SafetyG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1AG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      <td column="SafetyG1BG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1BG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1B__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      <td column="SafetyG1CG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1CG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1C__TOTAL__">
       0
       </td>
       </tr>
@@ -627,58 +627,58 @@
       B1
       </span>
       </td>
-      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      <td column="ITTG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      <td column="ITTG1AG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      <td column="ITTG1BG2X">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      <td column="ITTG1BG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1B__TOTAL__">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      <td column="ITTG1CG2X">
       0
       </td>
-      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      <td column="ITTG1CG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1C__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      <td column="SafetyG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1AG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      <td column="SafetyG1BG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1BG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1B__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      <td column="SafetyG1CG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1CG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1C__TOTAL__">
       0
       </td>
       </tr>
@@ -688,58 +688,58 @@
       B2
       </span>
       </td>
-      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      <td column="ITTG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      <td column="ITTG1AG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      <td column="ITTG1BG2X">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      <td column="ITTG1BG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1B__TOTAL__">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      <td column="ITTG1CG2X">
       0
       </td>
-      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      <td column="ITTG1CG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1C__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      <td column="SafetyG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1AG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      <td column="SafetyG1BG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1BG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1B__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      <td column="SafetyG1CG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1CG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1C__TOTAL__">
       0
       </td>
       </tr>
@@ -749,58 +749,58 @@
       A2
       </span>
       </td>
-      <td class="text-center" column="ITTG1AG2X" style="white-space: nowrap;">
+      <td column="ITTG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1AG2Z" style="white-space: nowrap;">
+      <td column="ITTG1AG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="ITTG1BG2X" style="white-space: nowrap;">
+      <td column="ITTG1BG2X">
       0
       </td>
-      <td class="text-center" column="ITTG1BG2Z" style="white-space: nowrap;">
+      <td column="ITTG1BG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1B__TOTAL__">
       0
       </td>
-      <td class="text-center" column="ITTG1CG2X" style="white-space: nowrap;">
+      <td column="ITTG1CG2X">
       0
       </td>
-      <td class="text-center" column="ITTG1CG2Z" style="white-space: nowrap;">
+      <td column="ITTG1CG2Z">
       0
       </td>
-      <td class="text-center" column="ITTG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="ITTG1C__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1AG2X" style="white-space: nowrap;">
+      <td column="SafetyG1AG2X">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1AG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1AG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1A__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1A__TOTAL__">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="SafetyG1BG2X" style="white-space: nowrap;">
+      <td column="SafetyG1BG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1BG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1BG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1B__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1B__TOTAL__">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2X" style="white-space: nowrap;">
+      <td column="SafetyG1CG2X">
       0
       </td>
-      <td class="text-center" column="SafetyG1CG2Z" style="white-space: nowrap;">
+      <td column="SafetyG1CG2Z">
       0
       </td>
-      <td class="text-center" column="SafetyG1C__TOTAL__" style="white-space: nowrap;">
+      <td column="SafetyG1C__TOTAL__">
       0
       </td>
       </tr>

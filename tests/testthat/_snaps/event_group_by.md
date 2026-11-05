@@ -375,40 +375,40 @@
       Participants with any event
       </span>
       </td>
-      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      <td column="GAEG1">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      <td column="GAEG2">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      <td column="GAEG3">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      <td column="GBEG1">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      <td column="GBEG2">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      <td column="GBEG3">
       2 ( 100.00 %)
       </td>
-      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      <td column="GCEG1">
       0
       </td>
-      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      <td column="GCEG2">
       0
       </td>
-      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      <td column="GCEG3">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      <td column="__TOTAL__EG1">
       2 ( 50.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      <td column="__TOTAL__EG2">
       2 ( 50.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      <td column="__TOTAL__EG3">
       3 ( 75.00 %)
       </td>
       </tr>
@@ -420,40 +420,40 @@
       A1
       </span>
       </td>
-      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      <td column="GAEG1">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      <td column="GAEG2">
       0
       </td>
-      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      <td column="GAEG3">
       0
       </td>
-      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      <td column="GBEG1">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      <td column="GBEG2">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      <td column="GBEG3">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      <td column="GCEG1">
       0
       </td>
-      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      <td column="GCEG2">
       0
       </td>
-      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      <td column="GCEG3">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      <td column="__TOTAL__EG1">
       2 ( 50.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      <td column="__TOTAL__EG2">
       1 ( 25.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      <td column="__TOTAL__EG3">
       1 ( 25.00 %)
       </td>
       </tr>
@@ -463,40 +463,40 @@
       A2
       </span>
       </td>
-      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      <td column="GAEG1">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      <td column="GAEG2">
       0
       </td>
-      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      <td column="GAEG3">
       0
       </td>
-      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      <td column="GBEG1">
       0
       </td>
-      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      <td column="GBEG2">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      <td column="GBEG3">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      <td column="GCEG1">
       0
       </td>
-      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      <td column="GCEG2">
       0
       </td>
-      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      <td column="GCEG3">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      <td column="__TOTAL__EG1">
       1 ( 25.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      <td column="__TOTAL__EG2">
       1 ( 25.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      <td column="__TOTAL__EG3">
       1 ( 25.00 %)
       </td>
       </tr>
@@ -506,40 +506,40 @@
       B2
       </span>
       </td>
-      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      <td column="GAEG1">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      <td column="GAEG2">
       0
       </td>
-      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      <td column="GAEG3">
       0
       </td>
-      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      <td column="GBEG1">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      <td column="GBEG2">
       0
       </td>
-      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      <td column="GBEG3">
       0
       </td>
-      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      <td column="GCEG1">
       0
       </td>
-      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      <td column="GCEG2">
       0
       </td>
-      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      <td column="GCEG3">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      <td column="__TOTAL__EG1">
       2 ( 50.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      <td column="__TOTAL__EG2">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      <td column="__TOTAL__EG3">
       0
       </td>
       </tr>
@@ -551,40 +551,40 @@
       B1
       </span>
       </td>
-      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      <td column="GAEG1">
       0
       </td>
-      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      <td column="GAEG2">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      <td column="GAEG3">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      <td column="GBEG1">
       0
       </td>
-      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      <td column="GBEG2">
       0
       </td>
-      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      <td column="GBEG3">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      <td column="GCEG1">
       0
       </td>
-      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      <td column="GCEG2">
       0
       </td>
-      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      <td column="GCEG3">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      <td column="__TOTAL__EG1">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      <td column="__TOTAL__EG2">
       1 ( 25.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      <td column="__TOTAL__EG3">
       2 ( 50.00 %)
       </td>
       </tr>
@@ -594,40 +594,40 @@
       B2
       </span>
       </td>
-      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      <td column="GAEG1">
       0
       </td>
-      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      <td column="GAEG2">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      <td column="GAEG3">
       0
       </td>
-      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      <td column="GBEG1">
       0
       </td>
-      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      <td column="GBEG2">
       0
       </td>
-      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      <td column="GBEG3">
       1 ( 50.00 %)
       </td>
-      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      <td column="GCEG1">
       0
       </td>
-      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      <td column="GCEG2">
       0
       </td>
-      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      <td column="GCEG3">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      <td column="__TOTAL__EG1">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      <td column="__TOTAL__EG2">
       1 ( 25.00 %)
       </td>
-      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      <td column="__TOTAL__EG3">
       1 ( 25.00 %)
       </td>
       </tr>
@@ -637,40 +637,40 @@
       A2
       </span>
       </td>
-      <td class="text-center" column="GAEG1" style="white-space: nowrap;">
+      <td column="GAEG1">
       0
       </td>
-      <td class="text-center" column="GAEG2" style="white-space: nowrap;">
+      <td column="GAEG2">
       0
       </td>
-      <td class="text-center" column="GAEG3" style="white-space: nowrap;">
+      <td column="GAEG3">
       1 ( 100.00 %)
       </td>
-      <td class="text-center" column="GBEG1" style="white-space: nowrap;">
+      <td column="GBEG1">
       0
       </td>
-      <td class="text-center" column="GBEG2" style="white-space: nowrap;">
+      <td column="GBEG2">
       0
       </td>
-      <td class="text-center" column="GBEG3" style="white-space: nowrap;">
+      <td column="GBEG3">
       0
       </td>
-      <td class="text-center" column="GCEG1" style="white-space: nowrap;">
+      <td column="GCEG1">
       0
       </td>
-      <td class="text-center" column="GCEG2" style="white-space: nowrap;">
+      <td column="GCEG2">
       0
       </td>
-      <td class="text-center" column="GCEG3" style="white-space: nowrap;">
+      <td column="GCEG3">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG1" style="white-space: nowrap;">
+      <td column="__TOTAL__EG1">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG2" style="white-space: nowrap;">
+      <td column="__TOTAL__EG2">
       0
       </td>
-      <td class="text-center" column="__TOTAL__EG3" style="white-space: nowrap;">
+      <td column="__TOTAL__EG3">
       1 ( 25.00 %)
       </td>
       </tr>
