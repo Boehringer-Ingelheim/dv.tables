@@ -1,3 +1,9 @@
+# dv.tables 0.6.1-9002
+
+* `mod_summary_table`:
+  * Handle warnings/errors from statistics functions, e.g. confidence intervals from `stats::t.test` and
+    `stats::wilcox.test` when all values are the same.
+
 # dv.tables 0.6.1-9001
 
 * `mod_hierarchical_count_table`:
