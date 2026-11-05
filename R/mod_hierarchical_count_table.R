@@ -875,7 +875,9 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
   }) |> collect()
   
   collect("</p>")
-  collect('<table class="table event-count"><tbody>')
+
+  on_click_string_can_be_null <- sprintf('onclick="%s" ', on_cell_click)
+  collect(paste0('<table class="table event-count" ', on_click_string_can_be_null, '><tbody>'))
 
   # Flag when event group has been specified
   has_event_group <- length(event_group_vals) > 0
@@ -997,9 +999,8 @@ sort_wide_format_event_table_to_HTML <- function(collect, d, var_labels, on_cell
   active_collapse_control <- paste0(as.character(shiny::icon("table", onclick = "ec_collapse(this)")), " ")
   ec_val_special_char <- EC$VAL$SPECIAL_CHAR
   
-  on_click_string_can_be_null <- sprintf('onclick="%s" ', on_cell_click)
-  data_cell_format <- paste0(
-    '<td class="text-center" column="%s" ', on_click_string_can_be_null, 'style="white-space: nowrap;">%s</td>'
+  data_cell_format <- paste0( # TODO: Consider a numerical column id instead
+    '<td class="text-center" column="%s" style="white-space: nowrap;">%s</td>'
   )
 
   # table body
@@ -1831,9 +1832,13 @@ hierarchical_count_table_server <- function(
     })
 
     output[[EC$ID$TABLE]] <- shiny::renderUI({
-
-      on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
-
+      on_cell_click = sprintf("let cell = event.target.closest('td');
+if(cell){
+  let row_id = Number(cell.closest('tr').getAttribute('row-id'));
+  let col_name = cell.getAttribute('column');
+  Shiny.setInputValue('%s', {row_id: row_id, column: col_name}, {priority: 'event'});
+}",  ns("cell_click"))
+      
       et <- et()
       var_labels <- var_labels()
 
