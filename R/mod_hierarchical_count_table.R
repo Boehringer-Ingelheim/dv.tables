@@ -1904,7 +1904,9 @@ if(cell){
 
         if (has_event_group) {
           nested_cols <- strsplit(col, EC$VAL$SPECIAL_CHAR, fixed = TRUE)[[1]]
-          subj_ids <- et()[["df"]][[nested_cols[1]]][[row]][[nested_cols[2]]][["subjid"]]
+          level_1 <- paste(head(nested_cols, -1), collapse = EC$VAL$SPECIAL_CHAR)
+          level_2 <- tail(nested_cols, 1)
+          subj_ids <- et()[["df"]][[level_1]][[row]][[level_2]][["subjid"]]
         } else {
           subj_ids <- et()[["df"]][[col]][[row]][["subjid"]]
         }
