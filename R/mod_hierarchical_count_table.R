@@ -854,8 +854,8 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
   #       Look for references to `table_kind` to see how they differ.
   # TODO: Consider splitting the logic cleanly under the API layer
   table_kind <- "vanilla"
-  if(length(event_group_vals) > 0) table_kind <- "event group"
-  if(table_type == "time_at_risk") table_kind <- "time at risk"
+  if (length(event_group_vals) > 0) table_kind <- "event group"
+  if (table_type == "time_at_risk") table_kind <- "time at risk"
   
   # IMPORTANT NOTE:
   # `collect_es(es_string)` assumes its argument is either:
@@ -950,7 +950,7 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
       } else if (table_kind == "event group") {
         n_subols_per_col <- length(event_group_vals)
         calculated_colspan <- length(event_group_vals)
-      } else { # table_kind == "vanilla"
+      } else { # table_kind is "vanilla"
         n_subols_per_col <- 1
         calculated_colspan <- NULL
       }
@@ -1015,7 +1015,7 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
         es_header_for_all_cols <- paste(rep(es_header_for_one_col, length(data_columns)), collapse = "")
         collect_es(es_header_for_all_cols)
         collect_es("</tr>")
-      } else { # table_kind == "vanilla"
+      } else { # table_kind is "vanilla"
         # no subheader
       }
       
@@ -1083,7 +1083,7 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
                 collect_es(sprintf(data_cell_fmt, es_column, event_group[["count"]]))
               }
             }
-          } else { # table_kind == "vanilla"
+          } else { # table_kind is "vanilla"
             for (data_col_idx in seq_along(data_columns)) {
               data_col <- data_columns[[data_col_idx]]
               es_data_col <- es_data_columns[[data_col_idx]]
