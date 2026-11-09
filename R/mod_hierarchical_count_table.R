@@ -849,6 +849,13 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
   min_percent <- d[["meta"]][["min_percent"]]
   any_event_text <- d[["meta"]][["any_event_text"]]
   df <- d[["df"]]
+
+  # NOTE: `mod_hierarchical_count_table` is actually three different table kinds under a trench coat
+  #       Look for references to `table_kind` to see how they differ.
+  # TODO: Consider splitting the logic cleanly under the API layer
+  table_kind <- "vanilla"
+  if(length(event_group_vals) > 0) table_kind <- "event group"
+  if(table_type == "time_at_risk") table_kind <- "time at risk"
   
   # IMPORTANT NOTE:
   # `collect_es(es_string)` assumes its argument is either:
@@ -888,9 +895,6 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
     es_on_click_string_can_be_null <- sprintf(' onclick="%s"', on_cell_click)
     collect_es(paste0('<table class="table event-count"', es_on_click_string_can_be_null, "><tbody>"))
     { # nolint
-      # Flag when event group has been specified
-      has_event_group <- length(event_group_vals) > 0
-      
       hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
       
       # header format strings
@@ -938,16 +942,16 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
       
       es_split_data_columns <- strsplit(es_data_columns, split = es_ec_val_special_char, fixed = TRUE)
      
-      n_cols <- NULL
+      n_subols_per_col <- NULL
       calculated_colspan <- NULL
-      if (table_type == "time_at_risk") { # TODO: switch on type
-        n_cols <- 3
+      if (table_kind == "time at risk") {
+        n_subols_per_col <- 3
         calculated_colspan <- 3
-      } else if (has_event_group) {
-        n_cols <- length(event_group_vals)
+      } else if (table_kind == "event group") {
+        n_subols_per_col <- length(event_group_vals)
         calculated_colspan <- length(event_group_vals)
-      } else {
-        n_cols <- 1
+      } else { # table_kind == "vanilla"
+        n_subols_per_col <- 1
         calculated_colspan <- NULL
       }
       
@@ -971,7 +975,7 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
           for (i in seq_along(es_data_headers)) {
             es_data_header <- es_data_headers[[i]]
             len <- es_rle_level_path[["lengths"]][[i]]
-            es_col <- sprintf(thc_colspan_fmt, len * n_cols, es_data_header)
+            es_col <- sprintf(thc_colspan_fmt, len * n_subols_per_col, es_data_header)
             collect_es(es_col)
           }
         } else {
@@ -997,12 +1001,12 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
       }
       
       # subheaders 
-      if (table_type == "time_at_risk") { # TODO: switch on type
+      if (table_kind == "time at risk") {
         collect_es("<tr>")
         collect_es(sprintf(thc_entry_fmt, "<span></span>"))
         collect_es(paste(rep(es_time_at_risk_subheader, length(data_columns)), collapse = ""))
         collect_es("</tr>")
-      } else if (has_event_group) {
+      } else if (table_kind == "event group") {
         collect_es("<tr>")
         collect_es(sprintf(thc_entry_fmt, "<span></span>"))
         thc_vertical_align_bottom_span_fmt <- sprintf(thc_vertical_align_bottom_fmt, "<span>%s</span>")
@@ -1011,7 +1015,7 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
         es_header_for_all_cols <- paste(rep(es_header_for_one_col, length(data_columns)), collapse = "")
         collect_es(es_header_for_all_cols)
         collect_es("</tr>")
-      } else {
+      } else { # table_kind == "vanilla"
         # no subheader
       }
       
@@ -1053,7 +1057,7 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
                                    es_df_entry_name_col[[r]], es_collapse_control, es_df_entry_name_col[[r]])
           collect_es(es_entry_cell)
 
-          if (table_type == "time_at_risk") { # TODO: Switch on type
+          if (table_kind == "time at risk") {
             # NOTE(miguel): The nested structure under df[[data_col]][[r]] slows us down.
             #               It's a list and it would be nice if it was a character vector instead, but the "subjid" column 
             #               (which we don't care about here) is a character vector and forces the container to be a list 
@@ -1065,7 +1069,7 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
                                 collapse = "")
               collect_es(all_cols)
             }
-          } else if (has_event_group) {
+          } else if (table_kind == "event group") {
             for (data_col_idx in seq_along(data_columns)) {
               data_col <- data_columns[[data_col_idx]]
               es_data_col <- es_data_columns[[data_col_idx]]
@@ -1079,7 +1083,7 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
                 collect_es(sprintf(data_cell_fmt, es_column, event_group[["count"]]))
               }
             }
-          } else {
+          } else { # table_kind == "vanilla"
             for (data_col_idx in seq_along(data_columns)) {
               data_col <- data_columns[[data_col_idx]]
               es_data_col <- es_data_columns[[data_col_idx]]
