@@ -33,11 +33,11 @@ local({
   w <- pivot_wide_format_events_table(x, 0)
 
   sw <- sort_wider_formatter_events_table(w, s)
-
-  html <- sort_wide_format_event_table_to_HTML(sw, var_labels)
-
-  # We will test against snapshots that we have checked is correct
-
+  
+  text_sink <- create_text_sink()
+  sort_wide_format_event_table_to_HTML(text_sink[["collect"]], sw, var_labels)
+  html <- text_sink[["output"]]()
+  
   test_that("counting is correct, sorting, against (snapshot)" |>
     vdoc[["add_spec"]](
       c(
@@ -57,7 +57,7 @@ local({
       dplyr::mutate(`__TOTAL__` = purrr::map_chr(.data[["__TOTAL__"]], "count"))
     expect_snapshot(total_ranking)
 
-    expect_snapshot(html)
+    expect_snapshot(cat(html))
   })
 
   test_that("filtering is correct, against (snapshot)" |>
@@ -129,6 +129,7 @@ local({
   test_that("a count table is displayed" |>
     vdoc[["add_spec"]](c(specs$hierarchical_count_table$events_table_display)), {
     tb <- app$get_values(output = TRUE)[["output"]][[ID$OUTPUT$TABLE]][["html"]]
+    tb <- basic_unsafe_HTML_normalization(tb)
     expect_snapshot(tb)
   })
 

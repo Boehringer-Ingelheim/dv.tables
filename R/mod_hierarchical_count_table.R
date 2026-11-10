@@ -473,8 +473,7 @@ compute_events_table <- function(event_df,
       total_rows <- dplyr::distinct(total_rows)
     }
 
-    adtte <- adtte |>
-      rbind(total_rows)
+    adtte <- rbind(adtte, total_rows)
   }
 
   # Calculate statistics ----
@@ -738,7 +737,7 @@ pivot_wide_format_events_table <- function(d, min_percent = 0, remove_rows_under
       "cell components must all have length nrow(df)" = lengths(cells) ==
         nrow(df)
     )
-    .mapply(list, cells, NULL)
+    .mapply(list, cells, NULL) # NOTE(miguel): It would be nice if this generated character vectors instead of nested lists (see #ieghei)
   })
 
   if (remove_rows_under_min_pct) {
@@ -834,7 +833,7 @@ sort_wider_formatter_events_table <- function(event_d, sort_df) { # nolint
 #' @return An HTML table generated using `shiny::tags` and formatted for interactive display.
 #'
 #' @keywords internal
-sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = NULL) { # nolint
+sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_cell_click = NULL) {
   checkmate::assert_data_frame(d[["df"]]) # DP
   checkmate::assert_list(d[["meta"]]) # DP
 
@@ -851,197 +850,259 @@ sort_wide_format_event_table_to_HTML <- function(d, var_labels, on_cell_click = 
   any_event_text <- d[["meta"]][["any_event_text"]]
   df <- d[["df"]]
 
-  # Flag when event group has been specified
-  has_event_group <- length(event_group_vals) > 0
-
-  hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
-  entry_name_col <- paste0(EC$VAL$SPECIAL_CHAR, "entry_name")
-
-  table <- shiny::tags[["table"]]
-  th <- shiny::tags[["th"]]
-  thc <- function(..., colspan = 1L, entry = FALSE) {
-    if (entry) {
-      th(class = "text-center", ...)
-    } else if (is.null(colspan)) {
-      th(class = "text-center", style = "vertical-align: bottom;", ...)
-    } else {
-      th(class = "text-center short-border", colspan = as.character(colspan), ...)
+  # NOTE: `mod_hierarchical_count_table` is actually three different table kinds under a trench coat
+  #       Look for references to `table_kind` to see how they differ.
+  # TODO: Consider splitting the logic cleanly under the API layer
+  table_kind <- "vanilla"
+  if (length(event_group_vals) > 0) table_kind <- "event group"
+  if (table_type == "time_at_risk") table_kind <- "time at risk"
+  
+  # IMPORTANT NOTE:
+  # `collect_es(es_string)` assumes its argument is either:
+  # - an HTML-safe _e_scaped _s_tring (if it is derived from app-creator-provided or data-dependent strings), or
+  # - HTML/javascript strings provided by the module and checked during development.
+  # Please, prefix escaped strings with `es_` to make correct use trivial to inpect.
+  # See #es_example1 and #es_example2 below.
+  # For more information, refer to https://www.joelonsoftware.com/2005/05/11/making-wrong-code-look-wrong/
+  
+  collect_es("<div>") # NOTE(#es_example1): This is an intentional HTML entity that we want to include as-is
+  { # nolint
+    collect_es("<p>")
+    { # nolint
+      es_title <- htmltools::htmlEscape({ # NOTE(#es_example2): Escaped because it includes the data-dependent `var_labels`
+        mod_group_vars <- setdiff(group_vars, ".pop_group")
+        title <- sprintf(
+          "Event count by %s%s%s%s%s",
+          paste(unlist(var_labels[hierarchy], use.names = FALSE), collapse = ", "),
+          ifelse(length(mod_group_vars) == 0L, "",
+                 paste("; group by", paste(unlist(var_labels[mod_group_vars], use.names = FALSE), collapse = ", "))),
+          ifelse(length(pop_flag_vars) == 0L, "",
+                 paste("; flag by", paste(unlist(var_labels[pop_flag_vars], use.names = FALSE), collapse = ", "))),
+          ifelse(length(event_group_var) == 0L, "",
+                 paste(paste0("; event group by",
+                              ifelse(worst_event_group, " (worst)", "")),
+                       paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", "))),
+          ifelse(min_percent == 0, "",
+                 sprintf("; minimum %.2f%%", min_percent))
+        )
+        
+        title
+      })
+      collect_es(es_title)
     }
-  }
-  tr <- shiny::tags[["tr"]]
-  td <- shiny::tags[["td"]]
-  tdc <- function(...) td(class = "text-center", ...) # nolint false positive unused
+    collect_es("</p>")
+    
+    es_on_click_string_can_be_null <- sprintf(' onclick="%s"', on_cell_click)
+    collect_es(paste0('<table class="table event-count"', es_on_click_string_can_be_null, "><tbody>"))
+    { # nolint
+      hier_lvl_col <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
+      
+      # header format strings
+      thc_entry_fmt <- '<th class="text-center">%s</th>'
+      thc_vertical_align_bottom_fmt <- '<th class="text-center" style="vertical-align: bottom;">%s</th>'
+      thc_colspan_fmt <- '<th class="text-center short-border" colspan="%d">%s</th>'
+      non_breaking_space <- "\u00A0"
+      n_suffix_fmt <- paste0("(N", non_breaking_space, "=", non_breaking_space, "%s", ")")
+      
+      df_names <- names(df)
+      internal_columns <- df_names[startsWith(df_names, EC$VAL$SPECIAL_CHAR)]
+      data_columns <- df_names[!df_names %in% c(hierarchy, internal_columns)]
+      es_data_columns <- htmltools::htmlEscape(data_columns)
 
-  df_names <- names(df)
-  internal_columns <- df_names[startsWith(df_names, EC$VAL$SPECIAL_CHAR)]
-  data_columns <- df_names[!df_names %in% c(hierarchy, internal_columns)]
+      event_group_names <- names(df[[data_columns[[1]]]][[1]]) # assumes event groups repeat on all columns
+      es_event_group_names <- htmltools::htmlEscape(event_group_names)
 
-  # Prepare denominator look-up
-  n_denominator <- denom_df[[".N"]]
-  names(n_denominator) <- denom_df[[".lookup"]]
-
-  entry_header <- shiny::span("")
-
-  split_data_columns <- strsplit(data_columns, split = SUMMTAB$VAL$SPECIAL_CHAR, fixed = TRUE)
-
-  if (table_type == "time_at_risk") {
-    n_cols <- 3
-  } else if (has_event_group) {
-    n_cols <- length(event_group_vals)
-  } else {
-    n_cols <- 1
-  }
-
-  header_rows <- vector(mode = "list", length = length(group_vars))
-  for (head_i in seq_along(group_vars)) {
-
-    if (head_i != length(group_vars)) {
-      level_path <- vapply(split_data_columns,
-                           \(parts) paste(parts[1:head_i], collapse = EC$VAL$SPECIAL_CHAR),
-                           FUN.VALUE = character(1L),
-                           USE.NAMES = FALSE)
-      rle_level_path <- rle(level_path)
-      rle_values <- rle_level_path[["values"]]
-      extracted_headers <- sub(paste0(".*", EC$VAL$SPECIAL_CHAR), "", rle_values)
-      extracted_headers[extracted_headers == EC$VAL$TOTAL] <- total_group_val
-      data_headers <- purrr::map(extracted_headers, ~ shiny::span(.x))
-      thc_data_columns <- purrr::map2(data_headers, rle_level_path[["lengths"]], ~ thc(.x, colspan = .y * n_cols))
-    } else {
-      extracted_headers <- sub(paste0(".*", EC$VAL$SPECIAL_CHAR), "", data_columns)
-      extracted_headers[extracted_headers == EC$VAL$TOTAL] <- total_group_val
-      data_headers <- purrr::map2(extracted_headers,
-                                  paste0("(N", "\u00A0", "=", "\u00A0", n_denominator[data_columns], ")"),
-                                  ~ shiny::span(.x, shiny::br(), .y))
-      thc_data_columns <- purrr::map(data_headers,
-                                     thc,
-                                     colspan = if (table_type == "time_at_risk" || has_event_group) n_cols else NULL)
-    }
-
-    header_rows[[head_i]] <- tr(
-      thc(entry_header, entry = TRUE),
-      thc_data_columns
-    )
-  }
-
-  if (table_type == "time_at_risk") {
-    entry_subheader <- shiny::span("")
-    data_subheaders <- purrr::map(rep(c("n (%)",
-                                        "Time\u00A0at\u00A0risk<br>(pt-yrs)",
-                                        "Rate/100<br>pt-yrs"),
-                                      length(data_columns)),
-                                  ~ shiny::HTML(.x))
-
-    subheader_row <- tr(
-      thc(entry_subheader, entry = TRUE),
-      purrr::map(data_subheaders, thc, colspan = NULL)
-    )
-  } else if (has_event_group) {
-    entry_subheader <- shiny::span("")
-    data_subheaders <- purrr::map(rep(event_group_vals, length(data_columns)),
-                                  ~ shiny::span(.x))
-
-    subheader_row <- tr(
-      thc(entry_subheader, entry = TRUE),
-      purrr::map(data_subheaders, thc, colspan = NULL)
-    )
-  } else {
-    subheader_row <- NULL
-  }
-
-  df[[entry_name_col]] <- local({
-    purrr::pmap_chr(
-      df[c(hierarchy, hier_lvl_col)], function(...) {
-        args <- list(...)
-        if (args[[hier_lvl_col]] == 0) {
-          return(any_event_text)
+      # precompute constants that are independent from data
+      es_total_group_val <- htmltools::htmlEscape(total_group_val)
+      
+      # render collapse icon once and paste it where necessary (see also: #manual_shiny_icon)
+      es_active_collapse_control <- paste0(as.character(shiny::icon("table", onclick = "ec_collapse(this)")), " ")
+      
+      es_ec_val_special_char <- EC$VAL$SPECIAL_CHAR
+      es_ec_val_total <- EC$VAL$TOTAL
+      data_cell_fmt <- '<td column="%s">%s</td>' # TODO: Consider a numerical column id. Column labels repeat for each cell and can be long
+      subcols_of_interest_mask <- local({
+        res <- logical(0)
+        if (nrow(df) && length(data_columns)) {
+          all_columns <- names(df[[data_columns[[1]]]][[1]])
+          res <- (all_columns != "subjid")
         }
-        curr_lvl <- hierarchy[args[[hier_lvl_col]]]
-        curr_label <- as.character(args[[curr_lvl]])
-        curr_label
+        return(res)
+      })
+
+      es_time_at_risk_subheader_pieces <- c(
+        "n (%)",
+        paste0("Time", non_breaking_space, "at", non_breaking_space, "risk<br>(pt-yrs)"),
+        "Rate/100<br>pt-yrs"
+      )
+      es_time_at_risk_subheader <- paste(sprintf(thc_vertical_align_bottom_fmt, es_time_at_risk_subheader_pieces), collapse = "")
+      
+      # Prepare denominator look-up
+      n_denominator <- denom_df[[".N"]]
+      names(n_denominator) <- denom_df[[".lookup"]]
+      
+      es_entry_header <- "<span></span>"
+      
+      es_split_data_columns <- strsplit(es_data_columns, split = es_ec_val_special_char, fixed = TRUE)
+     
+      n_subcols_per_col <- NULL
+      calculated_colspan <- NULL
+      if (table_kind == "time at risk") {
+        n_subcols_per_col <- 3
+        calculated_colspan <- 3
+      } else if (table_kind == "event group") {
+        n_subcols_per_col <- length(event_group_vals)
+        calculated_colspan <- length(event_group_vals)
+      } else { # table_kind is "vanilla"
+        n_subcols_per_col <- 1
+        calculated_colspan <- NULL
       }
-    )
-  })
-
-  mod_group_vars <- setdiff(group_vars, ".pop_group")
-  title <- sprintf(
-    "Event count by %s%s%s%s%s",
-    paste(unlist(var_labels[hierarchy], use.names = FALSE), collapse = ", "),
-    ifelse(length(mod_group_vars) == 0L, "",
-           paste("; group by", paste(unlist(var_labels[mod_group_vars], use.names = FALSE), collapse = ", "))),
-    ifelse(length(pop_flag_vars) == 0L, "",
-           paste("; flag by", paste(unlist(var_labels[pop_flag_vars], use.names = FALSE), collapse = ", "))),
-    ifelse(length(event_group_var) == 0L, "",
-           paste(paste0("; event group by",
-                        ifelse(worst_event_group, " (worst)", "")),
-                 paste(unlist(var_labels[event_group_var], use.names = FALSE), collapse = ", "))),
-    ifelse(min_percent == 0, "",
-           sprintf("; minimum %.2f%%", min_percent))
-  )
-
-  hierarchy_length <- length(hierarchy)
-
-  body <- vector(mode = "list", length = nrow(df))
-  for (r in seq_len(nrow(df))) {
-    curr_row <- df[r, , drop = FALSE]
-    curr_hier_lvl <- curr_row[[hier_lvl_col]]
-
-    if (curr_hier_lvl < hierarchy_length) {
-      collapse_control <- shiny::icon("table", onclick = "ec_collapse(this)")
-    } else {
-      collapse_control <- NULL
-    }
-
-    indent <- curr_hier_lvl
-    indent_class <- sprintf("indent-%d", indent)
-    entry_cell <- td(shiny::span(collapse_control,
-                                 curr_row[[entry_name_col]],
-                                 class = "truncate",
-                                 title = curr_row[[entry_name_col]]))
-
-    data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
-      if (table_type == "time_at_risk") {
-        data_list <- .col[[1]]
-        purrr::map(setdiff(names(data_list), c("subjid")),
-                   ~ tdc(data_list[[.x]], column = .col_id, onclick = on_cell_click, style = "white-space: nowrap;"))
-      } else if (has_event_group) {
-        event_group_list <- .col[[1]]
-        purrr::imap(event_group_list, function(.grp, .grp_id) {
-          # Use special char as separator between column levels
-          .col_id2 <- paste0(.col_id, EC$VAL$SPECIAL_CHAR, .grp_id)
-          tdc(.grp[["count"]], column = .col_id2, onclick = on_cell_click, style = "white-space: nowrap;")
-        })
-      } else {
-        tdc(.col[[1]][["count"]], column = .col_id, onclick = on_cell_click, style = "white-space: nowrap;")
+      
+      for (head_i in seq_along(group_vars)) {
+        collect_es("<tr>")
+        collect_es(sprintf(thc_entry_fmt, es_entry_header))
+        
+        if (head_i != length(group_vars)) {
+          es_level_path <- character(length(es_split_data_columns))
+          for (i in seq_along(es_split_data_columns)) {
+            es_parts <- es_split_data_columns[[i]]
+            es_level_path[[i]] <- paste(es_parts[1:head_i], collapse = es_ec_val_special_char)
+          }
+          
+          es_rle_level_path <- rle(es_level_path)
+          es_rle_values <- es_rle_level_path[["values"]]
+          es_extracted_headers <- sub(paste0(".*", es_ec_val_special_char), "", es_rle_values)
+          es_extracted_headers[es_extracted_headers == es_ec_val_total] <- es_total_group_val
+          
+          es_data_headers <- paste0("<span>", es_extracted_headers, "</span>")
+          for (i in seq_along(es_data_headers)) {
+            es_data_header <- es_data_headers[[i]]
+            len <- es_rle_level_path[["lengths"]][[i]]
+            es_col <- sprintf(thc_colspan_fmt, len * n_subcols_per_col, es_data_header)
+            collect_es(es_col)
+          }
+        } else {
+          es_extracted_headers <- sub(paste0(".*", es_ec_val_special_char), "", es_data_columns)
+          es_extracted_headers[es_extracted_headers == es_ec_val_total] <- es_total_group_val
+          
+          n_suffixes <- sprintf(n_suffix_fmt, n_denominator[data_columns])
+          es_data_headers <- vector("list", length = length(es_extracted_headers))
+          for (i in seq_along(es_extracted_headers)) {
+            es_data_headers[[i]] <- sprintf("<span>%s<br/>%s</span>", es_extracted_headers[[i]], n_suffixes[[i]])
+          }
+          
+          for (i in seq_along(es_data_headers)) {
+            es_col <- NULL
+            if (is.null(calculated_colspan)) es_col <- sprintf(thc_vertical_align_bottom_fmt, es_data_headers[[i]])
+            else es_col <- sprintf(thc_colspan_fmt, calculated_colspan, es_data_headers[[i]])
+            collect_es(es_col)
+          }
+          
+        }
+        
+        collect_es("</tr>")
       }
-    })
+      
+      # subheaders 
+      if (table_kind == "time at risk") {
+        collect_es("<tr>")
+        collect_es(sprintf(thc_entry_fmt, "<span></span>"))
+        collect_es(paste(rep(es_time_at_risk_subheader, length(data_columns)), collapse = ""))
+        collect_es("</tr>")
+      } else if (table_kind == "event group") {
+        collect_es("<tr>")
+        collect_es(sprintf(thc_entry_fmt, "<span></span>"))
+        thc_vertical_align_bottom_span_fmt <- sprintf(thc_vertical_align_bottom_fmt, "<span>%s</span>")
+        es_event_group_vals <- htmltools::htmlEscape(event_group_vals)
+        es_header_for_one_col <- sprintf(thc_vertical_align_bottom_span_fmt, es_event_group_vals)
+        es_header_for_all_cols <- paste(rep(es_header_for_one_col, length(data_columns)), collapse = "")
+        collect_es(es_header_for_all_cols)
+        collect_es("</tr>")
+      } else { # table_kind is "vanilla"
+        # no subheader
+      }
+      
+      es_df_entry_name_col <- htmltools::htmlEscape({
+        n_rows <- nrow(df)
+        res <- vector("character", n_rows)
+        for (i in 1:n_rows) {
+          current_lvl_index <- df[[hier_lvl_col]][[i]]
+          if (current_lvl_index == 0) {
+            res[i] <- any_event_text # TODO: es_
+          } else {
+            curr_lvl_name <- hierarchy[[current_lvl_index]]
+            res[i] <- as.character(df[[curr_lvl_name]][[i]])
+          }
+        }
+        res
+      })
+      
+      hierarchy_length <- length(hierarchy)
+      
+      # table body
+      t0 <- Sys.time()
+      for (r in seq_len(nrow(df))) {
+        curr_hier_lvl <- df[[hier_lvl_col]][[r]]
+        
+        indent <- curr_hier_lvl
+        es_data_cell_classes <- sprintf("indent-%d", indent)
+        
+        if (indent != 0L && curr_hier_lvl < hierarchy_length) {
+          es_data_cell_classes <- paste(es_data_cell_classes, "bg-gray")
+        }
+        
+        collect_es(sprintf('<tr row-id="%d" class="%s" indent="%d">', r, es_data_cell_classes, indent))
+        { # nolint
+          es_collapse_control <- ""
+          if (curr_hier_lvl < hierarchy_length) es_collapse_control <- es_active_collapse_control
 
-    data_cell_classes <- if (indent == 0L || is.null(collapse_control)) {
-      indent_class
-    } else {
-      c(indent_class, "bg-gray")
-    }
+          es_entry_cell <- sprintf('<td><span class="truncate" title="%s">%s%s</span></td>',
+                                   es_df_entry_name_col[[r]], es_collapse_control, es_df_entry_name_col[[r]])
+          collect_es(es_entry_cell)
 
-    body[[r]] <- tr(
-      "row-id" = r,
-      class = data_cell_classes,
-      indent = indent,
-      entry_cell,
-      data_cells
-    )
+          if (table_kind == "time at risk") {
+            # NOTE(miguel): The nested structure under df[[data_col]][[r]] slows us down.
+            #               It's a list and it would be nice if it was a character vector instead, but the "subjid" column 
+            #               (which we don't care about here) is a character vector and forces the container to be a list 
+            #               (see #ieghei)
+            for (data_col_idx in seq_along(data_columns)) {
+              data_col <- data_columns[[data_col_idx]]
+              es_data_col <- es_data_columns[[data_col_idx]]
+              all_cols <- paste(sprintf(data_cell_fmt, es_data_col, df[[data_col]][[r]][subcols_of_interest_mask]),
+                                collapse = "")
+              collect_es(all_cols)
+            }
+          } else if (table_kind == "event group") {
+            for (data_col_idx in seq_along(data_columns)) {
+              data_col <- data_columns[[data_col_idx]]
+              es_data_col <- es_data_columns[[data_col_idx]]
+              event_group_list <- df[[data_col]][[r]]
+              for (name_idx in seq_along(event_group_names)) {
+                event_group_name <- event_group_names[[name_idx]]
+                event_group <- event_group_list[[event_group_name]]
+                es_event_group_name <- es_event_group_names[[name_idx]]
+                # TODO: `es_column` is expensive to compute and balloons the size of the generated HTML. Use an integer col_id instead
+                es_column <- paste0(es_data_col, es_ec_val_special_char, es_event_group_name) # Use special char as separator between column levels
+                collect_es(sprintf(data_cell_fmt, es_column, event_group[["count"]]))
+              }
+            }
+          } else { # table_kind is "vanilla"
+            for (data_col_idx in seq_along(data_columns)) {
+              data_col <- data_columns[[data_col_idx]]
+              es_data_col <- es_data_columns[[data_col_idx]]
+              col <- df[[data_col]][[r]]
+              collect_es(sprintf(data_cell_fmt, es_data_col, col[["count"]]))
+            }
+          }
+        }
+        collect_es("</tr>")
+      }
+    } 
+    collect_es("</tbody></table>")
   }
-
-  html_table <- shiny::div(
-    shiny::p(title),
-    table(
-      class = "table event-count",
-      hierarchical_count_table_dep(),
-      !!!header_rows,
-      subheader_row,
-      !!!body
-    )
-  )
-
-  return(html_table)
+  collect_es("</div>")
+  
+  return(NULL)
 }
 
 #' Derive SMQ and UDAEC hierarchy variables
@@ -1796,13 +1857,15 @@ hierarchical_count_table_server <- function(
       t
     })
 
-    render_completion_callback <- shiny::tags$script(shiny::HTML(sprintf("
+    render_completion_callback <- sprintf("
+    <script>
     requestAnimationFrame(() => { // repaint preceding the table render
       requestAnimationFrame(() => { // repaint following the table render
         Shiny.setInputValue('%s', 'done', {priority: 'event'});
       });
     });
-    ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))))
+    </script>
+    ", ns(EC$ID$RENDER_COMPLETION_CALLBACK))
 
     table_progress_bars <- list() # keep a list of progress bars to cope with trigger-happy users
 
@@ -1812,9 +1875,15 @@ hierarchical_count_table_server <- function(
     })
 
     output[[EC$ID$TABLE]] <- shiny::renderUI({
-
-      on_cell_click <- sprintf("Shiny.setInputValue('%s', {row_id: Number(this.closest('tr').getAttribute('row-id')), column : this.getAttribute('column')}, {priority: 'event'})", ns("cell_click")) # nolint
-
+      on_cell_click = sprintf("let cell = event.target.closest('td');
+if(cell){
+  let row_id = Number(cell.closest('tr').getAttribute('row-id'));
+  let col_name = cell.getAttribute('column');
+  if(row_id != null && col_name != null){
+    Shiny.setInputValue('%s', {row_id: row_id, column: col_name}, {priority: 'event'});
+  }
+}",  ns("cell_click"))
+      
       et <- et()
       var_labels <- var_labels()
 
@@ -1823,13 +1892,35 @@ hierarchical_count_table_server <- function(
       table_progress_bars[[length(table_progress_bars) + 1]] <<- p
       on.exit(p$inc(amount = 0.3))
       p$set(message = "2) Generating & Rendering Table", value = 0.2)
+      
+      text_sink <- local({
+        res <- character(0) 
+        return(
+          list(
+            collect = function(s) res[[length(res) + 1]] <<- s,
+            output = function() paste(res, collapse = "")
+          )
+        )
+      })
 
-      rendered_content <- sort_wide_format_event_table_to_HTML(
+      sort_wide_format_event_table_to_HTML(
+        text_sink[["collect"]],
         et,
         var_labels,
         on_cell_click
       )
-      shiny::tagList(rendered_content, render_completion_callback)
+
+      text_sink[["collect"]](render_completion_callback)
+
+      text_html <- text_sink[["output"]]()
+      
+      res <- shiny::HTML(text_html)
+      
+      res <- list(res, hierarchical_count_table_dep(), 
+                  # NOTE: we insert the shiny::icon dependency to match its manual insertion here: #manual_shiny_icon
+                  htmltools::htmlDependencies(shiny::icon("table")))
+  
+      return(res)
     })
 
     # Table download module
@@ -1852,7 +1943,9 @@ hierarchical_count_table_server <- function(
 
         if (has_event_group) {
           nested_cols <- strsplit(col, EC$VAL$SPECIAL_CHAR, fixed = TRUE)[[1]]
-          subj_ids <- et()[["df"]][[nested_cols[1]]][[row]][[nested_cols[2]]][["subjid"]]
+          level_1 <- paste(head(nested_cols, -1), collapse = EC$VAL$SPECIAL_CHAR)
+          level_2 <- tail(nested_cols, 1)
+          subj_ids <- et()[["df"]][[level_1]][[row]][[level_2]][["subjid"]]
         } else {
           subj_ids <- et()[["df"]][[col]][[row]][["subjid"]]
         }
