@@ -914,7 +914,10 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
 
       # precompute constants that are independent from data
       es_total_group_val <- htmltools::htmlEscape(total_group_val)
+      
+      # render collapse icon once and paste it where necessary (see also: #manual_shiny_icon)
       es_active_collapse_control <- paste0(as.character(shiny::icon("table", onclick = "ec_collapse(this)")), " ")
+      
       es_ec_val_special_char <- EC$VAL$SPECIAL_CHAR
       es_ec_val_total <- EC$VAL$TOTAL
       data_cell_fmt <- '<td column="%s">%s</td>' # TODO: Consider a numerical column id. Column labels repeat for each cell and can be long
@@ -1913,7 +1916,9 @@ if(cell){
       
       res <- shiny::HTML(text_html)
       
-      res <- list(res, hierarchical_count_table_dep(), htmltools::htmlDependencies(shiny::icon("table")))
+      res <- list(res, hierarchical_count_table_dep(), 
+                  # NOTE: we insert the shiny::icon dependency to match its manual insertion here: #manual_shiny_icon
+                  htmltools::htmlDependencies(shiny::icon("table")))
   
       return(res)
     })
