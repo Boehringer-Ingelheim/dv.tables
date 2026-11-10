@@ -942,16 +942,16 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
       
       es_split_data_columns <- strsplit(es_data_columns, split = es_ec_val_special_char, fixed = TRUE)
      
-      n_subols_per_col <- NULL
+      n_subcols_per_col <- NULL
       calculated_colspan <- NULL
       if (table_kind == "time at risk") {
-        n_subols_per_col <- 3
+        n_subcols_per_col <- 3
         calculated_colspan <- 3
       } else if (table_kind == "event group") {
-        n_subols_per_col <- length(event_group_vals)
+        n_subcols_per_col <- length(event_group_vals)
         calculated_colspan <- length(event_group_vals)
       } else { # table_kind is "vanilla"
-        n_subols_per_col <- 1
+        n_subcols_per_col <- 1
         calculated_colspan <- NULL
       }
       
@@ -975,7 +975,7 @@ sort_wide_format_event_table_to_HTML <- function(collect_es, d, var_labels, on_c
           for (i in seq_along(es_data_headers)) {
             es_data_header <- es_data_headers[[i]]
             len <- es_rle_level_path[["lengths"]][[i]]
-            es_col <- sprintf(thc_colspan_fmt, len * n_subols_per_col, es_data_header)
+            es_col <- sprintf(thc_colspan_fmt, len * n_subcols_per_col, es_data_header)
             collect_es(es_col)
           }
         } else {
