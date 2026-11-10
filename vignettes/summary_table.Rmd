@@ -397,7 +397,8 @@ meanci = function(x) {
 
 Note that functions may also generate errors or warnings if the data is not suitable, e.g. `stats::t.test` will
 generate an error when all values in the grouping are equal. In those cases the warnings and errors are caught, and
-`NaN` values returned instead (which may then be post-processed, e.g. by replacing with `"NE"`).
+`NaN` values returned instead, which may then be post-processed, e.g. by replacing with `"NE"` (meaning "Not Estimable"
+or "Not Evaluable").
 
 When such functions return multiple values, those values can be referred to in `stats_formats`, `stats_labels`, and
 `stats_replace` by appending a dot followed by an incremented integer. So for the example of `meanci` which returns
@@ -520,7 +521,10 @@ In the default, the em dash (long dash) has been specified by the package consta
 unicode value, `"\u2014"`, can also be directly used.
 
 Note that the `NaN` replacements for `meanci` and `medianci` address the cases when an error or warning is caught from
-`stats::t.test` or `stats::wilcox.test` being applied to values that are all equal within a grouping.
+`stats::t.test` or `stats::wilcox.test` being applied to values that are all equal within a grouping. The abbreviation
+`NE` stands for "Not Estimable" meaning that the statistic cannot be calculated or inferred from the available data.
+The `NaN` replacement for `geomean` addresses the case when one or more values within a grouping are less than or equal
+to zero.
 
 
 # Download
