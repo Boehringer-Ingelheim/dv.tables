@@ -1965,40 +1965,42 @@ mod_summary_table <- function(
         }
       }
 
-      summary_table_server(module_id,
-                           table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[table_dataset_name]]),
-                           pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[pop_dataset_name]]),
-                           subjid_var = subjid_var,
-                           show_pop_flag_selection = show_pop_flag_selection,
-                           show_aggregate_method = show_aggregate_method,
-                           show_modal_on_click = show_modal_on_click,
-                           on_sbj_click_fun = on_sbj_click_fun,
+      summary_table_server(
+        module_id,
+        table_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[table_dataset_name]]),
+        pop_dataset = shiny::reactive(afmm[["filtered_dataset_list"]]()[[pop_dataset_name]]),
+        subjid_var = subjid_var,
+        show_pop_flag_selection = show_pop_flag_selection,
+        show_aggregate_method = show_aggregate_method,
+        show_modal_on_click = show_modal_on_click,
+        on_sbj_click_fun = on_sbj_click_fun,
 
-                           stats_functions = stats_functions,
-                           stats_formats = stats_formats,
-                           stats_labels = stats_labels,
-                           stats_replace = stats_replace,
+        stats_functions = stats_functions,
+        stats_formats = stats_formats,
+        stats_labels = stats_labels,
+        stats_replace = stats_replace,
 
-                           default_summarize_on = default_summarize_on,
-                           choices_summarize_on = choices_summarize_on,
-                           default_group_by = default_group_by,
-                           choices_group_by = choices_group_by,
-                           default_row_by = default_row_by,
-                           choices_row_by = choices_row_by,
-                           default_pop_flags = default_pop_flags,
-                           choices_pop_flags = choices_pop_flags,
+        default_summarize_on = default_summarize_on,
+        choices_summarize_on = choices_summarize_on,
+        default_group_by = default_group_by,
+        choices_group_by = choices_group_by,
+        default_row_by = default_row_by,
+        choices_row_by = choices_row_by,
+        default_pop_flags = default_pop_flags,
+        choices_pop_flags = choices_pop_flags,
 
-                           flagged_row_processing = flagged_row_processing,
-                           table_dataset_unfiltered = shiny::reactive(afmm[["unfiltered_dataset_list"]]()[[table_dataset_name]]),
+        flagged_row_processing = flagged_row_processing,
+        table_dataset_unfiltered = shiny::reactive(afmm[["unfiltered_dataset_list"]]()[[table_dataset_name]]),
 
-                           total_group_val = total_group_val)
+        total_group_val = total_group_val
+      )
     },
     module_id = module_id,
     meta = list(
       dataset_info = list(
         all = unique(c(table_dataset_name, pop_dataset_name)),
-        subjet_level = ifelse(length(pop_dataset_name) == 0, character(0),  pop_dataset_name)
-        ),
+        subject_level = ifelse(length(pop_dataset_name) == 0, character(0), pop_dataset_name)
+      ),
       check_mod_fn = function(afmm, datasets) {
         check_mod_summary_table(
           afmm, datasets,
