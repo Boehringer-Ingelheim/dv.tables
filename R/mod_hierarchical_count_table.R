@@ -588,6 +588,102 @@ compute_events_table <- function(event_df,
   )
 
   res
+} 
+
+compute_events_table_2 <- function(
+  pop_df,
+  subjid_var = subjid_var,
+  hierarchy, 
+  group_vars, 
+  pop_flag_vars,
+  event_group_var,
+  event_group_var_levels,
+  worst_event_group_vars,
+  total,
+  event_group_total_val,
+  compute_risk,
+  min_percent) {
+  res <- list(df = NULL, meta = NULL)
+
+  # Get variable names that will have a total column displayed in the table.
+  # Currently this is limited to the last group variable (excluding flag group).
+  total_vars <- character(0)
+  if (isTRUE(total)) total_vars <- tail(setdiff(group_vars, ".pop_group"), n = 1)
+  
+  event_group_vals <- character(0)
+  worst_event_group <- FALSE
+ 
+  # code that depends on `table_kind` is a candidate for review 
+  table_kind <- "vanilla"
+  if (length(event_group_var) > 0) table_kind <- "event group"
+  if (isTRUE(compute_risk)) table_kind <- "time at risk"
+  
+  if (table_kind == "event group") { # TODO: This table wants to be a different table
+    worst_event_group <- (event_group_var %in% worst_event_group_vars)
+    
+    event_group_vals <- event_group_var_levels
+    if (worst_event_group) event_group_vals <- c(event_group_total_val, event_group_vals) # worst event group on 1st col
+    else event_group_vals <- c(event_group_vals, event_group_total_val)
+    
+    # Include event group variable if it has an associated total value
+    if (length(event_group_total_val)) total_vars <- c(total_vars, event_group_var)
+  }
+
+  table_type <- "frequency"
+  if (compute_risk) table_type <- "time_at_risk"
+
+  denom_df <- local({
+    checkmate::assert(length(group_vars) > 0)
+    
+    tabulate_multi_column <- function(df, group_vars, prefix) {
+      multi_column_tabulation <- addmargins(  # TODO: what happens with NAs
+        do.call(table, df[group_vars]), 
+        FUN = list("__TOTAL__" = sum),
+        quiet = TRUE
+      )
+      res <- as.data.frame(multi_column_tabulation, responseName = ".N")
+      res[[".lookup"]] <- do.call(paste, c(prefix, res[group_vars], sep = EC$VAL$SPECIAL_CHAR))
+      return(res)
+    }
+    
+    res <- tabulate_multi_column(pop_df, group_vars, character(0))
+
+    if (anyDuplicated(pop_df[[subjid_var]])) {
+      # __TOTAL__ counts potentially off; patch them with table that excludes population flags
+      group_vars_wo_flags <- setdiff(group_vars, ".pop_group")
+      unique_pop <- unique(pop_df[, c(subjid_var, group_vars_wo_flags)])
+      res_unique <- tabulate_multi_column(unique_pop, group_vars_wo_flags, "__TOTAL__")
+      
+      total_row_indices <- match(res_unique[[".lookup"]], res[[".lookup"]])
+      res[[".N"]][total_row_indices] <- res_unique[[".N"]]
+    }
+    
+    # match target column order and types
+    res[[".N"]] <- as.integer(res[[".N"]])
+    res <- res[, c(".N", group_vars, ".lookup")]
+     
+    return(res)
+  })
+
+  res[["meta"]] <- list(
+    hierarchy = hierarchy,
+    group_vars = group_vars,
+    pop_flag_vars = pop_flag_vars,
+    event_group_var = event_group_var,
+    event_group_vals = event_group_vals,
+    worst_event_group = worst_event_group,
+    total_vars = total_vars,
+    total_group_val = "Total",
+    event_group_total_val = event_group_total_val,
+    denom_df = denom_df,
+    table_type = table_type,
+    any_event_text = "Participants with any event",
+    warning_message = NULL,
+    min_percent = min_percent,
+    rank_col = paste0(EC$VAL$SPECIAL_CHAR, "rank")
+  )
+
+  return(res)
 }
 
 #' Provide hierarchy ordering based on descending counts and alphabetical values
@@ -1820,40 +1916,68 @@ hierarchical_count_table_server <- function(
       on.exit(p$close())
       p$set(message = "1) Processing data", value = 0.50)
 
-      events_table_raw <- compute_events_table(event_df = d,
-                                               pop_df = pd,
-                                               hierarchy = hierarchy,
-                                               group_vars = group_vars,
-                                               subjid_var = subjid_var,
-                                               pop_flag_vars = pop_flag_vars,
-                                               event_group_var = event_group_var,
-                                               worst_event_group_vars = worst_event_group_vars,
-                                               origin_date_var = origin_date_var,
-                                               censor_date_var = censor_date_var,
-                                               event_date_var = event_date_var,
-                                               total = total,
-                                               total_group_val = "Total",
-                                               event_group_total_val = event_group_total_val,
-                                               compute_risk = compute_risk,
-                                               any_event_text = any_event_text)
+      remove_rows_under_min_percent <- inputs[[EC$ID$REMOVE_ROWS_UNDER_MIN_PERCENT]]()
 
-      # Show warning when origin date is after non-missing censor date (bad data!)
-      shiny::validate(
-        shiny::need(
-          is.null(events_table_raw$meta$warning_message),
-          events_table_raw$meta$warning_message
+      t <- local({
+        events_table_raw <- compute_events_table(event_df = d,
+                                                 pop_df = pd,
+                                                 hierarchy = hierarchy,
+                                                 group_vars = group_vars,
+                                                 subjid_var = subjid_var,
+                                                 pop_flag_vars = pop_flag_vars,
+                                                 event_group_var = event_group_var,
+                                                 worst_event_group_vars = worst_event_group_vars,
+                                                 origin_date_var = origin_date_var,
+                                                 censor_date_var = censor_date_var,
+                                                 event_date_var = event_date_var,
+                                                 total = total,
+                                                 total_group_val = "Total",
+                                                 event_group_total_val = event_group_total_val,
+                                                 compute_risk = compute_risk,
+                                                 any_event_text = any_event_text)
+        # Show warning when origin date is after non-missing censor date (bad data!)
+        shiny::validate(
+          shiny::need(
+            is.null(events_table_raw$meta$warning_message),
+            events_table_raw$meta$warning_message
+          )
         )
-      )
-
-      sorted_events_table <- compute_order_events_table(events_table_raw)
-
-      t <- pivot_wide_format_events_table(
-        events_table_raw,
-        min_percent,
-        inputs[[EC$ID$REMOVE_ROWS_UNDER_MIN_PERCENT]]()
-      ) |>
-        sort_wider_formatter_events_table(sorted_events_table)
-
+        
+        sorted_events_table <- compute_order_events_table(events_table_raw)
+        
+        t <- pivot_wide_format_events_table(
+          events_table_raw,
+          min_percent,
+          remove_rows_under_min_percent
+        )
+        
+        t <- sort_wider_formatter_events_table(t, sorted_events_table)
+        
+        return(t)
+      })
+     
+      if (TRUE) {
+        t2 <- compute_events_table_2(
+          pop_df = pd,
+          subjid_var = subjid_var,
+          hierarchy = hierarchy, 
+          group_vars = group_vars,
+          pop_flag_vars = pop_flag_vars,
+          event_group_var = event_group_var,
+          event_group_var_levels = levels(add_na_factor_level(d[[event_group_var]])),
+          worst_event_group_vars = worst_event_group_vars,
+          total = total,
+          event_group_total_val = event_group_total_val,
+          compute_risk = compute_risk,
+          min_percent = min_percent
+        )
+        # normalize `t2` to match non-critical aspects of t # TODO: Remove
+        t2[["meta"]][["denom_df"]] <- tibble::as.tibble(t2[["meta"]][["denom_df"]])
+        
+        stopifnot(all.equal(t[["meta"]], t2[["meta"]]))
+      }
+      
+      
       t
     })
 
