@@ -591,20 +591,21 @@ compute_events_table <- function(event_df,
 } 
 
 compute_events_table_2 <- function(
-  pop_df,
-  subjid_var = subjid_var,
-  hierarchy, 
-  group_vars, 
-  pop_flag_vars,
-  event_group_var,
-  event_group_var_levels,
-  worst_event_group_vars,
-  total,
-  event_group_total_val,
-  compute_risk,
-  min_percent) {
+    event_df,
+    pop_df,
+    subjid_var = subjid_var,
+    hierarchy, 
+    group_vars, 
+    pop_flag_vars,
+    event_group_var,
+    event_group_var_levels,
+    worst_event_group_vars,
+    total,
+    event_group_total_val,
+    compute_risk,
+    min_percent) {
   res <- list(df = NULL, meta = NULL)
-
+  
   # Get variable names that will have a total column displayed in the table.
   # Currently this is limited to the last group variable (excluding flag group).
   total_vars <- character(0)
@@ -635,27 +636,41 @@ compute_events_table_2 <- function(
   denom_df <- local({
     checkmate::assert(length(group_vars) > 0)
     
-    tabulate_multi_column <- function(df, group_vars, prefix) {
-      multi_column_tabulation <- addmargins(  # TODO: what happens with NAs
-        do.call(table, df[group_vars]), 
-        FUN = list("__TOTAL__" = sum),
-        quiet = TRUE
-      )
+    tabulate_multi_column <- function(df, group_vars) {
+      fun <- stats::setNames(list(sum), EC$VAL$TOTAL)
+      tab <- do.call(table, c(df[group_vars], useNA = "ifany"))
+      
+      # match original "<NA>" formatting
+      for (i in seq_along(dimnames(tab))) {
+        dimnames(tab)[[i]][is.na(dimnames(tab)[[i]])] <- "<NA>"
+      }
+      
+      multi_column_tabulation <- addmargins(tab, FUN = fun, quiet = TRUE)
       res <- as.data.frame(multi_column_tabulation, responseName = ".N")
-      res[[".lookup"]] <- do.call(paste, c(prefix, res[group_vars], sep = EC$VAL$SPECIAL_CHAR))
+      res[[".lookup"]] <- do.call(paste, c(res[group_vars], sep = EC$VAL$SPECIAL_CHAR))
       return(res)
     }
     
-    res <- tabulate_multi_column(pop_df, group_vars, character(0))
-
+    res <- tabulate_multi_column(pop_df, group_vars)
+    
     if (anyDuplicated(pop_df[[subjid_var]])) {
-      # __TOTAL__ counts potentially off; patch them with table that excludes population flags
-      group_vars_wo_flags <- setdiff(group_vars, ".pop_group")
-      unique_pop <- unique(pop_df[, c(subjid_var, group_vars_wo_flags)])
-      res_unique <- tabulate_multi_column(unique_pop, group_vars_wo_flags, "__TOTAL__")
+      checkmate::assert(".pop_group" %in% group_vars)
+      # __TOTAL__ counts are potentially off; so we patch them with table that excludes population flags
       
-      total_row_indices <- match(res_unique[[".lookup"]], res[[".lookup"]])
-      res[[".N"]][total_row_indices] <- res_unique[[".N"]]
+      group_vars_wo_flags <- setdiff(group_vars, ".pop_group")
+      if (length(group_vars_wo_flags)) {
+        unique_pop <- unique(pop_df[, c(subjid_var, group_vars_wo_flags)])
+        res_unique <- tabulate_multi_column(unique_pop, group_vars_wo_flags)
+        
+        res_unique_lookup <- paste0(EC$VAL$TOTAL, EC$VAL$SPECIAL_CHAR, res_unique[[".lookup"]])
+        pop_flags_below <- (".pop_group" == group_vars[[length(group_vars)]])
+        if (pop_flags_below) res_unique_lookup <- paste0(res_unique[[".lookup"]], EC$VAL$SPECIAL_CHAR, EC$VAL$TOTAL)
+        
+        total_row_indices <- match(res_unique_lookup, res[[".lookup"]])
+        res[[".N"]][total_row_indices] <- res_unique[[".N"]]
+      } else {
+        res[[".N"]][res[[".lookup"]] == EC$VAL$TOTAL] <- length(levels(pop_df[[subjid_var]]))
+      }
     }
     
     # match target column order and types
@@ -682,7 +697,51 @@ compute_events_table_2 <- function(
     min_percent = min_percent,
     rank_col = paste0(EC$VAL$SPECIAL_CHAR, "rank")
   )
-
+  
+  df_col_names <- local({
+    hierarchy_names <- as.character(hierarchy) # drops attributes
+    fixed_names <- paste0(EC$VAL$SPECIAL_CHAR, c("lvl", "rank"))
+    
+    group_var_names <- local({
+      group_var_count <- length(group_vars)
+     
+      group_var_levels <- list()
+      for (i in seq_along(group_vars)){
+        lev <- levels(addNA(pop_df[[group_vars[[i]]]], ifany = TRUE))
+        lev[is.na(lev)] <- "<NA>"
+        group_var_levels[[i]] <- lev
+      }
+      
+      group_var_without_pop_group_count <- length(setdiff(group_vars, ".pop_group"))
+      if (isTRUE(total) && group_var_without_pop_group_count) { # smuggle total into last group_var
+        extend_level_idx <- group_var_count
+        if (extend_level_idx > 1 && group_vars[[extend_level_idx]] == ".pop_group") { # pop flags after groups
+          extend_level_idx <- extend_level_idx - 1
+        }
+        
+        if (length(group_var_levels[[extend_level_idx]]) == 1) {
+          # FIXME: Propose to drop this unnecessary column?
+        }
+        
+        if (extend_level_idx > 0) {
+          group_var_levels[[extend_level_idx]] <- c(group_var_levels[[extend_level_idx]], EC$VAL$TOTAL)
+        }
+      }
+      
+      combinations_df <- expand.grid(rev(group_var_levels))
+      res <- do.call(paste, c(rev(combinations_df), sep = EC$VAL$SPECIAL_CHAR))
+      return(res)
+    })
+    
+    res <- c(hierarchy_names, fixed_names, group_var_names)
+    return(res)
+  })
+ 
+ 
+  df <- data.frame(matrix(NA, nrow = 0, ncol = length(df_col_names)))
+  names(df) <- df_col_names
+  res[["df"]] <- df
+  
   return(res)
 }
 
@@ -1958,6 +2017,7 @@ hierarchical_count_table_server <- function(
      
       if (TRUE) {
         t2 <- compute_events_table_2(
+          event_df = d,
           pop_df = pd,
           subjid_var = subjid_var,
           hierarchy = hierarchy, 
@@ -1973,6 +2033,7 @@ hierarchical_count_table_server <- function(
         )
         # normalize `t2` to match non-critical aspects of t # TODO: Remove
         t2[["meta"]][["denom_df"]] <- tibble::as.tibble(t2[["meta"]][["denom_df"]])
+        t2[["df"]] <- tibble::as.tibble(t2[["df"]])
         
         stopifnot(all.equal(t[["meta"]], t2[["meta"]]))
       }
