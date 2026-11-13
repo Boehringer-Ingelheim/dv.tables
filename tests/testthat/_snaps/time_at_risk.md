@@ -156,144 +156,298 @@
 ---
 
     Code
-      html
+      cat(html)
     Output
+      
       <div>
-        <p>Event count by Level 1, Level 2; group by group</p>
-        <table class="table event-count">
-          <tr>
-            <th class="text-center">
-              <span></span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>
-                GA
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>
-                GB
-                <br/>
-                (N = 2)
-              </span>
-            </th>
-            <th class="text-center short-border" colspan="3">
-              <span>
-                GC
-                <br/>
-                (N = 1)
-              </span>
-            </th>
-          </tr>
-          <tr>
-            <th class="text-center">
-              <span></span>
-            </th>
-            <th class="text-center" style="vertical-align: bottom;">n (%)</th>
-            <th class="text-center" style="vertical-align: bottom;">Time at risk<br>(pt-yrs)</th>
-            <th class="text-center" style="vertical-align: bottom;">Rate/100<br>pt-yrs</th>
-            <th class="text-center" style="vertical-align: bottom;">n (%)</th>
-            <th class="text-center" style="vertical-align: bottom;">Time at risk<br>(pt-yrs)</th>
-            <th class="text-center" style="vertical-align: bottom;">Rate/100<br>pt-yrs</th>
-            <th class="text-center" style="vertical-align: bottom;">n (%)</th>
-            <th class="text-center" style="vertical-align: bottom;">Time at risk<br>(pt-yrs)</th>
-            <th class="text-center" style="vertical-align: bottom;">Rate/100<br>pt-yrs</th>
-          </tr>
-          <tr row-id="1" class="indent-0" indent="0">
-            <td>
-              <span class="truncate" title="Participants with any event">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                Participants with any event
-              </span>
-            </td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">0.00</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">36525.00</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">0.05</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">3844.74</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.06</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.00</td>
-          </tr>
-          <tr row-id="2" class="indent-1 bg-gray" indent="1">
-            <td>
-              <span class="truncate" title="A1">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                A1
-              </span>
-            </td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">0.00</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">36525.00</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">0.05</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">3844.74</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.06</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.00</td>
-          </tr>
-          <tr row-id="3" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="A2">A2</span>
-            </td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">0.03</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">0.00</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">2 ( 100.00 %)</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">0.05</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">3844.74</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.06</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.00</td>
-          </tr>
-          <tr row-id="4" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="B2">B2</span>
-            </td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">0.00</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">36525.00</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">0.11</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">0.00</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.06</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.00</td>
-          </tr>
-          <tr row-id="5" class="indent-1 bg-gray" indent="1">
-            <td>
-              <span class="truncate" title="B1">
-                <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)"></i>
-                B1
-              </span>
-            </td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">0.03</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">3652.50</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">0.11</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">913.12</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.06</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.00</td>
-          </tr>
-          <tr row-id="6" class="indent-2" indent="2">
-            <td>
-              <span class="truncate" title="B2">B2</span>
-            </td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">1 ( 100.00 %)</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">0.03</td>
-            <td class="text-center" column="GA" style="white-space: nowrap;">3652.50</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">1 ( 50.00 %)</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">0.11</td>
-            <td class="text-center" column="GB" style="white-space: nowrap;">913.12</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.06</td>
-            <td class="text-center" column="GC" style="white-space: nowrap;">0.00</td>
-          </tr>
-        </table>
+      <p>
+      Event count by Level 1, Level 2; group by group
+      </p>
+      <table class="table event-count">
+      <tbody>
+      <tr>
+      <th class="text-center">
+      <span>
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      GA
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      GB
+      <br/>
+      (N = 2)
+      </span>
+      </th>
+      <th class="text-center short-border" colspan="3">
+      <span>
+      GC
+      <br/>
+      (N = 1)
+      </span>
+      </th>
+      </tr>
+      <tr>
+      <th class="text-center">
+      <span>
+      </span>
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      n (%)
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      Time at risk
+      <br>
+      (pt-yrs)
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      Rate/100
+      <br>
+      pt-yrs
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      n (%)
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      Time at risk
+      <br>
+      (pt-yrs)
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      Rate/100
+      <br>
+      pt-yrs
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      n (%)
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      Time at risk
+      <br>
+      (pt-yrs)
+      </th>
+      <th class="text-center" style="vertical-align: bottom;">
+      Rate/100
+      <br>
+      pt-yrs
+      </th>
+      </tr>
+      <tr row-id="1" class="indent-0" indent="0">
+      <td>
+      <span class="truncate" title="Participants with any event">
+      <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)">
+      </i>
+      Participants with any event
+      </span>
+      </td>
+      <td column="GA">
+      1 ( 100.00 %)
+      </td>
+      <td column="GA">
+      0.00
+      </td>
+      <td column="GA">
+      36525.00
+      </td>
+      <td column="GB">
+      2 ( 100.00 %)
+      </td>
+      <td column="GB">
+      0.05
+      </td>
+      <td column="GB">
+      3844.74
+      </td>
+      <td column="GC">
+      0
+      </td>
+      <td column="GC">
+      0.06
+      </td>
+      <td column="GC">
+      0.00
+      </td>
+      </tr>
+      <tr row-id="2" class="indent-1 bg-gray" indent="1">
+      <td>
+      <span class="truncate" title="A1">
+      <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)">
+      </i>
+      A1
+      </span>
+      </td>
+      <td column="GA">
+      1 ( 100.00 %)
+      </td>
+      <td column="GA">
+      0.00
+      </td>
+      <td column="GA">
+      36525.00
+      </td>
+      <td column="GB">
+      2 ( 100.00 %)
+      </td>
+      <td column="GB">
+      0.05
+      </td>
+      <td column="GB">
+      3844.74
+      </td>
+      <td column="GC">
+      0
+      </td>
+      <td column="GC">
+      0.06
+      </td>
+      <td column="GC">
+      0.00
+      </td>
+      </tr>
+      <tr row-id="3" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="A2">
+      A2
+      </span>
+      </td>
+      <td column="GA">
+      0
+      </td>
+      <td column="GA">
+      0.03
+      </td>
+      <td column="GA">
+      0.00
+      </td>
+      <td column="GB">
+      2 ( 100.00 %)
+      </td>
+      <td column="GB">
+      0.05
+      </td>
+      <td column="GB">
+      3844.74
+      </td>
+      <td column="GC">
+      0
+      </td>
+      <td column="GC">
+      0.06
+      </td>
+      <td column="GC">
+      0.00
+      </td>
+      </tr>
+      <tr row-id="4" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="B2">
+      B2
+      </span>
+      </td>
+      <td column="GA">
+      1 ( 100.00 %)
+      </td>
+      <td column="GA">
+      0.00
+      </td>
+      <td column="GA">
+      36525.00
+      </td>
+      <td column="GB">
+      0
+      </td>
+      <td column="GB">
+      0.11
+      </td>
+      <td column="GB">
+      0.00
+      </td>
+      <td column="GC">
+      0
+      </td>
+      <td column="GC">
+      0.06
+      </td>
+      <td column="GC">
+      0.00
+      </td>
+      </tr>
+      <tr row-id="5" class="indent-1 bg-gray" indent="1">
+      <td>
+      <span class="truncate" title="B1">
+      <i class="fas fa-table" role="presentation" aria-label="table icon" onclick="ec_collapse(this)">
+      </i>
+      B1
+      </span>
+      </td>
+      <td column="GA">
+      1 ( 100.00 %)
+      </td>
+      <td column="GA">
+      0.03
+      </td>
+      <td column="GA">
+      3652.50
+      </td>
+      <td column="GB">
+      1 ( 50.00 %)
+      </td>
+      <td column="GB">
+      0.11
+      </td>
+      <td column="GB">
+      913.12
+      </td>
+      <td column="GC">
+      0
+      </td>
+      <td column="GC">
+      0.06
+      </td>
+      <td column="GC">
+      0.00
+      </td>
+      </tr>
+      <tr row-id="6" class="indent-2" indent="2">
+      <td>
+      <span class="truncate" title="B2">
+      B2
+      </span>
+      </td>
+      <td column="GA">
+      1 ( 100.00 %)
+      </td>
+      <td column="GA">
+      0.03
+      </td>
+      <td column="GA">
+      3652.50
+      </td>
+      <td column="GB">
+      1 ( 50.00 %)
+      </td>
+      <td column="GB">
+      0.11
+      </td>
+      <td column="GB">
+      913.12
+      </td>
+      <td column="GC">
+      0
+      </td>
+      <td column="GC">
+      0.06
+      </td>
+      <td column="GC">
+      0.00
+      </td>
+      </tr>
+      </tbody>
+      </table>
       </div>
 

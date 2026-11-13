@@ -35,8 +35,10 @@
   overflow-wrap: break-word;
 }
 
-.hier_count_table td {
+.hier_count_table td:not(:has(*)) {
     vertical-align: baseline;
+    white-space: nowrap;
+    text-align: center;
 }
 
 .hier_count_table th.short-border {

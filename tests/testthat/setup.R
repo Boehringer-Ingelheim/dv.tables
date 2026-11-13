@@ -147,3 +147,26 @@ test_communication_with_papo <- function(mod, data, trigger_input_id, papo_spec_
     app$stop()
   })
 }
+
+basic_unsafe_HTML_normalization <- function(s) {
+  s <- gsub("(<)", "\n\\1", s)
+  s <- gsub("(>)", "\\1\n", s)
+  s <- gsub("\\s*\\n\\s*", "\n", s)
+  return(s)
+}
+
+create_text_sink <- function() {
+  res <- character(0)
+  return(
+    list(
+      collect = function(s) {
+        res[[length(res) + 1]] <<- s
+      },
+      output = function() {
+        v <- paste(res, collapse = "")
+        v <- basic_unsafe_HTML_normalization(v)
+        return(v)
+      }
+    )
+  )
+}
