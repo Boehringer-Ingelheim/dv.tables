@@ -50,13 +50,19 @@ mod_summary_table(
       list(pattern = "^NA \\(NA\\)$", replacement = "—"),
       list(pattern = "\\(NA\\)$", replacement = sprintf("(\%s)", "—"))
     ),
-    meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+    meanci = list(
+      list(pattern = "^\\(NA, NA\\)$", replacement = "—"),
+      list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+    ),
     geomean = list(
       list(pattern = "^NA$", replacement = "—"),
       list(pattern = "^NaN$", replacement = "NE")
     ),
     median = list(list(pattern = "^NA$", replacement = "—")),
-    medianci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+    medianci = list(
+      list(pattern = "^\\(NA, NA\\)$", replacement = "—"),
+      list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+    ),
     q1q3 = list(list(pattern = "^NA - NA$", replacement = "—")),
     minmax = list(list(pattern = "^NA - NA$", replacement = "—"))
   ),

@@ -382,8 +382,8 @@ stats_functions = list(
 
 The functions must either return a single numeric value (e.g. `mean`, `stats::sd`, etc.) or a vector of numeric values
 (e.g. `\(x) stats::quantile(x, c(0.25, 0.75))`). Note that the functions will not be applied to empty groupings, but if
-a function requires more than one data point (e.g. `stats::t.test`) then the error cases must be dealt with using a
-wrapper function:
+a function requires more than one data point (e.g. `stats::t.test`) then the single data point case must be dealt with
+using a wrapper function:
 
 ```
 meanci = function(x) {
@@ -394,6 +394,11 @@ meanci = function(x) {
   }
 }
 ```
+
+Note that functions may also generate errors or warnings if the data is not suitable, e.g. `stats::t.test` will
+generate an error when all values in the grouping are equal. In those cases the warnings and errors are caught, and
+`NaN` values returned instead, which may then be post-processed, e.g. by replacing with `"NE"` (meaning "Not Estimable"
+or "Not Evaluable").
 
 When such functions return multiple values, those values can be referred to in `stats_formats`, `stats_labels`, and
 `stats_replace` by appending a dot followed by an incremented integer. So for the example of `meanci` which returns
@@ -488,13 +493,19 @@ stats_replace = list(
     list(pattern = "^NA \\(NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
     list(pattern = "\\(NA\\)$", replacement = sprintf("(%s)", SUMMTAB$VAL$EM_DASH))
   ),
-  meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+  meanci = list(
+    list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
+    list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+  ),
   geomean = list(
     list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH),
     list(pattern = "^NaN$", replacement = "NE")
   ),
   median = list(list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH)),
-  medianci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+  medianci = list(
+    list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
+    list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+  ),
   q1q3 = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH)),
   minmax = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH))
 )
@@ -508,6 +519,12 @@ elements themselves are the replacement strings.
 
 In the default, the em dash (long dash) has been specified by the package constant `SUMMTAB$VAL$EM_DASH`, but the
 unicode value, `"\u2014"`, can also be directly used.
+
+Note that the `NaN` replacements for `meanci` and `medianci` address the cases when an error or warning is caught from
+`stats::t.test` or `stats::wilcox.test` being applied to values that are all equal within a grouping. The abbreviation
+`NE` stands for "Not Estimable" meaning that the statistic cannot be calculated or inferred from the available data.
+The `NaN` replacement for `geomean` addresses the case when one or more values within a grouping are less than or equal
+to zero.
 
 
 # Download

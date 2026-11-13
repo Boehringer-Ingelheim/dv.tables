@@ -303,6 +303,47 @@ local({
 
 })
 
+local({
+  # Test that errors and warnings from stats functions return NaN values
+
+  analysis_df <- data.frame(
+    SUBJID = as.character(10001:10010),
+    AGE = rep(25, 10)
+  )
+
+  stats_functions <- list(
+    mean = mean,
+    meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+    medianci = \(x) {
+      if (length(x) > 1L) stats::wilcox.test(x,
+                                             exact = FALSE,
+                                             conf.int = TRUE,
+                                             conf.level = 0.95)$conf.int else rep(NA_real_, 2L)
+    }
+  )
+
+  results <- summtab_calc_stats(
+    analysis_df,
+    subjid_var = "SUBJID",
+    anl_var = "AGE",
+    stats_functions = stats_functions,
+    stats_func_result_count = c(mean = 1, meanci = 2, medianci = 2),
+    aggregate_func_name = NULL,
+    denom = "N"
+  )
+
+  test_that(vdoc[["add_spec"]](
+    "errors and warnings from stats functions return NaN values",
+    c(specs$summary_table$stats_func_err)
+  ), {
+    expect_equal(results[[1]][["mean"]], 25)
+    expect_equal(results[[1]][["meanci.1"]], NaN)
+    expect_equal(results[[1]][["meanci.2"]], NaN)
+    expect_equal(results[[1]][["medianci.1"]], NaN)
+    expect_equal(results[[1]][["medianci.2"]], NaN)
+  })
+})
+
 
 # App tests ----
 
