@@ -698,9 +698,12 @@ compute_events_table_2 <- function(
     rank_col = paste0(EC$VAL$SPECIAL_CHAR, "rank")
   )
   
-  df_col_names <- local({
+  df_col_names_and_types <- local({
     hierarchy_names <- as.character(hierarchy) # drops attributes
+    hierarchy_types <- lapply(event_df[hierarchy_names], `[`, 0)
+    
     fixed_names <- paste0(EC$VAL$SPECIAL_CHAR, c("lvl", "rank"))
+    fixed_types <- list(integer(0), integer(0))
     
     group_var_names <- local({
       group_var_count <- length(group_vars)
@@ -732,14 +735,23 @@ compute_events_table_2 <- function(
       res <- do.call(paste, c(rev(combinations_df), sep = EC$VAL$SPECIAL_CHAR))
       return(res)
     })
+    group_var_types <- replicate(length(group_var_names), list())
     
-    res <- c(hierarchy_names, fixed_names, group_var_names)
+    col_names <- c(hierarchy_names, fixed_names, group_var_names)
+    types <- c(hierarchy_types, fixed_types, group_var_types)
+    
+    res <- list(names = col_names, types = types)
+    
     return(res)
   })
- 
- 
-  df <- data.frame(matrix(NA, nrow = 0, ncol = length(df_col_names)))
-  names(df) <- df_col_names
+  
+  df <- do.call(structure, list(
+    .Data = df_col_names_and_types[["types"]],
+    class = "data.frame",
+    row.names = integer(0),
+    names = df_col_names_and_types[["names"]]
+  ))
+
   res[["df"]] <- df
   
   return(res)
