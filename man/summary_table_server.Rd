@@ -102,8 +102,9 @@ further information.}
 \item{stats_replace}{\verb{[list(1+) | NULL]}
 
 A named list of lists of \code{list(pattern =, replacement =)} pairs defining replacements that should be applied, in
-order, to the formatted results from \code{stats_formats}. \code{pattern} is a regular expression matched against the
-formatted result, and \code{replacement} is the string substituted in. The names of the outer list should match the
+the given order, to the formatted results from \code{stats_formats}. \code{pattern} is a regular expression matched against the
+formatted result, and \code{replacement} is the string substituted in. An optional string giving information related to
+the replacement can be passed to \code{info}. The names of the outer list should match the
 names of the list elements in \code{stats_formats}.}
 
 \item{default_summarize_on}{\verb{[character(1+) | NULL]}

@@ -24,7 +24,7 @@ categorical analysis it should be \code{.dummy}.}
 
 \item{stats_functions}{A named list defining the functions used for summarizing the data.}
 
-\item{stats_func_result_count}{A named integer vector providing the number of results for each stats function.}
+\item{stats_func_result_count}{A named list of integers providing the number of results for each stats function.}
 
 \item{aggregate_func_name}{A string representing the name of the function used to aggregate multiple rows per subject
 into one.}

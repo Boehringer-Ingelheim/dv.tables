@@ -13,9 +13,10 @@ summtab_format_stats(analysis_df, stats_fmts, replace, stats_element_names)
 \code{analysis_df}. Each element of \code{stats_fmts} lists the argument values passed to \code{sprintf}, the result being
 assigned to the element name.}
 
-\item{replace}{A named list of lists of \code{list(pattern =, replacement =)} pairs, applied in order to the formatted
-results from \code{stats_fmts} (\code{pattern} is a regular expression matched against the formatted result; \code{replacement}
-is the string to substitute in). The names of the outer list should match the names of the list elements in
+\item{replace}{A named list of lists of \code{list(pattern =, replacement =)} pairs defining replacements applied, in
+the given order, to the formatted results from \code{stats_fmts}. (\code{pattern} is a regular expression matched against the
+formatted result; \code{replacement} is the string to substitute in). An optional string giving information related to
+the replacement can be passed to \code{info}. The names of the outer list should match the names of the list elements in
 \code{stats_fmts}.}
 
 \item{stats_element_names}{A vector of all statistics element names, used to determine elements that have not been

@@ -101,7 +101,7 @@ summtab_meta_env <- new.env()
 #' @param anl_var A string representing the name of the analysis variable to calculate the statistics on. For
 #'   categorical analysis it should be `.dummy`.
 #' @param stats_functions A named list defining the functions used for summarizing the data.
-#' @param stats_func_result_count A named integer vector providing the number of results for each stats function.
+#' @param stats_func_result_count A named list of integers providing the number of results for each stats function.
 #' @param aggregate_func_name A string representing the name of the function used to aggregate multiple rows per subject
 #'   into one.
 #' @param denom A string, either "N" or "n", indicating the denominator to use for percent (`pct`) calculation.
@@ -153,26 +153,35 @@ summtab_calc_stats <- function(analysis_df,
 
     f <- stats_functions[[stat_name]]
 
-    if (stat_name == "pct") {
-      results_list[[stat_name]] <- f(x_vals, n = summtab_meta_env$n_denom)
+    f_result <- if (stat_name == "pct") {
+      f(x_vals, n = summtab_meta_env$n_denom)
     } else {
       # Handle warnings/errors from statistics function
-      f_result <- tryCatch({
+      tryCatch({
         f(x_vals)
       }, warning = \(w) {
         # e.g. confidence intervals from stats::wilcox.test when all values are the same
-        rep(NaN, max(stats_func_result_count[[stat_name]], 1L, na.rm = TRUE))
+        res <- rep(NaN, max(stats_func_result_count[[stat_name]], 1L, na.rm = TRUE))
+        attr(res, "message") <- paste("Warning:", w$message)
+        res
       }, error = \(e) {
         # e.g. confidence intervals from stats::t.test when all values are the same
-        rep(NaN, max(stats_func_result_count[[stat_name]], 1L, na.rm = TRUE))
+        res <- rep(NaN, max(stats_func_result_count[[stat_name]], 1L, na.rm = TRUE))
+        attr(res, "message") <- paste("Error:", e$message)
+        res
       })
-      if (length(f_result) == 1L) {
-        results_list[[stat_name]] <- f_result
-      } else {
-        # For function with multiple results, assign the elements, <stat_name>.1, <stat_name>.2, etc.
-        results_list[paste0(stat_name, ".", seq_along(f_result))] <- f_result
-      }
     }
+
+    if (length(f_result) == 1L) {
+      results_list[[stat_name]] <- f_result
+    } else {
+      # For function with multiple results, assign the elements, <stat_name>.1, <stat_name>.2, etc.
+      results_list[paste0(stat_name, ".", seq_along(f_result))] <- f_result
+    }
+
+    # Add entry for any associated message
+    catch_message <- attr(f_result, "message")
+    results_list[[paste0(stat_name, ".message")]] <- if (is.null(catch_message)) NA_character_ else catch_message
 
     # Save the total count for the grouping, so it can be used later in percent calculation.
     category_n <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, "n")
@@ -197,9 +206,10 @@ summtab_calc_stats <- function(analysis_df,
 #' @param stats_fmts A named list of lists defining the combination and formatting of the statistics elements from
 #'   `analysis_df`. Each element of `stats_fmts` lists the argument values passed to `sprintf`, the result being
 #'   assigned to the element name.
-#' @param replace A named list of lists of `list(pattern =, replacement =)` pairs, applied in order to the formatted
-#'   results from `stats_fmts` (`pattern` is a regular expression matched against the formatted result; `replacement`
-#'   is the string to substitute in). The names of the outer list should match the names of the list elements in
+#' @param replace A named list of lists of `list(pattern =, replacement =)` pairs defining replacements applied, in
+#'   the given order, to the formatted results from `stats_fmts`. (`pattern` is a regular expression matched against the
+#'   formatted result; `replacement` is the string to substitute in). An optional string giving information related to
+#'   the replacement can be passed to `info`. The names of the outer list should match the names of the list elements in
 #'   `stats_fmts`.
 #' @param stats_element_names A vector of all statistics element names, used to determine elements that have not been
 #'   used in `stats_fmts` and therefore have basic formatting applied (conversion to character).
@@ -217,9 +227,11 @@ summtab_format_stats <- function(analysis_df,
 
   stat_fmt_names <- names(stats_fmts)
   for (fmt_name in stat_fmt_names) {
+    stats <- character()
     fmt <- stats_fmts[[fmt_name]]
     for (i in 2L:length(fmt)) {
       statistic <- fmt[[i]]
+      stats <- c(stats, statistic)
       drop_stats <- c(drop_stats, statistic)
       fmt[[i]] <- analysis_df[[statistic]]
     }
@@ -228,17 +240,55 @@ summtab_format_stats <- function(analysis_df,
 
     lookups <- replace[[fmt_name]]
     if (!is.null(lookups)) {
+      info_vec <- character(nrow(formatted_df))
       for (lui in seq_along(lookups)) {
         lu_pat <- lookups[[lui]][["pattern"]]
         lu_rep <- lookups[[lui]][["replacement"]]
+        lu_info <- lookups[[lui]][["info"]]
+        if (!is.null(lu_info)) {
+          info_vec <- ifelse(
+            grepl(lu_pat, formatted_df[[fmt_name]]),
+            paste0(info_vec, SUMMTAB$VAL$SPECIAL_CHAR, lu_info),
+            info_vec
+          )
+        }
         formatted_df[[fmt_name]] <- sub(lu_pat, lu_rep, formatted_df[[fmt_name]])
       }
+      formatted_df[[fmt_name]] <- paste0(formatted_df[[fmt_name]], info_vec)
     }
+
+    msg_cols <- sub("\\.[0-9]+$", "", stats) |>
+      unique() |>
+      paste0(".message")
+
+    # Append messages resulting from tryCatch errors and warnings
+    formatted_df <- formatted_df |>
+      tidyr::unite(
+        col = !!fmt_name,
+        tidyr::all_of(c(fmt_name, msg_cols)),
+        sep = SUMMTAB$VAL$SPECIAL_CHAR,
+        remove = FALSE,
+        na.rm = TRUE
+      )
   }
 
   # Format statistics that were not already combined/formatted
   unformatted_stats <- setdiff(stats_element_names, drop_stats)
-  formatted_df[unformatted_stats] <- lapply(formatted_df[unformatted_stats], as.character)
+  for (stat_col in unformatted_stats) {
+    formatted_df[[stat_col]] <- paste(analysis_df[[stat_col]]) # Using paste ensures that NA an NaN convert to a string
+    msg_col <- paste0(sub("\\.[0-9]+$", "", stat_col), ".message")
+    formatted_df <- formatted_df |>
+      tidyr::unite(
+        col = !!stat_col,
+        tidyr::all_of(c(stat_col, msg_col)),
+        sep = SUMMTAB$VAL$SPECIAL_CHAR,
+        remove = FALSE,
+        na.rm = TRUE
+      )
+  }
+
+  # Remove message columns
+  formatted_df <- dplyr::select(formatted_df, -dplyr::ends_with(".message"))
 
   # Drop stats that have been combined/formatted to a new name
   drop_stats <- setdiff(drop_stats, stat_fmt_names)
@@ -405,7 +455,7 @@ summtab_compute <- function(tbl_df,
   stats_func_result_count <- local({
     result_names <- unlist(lapply(stats_formats, \(x) x[!(names(x) %in% "fmt")]), use.names = FALSE)
     base_names <- sub("\\.\\d+$", "", result_names)
-    names_count <- c(table(base_names))
+    names_count <- as.list(c(table(base_names)))
     names_count
   })
 
@@ -478,8 +528,10 @@ summtab_compute <- function(tbl_df,
     # Extract statistics from their single column lists into their own columns
     av_df <- tidyr::unnest_wider(av_df, tidyr::all_of(".stats"))
 
-    # Capture all statistics columns calculated by `summtab_calc_stats()` including those prefixed with `.1`, `.2`, etc.
-    av_calc_stats_elems <- setdiff(names(av_df), c(group_by_vars, "subjid", anl_var))
+    # Capture all statistics columns calculated by `summtab_calc_stats()` including those suffixed with `.1`, `.2`, etc.
+    # but excluding the messages suffixed with ".message"
+    av_calc_stats_elems <- setdiff(names(av_df), c(group_by_vars, "subjid", anl_var)) |>
+      grep("\\.message$", x = _, invert = TRUE, value = TRUE)
 
     # Format statistics
     av_df <- summtab_format_stats(
@@ -494,9 +546,9 @@ summtab_compute <- function(tbl_df,
     # Transpose statistics into a single column
     av_df <- tidyr::pivot_longer(
       av_df,
-      cols = dplyr::all_of(stat_cols),
+      cols = tidyr::all_of(stat_cols),
       names_to = stat_col,
-      values_to = ".val",
+      values_to = ".val"
     )
 
     # If categorical analysis, then move category into statistic name
@@ -764,8 +816,22 @@ summtab_html_table <- function(summtab_list, var_labels, on_cell_click = NULL) {
       title = curr_row[[stat_col]]
     ))
 
+    info_pattern <- paste0("^[^", SUMMTAB$VAL$SPECIAL_CHAR, "]+", SUMMTAB$VAL$SPECIAL_CHAR)
+    show_pattern <- paste0(SUMMTAB$VAL$SPECIAL_CHAR, ".*$")
     data_cells <- purrr::imap(curr_row[data_columns], function(.col, .col_id) {
-      tdc(.col[[1]][["stat"]], column = .col_id, onclick = on_cell_click, style = "white-space: nowrap;")
+
+      cell_content <- .col[[1]][["stat"]]
+      if (grepl(SUMMTAB$VAL$SPECIAL_CHAR, cell_content, fixed = TRUE)) {
+        cell_info <- sub(info_pattern, "", cell_content) |>
+          gsub(SUMMTAB$VAL$SPECIAL_CHAR, "\n", x = _)
+        show_content <- sub(show_pattern, "", cell_content)
+        cell_content <- shiny::tagList(
+          show_content,
+          shiny::icon("circle-info", title = cell_info, style = "color: #6c757d; cursor: help;")
+        )
+      }
+
+      tdc(cell_content, column = .col_id, onclick = on_cell_click, style = "white-space: nowrap;")
     })
 
     indent_class <- sprintf("indent-%d", indent)
@@ -1554,8 +1620,9 @@ summary_table_server <- function(module_id,
 #' @param stats_replace `[list(1+) | NULL]`
 #'
 #' A named list of lists of `list(pattern =, replacement =)` pairs defining replacements that should be applied, in
-#' order, to the formatted results from `stats_formats`. `pattern` is a regular expression matched against the
-#' formatted result, and `replacement` is the string substituted in. The names of the outer list should match the
+#' the given order, to the formatted results from `stats_formats`. `pattern` is a regular expression matched against the
+#' formatted result, and `replacement` is the string substituted in. An optional string giving information related to
+#' the replacement can be passed to `info`. The names of the outer list should match the
 #' names of the list elements in `stats_formats`.
 #'
 #' @param default_summarize_on `[character(1+) | NULL]`
@@ -1695,11 +1762,11 @@ summary_table_server <- function(module_id,
 #'     n = length,
 #'     mean = mean,
 #'     sd = stats::sd,
-#'     meanci = function(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
-#'     geomean = function(x) if (all(x > 0)) exp(mean(log(x))) else NaN,
+#'     meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+#'     geomean = \(x) if (all(x > 0)) exp(mean(log(x))) else NaN,
 #'     median = stats::median,
-#'     medianci = function(x) if (length(x) > 1L) stats::wilcox.test(x, exact = FALSE, conf.int = TRUE, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
-#'     q1q3 = function(x) stats::quantile(x, c(0.25, 0.75)),
+#'     medianci = \(x) if (length(x) > 1L) stats::wilcox.test(x, exact = FALSE, conf.int = TRUE, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+#'     q1q3 = \(x) stats::quantile(x, c(0.25, 0.75)),
 #'     min = min,
 #'     max = max
 #'   ),
@@ -1731,16 +1798,16 @@ summary_table_server <- function(module_id,
 #'     ),
 #'     meanci = list(
 #'       list(pattern = "^\\(NA, NA\\)$", replacement = "—"),
-#'       list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+#'       list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE", info = "Not Estimable (NE)")
 #'     ),
 #'     geomean = list(
 #'       list(pattern = "^NA$", replacement = "—"),
-#'       list(pattern = "^NaN$", replacement = "NE")
+#'       list(pattern = "^NaN$", replacement = "NE", info = "Not Estimable (NE)")
 #'     ),
 #'     median = list(list(pattern = "^NA$", replacement = "—")),
 #'     medianci = list(
 #'       list(pattern = "^\\(NA, NA\\)$", replacement = "—"),
-#'       list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+#'       list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE", info = "Not Estimable (NE)")
 #'     ),
 #'     q1q3 = list(list(pattern = "^NA - NA$", replacement = "—")),
 #'     minmax = list(list(pattern = "^NA - NA$", replacement = "—"))
@@ -1832,16 +1899,16 @@ mod_summary_table <- function(
       ),
       meanci = list(
         list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
-        list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+        list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE", info = "Not Estimable (NE)")
       ),
       geomean = list(
         list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH),
-        list(pattern = "^NaN$", replacement = "NE")
+        list(pattern = "^NaN$", replacement = "NE", info = "Not Estimable (NE)")
       ),
       median = list(list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH)),
       medianci = list(
         list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
-        list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE")
+        list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE", info = "Not Estimable (NE)")
       ),
       q1q3 = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH)),
       minmax = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH))
