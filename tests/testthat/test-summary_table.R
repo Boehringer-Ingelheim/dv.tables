@@ -32,10 +32,13 @@ rep_list <- list(
     list(pattern = "^NA \\(NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
     list(pattern = "\\(NA\\)$", replacement = sprintf("(%s)", SUMMTAB$VAL$EM_DASH))
   ),
-  meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH)),
+  meanci = list(
+    list(pattern = "^\\(NA, NA\\)$", replacement = SUMMTAB$VAL$EM_DASH),
+    list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE", info = "Not Estimable")
+  ),
   geomean = list(
     list(pattern = "^NA$", replacement = SUMMTAB$VAL$EM_DASH),
-    list(pattern = "^NaN$", replacement = "NE")
+    list(pattern = "^NaN$", replacement = "NE", info = "Not Estimable")
   ),
   minmax = list(list(pattern = "^NA - NA$", replacement = SUMMTAB$VAL$EM_DASH))
 )
@@ -301,6 +304,103 @@ local({
     expect_snapshot(st4_html)
   })
 
+})
+
+local({
+  # Test that errors and warnings from stats functions return NaN values
+
+  analysis_df <- data.frame(
+    SUBJID = as.character(10001:10010),
+    AGE = rep(25, 10)
+  )
+
+  stats_functions <- list(
+    mean = mean,
+    meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+    medianci = \(x) {
+      if (length(x) > 1L) stats::wilcox.test(x,
+                                             exact = FALSE,
+                                             conf.int = TRUE,
+                                             conf.level = 0.95)$conf.int else rep(NA_real_, 2L)
+    }
+  )
+
+  results <- summtab_calc_stats(
+    analysis_df,
+    subjid_var = "SUBJID",
+    anl_var = "AGE",
+    stats_functions = stats_functions,
+    stats_func_result_count = c(mean = 1, meanci = 2, medianci = 2),
+    aggregate_func_name = NULL,
+    denom = "N"
+  )
+
+  test_that(vdoc[["add_spec"]](
+    "errors and warnings from stats functions return NaN values",
+    c(specs$summary_table$stats_func_err)
+  ), {
+    expect_equal(results[[1]][["mean"]], 25)
+    expect_equal(results[[1]][["meanci.1"]], NaN)
+    expect_equal(results[[1]][["meanci.2"]], NaN)
+    expect_equal(results[[1]][["medianci.1"]], NaN)
+    expect_equal(results[[1]][["medianci.2"]], NaN)
+  })
+})
+
+local({
+  # Test formatting and replacement functionality
+
+  analysis_df <- data.frame(
+    ARM = c("A", "B", "C", "D"),
+    n = c(10, 10, 10, NA),
+    n.message = rep(NA_character_, 4),
+    mean = c(12.3, 23.4, 34.5, NA_real_),
+    mean.message = rep(NA_character_, 4),
+    sd = c(1.2, 2.3, NA_real_, NA_real_),
+    sd.message = rep(NA_character_, 4),
+    meanci.1 = c(0.2, 1.3, NA_real_, NaN),
+    meanci.2 = c(2.2, 3.3, NA_real_, NaN),
+    meanci.message = c(NA_character_, NA_character_, NA_character_, "Error: tester"),
+    geomean = c(12.3, 23.4, NA_real_, NaN),
+    geomean.message = c(NA_character_, NA_character_, "Info: tester", NA_character_),
+    min = c(0.1, 1.2, 2.3, NA_real_),
+    min.message = rep(NA_character_, 4),
+    max = c(2.3, 3.4, 4.5, NA_real_),
+    max.message = rep(NA_character_, 4),
+    subjid = rep(NA_character_, 4),
+    anl_var = rep("AGE", 4)
+  )
+
+  formatted_df <- summtab_format_stats(
+    analysis_df,
+    stats_fmts = fmts_list,
+    replace = rep_list,
+    stats_element_names = c("n", "mean", "sd", "meanci.1", "meanci.2", "geomean", "min", "max")
+  )
+
+  expected_df <- data.frame(
+    ARM = c("A", "B", "C", "D"),
+    subjid = rep(NA_character_, 4),
+    anl_var = rep("AGE", 4),
+    n = c("10", "10", "10", "0"),
+    meansd = c("12.3 (1.2)", "23.4 (2.3)",
+               paste0("34.5 (", SUMMTAB$VAL$EM_DASH, ")"),
+               SUMMTAB$VAL$EM_DASH),
+    meanci = c("(0.20, 2.20)", "(1.30, 3.30)", SUMMTAB$VAL$EM_DASH,
+               paste0("NE", SUMMTAB$VAL$SPECIAL_CHAR, "Not Estimable", SUMMTAB$VAL$SPECIAL_CHAR, "Error: tester")),
+    geomean = c("12.3", "23.4",
+                paste0(SUMMTAB$VAL$EM_DASH, SUMMTAB$VAL$SPECIAL_CHAR, "Info: tester"),
+                paste0("NE", SUMMTAB$VAL$SPECIAL_CHAR, "Not Estimable")),
+    minmax = c("0.1 - 2.3", "1.2 - 3.4", "2.3 - 4.5", SUMMTAB$VAL$EM_DASH)
+  )
+
+  test_that(vdoc[["add_spec"]](
+    "combine and format calculated statistics using provided templates",
+    c(specs$summary_table$stats_format,
+      specs$summary_table$stats_replace)
+  ), {
+    expect_equal(formatted_df, expected_df)
+  })
 })
 
 

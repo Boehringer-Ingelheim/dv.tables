@@ -4,7 +4,12 @@
 \alias{sort_wide_format_event_table_to_HTML}
 \title{Renders the wide-format event table as an HTML table}
 \usage{
-sort_wide_format_event_table_to_HTML(d, var_labels, on_cell_click = NULL)
+sort_wide_format_event_table_to_HTML(
+  collect_es,
+  d,
+  var_labels,
+  on_cell_click = NULL
+)
 }
 \arguments{
 \item{d}{\code{list}

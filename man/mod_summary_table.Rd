@@ -16,11 +16,11 @@ mod_summary_table(
     n = length,
     mean = mean,
     sd = stats::sd,
-    meanci = function(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
-    geomean = function(x) if (all(x > 0)) exp(mean(log(x))) else NaN,
+    meanci = \(x) if (length(x) > 1L) stats::t.test(x, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+    geomean = \(x) if (all(x > 0)) exp(mean(log(x))) else NaN,
     median = stats::median,
-    medianci = function(x) if (length(x) > 1L) stats::wilcox.test(x, exact = FALSE, conf.int = TRUE, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
-    q1q3 = function(x) stats::quantile(x, c(0.25, 0.75)),
+    medianci = \(x) if (length(x) > 1L) stats::wilcox.test(x, exact = FALSE, conf.int = TRUE, conf.level = 0.95)$conf.int else rep(NA_real_, 2L),
+    q1q3 = \(x) stats::quantile(x, c(0.25, 0.75)),
     min = min,
     max = max
   ),
@@ -50,13 +50,19 @@ mod_summary_table(
       list(pattern = "^NA \\(NA\\)$", replacement = "—"),
       list(pattern = "\\(NA\\)$", replacement = sprintf("(\%s)", "—"))
     ),
-    meanci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+    meanci = list(
+      list(pattern = "^\\(NA, NA\\)$", replacement = "—"),
+      list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE", info = "Not Estimable (NE)")
+    ),
     geomean = list(
       list(pattern = "^NA$", replacement = "—"),
-      list(pattern = "^NaN$", replacement = "NE")
+      list(pattern = "^NaN$", replacement = "NE", info = "Not Estimable (NE)")
     ),
     median = list(list(pattern = "^NA$", replacement = "—")),
-    medianci = list(list(pattern = "^\\(NA, NA\\)$", replacement = "—")),
+    medianci = list(
+      list(pattern = "^\\(NA, NA\\)$", replacement = "—"),
+      list(pattern = "^\\(NaN, NaN\\)$", replacement = "NE", info = "Not Estimable (NE)")
+    ),
     q1q3 = list(list(pattern = "^NA - NA$", replacement = "—")),
     minmax = list(list(pattern = "^NA - NA$", replacement = "—"))
   ),
@@ -161,8 +167,9 @@ further information.}
 \item{stats_replace}{\verb{[list(1+) | NULL]}
 
 A named list of lists of \code{list(pattern =, replacement =)} pairs defining replacements that should be applied, in
-order, to the formatted results from \code{stats_formats}. \code{pattern} is a regular expression matched against the
-formatted result, and \code{replacement} is the string substituted in. The names of the outer list should match the
+the given order, to the formatted results from \code{stats_formats}. \code{pattern} is a regular expression matched against the
+formatted result, and \code{replacement} is the string substituted in. An optional string giving information related to
+the replacement can be passed to \code{info}. The names of the outer list should match the
 names of the list elements in \code{stats_formats}.}
 
 \item{default_summarize_on}{\verb{[character(1+) | NULL]}

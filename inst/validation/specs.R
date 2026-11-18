@@ -28,6 +28,7 @@ specs[["summary_table"]] <- list(
   denominator = "Either total population size, N, or categorical subject count, n, can be used as denominator for categorical analysis variable percent calculations.",
   row_aggregate = "After grouping, aggregate multiple rows per subject into one using a chosen aggregation function.",
   flagged_row_processing = "Flagged rows can be summarized in their own separate category.",
+  stats_func_err = "Errors and warnings from stats functions return NaN values",
   jumping_feature = "The module can communicate subject values to other modules."
 )
 
