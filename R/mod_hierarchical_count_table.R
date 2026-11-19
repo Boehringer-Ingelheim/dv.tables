@@ -79,7 +79,8 @@ EC <- poc(
     EVT_TOTAL = "__EVT_TOTAL__"
   ),
   CONST = poc(
-    MAX_HIERARCHY = 4
+    MAX_HIERARCHY = 4,
+    INCLUDE_EMPTY_ROWS_IN_OUTPUT = TRUE
   )
 )
 
@@ -603,8 +604,12 @@ compute_events_table_2 <- function(
     total,
     event_group_total_val,
     compute_risk,
-    min_percent) {
+    min_percent,
+    remove_rows_under_min_percent
+    ) {
   res <- list(df = NULL, meta = NULL)
+  
+  # METADATA ----
   
   # Get variable names that will have a total column displayed in the table.
   # Currently this is limited to the last group variable (excluding flag group).
@@ -633,6 +638,7 @@ compute_events_table_2 <- function(
   table_type <- "frequency"
   if (compute_risk) table_type <- "time_at_risk"
 
+  # DENOMINATOR DATAFRAME ----
   denom_df <- local({
     checkmate::assert(length(group_vars) > 0)
     
@@ -655,7 +661,7 @@ compute_events_table_2 <- function(
     
     if (anyDuplicated(pop_df[[subjid_var]])) {
       checkmate::assert(".pop_group" %in% group_vars)
-      # __TOTAL__ counts are potentially off; so we patch them with table that excludes population flags
+      # __TOTAL__ counts are potentially off; so we patch them with a table that excludes population flags
       
       group_vars_wo_flags <- setdiff(group_vars, ".pop_group")
       if (length(group_vars_wo_flags)) {
@@ -698,14 +704,9 @@ compute_events_table_2 <- function(
     rank_col = paste0(EC$VAL$SPECIAL_CHAR, "rank")
   )
   
-  df_col_names_and_types <- local({
-    hierarchy_names <- as.character(hierarchy) # drops attributes
-    hierarchy_types <- lapply(event_df[hierarchy_names], `[`, 0)
-    
-    fixed_names <- paste0(EC$VAL$SPECIAL_CHAR, c("lvl", "rank"))
-    fixed_types <- list(integer(0), integer(0))
-    
-    group_var_names <- local({
+  # MAIN DATAFRAME ----
+  df <- local({
+    group_var_levels_df <- local({
       group_var_count <- length(group_vars)
      
       group_var_levels <- list()
@@ -731,26 +732,197 @@ compute_events_table_2 <- function(
         }
       }
       
-      combinations_df <- expand.grid(rev(group_var_levels))
-      res <- do.call(paste, c(rev(combinations_df), sep = EC$VAL$SPECIAL_CHAR))
+      res <- rev(expand.grid(rev(group_var_levels)))
+      names(res) <- group_vars
       return(res)
     })
-    group_var_types <- replicate(length(group_var_names), list())
     
-    col_names <- c(hierarchy_names, fixed_names, group_var_names)
-    types <- c(hierarchy_types, fixed_types, group_var_types)
+    whole_event_df <- event_df
     
-    res <- list(names = col_names, types = types)
+    # The `pop_df` we receive is prefiltered to include only participants with positive population flags
+    # We can drop events for all other participants from `event_df` too
+    event_df <- local({
+      participants_in_pop_df <- unique(pop_df[[subjid_var]])
+      events_for_participants_in_pop_df_mask <- (event_df[[subjid_var]] %in% participants_in_pop_df)
+      event_df <- event_df[events_for_participants_in_pop_df_mask, ]
+    })
+   
+    # Insert an extra level to allow representing total and subtotal rows
+    for (col in hierarchy) levels(event_df[[col]]) <- c(levels(event_df[[col]]), EC$VAL$SPECIAL_CHAR)
     
-    return(res)
-  })
+    collect_hierarchy_events_under <- function(subjid_var, filtered_df, whole_df, hierarchy, depth) {
+      hierarchy_taken <- utils::head(hierarchy, depth)
+      hierarchy_not_taken <- utils::tail(hierarchy, length(hierarchy) - depth)
+      
+      subjects <- stats::setNames(
+        list(as.character(event_df[[subjid_var]])),
+        subjid_var
+      )
+      
+      res <- stats::aggregate(
+        x = subjects, by = filtered_df[hierarchy_taken], 
+        FUN = function(v) sort(as.character(unique(v))), 
+        simplify = FALSE, drop = TRUE
+      )
+      
+      # Rows guaranteed to have no subjects
+      if (EC$CONST$INCLUDE_EMPTY_ROWS_IN_OUTPUT && (isFALSE(remove_rows_under_min_percent) || min_percent == 0)) {
+        known_combinations <- unique(whole_df[, hierarchy_taken, drop = FALSE])
+        res <- merge(known_combinations, res, by = hierarchy_taken, all.x = TRUE)
+        na_mask <- is.na(res[[subjid_var]])
+        res[[subjid_var]][na_mask] <- list(NULL)
+      }
+      
+      res[hierarchy_not_taken] <- EC$VAL$SPECIAL_CHAR
+      
+      return(res)
+    }
+    
+    hierarchy_events_by_depth <- vector(mode = "list", length = length(hierarchy) + 1)
+    for (depth in 0:length(hierarchy)){
+      hierarchy_events_by_depth[[depth + 1]] <- collect_hierarchy_events_under(
+        subjid_var, filtered_df = event_df, whole_df = whole_event_df, hierarchy, depth
+      )
+    }
+    
+    hierarchy_events <- do.call(rbind, hierarchy_events_by_depth)
+    # `hierarchy_events` is now a table of length(hierarchy) + 1 columns, with a vector of subjects per event:
+    #                     AEBODSYS               AEDECOD                   USUBJID
+    # 1 GASTROINTESTINAL DISORDERS  ABDOMINAL DISCOMFORT               01-704-1065
+    # 2 GASTROINTESTINAL DISORDERS        ABDOMINAL PAIN  01-713-1209, 01-716-1311
+    # ...
+    #
+    # Below we add the "Group by" columns
+    
+    add_groups <- function(events, levels, pop) { # TODO: Benchmark; move outside; test
+      res <- events
+      level_combinations_s <- do.call(paste, c(levels, sep = EC$VAL$SPECIAL_CHAR))
+      column_index_preceding_level_combination_columns <- ncol(res)
   
-  df <- do.call(structure, list(
-    .Data = df_col_names_and_types[["types"]],
-    class = "data.frame",
-    row.names = integer(0),
-    names = df_col_names_and_types[["names"]]
-  ))
+      em_dash <- "\u2014"
+      # new column for each level combination
+      default_count <- "0" 
+      if (min_percent > 0) default_count <- em_dash
+      empty_col <- list(list(count = default_count, subjid = character(0))) 
+      for (level_comb in level_combinations_s) res[[level_comb]] <- empty_col
+      
+      group_cols <- names(levels)
+      sorted_subject_ids <- as.character(pop[[subjid_var]])
+      x <- setNames(list(sorted_subject_ids), subjid_var)
+      
+      subjects_per_combination <- aggregate(
+        x = x,
+        by = pop[group_cols],
+        FUN = list,
+        drop = FALSE # TODO: wasteful?
+      )
+     
+      if (length(group_cols) == 1) {
+        total_row <- data.frame(EC$VAL$TOTAL)
+        names(total_row) <- group_cols
+        total_row[[subjid_var]] <- list(sorted_subject_ids)
+        subjects_per_combination <- rbind(subjects_per_combination, total_row)
+      } else {
+        stopifnot(length(group_cols) > 1)
+        
+        column_index_for_total <- length(group_cols)
+        if (group_cols[[column_index_for_total]] == ".pop_group") {
+          column_index_for_total <- column_index_for_total - 1
+        }
+        
+        partial_totals <- aggregate(
+          x = x,
+          by = pop[group_cols[-column_index_for_total]],
+          FUN = list,
+          drop = FALSE
+        )
+        
+        partial_totals[[group_cols[column_index_for_total]]] <- EC$VAL$TOTAL
+        partial_totals <- partial_totals[c(group_cols, subjid_var)]
+        
+        subjects_per_combination <- rbind(subjects_per_combination, partial_totals)
+      }
+      
+      levels_merged <- merge(x = levels, y = subjects_per_combination, by = group_cols, all.x = TRUE, sort = FALSE)
+      levels_merged_subject_ids <- levels_merged[[subjid_var]]
+      subject_ids_per_event_row <- events[[subjid_var]]
+      
+      keep_row_mask <- rep(FALSE, nrow(res))
+      for (i_row in seq_len(nrow(events))){
+        subjects_allowed_on_this_row <- subject_ids_per_event_row[[i_row]]
+        if (length(subjects_allowed_on_this_row) == 0) next
+      
+        keep_row <- FALSE
+        
+        for (i_col in seq_along(level_combinations_s)){
+          col_cand <- levels_merged_subject_ids[[i_col]] # column candidates
+          chosen <- col_cand[match(col_cand, subjects_allowed_on_this_row, 0L) > 0L] # cheaper than `intersect(col, allowed)`
+          chosen_count <- length(chosen)
+          if (chosen_count) {
+            percent <- 100 * chosen_count / length(col_cand)
+            count_s <- em_dash
+            if (percent >= min_percent) {
+              count_s <- sprintf("%d ( %.2f %%)", chosen_count, percent)
+              keep_row <- TRUE
+            }
+
+            res[[column_index_preceding_level_combination_columns + i_col]][[i_row]] <- list(count = count_s, subjid = chosen)
+          }
+        }
+        keep_row_mask[[i_row]] <- keep_row
+      }
+      
+      if (isTRUE(remove_rows_under_min_percent)) {
+        res <- res[keep_row_mask, , drop = FALSE]
+      }
+      
+      return(res)
+    }
+    
+    hierarchy_events <- add_groups(hierarchy_events, group_var_levels_df, pop_df)
+    
+    # Sort `hierarchical_events` by descending subject count within hierarchy levels
+    sort_indices <- local({
+      # `sort_list` alternates cumulative counts and level names to break ties:
+      # -count_1, cat_1, -count_12, cat_2, -count_123, cat 3, -count_1234, cat 4
+      sort_list <- rep(list(NULL), 2L * length(hierarchy))
+      for (i in seq_along(hierarchy)) {
+        cumulative_group_count <- do.call(
+          stats::ave,
+          list(
+            x = hierarchy_events[[subjid_var]],
+            unname(hierarchy_events[hierarchy[seq_len(i)]]),  # grouping vars (passed through `...`)
+            FUN = function(x) length(unique(unlist(x)))
+          )
+        )
+        
+        sort_list[[2L * i - 1L]] <- -as.integer(cumulative_group_count)       # numerical descending
+        sort_list[[2L * i]] <- as.character(hierarchy_events[[hierarchy[i]]]) # alphabetical ascending # TODO: consider level order instead
+      }
+      return(do.call(order, sort_list))
+    })
+    hierarchy_events <- hierarchy_events[sort_indices, ]
+    
+    lvl <- length(hierarchy) - as.integer(rowSums(hierarchy_events[hierarchy] == EC$VAL$SPECIAL_CHAR))
+    
+    level_col_name <- paste0(EC$VAL$SPECIAL_CHAR, "lvl")
+    hierarchy_events[[level_col_name]] <- lvl
+    
+    # TODO: remove rank-related code, as it's only necessary for `sort_wider_formatter_events_table`
+    if (FALSE) {
+      rank_col_name <- paste0(EC$VAL$SPECIAL_CHAR, "rank")
+      hierarchy_events[[rank_col_name]] <- seq_len(nrow(hierarchy_events))
+    }
+   
+    level_combinations_s <- do.call(paste, c(group_var_levels_df, sep = EC$VAL$SPECIAL_CHAR))
+    final_column_order <- c(hierarchy, level_col_name, 
+                            # rank_col_name,  # TODO: Remove
+                            level_combinations_s)
+    
+    hierarchy_events <- hierarchy_events[, final_column_order]
+    
+    return(hierarchy_events)
+  })
 
   res[["df"]] <- df
   
@@ -2041,16 +2213,23 @@ hierarchical_count_table_server <- function(
           total = total,
           event_group_total_val = event_group_total_val,
           compute_risk = compute_risk,
-          min_percent = min_percent
+          min_percent = min_percent,
+          remove_rows_under_min_percent = remove_rows_under_min_percent
         )
         # normalize `t2` to match non-critical aspects of t # TODO: Remove
         t2[["meta"]][["denom_df"]] <- tibble::as.tibble(t2[["meta"]][["denom_df"]])
         t2[["df"]] <- tibble::as.tibble(t2[["df"]])
+        for (h_var in hierarchy){
+          t2[["df"]][[h_var]] <- factor(t2[["df"]][[h_var]], levels = levels(t[["df"]][[h_var]]))
+        }
         
-        stopifnot(all.equal(t[["meta"]], t2[["meta"]]))
+        # drop rank column from `t`, since we don't need it for `t2`
+        t1 <- t
+        t1[["df"]][[paste0(EC$VAL$SPECIAL_CHAR, "rank")]] <- NULL
+        
+        stopifnot(all.equal(t1[["meta"]], t2[["meta"]]))
       }
-      
-      
+            
       t
     })
 
